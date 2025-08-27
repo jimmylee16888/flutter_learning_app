@@ -22,7 +22,7 @@ class _App extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       onGenerateTitle: (ctx) => ctx.l10n.appTitle,
       home: RootNav(
-        cards: const [],
+        // cards: const [],
         settings: settings, // ← 必填參數
       ),
     );

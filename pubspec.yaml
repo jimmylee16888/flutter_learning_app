@@ -12,6 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  qr_flutter: ^4.1.0       # 產生 QR
+  mobile_scanner: ^6.0.2   # 掃描 QR
 
   cupertino_icons: ^1.0.8
   flutter_localizations:

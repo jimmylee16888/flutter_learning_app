@@ -1,19 +1,18 @@
-// lib/widgets/photo_quote_card.dart
 import 'package:flutter/material.dart';
-import '../screens/detail_page.dart';
+import '../screens/detail/detail_page.dart';
 
 class PhotoQuoteCard extends StatefulWidget {
   const PhotoQuoteCard({
     super.key,
-    required this.image,
-    required this.title, // 卡片上的標題
-    required this.quote, // 詳細頁的一句話
-    this.birthday, // 詳細頁生日（可選）
+    required this.imageUrl,
+    required this.title,
+    required this.quote,
+    this.birthday,
     this.initiallyLiked = false,
     this.borderRadius = 16,
   });
 
-  final ImageProvider image;
+  final String imageUrl;
   final String title;
   final String quote;
   final DateTime? birthday;
@@ -31,7 +30,7 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CardDetailPage(
-          image: widget.image,
+          image: NetworkImage(widget.imageUrl),
           title: widget.title,
           birthday: widget.birthday,
           quote: widget.quote,
@@ -47,20 +46,31 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(widget.borderRadius);
     return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: radius),
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      clipBehavior: Clip.none, // ← 關鍵：不要再裁切
+      // shape 也不要給圓角（或乾脆拿掉 shape）
       child: InkWell(
-        onTap: () => _openDetail(context), // ← 點卡片導頁
+        onTap: () => _openDetail(context),
         child: Stack(
+          fit: StackFit.expand, // 保證鋪滿，避免再有 1px 的差異
           children: [
-            Positioned.fill(
-              child: Ink.image(
-                image: widget.image,
-                fit: BoxFit.cover,
-                child: const SizedBox.expand(),
+            Image.network(
+              widget.imageUrl.isEmpty
+                  ? 'https://picsum.photos/seed/placeholder/600/900'
+                  : widget.imageUrl,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, p) => p == null
+                  ? child
+                  : const Center(child: CircularProgressIndicator()),
+              errorBuilder: (_, __, ___) => const Center(
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 48,
+                  color: Colors.grey,
+                ),
               ),
             ),
-            // 下方漸層 + 標題
             Positioned(
               left: 0,
               right: 0,
@@ -86,7 +96,6 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                 ),
               ),
             ),
-            // 右上角愛心（只切換，不導頁）
             Positioned(
               top: 6,
               right: 6,
@@ -95,8 +104,8 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                 onPressed: _toggleLike,
                 icon: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 180),
-                  transitionBuilder: (child, anim) =>
-                      ScaleTransition(scale: anim, child: child),
+                  transitionBuilder: (c, a) =>
+                      ScaleTransition(scale: a, child: c),
                   child: _liked
                       ? const Icon(
                           Icons.favorite,
