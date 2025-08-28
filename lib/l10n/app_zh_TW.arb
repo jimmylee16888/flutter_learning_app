@@ -5,16 +5,24 @@
   "navExplore": "探索",
   "navSettings": "設定",
   "settingsTitle": "設定",
+
   "theme": "主題",
   "themeSystem": "跟隨系統",
   "themeLight": "淺色",
   "themeDark": "深色",
+
   "language": "語言",
   "languageSystem": "跟隨系統",
   "languageZhTW": "繁體中文",
   "languageEn": "英文",
   "languageJa": "日文",
+
+  "aboutTitle": "關於",
   "aboutDeveloper": "關於開發者",
+  "developerRole": "開發者",
+  "emailLabel": "電子郵件",
+  "versionLabel": "版本",
+
   "birthday": "生日",
   "quoteTitle": "給粉絲的一句話",
   "fanMiniCards": "粉絲小卡",
@@ -27,5 +35,16 @@
   "cancel": "取消",
   "previewFailed": "預覽失敗",
   "favorite": "收藏",
-  "favorited": "已收藏"
+  "favorited": "已收藏",
+
+  "helloDeveloperTitle": "嗨！開發者在這裡",
+  "helloDeveloperBody": "謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee",
+
+  "nameWithPinyin": "{name}（{pinyin}）",
+  "@nameWithPinyin": {
+    "placeholders": {
+      "name": {},
+      "pinyin": {}
+    }
+  }
 }

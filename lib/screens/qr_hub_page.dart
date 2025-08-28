@@ -1,8 +1,17 @@
 import 'dart:convert';
+import 'dart:io' show gzip;
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:mobile_scanner/mobile_scanner.dart' as ms;
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    as ml;
+
 import '../../models/mini_card_data.dart';
+import 'package:flutter_learning_app/utils/mini_card_io.dart';
 
 /// QrHubPage：可切換「掃描」與「分享」兩個分頁
 class QrHubPage extends StatefulWidget {
@@ -65,14 +74,40 @@ class _ScanTab extends StatefulWidget {
 }
 
 class _ScanTabState extends State<_ScanTab> {
+  // 相機即時掃描：mobile_scanner
+  final ms.MobileScannerController _controller = ms.MobileScannerController(
+    formats: [ms.BarcodeFormat.qrCode], // ← 用 ms.
+    detectionSpeed: ms.DetectionSpeed.normal, // ← 用 ms.
+    detectionTimeoutMs: 500,
+    returnImage: false,
+  );
+
+  // 相簿單張圖片掃描：ML Kit
+  final ml.BarcodeScanner _barcodeScanner = ml.BarcodeScanner(
+    formats: [ml.BarcodeFormat.qrCode], // ← 用 ml.
+  );
+
+  final ImagePicker _picker = ImagePicker();
+
   bool _handled = false;
+  bool _busyGallery = false;
+
+  @override
+  void dispose() {
+    _barcodeScanner.close();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        MobileScanner(
-          onDetect: (capture) async {
+        ms.MobileScanner(
+          // ← 用 ms.
+          controller: _controller,
+          onDetect: (ms.BarcodeCapture capture) async {
+            // ← 型別用 ms.
             if (_handled) return;
             final barcode = capture.barcodes.isNotEmpty
                 ? capture.barcodes.first
@@ -81,8 +116,9 @@ class _ScanTabState extends State<_ScanTab> {
             if (raw == null) return;
 
             try {
-              final payload = jsonDecode(raw) as Map<String, dynamic>;
-              if (payload['type'] != 'mini_card_v1' ||
+              final payload = _decodePackedJson(raw);
+              if (payload == null ||
+                  payload['type'] != 'mini_card_v1' ||
                   payload['card'] == null) {
                 _snack(context, 'QR 格式不符');
                 return;
@@ -90,21 +126,21 @@ class _ScanTabState extends State<_ScanTab> {
               final newCard = MiniCardData.fromJson(
                 Map<String, dynamic>.from(payload['card']),
               );
-
               _handled = true;
               final ok = await widget.onImport(newCard);
               if (!mounted) return;
               _snack(context, ok ? '已匯入小卡並儲存' : '已存在或失敗');
-            } catch (_) {
-              // 忽略解析錯，讓使用者繼續掃
             } finally {
               Future.delayed(
-                const Duration(milliseconds: 1500),
+                const Duration(milliseconds: 1200),
                 () => _handled = false,
               );
+              _busyGallery = false;
             }
           },
         ),
+
+        // 中間取景框
         Align(
           alignment: Alignment.center,
           child: Container(
@@ -119,8 +155,94 @@ class _ScanTabState extends State<_ScanTab> {
             ),
           ),
         ),
+
+        // 右下角：相簿掃描 & 手電筒
+        Positioned(
+          right: 12,
+          bottom: 12,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 從相簿挑一張圖片並解析 QR
+              FloatingActionButton.extended(
+                heroTag: 'pick_gallery_qr',
+                onPressed: _busyGallery ? null : _scanFromGallery,
+                icon: const Icon(Icons.photo_library_outlined),
+                label: const Text('相簿掃描'),
+              ),
+              const SizedBox(height: 8),
+              // // 切換手電筒（可選）
+              // FloatingActionButton(
+              //   heroTag: 'toggle_torch',
+              //   onPressed: () async {
+              //     try {
+              //       await _controller.toggleTorch();
+              //       if (mounted) setState(() => _torchOn = !_torchOn);
+              //     } catch (_) {
+              //       _snack(context, '此裝置不支援手電筒');
+              //     }
+              //   },
+              //   tooltip: _torchOn ? '關閉手電筒' : '開啟手電筒',
+              //   child: Icon(_torchOn ? Icons.flash_on : Icons.flash_off),
+              // ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  /// 從相簿挑一張圖片 → 交給 controller.analyzeImage() 解析 QR
+  Future<void> _scanFromGallery() async {
+    if (_busyGallery) return;
+    _busyGallery = true;
+    try {
+      final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
+      if (img == null) {
+        _busyGallery = false;
+        return;
+      }
+
+      final input = ml.InputImage.fromFilePath(img.path); // ← 用 ml.
+      final barcodes = await _barcodeScanner.processImage(input);
+
+      if (barcodes.isEmpty) {
+        _snack(context, '圖片中未偵測到 QR');
+        _busyGallery = false;
+        return;
+      }
+
+      final raw = barcodes.first.rawValue;
+      if (raw == null || raw.isEmpty) {
+        _snack(context, '讀取失敗，換張試試');
+        _busyGallery = false;
+        return;
+      }
+
+      final payload = _decodePackedJson(raw);
+      if (payload == null ||
+          payload['type'] != 'mini_card_v1' ||
+          payload['card'] == null) {
+        _snack(context, 'QR 格式不符');
+        _busyGallery = false;
+        return;
+      }
+
+      final newCard = MiniCardData.fromJson(
+        Map<String, dynamic>.from(payload['card']),
+      );
+      _handled = true;
+      final ok = await widget.onImport(newCard);
+      if (!mounted) return;
+      _snack(context, ok ? '已匯入小卡並儲存' : '已存在或失敗');
+    } catch (e) {
+      _snack(context, '相簿掃描失敗：$e');
+    } finally {
+      Future.delayed(const Duration(milliseconds: 800), () {
+        _handled = false;
+        _busyGallery = false;
+      });
+    }
   }
 
   void _snack(BuildContext context, String msg) {
@@ -160,7 +282,7 @@ class _ShareTab extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.network(c.imageUrl, fit: BoxFit.cover),
+                Image(image: imageProviderOf(c), fit: BoxFit.cover),
                 Positioned(
                   left: 8,
                   right: 8,
@@ -199,7 +321,7 @@ class _ShareTab extends StatelessWidget {
       'owner': ownerTitle,
       'card': card.toJson(),
     };
-    final data = jsonEncode(payload);
+    final data = _encodePackedJson(payload);
 
     showDialog(
       context: context,
@@ -236,5 +358,24 @@ class _ShareTab extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+String _encodePackedJson(Map<String, dynamic> obj) {
+  final raw = utf8.encode(jsonEncode(obj));
+  final gz = gzip.encode(raw);
+  return 'gz:' + base64UrlEncode(gz);
+}
+
+Map<String, dynamic>? _decodePackedJson(String s) {
+  try {
+    if (s.startsWith('gz:')) {
+      final gz = base64Url.decode(s.substring(3));
+      final raw = gzip.decode(gz);
+      return jsonDecode(utf8.decode(raw)) as Map<String, dynamic>;
+    }
+    return jsonDecode(s) as Map<String, dynamic>;
+  } catch (_) {
+    return null;
   }
 }

@@ -68,8 +68,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -185,11 +185,35 @@ abstract class AppLocalizations {
   /// **'Japanese'**
   String get languageJa;
 
+  /// No description provided for @aboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
   /// No description provided for @aboutDeveloper.
   ///
   /// In en, this message translates to:
   /// **'About Developer'**
   String get aboutDeveloper;
+
+  /// No description provided for @developerRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get developerRole;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get versionLabel;
 
   /// No description provided for @birthday.
   ///
@@ -268,6 +292,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Favorited'**
   String get favorited;
+
+  /// No description provided for @helloDeveloperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! I\'m the developer'**
+  String get helloDeveloperTitle;
+
+  /// No description provided for @helloDeveloperBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee'**
+  String get helloDeveloperBody;
+
+  /// No description provided for @nameWithPinyin.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} ({pinyin})'**
+  String nameWithPinyin(Object name, Object pinyin);
 }
 
 class _AppLocalizationsDelegate

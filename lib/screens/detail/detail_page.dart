@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/mini_card_data.dart';
 import 'mini_cards_page.dart';
 
+import 'package:flutter_learning_app/utils/mini_card_io.dart';
+
 class CardDetailPage extends StatefulWidget {
   const CardDetailPage({
     super.key,
@@ -350,8 +352,8 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                             borderRadius: BorderRadius.circular(
                               widget.borderRadius,
                             ),
-                            child: Image.network(
-                              data.imageUrl,
+                            child: Image(
+                              image: imageProviderOf(data),
                               fit: BoxFit.cover,
                             ),
                           ),

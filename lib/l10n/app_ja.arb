@@ -5,27 +5,46 @@
   "navExplore": "探索",
   "navSettings": "設定",
   "settingsTitle": "設定",
+
   "theme": "テーマ",
   "themeSystem": "システム",
   "themeLight": "ライト",
   "themeDark": "ダーク",
+
   "language": "言語",
   "languageSystem": "システム",
   "languageZhTW": "繁体字中国語",
   "languageEn": "英語",
   "languageJa": "日本語",
+
+  "aboutTitle": "情報",
   "aboutDeveloper": "開発者について",
+  "developerRole": "開発者",
+  "emailLabel": "メール",
+  "versionLabel": "バージョン",
+
   "birthday": "誕生日",
-  "quoteTitle": "ファンへの一言",
+  "quoteTitle": "ファンへのメッセージ",
   "fanMiniCards": "ファンミニカード",
-  "noMiniCardsHint": "ミニカードはまだありません。「編集」で追加してください。",
+  "noMiniCardsHint": "ミニカードはまだありません。「編集」をタップして追加してください。",
   "add": "追加",
   "editMiniCards": "ミニカードを編集",
   "save": "保存",
   "edit": "編集",
   "delete": "削除",
   "cancel": "キャンセル",
-  "previewFailed": "プレビュー失敗",
+  "previewFailed": "プレビューに失敗しました",
   "favorite": "お気に入り",
-  "favorited": "お気に入り済み"
+  "favorited": "お気に入り済み",
+
+  "helloDeveloperTitle": "こんにちは！開発者です",
+  "helloDeveloperBody": "この小さなサイドプロジェクトを試してくれて、ありがとうございます。私は LE SSERAFIM の大ファン（FEARNOT）ですが、友だちと喜びを分かち合うたびにフォトカードを山ほど持ち歩くのは大変。そこでこのアプリを作りました。6.5インチの画面だけでカードの表示や交換ができます。今後もメンテナンスを続け、コードは GitHub で公開します。ダウンロードして、このプロジェクト――かわいく言えば“ファミリー”――の一員になってくれて本当に感謝します。改善のアイデアや質問があれば、いつでも気軽に連絡してください。— Jimmy Lee",
+
+  "nameWithPinyin": "{name}（{pinyin}）",
+  "@nameWithPinyin": {
+    "placeholders": {
+      "name": {},
+      "pinyin": {}
+    }
+  }
 }

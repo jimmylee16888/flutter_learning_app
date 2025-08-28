@@ -51,7 +51,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageJa => 'Japanese';
 
   @override
+  String get aboutTitle => 'About';
+
+  @override
   String get aboutDeveloper => 'About Developer';
+
+  @override
+  String get developerRole => 'Developer';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get versionLabel => 'Version';
 
   @override
   String get birthday => 'Birthday';
@@ -91,4 +103,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favorited => 'Favorited';
+
+  @override
+  String get helloDeveloperTitle => 'Hello! I\'m the developer';
+
+  @override
+  String get helloDeveloperBody =>
+      'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee';
+
+  @override
+  String nameWithPinyin(Object name, Object pinyin) {
+    return '$name ($pinyin)';
+  }
 }

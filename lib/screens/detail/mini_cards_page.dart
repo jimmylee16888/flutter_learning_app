@@ -4,13 +4,18 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' as ms;
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    as ml;
+
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../models/mini_card_data.dart';
 import 'edit_mini_cards_page.dart';
 
 import 'dart:io' show gzip; // 用於壓縮
+import 'package:flutter_learning_app/utils/mini_card_io.dart';
 
 class MiniCardsPage extends StatefulWidget {
   const MiniCardsPage({
@@ -143,7 +148,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                         width: 320,
                         height: 480,
                         child: _FlipBigCard(
-                          front: _MiniCardFront(imageUrl: card.imageUrl),
+                          front: _MiniCardFront(card: card),
                           back: _MiniCardBack(
                             text: card.note,
                             date: card.createdAt,
@@ -170,7 +175,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             }
             final idx = _currentPageRound() - 1;
             if (idx >= 0 && idx < _cards.length) {
-              _showQrForCard(context, widget.title, _cards[idx]);
+              await _shareOptionsForCard(context, _cards[idx]);
             }
           },
           icon: Icon(
@@ -195,14 +200,87 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
   // ========= 掃描 =========
   Future<void> _scanAndImport() async {
-    final controller = MobileScannerController(
-      formats: const [BarcodeFormat.qrCode],
-      detectionSpeed: DetectionSpeed.normal,
+    final controller = ms.MobileScannerController(
+      formats: const [ms.BarcodeFormat.qrCode],
+      detectionSpeed: ms.DetectionSpeed.normal,
       detectionTimeoutMs: 500,
       returnImage: false,
     );
 
     bool handled = false;
+
+    // 本地：相簿選圖並用 ML Kit 偵測 QR
+    Future<void> _scanFromGallery(BuildContext scanCtx) async {
+      try {
+        final picker = ImagePicker();
+        final XFile? img = await picker.pickImage(source: ImageSource.gallery);
+        if (img == null) return;
+
+        final scanner = ml.BarcodeScanner(formats: [ml.BarcodeFormat.qrCode]);
+        final input = ml.InputImage.fromFilePath(img.path);
+        final result = await scanner.processImage(input);
+        await scanner.close();
+
+        if (result.isEmpty || result.first.rawValue == null) {
+          if (scanCtx.mounted) {
+            ScaffoldMessenger.of(
+              scanCtx,
+            ).showSnackBar(const SnackBar(content: Text('圖片中未偵測到 QR')));
+          }
+          return;
+        }
+
+        final raw = result.first.rawValue!;
+        final map = _decodePackedJson(raw);
+        if (map == null ||
+            map['type'] != 'mini_card_v1' ||
+            map['card'] == null) {
+          if (scanCtx.mounted) {
+            ScaffoldMessenger.of(
+              scanCtx,
+            ).showSnackBar(const SnackBar(content: Text('QR 格式不符')));
+          }
+          return;
+        }
+
+        // ← 和相機掃描相同的匯入流程
+        final newCard = MiniCardData.fromJson(
+          Map<String, dynamic>.from(map['card']),
+        ).copyWith(createdAt: DateTime.now());
+
+        MiniCardData ready = newCard;
+        if ((ready.imageUrl ?? '').isNotEmpty) {
+          try {
+            final p = await downloadImageToLocal(
+              ready.imageUrl!,
+              preferName: ready.id,
+            );
+            ready = ready.copyWith(localPath: p);
+          } catch (_) {}
+        }
+
+        final exists = _cards.any((c) => c.id == ready.id);
+        final toInsert = exists
+            ? ready.copyWith(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+              )
+            : ready;
+
+        if (mounted) setState(() => _cards.add(toInsert));
+
+        if (scanCtx.mounted) {
+          ScaffoldMessenger.of(
+            scanCtx,
+          ).showSnackBar(const SnackBar(content: Text('已匯入小卡')));
+        }
+      } catch (e) {
+        if (scanCtx.mounted) {
+          ScaffoldMessenger.of(
+            scanCtx,
+          ).showSnackBar(SnackBar(content: Text('相簿掃描失敗：$e')));
+        }
+      }
+    }
 
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -232,9 +310,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             ),
             body: Stack(
               children: [
-                MobileScanner(
+                ms.MobileScanner(
                   controller: controller,
-                  onDetect: (capture) async {
+                  onDetect: (ms.BarcodeCapture capture) async {
                     if (handled) return;
                     final code = capture.barcodes.isNotEmpty
                         ? capture.barcodes.first.rawValue
@@ -263,13 +341,24 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                         Map<String, dynamic>.from(map['card']),
                       ).copyWith(createdAt: DateTime.now());
 
-                      final exists = _cards.any((c) => c.id == newCard.id);
+                      MiniCardData ready = newCard;
+                      if ((ready.imageUrl ?? '').isNotEmpty) {
+                        try {
+                          final p = await downloadImageToLocal(
+                            ready.imageUrl!,
+                            preferName: ready.id,
+                          );
+                          ready = ready.copyWith(localPath: p);
+                        } catch (_) {}
+                      }
+
+                      final exists = _cards.any((c) => c.id == ready.id);
                       final toInsert = exists
-                          ? newCard.copyWith(
+                          ? ready.copyWith(
                               id: DateTime.now().millisecondsSinceEpoch
                                   .toString(),
                             )
-                          : newCard;
+                          : ready;
 
                       if (mounted) setState(() => _cards.add(toInsert));
 
@@ -283,9 +372,15 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                       }
                     } catch (_) {
                       // 忽略解析錯誤，繼續掃
+                    } finally {
+                      Future.delayed(const Duration(milliseconds: 1000), () {
+                        handled = false;
+                      });
                     }
                   },
                 ),
+
+                // 中間取景框
                 Align(
                   alignment: Alignment.center,
                   child: Container(
@@ -298,6 +393,44 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
+                  ),
+                ),
+
+                // 右下角：相簿掃描 + 手電筒
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton.extended(
+                        heroTag: 'pick_gallery_qr',
+                        onPressed: () => _scanFromGallery(scanCtx),
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: const Text('相簿掃描'),
+                      ),
+                      const SizedBox(height: 20),
+                      // FloatingActionButton(
+                      //   heroTag: 'toggle_torch',
+                      //   onPressed: () async {
+                      //     try {
+                      //       await controller.toggleTorch();
+                      //       if (scanCtx.mounted) {
+                      //         torchOn = !torchOn;
+                      //         // 想顯示狀態可 setState 包外層，但這裡只切換 icon 即可
+                      //       }
+                      //     } catch (_) {
+                      //       if (scanCtx.mounted) {
+                      //         ScaffoldMessenger.of(scanCtx).showSnackBar(
+                      //           const SnackBar(content: Text('此裝置不支援手電筒')),
+                      //         );
+                      //       }
+                      //     }
+                      //   },
+                      //   tooltip: torchOn ? '關閉手電筒' : '開啟手電筒',
+                      //   child: Icon(torchOn ? Icons.flash_on : Icons.flash_off),
+                      // ),
+                    ],
                   ),
                 ),
               ],
@@ -327,16 +460,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
               return ListTile(
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    c.imageUrl,
+                  child: Image(
+                    image: imageProviderOf(c),
                     width: 56,
                     height: 56,
                     fit: BoxFit.cover,
-                    filterQuality: FilterQuality.low,
-                    cacheWidth: (56 * dpr).round(),
-                    cacheHeight: (56 * dpr).round(),
                   ),
                 ),
+
                 title: Text(
                   c.note.isEmpty ? '(無敘述)' : c.note,
                   maxLines: 1,
@@ -349,7 +480,48 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         ),
       ),
     );
-    if (chosen != null) _showQrForCard(context, widget.title, chosen);
+    if (chosen != null) {
+      await _shareOptionsForCard(context, chosen);
+    }
+  }
+
+  Future<void> _shareOptionsForCard(BuildContext ctx, MiniCardData c) async {
+    showModalBottomSheet(
+      context: ctx,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if ((c.imageUrl ?? '').isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.qr_code_2),
+                title: const Text('分享「圖片網址」QR code'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showQrForCard(ctx, widget.title, c);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.ios_share),
+              title: const Text('直接分享整張照片'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                try {
+                  await sharePhoto(c); // 會自動確保 localPath
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('分享失敗：$e')));
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _showQrForCard(
@@ -358,6 +530,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     MiniCardData card,
   ) async {
     try {
+      if ((card.imageUrl ?? '').isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('這張小卡沒有網址，改用「分享整張照片」喔')));
+        }
+        return;
+      }
       final payload = {
         'type': 'mini_card_v1',
         'owner': owner,
@@ -644,22 +824,15 @@ class _FlipBigCardState extends State<_FlipBigCard> {
 }
 
 class _MiniCardFront extends StatelessWidget {
-  const _MiniCardFront({required this.imageUrl});
-  final String imageUrl;
+  const _MiniCardFront({required this.card});
+  final MiniCardData card;
 
   @override
   Widget build(BuildContext context) {
-    final dpr = MediaQuery.of(context).devicePixelRatio;
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.low,
-        cacheWidth: (320 * dpr).round(),
-        cacheHeight: (480 * dpr).round(),
-      ),
+      child: Image(image: imageProviderOf(card), fit: BoxFit.cover),
     );
   }
 }

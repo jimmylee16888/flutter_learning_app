@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>需要存取相簿以選取圖片。</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>需要儲存圖片到相簿時使用（若你提供此功能）。</string>
+	<key>NSCameraUsageDescription</key>
+	<string>需要使用相機掃描 QR code。</string>
+
 </dict>
 </plist>

@@ -5,16 +5,24 @@
   "navExplore": "Explore",
   "navSettings": "Settings",
   "settingsTitle": "Settings",
+
   "theme": "Theme",
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
+
   "language": "Language",
   "languageSystem": "System",
   "languageZhTW": "Traditional Chinese",
   "languageEn": "English",
   "languageJa": "Japanese",
+
+  "aboutTitle": "About",
   "aboutDeveloper": "About Developer",
+  "developerRole": "Developer",
+  "emailLabel": "Email",
+  "versionLabel": "Version",
+
   "birthday": "Birthday",
   "quoteTitle": "A message to fans",
   "fanMiniCards": "Fan mini cards",
@@ -27,5 +35,16 @@
   "cancel": "Cancel",
   "previewFailed": "Preview failed",
   "favorite": "Favorite",
-  "favorited": "Favorited"
+  "favorited": "Favorited",
+
+  "helloDeveloperTitle": "Hello! I'm the developer",
+  "helloDeveloperBody": "Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee",
+
+  "nameWithPinyin": "{name} ({pinyin})",
+  "@nameWithPinyin": {
+    "placeholders": {
+      "name": {},
+      "pinyin": {}
+    }
+  }
 }

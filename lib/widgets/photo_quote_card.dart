@@ -4,7 +4,7 @@ import '../screens/detail/detail_page.dart';
 class PhotoQuoteCard extends StatefulWidget {
   const PhotoQuoteCard({
     super.key,
-    required this.imageUrl,
+    required this.image, // ← 改成吃 ImageProvider
     required this.title,
     required this.quote,
     this.birthday,
@@ -12,12 +12,37 @@ class PhotoQuoteCard extends StatefulWidget {
     this.borderRadius = 16,
   });
 
-  final String imageUrl;
+  /// 通用：可為 FileImage / NetworkImage / MemoryImage
+  final ImageProvider image;
   final String title;
   final String quote;
   final DateTime? birthday;
   final bool initiallyLiked;
   final double borderRadius;
+
+  /// 相容舊用法：若你手上只有網址，還是可以用這個建構子
+  factory PhotoQuoteCard.fromUrl({
+    Key? key,
+    required String imageUrl,
+    required String title,
+    required String quote,
+    DateTime? birthday,
+    bool initiallyLiked = false,
+    double borderRadius = 16,
+  }) {
+    final url = (imageUrl.isEmpty)
+        ? 'https://picsum.photos/seed/placeholder/600/900'
+        : imageUrl;
+    return PhotoQuoteCard(
+      key: key,
+      image: NetworkImage(url),
+      title: title,
+      quote: quote,
+      birthday: birthday,
+      initiallyLiked: initiallyLiked,
+      borderRadius: borderRadius,
+    );
+  }
 
   @override
   State<PhotoQuoteCard> createState() => _PhotoQuoteCardState();
@@ -30,7 +55,7 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CardDetailPage(
-          image: NetworkImage(widget.imageUrl),
+          image: widget.image, // ← 直接帶入 ImageProvider
           title: widget.title,
           birthday: widget.birthday,
           quote: widget.quote,
@@ -44,25 +69,20 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(widget.borderRadius);
     return Card(
       margin: EdgeInsets.zero,
       elevation: 0,
-      clipBehavior: Clip.none, // ← 關鍵：不要再裁切
-      // shape 也不要給圓角（或乾脆拿掉 shape）
+      clipBehavior: Clip.none, // 不裁切，避免 1px 白邊
       child: InkWell(
         onTap: () => _openDetail(context),
         child: Stack(
-          fit: StackFit.expand, // 保證鋪滿，避免再有 1px 的差異
+          fit: StackFit.expand,
           children: [
-            Image.network(
-              widget.imageUrl.isEmpty
-                  ? 'https://picsum.photos/seed/placeholder/600/900'
-                  : widget.imageUrl,
+            // ← 用通用的 ImageProvider 顯示（支援本地或網址）
+            Image(
+              image: widget.image,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, p) => p == null
-                  ? child
-                  : const Center(child: CircularProgressIndicator()),
+              // 若是 NetworkImage，loadingBuilder 會被忽略；這裡保持簡潔
               errorBuilder: (_, __, ___) => const Center(
                 child: Icon(
                   Icons.image_not_supported_outlined,

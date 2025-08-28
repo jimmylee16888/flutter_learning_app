@@ -1,11 +1,13 @@
 // lib/screens/settings_view.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // for Clipboard
+import 'package:flutter/services.dart';
 import '../app_settings.dart';
+import '../l10n/l10n.dart'; // <- 加這行，取得 context.l10n
 
 /// Developer profile
 const String kDeveloperName = 'Jimmy Lee';
+const String kDeveloperNamePinyin = 'LEE, PIN-FAN';
 const String kDeveloperEmail = 'jimmylee16888@gmail.com';
 const String kDeveloperAvatarUrl =
     'https://avatars.githubusercontent.com/u/204156154?s=400&u=e6b3149c987b1e918122f9fc8af4ea6789e543ae&v=4';
@@ -17,33 +19,35 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // ===== Theme =====
         ListTile(
           leading: const Icon(Icons.palette_outlined),
-          title: const Text('Theme'),
-          subtitle: Text(_themeModeLabel(settings.themeMode)),
+          title: Text(l.theme),
+          subtitle: Text(_themeModeLabel(context, settings.themeMode)),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SegmentedButton<ThemeMode>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ThemeMode.light,
-                label: Text('Light'),
-                icon: Icon(Icons.light_mode_outlined),
+                label: Text(l.themeLight),
+                icon: const Icon(Icons.light_mode_outlined),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
-                label: Text('Dark'),
-                icon: Icon(Icons.dark_mode_outlined),
+                label: Text(l.themeDark),
+                icon: const Icon(Icons.dark_mode_outlined),
               ),
               ButtonSegment(
                 value: ThemeMode.system,
-                label: Text('System'),
-                icon: Icon(Icons.settings_suggest_outlined),
+                label: Text(l.themeSystem),
+                icon: const Icon(Icons.settings_suggest_outlined),
               ),
             ],
             selected: {settings.themeMode},
@@ -56,15 +60,24 @@ class SettingsView extends StatelessWidget {
         // ===== Language =====
         ListTile(
           leading: const Icon(Icons.language),
-          title: const Text('Language'),
-          subtitle: Text(_localeLabel(settings.locale)),
+          title: Text(l.language),
+          subtitle: Text(_localeLabel(context, settings.locale)),
           trailing: DropdownButton<Locale?>(
             value: settings.locale, // null = follow system
-            items: const [
-              DropdownMenuItem(value: null, child: Text('System')),
-              DropdownMenuItem(value: Locale('en'), child: Text('English')),
-              DropdownMenuItem(value: Locale('zh'), child: Text('中文')),
-              DropdownMenuItem(value: Locale('ja'), child: Text('日本語')),
+            items: [
+              DropdownMenuItem(value: null, child: Text(l.languageSystem)),
+              DropdownMenuItem(
+                value: const Locale('en'),
+                child: Text(l.languageEn),
+              ),
+              DropdownMenuItem(
+                value: const Locale('zh'),
+                child: Text(l.languageZhTW),
+              ),
+              DropdownMenuItem(
+                value: const Locale('ja'),
+                child: Text(l.languageJa),
+              ),
             ],
             onChanged: (v) => settings.setLocale(v),
           ),
@@ -80,8 +93,10 @@ class SettingsView extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
             child: const Icon(Icons.person_outline),
           ),
-          title: const Text('About developer'),
-          subtitle: const Text(kDeveloperName),
+          title: Text(l.aboutDeveloper),
+          subtitle: Text(
+            l.nameWithPinyin(kDeveloperName, kDeveloperNamePinyin),
+          ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(
             context,
@@ -91,28 +106,30 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  String _themeModeLabel(ThemeMode m) {
+  String _themeModeLabel(BuildContext context, ThemeMode m) {
+    final l = context.l10n;
     switch (m) {
       case ThemeMode.light:
-        return 'Light';
+        return l.themeLight;
       case ThemeMode.dark:
-        return 'Dark';
+        return l.themeDark;
       case ThemeMode.system:
-        return 'System';
+        return l.themeSystem;
     }
   }
 
-  String _localeLabel(Locale? l) {
-    if (l == null) return 'System';
-    switch (l.languageCode) {
+  String _localeLabel(BuildContext context, Locale? lcl) {
+    final l = context.l10n;
+    if (lcl == null) return l.languageSystem;
+    switch (lcl.languageCode) {
       case 'en':
-        return 'English';
+        return l.languageEn;
       case 'zh':
-        return '中文';
+        return l.languageZhTW; // 以繁中顯示
       case 'ja':
-        return '日本語';
+        return l.languageJa;
       default:
-        return l.toLanguageTag();
+        return lcl.toLanguageTag();
     }
   }
 }
@@ -124,9 +141,10 @@ class AboutDeveloperPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(title: Text(l.aboutTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -151,14 +169,17 @@ class AboutDeveloperPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          kDeveloperName,
+                          l.nameWithPinyin(
+                            kDeveloperName,
+                            kDeveloperNamePinyin,
+                          ),
                           style: text.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Developer',
+                          l.developerRole,
                           style: text.bodyMedium?.copyWith(
                             color: color.outline,
                           ),
@@ -197,20 +218,12 @@ class AboutDeveloperPage extends StatelessWidget {
                     children: [
                       const Icon(Icons.waving_hand),
                       const SizedBox(width: 8),
-                      Text(
-                        "Hello! I'm the developer 👋",
-                        style: text.titleMedium,
-                      ),
+                      Text(l.helloDeveloperTitle, style: text.titleMedium),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const SelectableText(
-                    "Thanks for checking out this little side project!\n\n"
-                    "I’m a big fan of LE SSERAFIM (FEARNOT here) and wanted an easier way to share photocards without carrying a stack of them. "
-                    "This app lets you keep and share your cards right from a 6.5\" screen—show, trade, and send via QR in seconds.\n\n"
-                    "I’ll keep the app maintained and the code open to the community. "
-                    "If you have ideas or spot a bug, I’d love to hear from you. "
-                    "Thanks for being part of this project!",
+                  SelectableText(
+                    l.helloDeveloperBody,
                     textAlign: TextAlign.start,
                   ),
                   const SizedBox(height: 8),
@@ -237,7 +250,7 @@ class AboutDeveloperPage extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.email_outlined),
-                  title: const Text('Email'),
+                  title: Text(l.emailLabel),
                   subtitle: const Text(kDeveloperEmail),
                   onTap: () async {
                     await Clipboard.setData(
@@ -251,10 +264,10 @@ class AboutDeveloperPage extends StatelessWidget {
                   },
                 ),
                 const Divider(height: 0),
-                const ListTile(
-                  leading: Icon(Icons.code_outlined),
-                  title: Text('Version'),
-                  subtitle: Text(kAppVersion),
+                ListTile(
+                  leading: const Icon(Icons.code_outlined),
+                  title: Text(l.versionLabel),
+                  subtitle: const Text(kAppVersion),
                 ),
               ],
             ),

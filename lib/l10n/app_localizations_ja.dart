@@ -51,19 +51,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get languageJa => '日本語';
 
   @override
+  String get aboutTitle => '情報';
+
+  @override
   String get aboutDeveloper => '開発者について';
+
+  @override
+  String get developerRole => '開発者';
+
+  @override
+  String get emailLabel => 'メール';
+
+  @override
+  String get versionLabel => 'バージョン';
 
   @override
   String get birthday => '誕生日';
 
   @override
-  String get quoteTitle => 'ファンへの一言';
+  String get quoteTitle => 'ファンへのメッセージ';
 
   @override
   String get fanMiniCards => 'ファンミニカード';
 
   @override
-  String get noMiniCardsHint => 'ミニカードはまだありません。「編集」で追加してください。';
+  String get noMiniCardsHint => 'ミニカードはまだありません。「編集」をタップして追加してください。';
 
   @override
   String get add => '追加';
@@ -84,11 +96,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cancel => 'キャンセル';
 
   @override
-  String get previewFailed => 'プレビュー失敗';
+  String get previewFailed => 'プレビューに失敗しました';
 
   @override
   String get favorite => 'お気に入り';
 
   @override
   String get favorited => 'お気に入り済み';
+
+  @override
+  String get helloDeveloperTitle => 'こんにちは！開発者です';
+
+  @override
+  String get helloDeveloperBody =>
+      'この小さなサイドプロジェクトを試してくれて、ありがとうございます。私は LE SSERAFIM の大ファン（FEARNOT）ですが、友だちと喜びを分かち合うたびにフォトカードを山ほど持ち歩くのは大変。そこでこのアプリを作りました。6.5インチの画面だけでカードの表示や交換ができます。今後もメンテナンスを続け、コードは GitHub で公開します。ダウンロードして、このプロジェクト――かわいく言えば“ファミリー”――の一員になってくれて本当に感謝します。改善のアイデアや質問があれば、いつでも気軽に連絡してください。— Jimmy Lee';
+
+  @override
+  String nameWithPinyin(Object name, Object pinyin) {
+    return '$name（$pinyin）';
+  }
 }

@@ -51,7 +51,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get languageJa => '日文';
 
   @override
+  String get aboutTitle => '關於';
+
+  @override
   String get aboutDeveloper => '關於開發者';
+
+  @override
+  String get developerRole => '開發者';
+
+  @override
+  String get emailLabel => '電子郵件';
+
+  @override
+  String get versionLabel => '版本';
 
   @override
   String get birthday => '生日';
@@ -91,6 +103,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get favorited => '已收藏';
+
+  @override
+  String get helloDeveloperTitle => '嗨！開發者在這裡';
+
+  @override
+  String get helloDeveloperBody =>
+      '謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee';
+
+  @override
+  String nameWithPinyin(Object name, Object pinyin) {
+    return '$name（$pinyin）';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -140,7 +164,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get languageJa => '日文';
 
   @override
+  String get aboutTitle => '關於';
+
+  @override
   String get aboutDeveloper => '關於開發者';
+
+  @override
+  String get developerRole => '開發者';
+
+  @override
+  String get emailLabel => '電子郵件';
+
+  @override
+  String get versionLabel => '版本';
 
   @override
   String get birthday => '生日';
@@ -180,4 +216,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get favorited => '已收藏';
+
+  @override
+  String get helloDeveloperTitle => '嗨！開發者在這裡';
+
+  @override
+  String get helloDeveloperBody =>
+      '謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee';
+
+  @override
+  String nameWithPinyin(Object name, Object pinyin) {
+    return '$name（$pinyin）';
+  }
 }

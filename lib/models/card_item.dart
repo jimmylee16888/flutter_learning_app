@@ -4,15 +4,17 @@ import 'package:flutter/foundation.dart';
 class CardItem {
   final String id;
   final String title; // 人名
-  final String imageUrl;
+  final String? imageUrl; // 可能是網址
+  final String? localPath; // 或本地檔案路徑
   final DateTime? birthday;
   final String quote;
-  final List<String> categories; // 分類（可多選）
+  final List<String> categories;
 
   const CardItem({
     required this.id,
     required this.title,
-    required this.imageUrl,
+    this.imageUrl,
+    this.localPath,
     this.birthday,
     this.quote = '',
     this.categories = const [],
@@ -22,6 +24,7 @@ class CardItem {
     String? id,
     String? title,
     String? imageUrl,
+    String? localPath,
     DateTime? birthday,
     String? quote,
     List<String>? categories,
@@ -30,6 +33,7 @@ class CardItem {
       id: id ?? this.id,
       title: title ?? this.title,
       imageUrl: imageUrl ?? this.imageUrl,
+      localPath: localPath ?? this.localPath,
       birthday: birthday ?? this.birthday,
       quote: quote ?? this.quote,
       categories: categories ?? this.categories,
@@ -40,6 +44,7 @@ class CardItem {
     'id': id,
     'title': title,
     'imageUrl': imageUrl,
+    'localPath': localPath,
     'birthday': birthday?.toIso8601String(),
     'quote': quote,
     'categories': categories,
@@ -48,7 +53,8 @@ class CardItem {
   factory CardItem.fromJson(Map<String, dynamic> json) => CardItem(
     id: json['id'] as String,
     title: json['title'] as String,
-    imageUrl: json['imageUrl'] as String,
+    imageUrl: json['imageUrl'] as String?,
+    localPath: json['localPath'] as String?,
     birthday: json['birthday'] == null
         ? null
         : DateTime.parse(json['birthday']),

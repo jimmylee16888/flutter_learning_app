@@ -1,3 +1,6 @@
 ﻿arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-class: AppLocalizations
+output-localization-file: app_localizations.dart
+synthetic-package: false   # 關鍵：把產物輸出到 lib/，不要用 package:flutter_gen
+nullable-getter: false
