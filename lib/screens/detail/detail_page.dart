@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui'; // for ImageFilter
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/screens/detail/mini_cards/mini_cards_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/mini_card_data.dart';
-import 'mini_cards_page.dart';
 
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
 
@@ -191,7 +191,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '上滑進入小卡頁（左掃描QR、右分享QR）',
+                        '上滑進入小卡頁（左、右掃描QR、分享QR）',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),

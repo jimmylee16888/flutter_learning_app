@@ -251,75 +251,258 @@ class _ScanTabState extends State<_ScanTab> {
 }
 
 /* -------------------- 分頁 2：分享（選小卡→顯示 QR） -------------------- */
-class _ShareTab extends StatelessWidget {
+class _ShareTab extends StatefulWidget {
   const _ShareTab({required this.ownerTitle, required this.cards});
   final String ownerTitle;
   final List<MiniCardData> cards;
 
   @override
+  State<_ShareTab> createState() => _ShareTabState();
+}
+
+class _ShareTabState extends State<_ShareTab> {
+  final Set<String> _selectedIds = {};
+  bool get _selecting => _selectedIds.isNotEmpty;
+
+  @override
   Widget build(BuildContext context) {
+    final cards = widget.cards;
     if (cards.isEmpty) {
       return Center(
         child: Text('目前沒有小卡可分享', style: Theme.of(context).textTheme.bodyMedium),
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 4,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: cards.length,
-      itemBuilder: (context, i) {
-        final c = cards[i];
-        return GestureDetector(
-          onTap: () => _showQr(context, ownerTitle, c),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image(image: imageProviderOf(c), fit: BoxFit.cover),
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 8,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(8),
+    // 計算多選統計
+    final selected = cards.where((c) => _selectedIds.contains(c.id)).toList();
+    final eligible = selected.where((c) => isQrEligible(c)).toList();
+
+    return Stack(
+      children: [
+        GridView.builder(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 3 / 4,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: cards.length,
+          itemBuilder: (context, i) {
+            final c = cards[i];
+            final selected = _selectedIds.contains(c.id);
+            final qrCapable = isQrEligible(c);
+
+            return GestureDetector(
+              onLongPress: () {
+                setState(() {
+                  if (selected) {
+                    _selectedIds.remove(c.id);
+                  } else {
+                    _selectedIds.add(c.id);
+                  }
+                });
+              },
+              onTap: () {
+                if (_selecting) {
+                  setState(() {
+                    selected
+                        ? _selectedIds.remove(c.id)
+                        : _selectedIds.add(c.id);
+                  });
+                  return;
+                }
+                // 非多選狀態 → 單張行為
+                if (qrCapable) {
+                  _showQr(context, widget.ownerTitle, c);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('本地圖片沒有網址，無法以 QR 分享，請改用「分享照片」'),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 8,
-                      ),
-                      child: Text(
-                        c.note.isEmpty ? '(點我分享 QR)' : c.note,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white),
+                  );
+                }
+              },
+              child: Stack(
+                children: [
+                  // 圖片 + 底部標籤
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image(image: imageProviderOf(c), fit: BoxFit.cover),
+                        Positioned(
+                          left: 8,
+                          right: 8,
+                          bottom: 8,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 8,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (qrCapable)
+                                    const Icon(
+                                      Icons.link,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  if (qrCapable) const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      c.note.isEmpty
+                                          ? (qrCapable
+                                                ? '可分享 QR（點我）'
+                                                : '本地圖片（僅照片分享）')
+                                          : c.note,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 右上角：多選勾選框
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: AnimatedScale(
+                      scale: _selecting ? 1 : 0,
+                      duration: const Duration(milliseconds: 150),
+                      child: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: selected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.black45,
+                        child: Icon(
+                          selected ? Icons.check : Icons.radio_button_unchecked,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
+                ],
+              ),
+            );
+          },
+        ),
+
+        // 底部操作列（只有在多選時出現）
+        if (_selecting)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ],
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  child: Row(
+                    children: [
+                      // 全選/全不選
+                      IconButton(
+                        tooltip: '全選/取消全選',
+                        onPressed: () {
+                          setState(() {
+                            if (_selectedIds.length == cards.length) {
+                              _selectedIds.clear();
+                            } else {
+                              _selectedIds
+                                ..clear()
+                                ..addAll(cards.map((c) => c.id));
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.select_all),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '已選 ${selected.length} 張 • 可用 QR：${eligible.length}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // 分享照片（全部可用）
+                      FilledButton.icon(
+                        onPressed: selected.isEmpty
+                            ? null
+                            : () async {
+                                await _sharePhotos(selected);
+                              },
+                        icon: const Icon(Icons.ios_share),
+                        label: Text('分享照片 (${selected.length})'),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // 分享 QR（只有有 imageUrl 的）
+                      FilledButton.tonalIcon(
+                        onPressed: eligible.isEmpty
+                            ? null
+                            : () {
+                                _showQrCarousel(
+                                  context,
+                                  widget.ownerTitle,
+                                  eligible,
+                                );
+                              },
+                        icon: const Icon(Icons.qr_code_2),
+                        label: Text('分享 QR (${eligible.length})'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        );
-      },
+      ],
     );
+  }
+
+  bool isQrEligible(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty;
+
+  Future<void> _sharePhotos(List<MiniCardData> cards) async {
+    // 你已有 sharePhoto(c)。若想一次多檔，可實作 shareMultiplePhotos()
+    for (final c in cards) {
+      try {
+        await sharePhoto(c);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('分享照片失敗：$e')));
+      }
+    }
   }
 
   void _showQr(BuildContext context, String ownerTitle, MiniCardData card) {
     final payload = {
       'type': 'mini_card_v1',
       'owner': ownerTitle,
-      'card': card.toJson(),
+      'card': {'id': card.id, 'imageUrl': card.imageUrl, 'note': card.note},
     };
     final data = _encodePackedJson(payload);
 
@@ -357,6 +540,94 @@ class _ShareTab extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showQrCarousel(
+    BuildContext context,
+    String ownerTitle,
+    List<MiniCardData> cards,
+  ) {
+    // 逐張卡片一張 QR，以 PageView 形式展示
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '分享 QR（${cards.length}）',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: 300,
+                    height: 340,
+                    child: PageView.builder(
+                      itemCount: cards.length,
+                      itemBuilder: (_, i) {
+                        final c = cards[i];
+                        final payload = {
+                          'type': 'mini_card_v1',
+                          'owner': ownerTitle,
+                          'card': {
+                            'id': c.id,
+                            'imageUrl': c.imageUrl,
+                            'note': c.note,
+                          },
+                        };
+                        final data = _encodePackedJson(payload);
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: QrImageView(
+                                  data: data,
+                                  version: QrVersions.auto,
+                                  size: 240,
+                                  gapless: false,
+                                  backgroundColor: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              c.note.isEmpty ? '(無敘述)' : c.note,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      child: const Text('關閉'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
