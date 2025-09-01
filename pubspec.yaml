@@ -28,6 +28,9 @@ dependencies:
   # 相簿圖片解析 QR 用 ML Kit
   google_mlkit_barcode_scanning: ^0.11.0
 
+  #google登入
+  google_sign_in: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
