@@ -4,14 +4,17 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-// lib/screens/detail/mini_cards/services/qr_image_builder.dart
 class QrImageBuilder {
   static Future<Uint8List?> buildPngBytes(
     String data,
     double size, {
-    double quietZone = 24, // 想要更小白邊就再調低，例如 20
+    double quietZone = 8,
+    double scale = 1.0,
   }) async {
     try {
+      final double s = (size * scale).clamp(80.0, 4096.0);
+      final double q = (quietZone * scale).clamp(0.0, 512.0);
+
       final painter = QrPainter(
         data: data,
         version: QrVersions.auto,
@@ -27,11 +30,12 @@ class QrImageBuilder {
         ),
       );
 
-      final ui.Image qrImage = await painter.toImage(size);
+      // ✅ 用 s
+      final ui.Image qrImage = await painter.toImage(s);
 
-      // ✅ 用參數，不要寫死 28
-      final double margin = quietZone;
-      final double total = size + margin * 2;
+      // ✅ 用 q 與 s
+      final double margin = q;
+      final double total = s + margin * 2;
 
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);

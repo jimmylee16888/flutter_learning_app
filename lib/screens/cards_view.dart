@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui; // for ImageFilter.blur
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../app_settings.dart';
 import '../models/card_item.dart';
@@ -459,14 +460,28 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               ),
               const SizedBox(height: 8),
 
-              // 圖片來源切換
-              SegmentedButton<_ImageMode>(
-                segments: const [
-                  ButtonSegment(value: _ImageMode.byUrl, label: Text('以網址')),
-                  ButtonSegment(value: _ImageMode.byLocal, label: Text('本地照片')),
-                ],
-                selected: {_mode},
-                onSelectionChanged: (s) => setState(() => _mode = s.first),
+              // 圖片來源切換 → 改成滑動開關
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 260,
+                  child: CupertinoSlidingSegmentedControl<_ImageMode>(
+                    groupValue: _mode,
+                    padding: const EdgeInsets.all(4),
+                    children: const {
+                      _ImageMode.byUrl: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        child: Text('以網址'),
+                      ),
+                      _ImageMode.byLocal: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        child: Text('本地照片'),
+                      ),
+                    },
+                    onValueChanged: (v) =>
+                        setState(() => _mode = v ?? _ImageMode.byUrl),
+                  ),
+                ),
               ),
               const SizedBox(height: 8),
 
@@ -583,7 +598,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                             widget.settings.removeCategory(c);
                             // 2) 再從對話框目前的選取集合移除，然後刷新畫面
                             setState(() => _cats.remove(c));
-                            // 3) 給個提示（可選）
+                            // 3) 提示
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('已刪除分類：$c')),

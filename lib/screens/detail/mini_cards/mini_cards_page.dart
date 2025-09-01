@@ -1,20 +1,23 @@
 // lib/screens/detail/mini_cards/mini_cards_page.dart
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // ← 新增
+import 'dart:convert'; // ← 已有/保留
+import 'dart:io' as io;
+
 import '../../../models/mini_card_data.dart';
 import '../../../utils/mini_card_io.dart';
 import '../edit_mini_cards_page.dart';
 
 import 'scan_qr_page.dart';
 import 'qr_preview_dialog.dart';
-import 'services/qr_codec.dart';
+import 'services/qr_codec.dart' as codec;
 import 'services/qr_image_builder.dart';
 import 'widgets/flip_big_card.dart';
 import 'widgets/mini_card_front.dart';
 import 'widgets/mini_card_back.dart';
 import 'widgets/tool_card.dart';
-
-import 'dart:convert';
-import 'package:flutter/services.dart'; // Clipboard
 
 class MiniCardsPage extends StatefulWidget {
   const MiniCardsPage({
@@ -32,25 +35,33 @@ class MiniCardsPage extends StatefulWidget {
 }
 
 class _MiniCardsPageState extends State<MiniCardsPage> {
-  late List<MiniCardData> _cards = List.of(widget.cards);
+  // === 設定你的後端位址 ===
+  static const String _kApiBase =
+      'https://YOUR_BACKEND_HOST'; // e.g. https://api.example.com
 
-  bool _isQrEligible(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty;
-
-  // 多小卡
-  static const int _kQrSafeLimit = 1800; // 你的穩定上限
-
-  String _buildQrDataForCards(String owner, List<MiniCardData> cards) {
-    // 只放必要欄位，縮短長度；且只打包有網址的卡
-    final usable = cards.where((c) => (c.imageUrl ?? '').isNotEmpty).toList();
-    final payload = {
-      'type': usable.length == 1 ? 'mini_card_v1' : 'mini_card_bundle_v1',
-      'owner': owner,
-      'cards': usable
-          .map((c) => {'id': c.id, 'imageUrl': c.imageUrl, 'note': c.note})
-          .toList(),
-    };
-    return QrCodec.encodePackedJson(payload);
+  // ---- 統一訊息入口 ----
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
+  void _snack(String msg, {SnackBarAction? action, int seconds = 3}) {
+    final m = _messengerKey.currentState;
+    if (m == null) return;
+    m.clearSnackBars();
+    m.showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        duration: Duration(seconds: seconds),
+        action: action,
+      ),
+    );
   }
+
+  late List<MiniCardData> _cards = List.of(widget.cards);
+  final Set<String> _activeTags = {};
+
+  static const int _kQrSafeLimit = 500; // 直接內嵌 QR 的長度上限（你原本的值）
+
+  bool _exists(String? p) =>
+      p != null && p.isNotEmpty && io.File(p).existsSync();
+  bool _canShareQr(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty;
 
   int get _pageCount => _cards.length + 2;
   int _computeInitialPage() {
@@ -68,8 +79,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   int _currentPageRound() => (_pc.hasClients && _pc.page != null)
       ? _pc.page!.round()
       : _pc.initialPage;
-  bool get _isAtLeftTool => _currentPageRound() == 0;
-  bool get _isAtRightTool => _currentPageRound() == _pageCount - 1;
 
   @override
   void initState() {
@@ -103,111 +112,177 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   @override
   Widget build(BuildContext context) {
     final title = widget.title;
-
     return WillPopScope(
       onWillPop: _popWithResult,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('$title 的小卡'),
-          leading: BackButton(onPressed: () => Navigator.pop(context, _cards)),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.upload_file),
-              tooltip: '從 JSON 匯入',
-              onPressed: _importFromJsonDialog,
+      child: ScaffoldMessenger(
+        key: _messengerKey,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('$title 的小卡'),
+            leading: BackButton(
+              onPressed: () => Navigator.pop(context, _cards),
             ),
-          ],
-        ),
-        body: Column(
-          children: [
-            const SizedBox(height: 0),
-            Expanded(
-              child: PageView.builder(
-                controller: _pc,
-                itemCount: _pageCount,
-                allowImplicitScrolling: true,
-                itemBuilder: (context, i) {
-                  final scale = (1 - ((_page - i).abs() * 0.12)).clamp(
-                    0.86,
-                    1.0,
-                  );
-                  if (i == 0 || i == _pageCount - 1) {
-                    return Center(
-                      child: AnimatedScale(
-                        scale: scale,
-                        duration: const Duration(milliseconds: 200),
-                        child: ToolCard(
-                          onScan: _scanAndImport,
-                          onEdit: () async {
-                            final updated =
-                                await Navigator.push<List<MiniCardData>>(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        EditMiniCardsPage(initial: _cards),
-                                  ),
-                                );
-                            if (updated != null && mounted)
-                              setState(() => _cards = updated);
-                          },
-                        ),
-                      ),
-                    );
-                  }
-                  final card = _cards[i - 1];
-                  return Center(
-                    child: AnimatedScale(
-                      scale: scale,
-                      duration: const Duration(milliseconds: 200),
-                      child: SizedBox(
-                        width: 320,
-                        height: 480,
-                        child: FlipBigCard(
-                          front: MiniCardFront(card: card),
-                          back: MiniCardBack(
-                            text: card.note,
-                            date: card.createdAt,
-                          ),
-                        ),
-                      ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.upload_file),
+                tooltip: '從 JSON 匯入',
+                onPressed: _importFromJsonDialog,
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              const SizedBox(height: 0),
+              // 標籤篩選列
+              Builder(
+                builder: (_) {
+                  final allTags = _cards.expand((c) => c.tags).toSet().toList()
+                    ..sort();
+                  if (allTags.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: allTags
+                          .map(
+                            (t) => FilterChip(
+                              label: Text(t),
+                              selected: _activeTags.contains(t),
+                              onSelected: (v) => setState(() {
+                                v ? _activeTags.add(t) : _activeTags.remove(t);
+                                if (_pc.hasClients) _pc.jumpToPage(0);
+                              }),
+                            ),
+                          )
+                          .toList(),
                     ),
                   );
                 },
               ),
-            ),
-            const SizedBox(height: 50),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            if (_isAtLeftTool) return _scanAndImport();
-            if (_isAtRightTool) return _chooseAndShare(context);
-            final idx = _currentPageRound() - 1;
-            if (idx >= 0 && idx < _cards.length) {
-              await _shareOptionsForCard(context, _cards[idx]);
-            }
-          },
-          icon: Icon(
-            _isAtLeftTool
-                ? Icons.qr_code_scanner
-                : _isAtRightTool
-                ? Icons.qr_code_2
-                : Icons.ios_share,
+              // 內容 PageView
+              Builder(
+                builder: (_) {
+                  final visibleCards = _activeTags.isEmpty
+                      ? _cards
+                      : _cards
+                            .where((c) => c.tags.any(_activeTags.contains))
+                            .toList();
+                  final pageCount = visibleCards.length + 2;
+
+                  return Expanded(
+                    child: PageView.builder(
+                      controller: _pc,
+                      itemCount: pageCount,
+                      allowImplicitScrolling: true,
+                      itemBuilder: (context, i) {
+                        final scale = (1 - ((_page - i).abs() * 0.12)).clamp(
+                          0.86,
+                          1.0,
+                        );
+
+                        if (i == 0 || i == pageCount - 1) {
+                          return Center(
+                            child: AnimatedScale(
+                              scale: scale,
+                              duration: const Duration(milliseconds: 200),
+                              child: ToolCard(
+                                onScan: _scanAndImport,
+                                onEdit: () async {
+                                  final updated =
+                                      await Navigator.push<List<MiniCardData>>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EditMiniCardsPage(
+                                            initial: _cards,
+                                          ),
+                                        ),
+                                      );
+                                  if (updated != null && mounted) {
+                                    setState(() => _cards = updated);
+                                  }
+                                },
+                              ),
+                            ),
+                          );
+                        }
+
+                        final card = visibleCards[i - 1];
+                        return Center(
+                          child: AnimatedScale(
+                            scale: scale,
+                            duration: const Duration(milliseconds: 200),
+                            child: SizedBox(
+                              width: 320,
+                              height: 480,
+                              child: FlipBigCard(
+                                front: MiniCardFront(card: card),
+                                back: MiniCardBack(
+                                  card: card,
+                                  onChanged: (updated) {
+                                    final idx = _cards.indexWhere(
+                                      (x) => x.id == updated.id,
+                                    );
+                                    if (idx >= 0)
+                                      setState(() => _cards[idx] = updated);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-          label: Text(
-            _isAtLeftTool
-                ? '掃描'
-                : _isAtRightTool
-                ? '分享'
-                : '分享此卡',
+          floatingActionButton: Builder(
+            builder: (ctx) {
+              final visibleCards = _activeTags.isEmpty
+                  ? _cards
+                  : _cards
+                        .where((c) => c.tags.any(_activeTags.contains))
+                        .toList();
+              final pageCount = visibleCards.length + 2;
+              final isAtLeftTool = _currentPageRound() == 0;
+              final isAtRightTool = _currentPageRound() == pageCount - 1;
+
+              return FloatingActionButton.extended(
+                onPressed: () async {
+                  if (isAtLeftTool) {
+                    _scanAndImport();
+                    return;
+                  }
+                  if (isAtRightTool) {
+                    _chooseAndShare(context);
+                    return;
+                  }
+                  final idx = _currentPageRound() - 1;
+                  if (idx >= 0 && idx < visibleCards.length) {
+                    await _shareOptionsForCard(context, visibleCards[idx]);
+                  }
+                },
+                icon: Icon(
+                  isAtLeftTool
+                      ? Icons.qr_code_scanner
+                      : (isAtRightTool ? Icons.qr_code_2 : Icons.ios_share),
+                ),
+                label: Text(
+                  isAtLeftTool ? '掃描' : (isAtRightTool ? '分享' : '分享此卡'),
+                ),
+              );
+            },
           ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
 
-  // ===== 行為：掃描 / 分享 =====
+  // ===== 掃描 / 分享 =====
   Future<void> _scanAndImport() async {
     final results = await Navigator.push<List<MiniCardData>>(
       context,
@@ -225,11 +300,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       added++;
     }
     if (mounted) setState(() {});
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('已匯入 $added 張小卡')));
-    }
+    if (mounted) _snack('已匯入 $added 張小卡');
   }
 
   Future<void> _chooseAndShare(BuildContext context) async {
@@ -239,7 +310,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       showDragHandle: true,
       builder: (_) => SafeArea(
         child: SizedBox(
-          height: 360,
+          height: 40,
           child: ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: _cards.length,
@@ -279,13 +350,26 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if ((c.imageUrl ?? '').isNotEmpty)
+            if (_canShareQr(c))
               ListTile(
                 leading: const Icon(Icons.qr_code_2),
-                title: const Text('分享「圖片網址」QR code'),
+                title: const Text('分享 QR code'),
+                subtitle: const Text('大檔案會自動切換以後端傳送，掃描端都可接收'),
+                onTap: () async {
+                  final pageCtx = this.context;
+                  Navigator.pop(ctx);
+                  await Future.delayed(const Duration(milliseconds: 80));
+                  _showQrForCard(pageCtx, widget.title, c);
+                },
+              )
+            else
+              ListTile(
+                leading: const Icon(Icons.block),
+                title: const Text('無法以 QR 分享'),
+                subtitle: const Text('此卡沒有圖片網址'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _showQrForCard(ctx, widget.title, c);
+                  _snack('此卡沒有圖片網址，僅能直接分享照片');
                 },
               ),
             ListTile(
@@ -296,24 +380,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                 try {
                   await sharePhoto(c);
                 } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('分享失敗：$e')));
-                  }
+                  if (mounted) _snack('分享失敗：$e');
                 }
-              },
-            ),
-
-            // ✅ 新增：分享多張小卡
-            const Divider(height: 12),
-            ListTile(
-              leading: const Icon(Icons.collections),
-              title: const Text('分享多張小卡'),
-              subtitle: const Text('可勾選多張；含本地上傳者將於匯出時提醒'),
-              onTap: () {
-                Navigator.pop(ctx); // 先關閉目前 bottom sheet
-                _chooseAndShareMulti(context); // 開啟多選流程
               },
             ),
           ],
@@ -322,579 +390,108 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
+  // === 重點：依長度決定「直接內嵌」或「後端傳送」 ===
   Future<void> _showQrForCard(
     BuildContext context,
     String owner,
     MiniCardData card,
   ) async {
     if ((card.imageUrl ?? '').isEmpty) {
-      if (context.mounted)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('這張小卡沒有網址，改用「分享整張照片」喔')));
+      if (!mounted) return;
+      _snack('這張小卡沒有網址，改用「分享整張照片」喔');
       return;
     }
 
-    final payload = {
-      'type': 'mini_card_v1',
+    // 用於 Dialog「JSON 分頁」與列印
+    final jsonForDialog = jsonEncode({
+      'type': 'mini_card_v2',
       'owner': owner,
-      'card': {'id': card.id, 'imageUrl': card.imageUrl, 'note': card.note},
-    };
-    final data = QrCodec.encodePackedJson(payload);
+      'card': _cardToQrJson(card),
+    });
 
-    if (data.length > 1800) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('QR 資料過長（${data.length}）無法生成')));
-      }
-      return;
+    // ★★★ 在這裡列印到 terminal ★★★
+    _printJson('Share-Single', jsonForDialog);
+
+    // 接著照你原本流程：v2→v1→超過上限改走後端...
+    Map<String, dynamic> payload = {
+      'type': 'mini_card_v2',
+      'owner': owner,
+      'card': _cardToQrJson(card),
+    };
+    String data = codec.QrCodec.encodePackedJson(payload);
+
+    if (data.length > _kQrSafeLimit) {
+      payload = {
+        'type': 'mini_card_v1',
+        'owner': owner,
+        'card': _cardToSlimQrJson(card),
+      };
+      data = codec.QrCodec.encodePackedJson(payload);
     }
 
+    // 判斷是否要走後端模式（只放 id）
+    bool backendMode = false;
+    if (data.length > _kQrSafeLimit) {
+      backendMode = true;
+      data = card.id; // 掃描端用 id 呼叫 API 取完整資料
+    }
+
+    // 產生 QR 圖
     final pngBytes = await QrImageBuilder.buildPngBytes(
       data,
-      280,
-      quietZone: 24,
+      220, // 圖素邊長
+      quietZone: 24, // 白邊大一點，掃描更穩
     );
+
     if (pngBytes == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('生成 QR 影像失敗')));
-      }
+      if (!mounted) return;
+      _snack('生成 QR 影像失敗');
       return;
     }
-    if (!context.mounted) return;
-    await QrPreviewDialog.show(context, pngBytes);
-  }
-
-  Future<void> _sharePhotos(List<MiniCardData> cards) async {
-    for (final c in cards) {
-      try {
-        await sharePhoto(c);
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('分享照片失敗：$e')));
-      }
-    }
-  }
-
-  /// 顯示多張卡片的 QR 輪播（每張卡一個 QR，左右滑動切換）
-  void _showQrCarousel(
-    BuildContext context,
-    String owner,
-    List<MiniCardData> cards,
-  ) {
-    if (cards.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('沒有可用的卡片（需要有圖片網址）')));
-      return;
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '分享 QR（${cards.length}）',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: 300,
-                  height: 340,
-                  child: PageView.builder(
-                    itemCount: cards.length,
-                    itemBuilder: (_, i) {
-                      final c = cards[i];
-                      final payload = {
-                        'type': 'mini_card_v1',
-                        'owner': owner,
-                        'card': {
-                          'id': c.id,
-                          'imageUrl': c.imageUrl,
-                          'note': c.note,
-                        },
-                      };
-                      final data = QrCodec.encodePackedJson(payload);
-                      return FutureBuilder(
-                        future: QrImageBuilder.buildPngBytes(data, 320),
-                        builder: (ctx, snap) {
-                          final bytes = snap.data;
-                          return Column(
-                            children: [
-                              Expanded(
-                                child: Center(
-                                  child: bytes == null
-                                      ? const CircularProgressIndicator()
-                                      : ConstrainedBox(
-                                          constraints: const BoxConstraints(
-                                            maxWidth: 320,
-                                            maxHeight: 320,
-                                          ),
-                                          child: FittedBox(
-                                            fit: BoxFit.contain,
-                                            child: Image.memory(
-                                              bytes,
-                                              filterQuality: FilterQuality.none,
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                c.note.isEmpty ? '(無敘述)' : c.note,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      final controller = TextEditingController();
-                      final text = await showDialog<String>(
-                        context: context,
-                        builder: (dCtx) => AlertDialog(
-                          title: const Text('用JSON匯入小卡'),
-                          content: TextField(
-                            controller: controller,
-                            maxLines: 10,
-                            decoration: const InputDecoration(
-                              hintText: '貼上 mini_card_bundle_v1 的 JSON 內容…',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(dCtx),
-                              child: const Text('取消'),
-                            ),
-                            FilledButton(
-                              onPressed: () =>
-                                  Navigator.pop(dCtx, controller.text.trim()),
-                              child: const Text('匯入'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (text == null || text.isEmpty) return;
-
-                      try {
-                        final list = await _parseBundleJson(text);
-                        int added = 0;
-                        for (final r in list) {
-                          final exists = _cards.any((c) => c.id == r.id);
-                          final toInsert = exists
-                              ? r.copyWith(
-                                  id: DateTime.now().millisecondsSinceEpoch
-                                      .toString(),
-                                )
-                              : r;
-                          _cards.add(toInsert);
-                          added++;
-                        }
-                        if (mounted) setState(() {});
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('已自 JSON 匯入 $added 張小卡')),
-                          );
-                        }
-                        if (mounted) Navigator.of(context).maybePop();
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('匯入失敗：$e')));
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('從 JSON 匯入'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _chooseAndShareMulti(BuildContext context) async {
-    if (_cards.isEmpty) return;
-
-    final selected = <String>{};
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (ctx, setM) {
-            final pickedCards = _cards
-                .where((c) => selected.contains(c.id))
-                .toList();
-            final qrEligible = pickedCards.where(_isQrEligible).toList();
-
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '選擇要分享的小卡（可多選）',
-                            style: Theme.of(ctx).textTheme.titleMedium,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {
-                            setM(() {
-                              if (selected.length == _cards.length) {
-                                selected.clear();
-                              } else {
-                                selected
-                                  ..clear()
-                                  ..addAll(_cards.map((e) => e.id));
-                              }
-                            });
-                          },
-                          icon: const Icon(Icons.select_all),
-                          label: Text(
-                            selected.length == _cards.length ? '全不選' : '全選',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    SizedBox(
-                      height: MediaQuery.of(ctx).size.height * 0.5,
-                      child: ListView.separated(
-                        itemCount: _cards.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 6),
-                        itemBuilder: (_, i) {
-                          final c = _cards[i];
-                          final picked = selected.contains(c.id);
-                          final canQr = _isQrEligible(c);
-                          return ListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image(
-                                image: imageProviderOf(c),
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            title: Text(
-                              c.note.isEmpty ? '(無敘述)' : c.note,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(canQr ? '可產生 JSON' : '無網址（僅能分享照片）'),
-                            trailing: Checkbox(
-                              value: picked,
-                              onChanged: (_) => setM(() {
-                                picked
-                                    ? selected.remove(c.id)
-                                    : selected.add(c.id);
-                              }),
-                            ),
-                            onTap: () => setM(() {
-                              picked
-                                  ? selected.remove(c.id)
-                                  : selected.add(c.id);
-                            }),
-                          );
-                        },
-                      ),
-                    ),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 16,
-                          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            '提示：若要貼上他人分享的多張小卡，可到頁面右上角「從 JSON 匯入」。',
-                            style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: selected.isEmpty
-                                ? null
-                                : () async {
-                                    final list = _cards
-                                        .where((c) => selected.contains(c.id))
-                                        .toList();
-                                    await _sharePhotos(list);
-                                  },
-                            icon: const Icon(Icons.ios_share),
-                            label: Text('分享照片 (${selected.length})'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: FilledButton.tonalIcon(
-                            onPressed: pickedCards.isEmpty
-                                ? null
-                                : () async {
-                                    // 分出可用與本地端
-                                    final exportable = pickedCards
-                                        .where(_isQrEligible)
-                                        .toList(); // 有 imageUrl
-                                    final localOnly = pickedCards
-                                        .where((c) => !_isQrEligible(c))
-                                        .toList(); // 無 imageUrl
-
-                                    if (localOnly.isNotEmpty) {
-                                      // 跳提醒：本地端無法產生 JSON
-                                      final proceed = await showDialog<bool>(
-                                        context: context,
-                                        builder: (dCtx) => AlertDialog(
-                                          title: const Text('部分選取為本地上傳'),
-                                          content: Text(
-                                            '共有 ${localOnly.length} 張為本地上傳，無法產生 JSON。\n'
-                                            '是否僅導出其餘 ${exportable.length} 張可用的小卡？',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(dCtx, false),
-                                              child: const Text('返回修改'),
-                                            ),
-                                            FilledButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(dCtx, true),
-                                              child: const Text('只導出可用'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      if (proceed != true) return; // 返回修改
-                                    }
-
-                                    if (exportable.isEmpty) {
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('沒有可用的小卡可產生 JSON'),
-                                          ),
-                                        );
-                                      }
-                                      return;
-                                    }
-
-                                    // 只用可用的卡產生 JSON 並顯示可複製對話框
-                                    final json = _buildBundleJson(
-                                      widget.title,
-                                      exportable,
-                                    );
-                                    await _showExportJsonDialog(context, json);
-                                  },
-                            icon: const Icon(Icons.code),
-                            label: const Text('匯出 JSON 文字'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _shareSelectedAsQr(
-    BuildContext context,
-    String owner,
-    List<MiniCardData> picked,
-  ) async {
-    // 只保留可做 QR 的
-    final qrs = picked.where((c) => (c.imageUrl ?? '').isNotEmpty).toList();
-    if (qrs.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('選取的小卡沒有圖片網址，無法以 QR 分享')));
-      }
-      return;
-    }
-
-    // 先嘗試「一張 QR 裝多卡」
-    final data = _buildQrDataForCards(owner, qrs);
-
-    if (data.length <= _kQrSafeLimit) {
-      final png = await QrImageBuilder.buildPngBytes(data, 320);
-      if (png == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('生成 QR 影像失敗')));
-        }
-        return;
-      }
-      await QrPreviewDialog.show(context, png);
-      return;
-    }
-
-    // 超長：提醒 + 建議使用輪播
     if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (dCtx) => AlertDialog(
-        title: const Text('資料太多，無法生成單一 QR'),
-        content: Text(
-          '已選 ${qrs.length} 張卡，QR 內容長度為 ${data.length}（上限約 $_kQrSafeLimit）。\n'
-          '建議改用「多張 QR 輪播」方式讓對方依序掃描。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx),
-            child: const Text('取消'),
-          ),
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.pop(dCtx);
-              _showQrCarousel(context, owner, qrs); // 直接改用輪播
-            },
-            icon: const Icon(Icons.qr_code_2),
-            label: const Text('改用輪播'),
-          ),
-        ],
-      ),
+
+    final hint = backendMode ? '後端模式（走 API）' : '直接內嵌';
+
+    // 打開「QR / JSON」切換的預覽對話框
+    await QrPreviewDialog.show(
+      context,
+      pngBytes,
+      transportHint: hint,
+      jsonText: jsonForDialog,
     );
+
+    // 走後端模式時，可以順便提示
+    if (backendMode) {
+      _snack('此 QR 僅包含卡片 ID，掃描端會連線後端取得完整內容', seconds: 4);
+    }
   }
 
-  /// 把多張卡打包成可讀 JSON（只保留必要欄位）
-  String _buildBundleJson(String owner, List<MiniCardData> cards) {
-    final payload = {
-      'type': 'mini_card_bundle_v1',
+  /// 上傳到後端，回傳後端產生的 card id（掃描端會用這個 id 去 GET）
+  Future<String> _uploadCardToBackend(String owner, MiniCardData card) async {
+    final uri = Uri.parse('$_kApiBase/api/cards'); // 你後端的上傳端點
+    // 上傳內容：用 v2 的 json（與掃描端一致，後端儲存後用 GET 回傳）
+    final body = jsonEncode({
+      'type': 'mini_card_v2',
       'owner': owner,
-      'cards': cards
-          .map(
-            (c) => {
-              'id': c.id,
-              'imageUrl': c.imageUrl, // 本地卡會是 null
-              'note': c.note, // 若太長可自行截斷以縮短文字
-              'createdAt': c.createdAt.toIso8601String(),
-            },
-          )
-          .toList(),
-    };
-    // 若想更短可用 jsonEncode(payload)；這裡排版較好讀
-    return jsonEncode(payload);
-  }
-
-  /// 顯示「導出 JSON」對話框，讓使用者複製
-  Future<void> _showExportJsonDialog(BuildContext ctx, String jsonText) async {
-    final controller = TextEditingController(text: jsonText);
-    await showDialog(
-      context: ctx,
-      builder: (dCtx) => AlertDialog(
-        title: const Text('多張小卡 JSON'),
-        content: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 400),
-          child: TextField(
-            controller: controller,
-            maxLines: null,
-            readOnly: true,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx),
-            child: const Text('關閉'),
-          ),
-          FilledButton.icon(
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: controller.text));
-              if (ctx.mounted) {
-                Navigator.pop(dCtx); // ✅ 複製後直接關閉 dialog
-                ScaffoldMessenger.of(
-                  ctx,
-                ).showSnackBar(const SnackBar(content: Text('已複製到剪貼簿')));
-              }
-            },
-            icon: const Icon(Icons.copy),
-            label: const Text('複製'),
-          ),
-        ],
-      ),
+      'card': _cardToQrJson(card),
+    });
+    final resp = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
     );
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
+    }
+    final decoded = jsonDecode(resp.body);
+    final id = decoded['id'] as String?;
+    if (id == null || id.isEmpty) {
+      throw Exception('回應缺少 id');
+    }
+    return id;
   }
 
-  /// 解析貼上的 JSON 並轉為卡片清單（自動下載有網址的圖片）
-  Future<List<MiniCardData>> _parseBundleJson(String text) async {
-    final decoded = jsonDecode(text);
-    if (decoded is! Map || decoded['type'] != 'mini_card_bundle_v1') {
-      throw const FormatException('非 mini_card_bundle_v1');
-    }
-    final List list = decoded['cards'] as List? ?? const [];
-    final out = <MiniCardData>[];
-    for (final e in list) {
-      var card = MiniCardData.fromJson(Map<String, dynamic>.from(e as Map));
-      if ((card.imageUrl ?? '').isNotEmpty) {
-        try {
-          final p = await downloadImageToLocal(
-            card.imageUrl!,
-            preferName: card.id,
-          );
-          card = card.copyWith(localPath: p);
-        } catch (_) {}
-      }
-      out.add(card);
-    }
-    return out;
-  }
-
+  // ---- 匯入 / 匯出 JSON（保留） ----
   Future<void> _importFromJsonDialog() async {
     final controller = TextEditingController();
     final text = await showDialog<String>(
@@ -935,17 +532,73 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         added++;
       }
       if (mounted) setState(() {});
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('已自 JSON 匯入 $added 張小卡')));
-      }
+      if (mounted) _snack('已自 JSON 匯入 $added 張小卡');
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('匯入失敗：$e')));
-      }
+      if (mounted) _snack('匯入失敗：$e');
     }
   }
+
+  Future<List<MiniCardData>> _parseBundleJson(String text) async {
+    final decoded = jsonDecode(text);
+    if (decoded is! Map) throw const FormatException('JSON 不是物件');
+
+    final type = decoded['type'];
+    if (type != 'mini_card_bundle_v2' && type != 'mini_card_bundle_v1') {
+      throw const FormatException('需為 mini_card_bundle_v2 或 v1');
+    }
+
+    final List list = decoded['cards'] as List? ?? const [];
+    final out = <MiniCardData>[];
+
+    for (final e in list) {
+      var card = MiniCardData.fromJson(Map<String, dynamic>.from(e as Map));
+      if ((card.imageUrl ?? '').isNotEmpty) {
+        try {
+          final p = await downloadImageToLocal(
+            card.imageUrl!,
+            preferName: card.id,
+          );
+          card = card.copyWith(localPath: p);
+        } catch (_) {}
+      }
+      if ((card.backImageUrl ?? '').isNotEmpty) {
+        try {
+          final p2 = await downloadImageToLocal(
+            card.backImageUrl!,
+            preferName: '${card.id}_back',
+          );
+          card = card.copyWith(backLocalPath: p2);
+        } catch (_) {}
+      }
+      out.add(card);
+    }
+    return out;
+  }
+
+  Map<String, dynamic> _cardToQrJson(MiniCardData c) => {
+    'id': c.id,
+    'imageUrl': c.imageUrl,
+    'backImageUrl': c.backImageUrl,
+    'note': c.note,
+    'name': c.name,
+    'serial': c.serial,
+    'language': c.language,
+    'album': c.album,
+    'cardType': c.cardType,
+    'tags': c.tags,
+    'createdAt': c.createdAt.toIso8601String(),
+  };
+
+  Map<String, dynamic> _cardToSlimQrJson(MiniCardData c) => {
+    'id': c.id,
+    'imageUrl': c.imageUrl,
+    'note': c.note,
+  };
+}
+
+void _printJson(String tag, String json) {
+  // debugPrint 會自動分段輸出過長字串，給個 wrapWidth 比較穩
+  debugPrint('==== $tag JSON ====', wrapWidth: 1024);
+  debugPrint(json, wrapWidth: 1024);
+  debugPrint('==== end of $tag ====', wrapWidth: 1024);
 }
