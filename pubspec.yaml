@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.0.1+1
+version: 1.0.3+1
 
 environment:
   sdk: ^3.9.0
@@ -10,7 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  provider: ^6.0.5
+  fl_chart: ^0.69.0
   flutter_localizations:
     sdk: flutter
 
@@ -28,8 +29,12 @@ dependencies:
   # 相簿圖片解析 QR 用 ML Kit
   google_mlkit_barcode_scanning: ^0.11.0
 
-  #google登入
+  # google 登入
   google_sign_in: ^6.2.1
+
+  # 廣告/連結開啟
+  url_launcher: ^6.3.0
+  open_filex: ^4.5.0
 
 dev_dependencies:
   flutter_test:
@@ -50,3 +55,4 @@ flutter:
 
   assets:
     - assets/images/popcard.png
+    - assets/images/ad_banner.png

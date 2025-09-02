@@ -112,6 +112,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee';
 
   @override
+  String get stats_title => 'Statistics';
+
+  @override
+  String get stats_overview => 'Collection Overview';
+
+  @override
+  String get stats_artist_count => 'Number of artists';
+
+  @override
+  String get stats_card_total => 'Total mini cards';
+
+  @override
+  String get stats_front_source => 'Front image source';
+
+  @override
+  String stats_cards_per_artist_topN(int n) {
+    return 'Mini cards per artist (Top $n)';
+  }
+
+  @override
+  String get stats_nav_subtitle =>
+      'See collection stats: totals, sources, top artists';
+
+  @override
+  String get common_local => 'Local';
+
+  @override
+  String get common_url => 'URL';
+
+  @override
+  String get common_unnamed => '(Unnamed)';
+
+  @override
+  String get common_unit_cards => 'cards';
+
+  @override
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name ($pinyin)';
   }

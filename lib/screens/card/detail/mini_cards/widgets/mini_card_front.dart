@@ -1,7 +1,7 @@
 // lib/screens/detail/mini_cards/widgets/mini_card_front.dart
 import 'package:flutter/material.dart';
-import '../../../../models/mini_card_data.dart';
-import '../../../../utils/mini_card_io.dart';
+import '../../../../../models/mini_card_data.dart';
+import '../../../../../utils/mini_card_io.dart';
 
 class MiniCardFront extends StatelessWidget {
   const MiniCardFront({super.key, required this.card});

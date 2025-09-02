@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../app_settings.dart';
-import 'cards_view.dart' as cv; // 用別名避免衝突
+import 'card/cards_view.dart' as cv;
 import 'explore_view.dart';
-import 'settings_view.dart';
+import 'settings/settings_view.dart';
 
 class RootNav extends StatefulWidget {
   const RootNav({

@@ -6,14 +6,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io' as io;
 
-import '../../../models/mini_card_data.dart';
-import '../../../utils/mini_card_io.dart';
+import '../../../../models/mini_card_data.dart';
+import '../../../../utils/mini_card_io.dart';
 import '../edit_mini_cards_page.dart';
 
 import 'scan_qr_page.dart';
 import 'qr_preview_dialog.dart';
-import 'services/qr_codec.dart' as codec;
-import 'services/qr_image_builder.dart';
+import '../../../../services/qr_codec.dart' as codec;
+import '../../../../services/qr_image_builder.dart';
 import 'widgets/flip_big_card.dart';
 import 'widgets/mini_card_front.dart';
 import 'widgets/mini_card_back.dart';

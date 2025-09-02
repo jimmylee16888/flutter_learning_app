@@ -112,6 +112,41 @@ class AppLocalizationsJa extends AppLocalizations {
       'この小さなサイドプロジェクトを試してくれて、ありがとうございます。私は LE SSERAFIM の大ファン（FEARNOT）ですが、友だちと喜びを分かち合うたびにフォトカードを山ほど持ち歩くのは大変。そこでこのアプリを作りました。6.5インチの画面だけでカードの表示や交換ができます。今後もメンテナンスを続け、コードは GitHub で公開します。ダウンロードして、このプロジェクト――かわいく言えば“ファミリー”――の一員になってくれて本当に感謝します。改善のアイデアや質問があれば、いつでも気軽に連絡してください。— Jimmy Lee';
 
   @override
+  String get stats_title => '統計';
+
+  @override
+  String get stats_overview => 'コレクション概要';
+
+  @override
+  String get stats_artist_count => 'アーティスト数';
+
+  @override
+  String get stats_card_total => 'ミニカード総数';
+
+  @override
+  String get stats_front_source => '表面画像のソース';
+
+  @override
+  String stats_cards_per_artist_topN(int n) {
+    return 'アーティストごとのミニカード数（トップ $n）';
+  }
+
+  @override
+  String get stats_nav_subtitle => 'コレクション統計：総数・ソース分布・トップアーティスト';
+
+  @override
+  String get common_local => 'ローカル';
+
+  @override
+  String get common_url => 'URL';
+
+  @override
+  String get common_unnamed => '（無名）';
+
+  @override
+  String get common_unit_cards => '枚';
+
+  @override
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name（$pinyin）';
   }

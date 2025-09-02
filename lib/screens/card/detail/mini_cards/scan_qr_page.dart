@@ -8,9 +8,9 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
     as ml;
 import 'package:http/http.dart' as http;
 
-import '../../../models/mini_card_data.dart';
-import '../../../utils/mini_card_io.dart';
-import 'services/qr_codec.dart';
+import '../../../../models/mini_card_data.dart';
+import '../../../../utils/mini_card_io.dart';
+import '../../../../services/qr_codec.dart';
 
 class ScanQrPage extends StatefulWidget {
   const ScanQrPage({super.key});

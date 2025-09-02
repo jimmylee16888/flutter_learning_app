@@ -40,6 +40,23 @@
   "helloDeveloperTitle": "こんにちは！開発者です",
   "helloDeveloperBody": "この小さなサイドプロジェクトを試してくれて、ありがとうございます。私は LE SSERAFIM の大ファン（FEARNOT）ですが、友だちと喜びを分かち合うたびにフォトカードを山ほど持ち歩くのは大変。そこでこのアプリを作りました。6.5インチの画面だけでカードの表示や交換ができます。今後もメンテナンスを続け、コードは GitHub で公開します。ダウンロードして、このプロジェクト――かわいく言えば“ファミリー”――の一員になってくれて本当に感謝します。改善のアイデアや質問があれば、いつでも気軽に連絡してください。— Jimmy Lee",
 
+  "stats_title": "統計",
+  "stats_overview": "コレクション概要",
+  "stats_artist_count": "アーティスト数",
+  "stats_card_total": "ミニカード総数",
+  "stats_front_source": "表面画像のソース",
+  "stats_cards_per_artist_topN": "アーティストごとのミニカード数（トップ {n}）",
+  "@stats_cards_per_artist_topN": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "common_local": "ローカル",
+  "common_url": "URL",
+  "common_unnamed": "（無名）",
+  "common_unit_cards": "枚",
+  "stats_nav_subtitle": "コレクション統計：総数・ソース分布・トップアーティスト",
+
   "nameWithPinyin": "{name}（{pinyin}）",
   "@nameWithPinyin": {
     "placeholders": {

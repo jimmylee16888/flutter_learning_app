@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui'; // for ImageFilter
 import 'package:flutter/material.dart';
-import 'package:flutter_learning_app/screens/detail/mini_cards/mini_cards_page.dart';
+import 'package:flutter_learning_app/screens/card/detail/mini_cards/mini_cards_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/mini_card_data.dart';
+import '../../../models/mini_card_data.dart';
 
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
+
+import 'package:provider/provider.dart';
+import '../../../services/mini_card_store.dart';
 
 class CardDetailPage extends StatefulWidget {
   const CardDetailPage({
@@ -53,6 +56,11 @@ class _CardDetailPageState extends State<CardDetailPage> {
           .map(MiniCardData.fromJson)
           .toList();
       _miniCards = list;
+
+      // ★ 新增：同步到全域 Store，讓統計頁有資料
+      if (mounted) {
+        context.read<MiniCardStore>().setForOwner(widget.title, _miniCards);
+      }
     }
     if (mounted) setState(() {});
   }
@@ -82,6 +90,11 @@ class _CardDetailPageState extends State<CardDetailPage> {
     if (updated != null) {
       setState(() => _miniCards = updated);
       await _saveCards();
+
+      // ★ 新增：回存到 Store（關鍵）
+      if (mounted) {
+        context.read<MiniCardStore>().setForOwner(widget.title, updated);
+      }
     }
   }
 

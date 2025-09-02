@@ -1,7 +1,7 @@
 // lib/screens/manage_categories_page.dart
 import 'package:flutter/material.dart';
-import '../app_settings.dart';
-import '../models/card_item.dart';
+import '../../app_settings.dart';
+import '../../models/card_item.dart';
 
 class ManageCategoriesPage extends StatefulWidget {
   const ManageCategoriesPage({super.key, required this.settings});

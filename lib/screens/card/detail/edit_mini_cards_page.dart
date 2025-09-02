@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../models/mini_card_data.dart';
+import '../../../models/mini_card_data.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
 
 class EditMiniCardsPage extends StatefulWidget {

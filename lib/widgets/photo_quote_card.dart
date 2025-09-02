@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/detail/detail_page.dart';
+import '../screens/card/detail/detail_page.dart';
 
 class PhotoQuoteCard extends StatefulWidget {
   const PhotoQuoteCard({

@@ -40,6 +40,24 @@
   "helloDeveloperTitle": "嗨！開發者在這裡",
   "helloDeveloperBody": "謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee",
 
+  "stats_title": "統計",
+  "stats_overview": "收藏概覽",
+  "stats_artist_count": "藝人數量",
+  "stats_card_total": "小卡總數",
+  "stats_front_source": "正面圖片來源",
+  "stats_cards_per_artist_topN": "各藝人小卡數（前 {n} 名）",
+  "@stats_cards_per_artist_topN": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "common_local": "本地",
+  "common_url": "網址",
+  "common_unnamed": "（未命名）",
+  "common_unit_cards": "張",
+  
+  "stats_nav_subtitle": "查看收藏統計：總數、來源分布、各藝人 Top",
+  
   "nameWithPinyin": "{name}（{pinyin}）",
   "@nameWithPinyin": {
     "placeholders": {

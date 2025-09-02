@@ -2,9 +2,9 @@ import 'dart:io';
 import 'dart:ui' as ui; // for ImageFilter.blur
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../app_settings.dart';
-import '../models/card_item.dart';
-import '../widgets/photo_quote_card.dart';
+import '../../app_settings.dart';
+import '../../models/card_item.dart';
+import '../../widgets/photo_quote_card.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart'; // 共用下載/挑圖/Provider
 
 class CardsView extends StatefulWidget {

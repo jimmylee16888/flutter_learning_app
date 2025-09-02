@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../../models/mini_card_data.dart';
-import '../../../../utils/mini_card_io.dart';
-import '../../../../screens/detail/edit_mini_cards_page.dart';
+import '../../../../../models/mini_card_data.dart';
+import '../../../../../utils/mini_card_io.dart';
+import '../../edit_mini_cards_page.dart';
 
 class MiniCardBack extends StatefulWidget {
   const MiniCardBack({super.key, required this.card, required this.onChanged});

@@ -40,6 +40,27 @@
   "helloDeveloperTitle": "Hello! I'm the developer",
   "helloDeveloperBody": "Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee",
 
+  "stats_title": "Statistics",
+  "stats_overview": "Collection Overview",
+  "stats_artist_count": "Number of artists",
+  "stats_card_total": "Total mini cards",
+  "stats_front_source": "Front image source",
+  "stats_cards_per_artist_topN": "Mini cards per artist (Top {n})",
+  "@stats_cards_per_artist_topN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+
+  "stats_nav_subtitle": "See collection stats: totals, sources, top artists",
+
+  "common_local": "Local",
+  "common_url": "URL",
+  "common_unnamed": "(Unnamed)",
+  "common_unit_cards": "cards",
+  
   "nameWithPinyin": "{name} ({pinyin})",
   "@nameWithPinyin": {
     "placeholders": {

@@ -305,6 +305,72 @@ abstract class AppLocalizations {
   /// **'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee'**
   String get helloDeveloperBody;
 
+  /// No description provided for @stats_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get stats_title;
+
+  /// No description provided for @stats_overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection Overview'**
+  String get stats_overview;
+
+  /// No description provided for @stats_artist_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of artists'**
+  String get stats_artist_count;
+
+  /// No description provided for @stats_card_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total mini cards'**
+  String get stats_card_total;
+
+  /// No description provided for @stats_front_source.
+  ///
+  /// In en, this message translates to:
+  /// **'Front image source'**
+  String get stats_front_source;
+
+  /// No description provided for @stats_cards_per_artist_topN.
+  ///
+  /// In en, this message translates to:
+  /// **'Mini cards per artist (Top {n})'**
+  String stats_cards_per_artist_topN(int n);
+
+  /// No description provided for @stats_nav_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See collection stats: totals, sources, top artists'**
+  String get stats_nav_subtitle;
+
+  /// No description provided for @common_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get common_local;
+
+  /// No description provided for @common_url.
+  ///
+  /// In en, this message translates to:
+  /// **'URL'**
+  String get common_url;
+
+  /// No description provided for @common_unnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'(Unnamed)'**
+  String get common_unnamed;
+
+  /// No description provided for @common_unit_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'cards'**
+  String get common_unit_cards;
+
   /// No description provided for @nameWithPinyin.
   ///
   /// In en, this message translates to:
