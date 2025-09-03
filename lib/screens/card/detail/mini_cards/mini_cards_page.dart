@@ -965,7 +965,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: _hasLocal(c) ? const Text('含本地圖片') : null,
+                        subtitle: _hasLocal(c)
+                            ? const Text('含圖片網址，可以JSON傳送')
+                            : null,
                       );
                     },
                   ),
@@ -1072,8 +1074,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   }
 
   bool _hasLocal(MiniCardData c) =>
-      (c.localPath?.isNotEmpty ?? false) ||
-      (c.backLocalPath?.isNotEmpty ?? false);
+      ((c.localPath?.isNotEmpty ?? false) &&
+          (c.imageUrl?.isNotEmpty ?? false)) ||
+      ((c.backLocalPath?.isNotEmpty ?? false) &&
+          (c.backImageUrl?.isNotEmpty ?? false));
 }
 
 void _printJson(String tag, String json) {
