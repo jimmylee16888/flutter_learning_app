@@ -51,6 +51,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get languageJa => '日文';
 
   @override
+  String get languageKo => '韓語';
+
+  @override
+  String get languageDe => '德語';
+
+  @override
   String get aboutTitle => '關於';
 
   @override
@@ -105,6 +111,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get favorited => '已收藏';
 
   @override
+  String get accountStatusGuest => '訪客模式';
+
+  @override
+  String get accountStatusSignedIn => '已登入';
+
+  @override
+  String get accountStatusSignedOut => '未登入';
+
+  @override
+  String get accountGuestSubtitle => '目前以訪客登入，資料僅存在本機';
+
+  @override
+  String get accountNoInfo => '（無帳號資訊）';
+
+  @override
+  String get accountBackToLogin => '回到登入頁';
+
+  @override
+  String get signOut => '登出';
+
+  @override
   String get helloDeveloperTitle => '嗨！開發者在這裡';
 
   @override
@@ -135,6 +162,60 @@ class AppLocalizationsZh extends AppLocalizations {
   String get stats_nav_subtitle => '查看收藏統計：總數、來源分布、各藝人 Top';
 
   @override
+  String get welcomeTitle => '歡迎使用小卡管理';
+
+  @override
+  String get welcomeSubtitle => '登入或建立帳號以同步設定與資料';
+
+  @override
+  String get authSignIn => '登入';
+
+  @override
+  String get authRegister => '註冊';
+
+  @override
+  String get authContinueAsGuest => '以訪客登入';
+
+  @override
+  String get authAccount => '帳號（Email/任意字串）';
+
+  @override
+  String get authPassword => '密碼';
+
+  @override
+  String get authCreateAndSignIn => '建立帳號並登入';
+
+  @override
+  String get authName => '姓名';
+
+  @override
+  String get authGender => '性別';
+
+  @override
+  String get genderMale => '男性';
+
+  @override
+  String get genderFemale => '女性';
+
+  @override
+  String get genderOther => '其他/不透露';
+
+  @override
+  String get birthdayPick => '選擇日期';
+
+  @override
+  String get birthdayNotChosen => '—';
+
+  @override
+  String get errorLoginFailed => '登入失敗';
+
+  @override
+  String get errorRegisterFailed => '註冊失敗';
+
+  @override
+  String get errorPickBirthday => '請選擇生日';
+
+  @override
   String get common_local => '本地';
 
   @override
@@ -150,6 +231,215 @@ class AppLocalizationsZh extends AppLocalizations {
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name（$pinyin）';
   }
+
+  @override
+  String get filterAll => '全部';
+
+  @override
+  String get deleteCategoryTitle => '刪除分類';
+
+  @override
+  String deleteCategoryMessage(Object name) {
+    return '確定要刪除「$name」嗎？（會從所有卡片移除）';
+  }
+
+  @override
+  String deletedCategoryToast(Object name) {
+    return '已刪除分類：$name';
+  }
+
+  @override
+  String get searchHint => '搜尋人名／卡片內容';
+
+  @override
+  String get clear => '清除';
+
+  @override
+  String get noCards => '沒有卡片';
+
+  @override
+  String get addCard => '新增卡片';
+
+  @override
+  String get deleteCardTitle => '刪除卡片';
+
+  @override
+  String deleteCardMessage(Object title) {
+    return '確定要刪除「$title」嗎？';
+  }
+
+  @override
+  String deletedCardToast(Object title) {
+    return '已刪除：$title';
+  }
+
+  @override
+  String get editCard => '編輯卡片';
+
+  @override
+  String get categoryAssignOrAdd => '指派／新增分類';
+
+  @override
+  String get newCardTitle => '新增卡片';
+
+  @override
+  String get editCardTitle => '編輯卡片';
+
+  @override
+  String get nameRequiredLabel => '名稱（必填）';
+
+  @override
+  String get imageByUrl => '以網址';
+
+  @override
+  String get imageByLocal => '本地照片';
+
+  @override
+  String get imageUrl => '圖片 URL';
+
+  @override
+  String get pickFromGallery => '從相簿選擇';
+
+  @override
+  String get quoteOptionalLabel => '語錄（可選）';
+
+  @override
+  String get pickBirthdayOptional => '選擇生日（可選）';
+
+  @override
+  String get inputImageUrl => '請輸入圖片網址';
+
+  @override
+  String get downloadFailed => '下載失敗';
+
+  @override
+  String get pickLocalPhoto => '請選擇本地照片';
+
+  @override
+  String get updatedCardToast => '已更新卡片';
+
+  @override
+  String get manageCategoriesTitle => '管理分類';
+
+  @override
+  String get newCategoryNameHint => '新增分類名稱';
+
+  @override
+  String get addCategory => '新增分類';
+
+  @override
+  String get deleteCategoryTooltip => '刪除分類';
+
+  @override
+  String get assignCategoryTitle => '指派分類';
+
+  @override
+  String get confirm => '確定';
+
+  @override
+  String confirmDeleteCategoryMessage(Object name) {
+    return '確定刪除「$name」？此分類會從所有卡片移除。';
+  }
+
+  @override
+  String addedCategoryToast(Object name) {
+    return '已新增分類：$name';
+  }
+
+  @override
+  String get noMiniCardsPreviewHint => '尚無小卡，點此或上滑進入新增。';
+
+  @override
+  String get detailSwipeHint => '上滑進入小卡頁（內含掃描／分享 QR）';
+
+  @override
+  String get noMiniCardsEmptyList => '目前沒有小卡，點右下＋新增。';
+
+  @override
+  String get miniLocalImageBadge => '本地圖片';
+
+  @override
+  String get miniHasBackBadge => '含背面圖片';
+
+  @override
+  String get tagsLabel => '標籤';
+
+  @override
+  String tagsCount(int n) {
+    return '標籤 $n';
+  }
+
+  @override
+  String get nameLabel => '名稱';
+
+  @override
+  String get serialNumber => '序號';
+
+  @override
+  String get album => '專輯';
+
+  @override
+  String get addAlbum => '新增專輯';
+
+  @override
+  String get enterAlbumName => '輸入專輯名稱';
+
+  @override
+  String get cardType => '卡種';
+
+  @override
+  String get addCardType => '新增卡種';
+
+  @override
+  String get enterCardTypeName => '輸入卡種名稱';
+
+  @override
+  String get noteLabel => '備註';
+
+  @override
+  String get newTagHint => '新增標籤…';
+
+  @override
+  String get frontSide => '正面';
+
+  @override
+  String get backSide => '背面';
+
+  @override
+  String get frontImageTitle => '正面圖片';
+
+  @override
+  String get backImageTitleOptional => '背面圖片（可留空）';
+
+  @override
+  String get frontImageUrlLabel => '正面圖片網址';
+
+  @override
+  String get backImageUrlLabel => '背面圖片網址';
+
+  @override
+  String get clearUrl => '清除網址';
+
+  @override
+  String get clearLocal => '清除本地';
+
+  @override
+  String get clearBackImage => '清除背面圖';
+
+  @override
+  String get localPickedLabel => '已選：本地';
+
+  @override
+  String get miniCardEditTitle => '編輯小卡';
+
+  @override
+  String get miniCardNewTitle => '新增小卡';
+
+  @override
+  String get errorFrontImageUrlRequired => '請輸入正面圖片網址或切換為本地。';
+
+  @override
+  String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -199,6 +489,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get languageJa => '日文';
 
   @override
+  String get languageKo => '韓語';
+
+  @override
+  String get languageDe => '德語';
+
+  @override
   String get aboutTitle => '關於';
 
   @override
@@ -253,6 +549,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get favorited => '已收藏';
 
   @override
+  String get accountStatusGuest => '訪客模式';
+
+  @override
+  String get accountStatusSignedIn => '已登入';
+
+  @override
+  String get accountStatusSignedOut => '未登入';
+
+  @override
+  String get accountGuestSubtitle => '目前以訪客登入，資料僅存在本機';
+
+  @override
+  String get accountNoInfo => '（無帳號資訊）';
+
+  @override
+  String get accountBackToLogin => '回到登入頁';
+
+  @override
+  String get signOut => '登出';
+
+  @override
   String get helloDeveloperTitle => '嗨！開發者在這裡';
 
   @override
@@ -283,6 +600,60 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get stats_nav_subtitle => '查看收藏統計：總數、來源分布、各藝人 Top';
 
   @override
+  String get welcomeTitle => '歡迎使用小卡管理';
+
+  @override
+  String get welcomeSubtitle => '登入或建立帳號以同步設定與資料';
+
+  @override
+  String get authSignIn => '登入';
+
+  @override
+  String get authRegister => '註冊';
+
+  @override
+  String get authContinueAsGuest => '以訪客登入';
+
+  @override
+  String get authAccount => '帳號（Email/任意字串）';
+
+  @override
+  String get authPassword => '密碼';
+
+  @override
+  String get authCreateAndSignIn => '建立帳號並登入';
+
+  @override
+  String get authName => '姓名';
+
+  @override
+  String get authGender => '性別';
+
+  @override
+  String get genderMale => '男性';
+
+  @override
+  String get genderFemale => '女性';
+
+  @override
+  String get genderOther => '其他/不透露';
+
+  @override
+  String get birthdayPick => '選擇日期';
+
+  @override
+  String get birthdayNotChosen => '—';
+
+  @override
+  String get errorLoginFailed => '登入失敗';
+
+  @override
+  String get errorRegisterFailed => '註冊失敗';
+
+  @override
+  String get errorPickBirthday => '請選擇生日';
+
+  @override
   String get common_local => '本地';
 
   @override
@@ -298,4 +669,213 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name（$pinyin）';
   }
+
+  @override
+  String get filterAll => '全部';
+
+  @override
+  String get deleteCategoryTitle => '刪除分類';
+
+  @override
+  String deleteCategoryMessage(Object name) {
+    return '確定要刪除「$name」嗎？（會從所有卡片移除）';
+  }
+
+  @override
+  String deletedCategoryToast(Object name) {
+    return '已刪除分類：$name';
+  }
+
+  @override
+  String get searchHint => '搜尋人名／卡片內容';
+
+  @override
+  String get clear => '清除';
+
+  @override
+  String get noCards => '沒有卡片';
+
+  @override
+  String get addCard => '新增卡片';
+
+  @override
+  String get deleteCardTitle => '刪除卡片';
+
+  @override
+  String deleteCardMessage(Object title) {
+    return '確定要刪除「$title」嗎？';
+  }
+
+  @override
+  String deletedCardToast(Object title) {
+    return '已刪除：$title';
+  }
+
+  @override
+  String get editCard => '編輯卡片';
+
+  @override
+  String get categoryAssignOrAdd => '指派／新增分類';
+
+  @override
+  String get newCardTitle => '新增卡片';
+
+  @override
+  String get editCardTitle => '編輯卡片';
+
+  @override
+  String get nameRequiredLabel => '名稱（必填）';
+
+  @override
+  String get imageByUrl => '以網址';
+
+  @override
+  String get imageByLocal => '本地照片';
+
+  @override
+  String get imageUrl => '圖片 URL';
+
+  @override
+  String get pickFromGallery => '從相簿選擇';
+
+  @override
+  String get quoteOptionalLabel => '語錄（可選）';
+
+  @override
+  String get pickBirthdayOptional => '選擇生日（可選）';
+
+  @override
+  String get inputImageUrl => '請輸入圖片網址';
+
+  @override
+  String get downloadFailed => '下載失敗';
+
+  @override
+  String get pickLocalPhoto => '請選擇本地照片';
+
+  @override
+  String get updatedCardToast => '已更新卡片';
+
+  @override
+  String get manageCategoriesTitle => '管理分類';
+
+  @override
+  String get newCategoryNameHint => '新增分類名稱';
+
+  @override
+  String get addCategory => '新增分類';
+
+  @override
+  String get deleteCategoryTooltip => '刪除分類';
+
+  @override
+  String get assignCategoryTitle => '指派分類';
+
+  @override
+  String get confirm => '確定';
+
+  @override
+  String confirmDeleteCategoryMessage(Object name) {
+    return '確定刪除「$name」？此分類會從所有卡片移除。';
+  }
+
+  @override
+  String addedCategoryToast(Object name) {
+    return '已新增分類：$name';
+  }
+
+  @override
+  String get noMiniCardsPreviewHint => '尚無小卡，點此或上滑進入新增。';
+
+  @override
+  String get detailSwipeHint => '上滑進入小卡頁（內含掃描／分享 QR）';
+
+  @override
+  String get noMiniCardsEmptyList => '目前沒有小卡，點右下＋新增。';
+
+  @override
+  String get miniLocalImageBadge => '本地圖片';
+
+  @override
+  String get miniHasBackBadge => '含背面圖片';
+
+  @override
+  String get tagsLabel => '標籤';
+
+  @override
+  String tagsCount(int n) {
+    return '標籤 $n';
+  }
+
+  @override
+  String get nameLabel => '名稱';
+
+  @override
+  String get serialNumber => '序號';
+
+  @override
+  String get album => '專輯';
+
+  @override
+  String get addAlbum => '新增專輯';
+
+  @override
+  String get enterAlbumName => '輸入專輯名稱';
+
+  @override
+  String get cardType => '卡種';
+
+  @override
+  String get addCardType => '新增卡種';
+
+  @override
+  String get enterCardTypeName => '輸入卡種名稱';
+
+  @override
+  String get noteLabel => '備註';
+
+  @override
+  String get newTagHint => '新增標籤…';
+
+  @override
+  String get frontSide => '正面';
+
+  @override
+  String get backSide => '背面';
+
+  @override
+  String get frontImageTitle => '正面圖片';
+
+  @override
+  String get backImageTitleOptional => '背面圖片（可留空）';
+
+  @override
+  String get frontImageUrlLabel => '正面圖片網址';
+
+  @override
+  String get backImageUrlLabel => '背面圖片網址';
+
+  @override
+  String get clearUrl => '清除網址';
+
+  @override
+  String get clearLocal => '清除本地';
+
+  @override
+  String get clearBackImage => '清除背面圖';
+
+  @override
+  String get localPickedLabel => '已選：本地';
+
+  @override
+  String get miniCardEditTitle => '編輯小卡';
+
+  @override
+  String get miniCardNewTitle => '新增小卡';
+
+  @override
+  String get errorFrontImageUrlRequired => '請輸入正面圖片網址或切換為本地。';
+
+  @override
+  String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
 }

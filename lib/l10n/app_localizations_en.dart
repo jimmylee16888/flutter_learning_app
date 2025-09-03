@@ -51,6 +51,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageJa => 'Japanese';
 
   @override
+  String get languageKo => 'Korean';
+
+  @override
+  String get languageDe => 'German';
+
+  @override
   String get aboutTitle => 'About';
 
   @override
@@ -105,6 +111,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favorited => 'Favorited';
 
   @override
+  String get accountStatusGuest => 'Guest mode';
+
+  @override
+  String get accountStatusSignedIn => 'Signed in';
+
+  @override
+  String get accountStatusSignedOut => 'Signed out';
+
+  @override
+  String get accountGuestSubtitle =>
+      'Using guest mode; data is stored only on this device';
+
+  @override
+  String get accountNoInfo => '(No account info)';
+
+  @override
+  String get accountBackToLogin => 'Go to sign-in';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
   String get helloDeveloperTitle => 'Hello! I\'m the developer';
 
   @override
@@ -136,6 +164,61 @@ class AppLocalizationsEn extends AppLocalizations {
       'See collection stats: totals, sources, top artists';
 
   @override
+  String get welcomeTitle => 'Welcome to Mini Cards';
+
+  @override
+  String get welcomeSubtitle =>
+      'Sign in or create an account to sync settings and data';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authRegister => 'Register';
+
+  @override
+  String get authContinueAsGuest => 'Continue as guest';
+
+  @override
+  String get authAccount => 'Account (Email / any string)';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authCreateAndSignIn => 'Create account and sign in';
+
+  @override
+  String get authName => 'Name';
+
+  @override
+  String get authGender => 'Gender';
+
+  @override
+  String get genderMale => 'Male';
+
+  @override
+  String get genderFemale => 'Female';
+
+  @override
+  String get genderOther => 'Other/Prefer not to say';
+
+  @override
+  String get birthdayPick => 'Pick date';
+
+  @override
+  String get birthdayNotChosen => '—';
+
+  @override
+  String get errorLoginFailed => 'Login failed';
+
+  @override
+  String get errorRegisterFailed => 'Register failed';
+
+  @override
+  String get errorPickBirthday => 'Please select your birthday';
+
+  @override
   String get common_local => 'Local';
 
   @override
@@ -151,4 +234,217 @@ class AppLocalizationsEn extends AppLocalizations {
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name ($pinyin)';
   }
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get deleteCategoryTitle => 'Delete category';
+
+  @override
+  String deleteCategoryMessage(Object name) {
+    return 'Delete “$name”? This will also be removed from all cards.';
+  }
+
+  @override
+  String deletedCategoryToast(Object name) {
+    return 'Deleted category: $name';
+  }
+
+  @override
+  String get searchHint => 'Search name / card text';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get noCards => 'No cards';
+
+  @override
+  String get addCard => 'Add card';
+
+  @override
+  String get deleteCardTitle => 'Delete card';
+
+  @override
+  String deleteCardMessage(Object title) {
+    return 'Delete “$title”?';
+  }
+
+  @override
+  String deletedCardToast(Object title) {
+    return 'Deleted: $title';
+  }
+
+  @override
+  String get editCard => 'Edit card';
+
+  @override
+  String get categoryAssignOrAdd => 'Assign / add categories';
+
+  @override
+  String get newCardTitle => 'New card';
+
+  @override
+  String get editCardTitle => 'Edit card';
+
+  @override
+  String get nameRequiredLabel => 'Name (required)';
+
+  @override
+  String get imageByUrl => 'By URL';
+
+  @override
+  String get imageByLocal => 'Local photo';
+
+  @override
+  String get imageUrl => 'Image URL';
+
+  @override
+  String get pickFromGallery => 'Choose from gallery';
+
+  @override
+  String get quoteOptionalLabel => 'Quote (optional)';
+
+  @override
+  String get pickBirthdayOptional => 'Pick birthday (optional)';
+
+  @override
+  String get inputImageUrl => 'Please enter image URL';
+
+  @override
+  String get downloadFailed => 'Download failed';
+
+  @override
+  String get pickLocalPhoto => 'Please choose a local photo';
+
+  @override
+  String get updatedCardToast => 'Card updated';
+
+  @override
+  String get manageCategoriesTitle => 'Manage categories';
+
+  @override
+  String get newCategoryNameHint => 'New category name';
+
+  @override
+  String get addCategory => 'Add category';
+
+  @override
+  String get deleteCategoryTooltip => 'Delete category';
+
+  @override
+  String get assignCategoryTitle => 'Assign categories';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String confirmDeleteCategoryMessage(Object name) {
+    return 'Delete “$name”? This category will be removed from all cards.';
+  }
+
+  @override
+  String addedCategoryToast(Object name) {
+    return 'Added category: $name';
+  }
+
+  @override
+  String get noMiniCardsPreviewHint =>
+      'No mini cards yet. Tap here or swipe up to add.';
+
+  @override
+  String get detailSwipeHint =>
+      'Swipe up to open mini-cards (scan/share QR inside)';
+
+  @override
+  String get noMiniCardsEmptyList => 'No mini cards yet. Tap + to add.';
+
+  @override
+  String get miniLocalImageBadge => 'Local image';
+
+  @override
+  String get miniHasBackBadge => 'Has back image';
+
+  @override
+  String get tagsLabel => 'Tags';
+
+  @override
+  String tagsCount(int n) {
+    return 'Tags $n';
+  }
+
+  @override
+  String get nameLabel => 'Name';
+
+  @override
+  String get serialNumber => 'Serial number';
+
+  @override
+  String get album => 'Album';
+
+  @override
+  String get addAlbum => 'Add album';
+
+  @override
+  String get enterAlbumName => 'Enter album name';
+
+  @override
+  String get cardType => 'Card type';
+
+  @override
+  String get addCardType => 'Add card type';
+
+  @override
+  String get enterCardTypeName => 'Enter card type name';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get newTagHint => 'Add a tag…';
+
+  @override
+  String get frontSide => 'Front';
+
+  @override
+  String get backSide => 'Back';
+
+  @override
+  String get frontImageTitle => 'Front image';
+
+  @override
+  String get backImageTitleOptional => 'Back image (optional)';
+
+  @override
+  String get frontImageUrlLabel => 'Front image URL';
+
+  @override
+  String get backImageUrlLabel => 'Back image URL';
+
+  @override
+  String get clearUrl => 'Clear URL';
+
+  @override
+  String get clearLocal => 'Clear local';
+
+  @override
+  String get clearBackImage => 'Clear back image';
+
+  @override
+  String get localPickedLabel => 'Picked: Local';
+
+  @override
+  String get miniCardEditTitle => 'Edit mini card';
+
+  @override
+  String get miniCardNewTitle => 'New mini card';
+
+  @override
+  String get errorFrontImageUrlRequired =>
+      'Please enter the front image URL or switch to Local.';
+
+  @override
+  String get errorFrontLocalRequired =>
+      'Please choose a local front photo or switch to URL.';
 }

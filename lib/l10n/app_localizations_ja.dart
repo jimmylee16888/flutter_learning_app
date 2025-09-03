@@ -51,6 +51,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get languageJa => '日本語';
 
   @override
+  String get languageKo => '韓国語';
+
+  @override
+  String get languageDe => 'ドイツ語';
+
+  @override
   String get aboutTitle => '情報';
 
   @override
@@ -105,6 +111,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get favorited => 'お気に入り済み';
 
   @override
+  String get accountStatusGuest => 'ゲストモード';
+
+  @override
+  String get accountStatusSignedIn => 'ログイン済み';
+
+  @override
+  String get accountStatusSignedOut => '未ログイン';
+
+  @override
+  String get accountGuestSubtitle => '現在はゲストとして利用中。データはこの端末のみに保存されます';
+
+  @override
+  String get accountNoInfo => '（アカウント情報なし）';
+
+  @override
+  String get accountBackToLogin => 'ログイン画面へ';
+
+  @override
+  String get signOut => 'ログアウト';
+
+  @override
   String get helloDeveloperTitle => 'こんにちは！開発者です';
 
   @override
@@ -135,6 +162,60 @@ class AppLocalizationsJa extends AppLocalizations {
   String get stats_nav_subtitle => 'コレクション統計：総数・ソース分布・トップアーティスト';
 
   @override
+  String get welcomeTitle => 'ミニカードへようこそ';
+
+  @override
+  String get welcomeSubtitle => '設定とデータを同期するには、サインインまたはアカウント作成してください';
+
+  @override
+  String get authSignIn => 'サインイン';
+
+  @override
+  String get authRegister => '登録';
+
+  @override
+  String get authContinueAsGuest => 'ゲストとして続行';
+
+  @override
+  String get authAccount => 'アカウント（メール／任意の文字列）';
+
+  @override
+  String get authPassword => 'パスワード';
+
+  @override
+  String get authCreateAndSignIn => 'アカウント作成してサインイン';
+
+  @override
+  String get authName => '名前';
+
+  @override
+  String get authGender => '性別';
+
+  @override
+  String get genderMale => '男性';
+
+  @override
+  String get genderFemale => '女性';
+
+  @override
+  String get genderOther => 'その他／無回答';
+
+  @override
+  String get birthdayPick => '日付を選択';
+
+  @override
+  String get birthdayNotChosen => '—';
+
+  @override
+  String get errorLoginFailed => 'サインインに失敗しました';
+
+  @override
+  String get errorRegisterFailed => '登録に失敗しました';
+
+  @override
+  String get errorPickBirthday => '誕生日を選択してください';
+
+  @override
   String get common_local => 'ローカル';
 
   @override
@@ -150,4 +231,214 @@ class AppLocalizationsJa extends AppLocalizations {
   String nameWithPinyin(Object name, Object pinyin) {
     return '$name（$pinyin）';
   }
+
+  @override
+  String get filterAll => 'すべて';
+
+  @override
+  String get deleteCategoryTitle => 'カテゴリを削除';
+
+  @override
+  String deleteCategoryMessage(Object name) {
+    return '「$name」を削除しますか？（すべてのカードからも削除されます）';
+  }
+
+  @override
+  String deletedCategoryToast(Object name) {
+    return 'カテゴリを削除しました：$name';
+  }
+
+  @override
+  String get searchHint => '名前／カード内容を検索';
+
+  @override
+  String get clear => 'クリア';
+
+  @override
+  String get noCards => 'カードがありません';
+
+  @override
+  String get addCard => 'カードを追加';
+
+  @override
+  String get deleteCardTitle => 'カードを削除';
+
+  @override
+  String deleteCardMessage(Object title) {
+    return '「$title」を削除しますか？';
+  }
+
+  @override
+  String deletedCardToast(Object title) {
+    return '削除しました：$title';
+  }
+
+  @override
+  String get editCard => 'カードを編集';
+
+  @override
+  String get categoryAssignOrAdd => 'カテゴリを割り当て／追加';
+
+  @override
+  String get newCardTitle => '新規カード';
+
+  @override
+  String get editCardTitle => 'カードを編集';
+
+  @override
+  String get nameRequiredLabel => '名前（必須）';
+
+  @override
+  String get imageByUrl => 'URL から';
+
+  @override
+  String get imageByLocal => 'ローカル写真';
+
+  @override
+  String get imageUrl => '画像 URL';
+
+  @override
+  String get pickFromGallery => 'ギャラリーから選択';
+
+  @override
+  String get quoteOptionalLabel => '引用（任意）';
+
+  @override
+  String get pickBirthdayOptional => '誕生日を選択（任意）';
+
+  @override
+  String get inputImageUrl => '画像の URL を入力してください';
+
+  @override
+  String get downloadFailed => 'ダウンロードに失敗しました';
+
+  @override
+  String get pickLocalPhoto => 'ローカル写真を選択してください';
+
+  @override
+  String get updatedCardToast => 'カードを更新しました';
+
+  @override
+  String get manageCategoriesTitle => 'カテゴリ管理';
+
+  @override
+  String get newCategoryNameHint => '新しいカテゴリ名';
+
+  @override
+  String get addCategory => 'カテゴリを追加';
+
+  @override
+  String get deleteCategoryTooltip => 'カテゴリを削除';
+
+  @override
+  String get assignCategoryTitle => 'カテゴリを割り当て';
+
+  @override
+  String get confirm => '確認';
+
+  @override
+  String confirmDeleteCategoryMessage(Object name) {
+    return '「$name」を削除しますか？すべてのカードからも削除されます。';
+  }
+
+  @override
+  String addedCategoryToast(Object name) {
+    return 'カテゴリを追加しました：$name';
+  }
+
+  @override
+  String get noMiniCardsPreviewHint =>
+      'まだミニカードはありません。ここをタップするか、上にスワイプして追加してください。';
+
+  @override
+  String get detailSwipeHint => '上にスワイプしてミニカードページ（スキャン／QR共有を含む）へ。';
+
+  @override
+  String get noMiniCardsEmptyList => '現在、ミニカードはありません。右下の＋をタップして追加してください。';
+
+  @override
+  String get miniLocalImageBadge => 'ローカル画像';
+
+  @override
+  String get miniHasBackBadge => '裏面画像あり';
+
+  @override
+  String get tagsLabel => 'タグ';
+
+  @override
+  String tagsCount(int n) {
+    return 'タグ $n';
+  }
+
+  @override
+  String get nameLabel => '名前';
+
+  @override
+  String get serialNumber => 'シリアル番号';
+
+  @override
+  String get album => 'アルバム';
+
+  @override
+  String get addAlbum => 'アルバムを追加';
+
+  @override
+  String get enterAlbumName => 'アルバム名を入力';
+
+  @override
+  String get cardType => 'カード種別';
+
+  @override
+  String get addCardType => 'カード種別を追加';
+
+  @override
+  String get enterCardTypeName => 'カード種別名を入力';
+
+  @override
+  String get noteLabel => '備考';
+
+  @override
+  String get newTagHint => '新しいタグを追加…';
+
+  @override
+  String get frontSide => '表面';
+
+  @override
+  String get backSide => '裏面';
+
+  @override
+  String get frontImageTitle => '表面画像';
+
+  @override
+  String get backImageTitleOptional => '裏面画像（任意）';
+
+  @override
+  String get frontImageUrlLabel => '表面画像URL';
+
+  @override
+  String get backImageUrlLabel => '裏面画像URL';
+
+  @override
+  String get clearUrl => 'URLをクリア';
+
+  @override
+  String get clearLocal => 'ローカルをクリア';
+
+  @override
+  String get clearBackImage => '裏面画像をクリア';
+
+  @override
+  String get localPickedLabel => '選択済み：ローカル';
+
+  @override
+  String get miniCardEditTitle => 'ミニカードを編集';
+
+  @override
+  String get miniCardNewTitle => '新しいミニカード';
+
+  @override
+  String get errorFrontImageUrlRequired => '表面画像のURLを入力するか、ローカルに切り替えてください。';
+
+  @override
+  String get errorFrontLocalRequired => '表面のローカル写真を選択するか、URLに戻してください。';
 }

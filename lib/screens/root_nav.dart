@@ -1,17 +1,14 @@
+// lib/screens/root_nav.dart
 import 'package:flutter/material.dart';
 import '../app_settings.dart';
 import 'card/cards_view.dart' as cv;
-import 'explore_view.dart';
+import 'explore/explore_view.dart';
 import 'settings/settings_view.dart';
+import '../l10n/l10n.dart'; // ← for context.l10n
 
 class RootNav extends StatefulWidget {
-  const RootNav({
-    super.key,
-    // required this.cards, // 目前不再使用，先保留
-    required this.settings,
-  });
+  const RootNav({super.key, required this.settings});
 
-  // final List<Widget> cards;
   final AppSettings settings;
 
   @override
@@ -21,13 +18,11 @@ class RootNav extends StatefulWidget {
 class _RootNavState extends State<RootNav> {
   int _index = 0;
   late final List<Widget> _pages;
-  final _titles = const ['Cards', 'Explore', 'Settings'];
 
   @override
   void initState() {
     super.initState();
     _pages = <Widget>[
-      // ✅ 用具有邏輯的 CardsView（吃 settings）
       cv.CardsView(settings: widget.settings),
       const ExploreView(),
       SettingsView(settings: widget.settings),
@@ -36,27 +31,41 @@ class _RootNavState extends State<RootNav> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+
+    String currentTitle() {
+      switch (_index) {
+        case 0:
+          return l.navCards;
+        case 1:
+          return l.navExplore;
+        case 2:
+        default:
+          return l.navSettings;
+      }
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_index])),
+      appBar: AppBar(title: Text(currentTitle())),
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.grid_view_outlined),
-            selectedIcon: Icon(Icons.grid_view),
-            label: 'Cards',
+            icon: const Icon(Icons.grid_view_outlined),
+            selectedIcon: const Icon(Icons.grid_view),
+            label: l.navCards,
           ),
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: const Icon(Icons.explore_outlined),
+            selectedIcon: const Icon(Icons.explore),
+            label: l.navExplore,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l.navSettings,
           ),
         ],
       ),

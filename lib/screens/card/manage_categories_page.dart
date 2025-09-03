@@ -1,7 +1,7 @@
-// lib/screens/manage_categories_page.dart
 import 'package:flutter/material.dart';
 import '../../app_settings.dart';
 import '../../models/card_item.dart';
+import '../../l10n/l10n.dart'; // ← i18n
 
 class ManageCategoriesPage extends StatefulWidget {
   const ManageCategoriesPage({super.key, required this.settings});
@@ -22,10 +22,11 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final cats = widget.settings.categories;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('管理分類')),
+      appBar: AppBar(title: Text(l.manageCategoriesTitle)),
       body: ListView.separated(
         padding: const EdgeInsets.all(12),
         itemCount: cats.length + 1,
@@ -37,17 +38,17 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                 Expanded(
                   child: TextField(
                     controller: _ctrl,
-                    decoration: const InputDecoration(
-                      hintText: '新增分類名稱',
+                    decoration: InputDecoration(
+                      hintText: l.newCategoryNameHint,
                       isDense: true,
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
                   icon: const Icon(Icons.add),
-                  label: const Text('新增'),
+                  label: Text(l.add),
                   onPressed: _addCategory,
                 ),
               ],
@@ -59,7 +60,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: () => _confirmDelete(name),
-              tooltip: '刪除分類',
+              tooltip: l.deleteCategoryTooltip,
             ),
           );
         },
@@ -68,39 +69,40 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
   }
 
   void _addCategory() {
+    final l = context.l10n;
     final name = _ctrl.text.trim();
     if (name.isEmpty) return;
     if (!widget.settings.categories.contains(name)) {
-      widget.settings.addCategory(name); // 你的 AppSettings 應該已提供
+      widget.settings.addCategory(name);
     }
     setState(() {});
     _ctrl.clear();
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('已新增分類：$name')));
+    ).showSnackBar(SnackBar(content: Text(l.addedCategoryToast(name))));
   }
 
   Future<void> _confirmDelete(String name) async {
+    final l = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('刪除分類'),
-        content: Text('確定刪除「$name」？此分類會從所有卡片移除。'),
+        title: Text(l.deleteCategoryTitle),
+        content: Text(l.confirmDeleteCategoryMessage(name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(l.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('刪除'),
+            child: Text(l.delete),
           ),
         ],
       ),
     );
     if (ok != true) return;
 
-    // 從所有卡片移除此分類
     final updated = <CardItem>[];
     for (final c in widget.settings.cardItems) {
       if (c.categories.contains(name)) {
@@ -111,13 +113,11 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     for (final u in updated) {
       widget.settings.upsertCard(u);
     }
-
-    // 從設定中移除分類（你的 AppSettings 需要有 removeCategory）
     widget.settings.removeCategory(name);
 
     setState(() {});
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('已刪除分類：$name')));
+    ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(name))));
   }
 }

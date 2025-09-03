@@ -35,6 +35,8 @@ dependencies:
   # 廣告/連結開啟
   url_launcher: ^6.3.0
   open_filex: ^4.5.0
+  dio: ^5.9.0
+  package_info_plus: ^8.3.1
 
 dev_dependencies:
   flutter_test:

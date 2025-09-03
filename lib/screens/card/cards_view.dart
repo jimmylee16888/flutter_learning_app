@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'dart:ui' as ui; // for ImageFilter.blur
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../app_settings.dart';
 import '../../models/card_item.dart';
 import '../../widgets/photo_quote_card.dart';
-import 'package:flutter_learning_app/utils/mini_card_io.dart'; // 共用下載/挑圖/Provider
+import 'package:flutter_learning_app/utils/mini_card_io.dart';
+import '../../l10n/l10n.dart'; // ← i18n
 
 class CardsView extends StatefulWidget {
   const CardsView({super.key, required this.settings});
@@ -20,17 +21,17 @@ class _CardsViewState extends State<CardsView> {
   String? _selectedCat;
 
   static const _tileRadius = 16.0;
-  static const _tileMargin = EdgeInsets.all(12);
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final items = _filtered(widget.settings.cardItems);
 
     return Scaffold(
       body: Column(
         children: [
           _frostedSearchBar(),
-          // 分類 Chips
+          // Category chips
           SizedBox(
             height: 56,
             child: ListView(
@@ -38,12 +39,11 @@ class _CardsViewState extends State<CardsView> {
               scrollDirection: Axis.horizontal,
               children: [
                 ChoiceChip(
-                  label: const Text('全部'),
+                  label: Text(l.filterAll),
                   selected: _selectedCat == null,
                   onSelected: (_) => setState(() => _selectedCat = null),
                 ),
                 const SizedBox(width: 8),
-                // CardsView 的 build() 裡，分類 Chips 區塊
                 ...widget.settings.categories.map(
                   (cat) => Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -52,28 +52,29 @@ class _CardsViewState extends State<CardsView> {
                         final ok = await showDialog<bool>(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: const Text('刪除分類'),
-                            content: Text('確定要刪除分類「$cat」嗎？\n（將同時自所有卡片移除該分類）'),
+                            title: Text(l.deleteCategoryTitle),
+                            content: Text(l.deleteCategoryMessage(cat)),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('取消'),
+                                child: Text(l.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('刪除'),
+                                child: Text(l.delete),
                               ),
                             ],
                           ),
                         );
                         if (ok == true) {
                           widget.settings.removeCategory(cat);
-                          if (_selectedCat == cat)
-                            _selectedCat = null; // 若當前選擇的剛好被刪
+                          if (_selectedCat == cat) _selectedCat = null;
                           if (mounted) setState(() {});
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('已刪除分類：$cat')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l.deletedCategoryToast(cat)),
+                            ),
+                          );
                         }
                       },
                       child: ChoiceChip(
@@ -90,20 +91,20 @@ class _CardsViewState extends State<CardsView> {
               ],
             ),
           ),
-          // 版面（沿用你之前 1/2/多張的規則）
           Expanded(child: _layout(items)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addCardFlow,
         icon: const Icon(Icons.add),
-        label: const Text('新增藝人卡'),
+        label: Text(l.addCard),
       ),
     );
   }
 
   // ====== Frosted Glass 搜尋列 ======
   Widget _frostedSearchBar() {
+    final l = context.l10n;
     final bg = Theme.of(context).colorScheme.surface;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
@@ -119,7 +120,7 @@ class _CardsViewState extends State<CardsView> {
             child: TextField(
               onChanged: (s) => setState(() => _keyword = s),
               decoration: InputDecoration(
-                hintText: '搜尋人名／卡片內容',
+                hintText: l.searchHint,
                 border: InputBorder.none,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _keyword.isEmpty
@@ -127,7 +128,7 @@ class _CardsViewState extends State<CardsView> {
                     : IconButton(
                         icon: const Icon(Icons.close),
                         onPressed: () => setState(() => _keyword = ''),
-                        tooltip: '清除',
+                        tooltip: l.clear,
                       ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -143,8 +144,9 @@ class _CardsViewState extends State<CardsView> {
 
   // ====== 排版（1/2/多張）======
   Widget _layout(List<CardItem> items) {
+    final l = context.l10n;
     final n = items.length;
-    if (n == 0) return const Center(child: Text('沒有卡片'));
+    if (n == 0) return Center(child: Text(l.noCards));
     if (n == 1) {
       return Center(
         child: SizedBox(width: 350, height: 500, child: _buildTile(items[0])),
@@ -168,13 +170,11 @@ class _CardsViewState extends State<CardsView> {
         ],
       );
     }
-
-    // ★ 重要：格子不設 spacing，改由 tile 內部 padding 控制
     return GridView.count(
       padding: const EdgeInsets.all(6),
       crossAxisCount: 2,
-      crossAxisSpacing: 0, // ★
-      mainAxisSpacing: 0, // ★
+      crossAxisSpacing: 0,
+      mainAxisSpacing: 0,
       childAspectRatio: 3 / 2.5,
       children: [for (final it in items) _buildTile(it)],
     );
@@ -182,10 +182,10 @@ class _CardsViewState extends State<CardsView> {
 
   // ====== 單一卡片（右滑編輯、左滑刪除；零間隙）======
   Widget _buildTile(CardItem it) {
+    final l = context.l10n;
     final errorColor = Theme.of(context).colorScheme.error;
     final primary = Theme.of(context).colorScheme.primary;
 
-    // 背景做得比卡片更大一點的圓角，鋪在卡片下方
     Widget slideBg({
       required Alignment align,
       required Color color,
@@ -194,7 +194,7 @@ class _CardsViewState extends State<CardsView> {
       return Container(
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(_tileRadius + 6), // ← 關鍵：比卡片更大
+          borderRadius: BorderRadius.circular(_tileRadius + 6),
         ),
         alignment: align,
         padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -202,68 +202,59 @@ class _CardsViewState extends State<CardsView> {
       );
     }
 
-    // 外距放在 Dismissible 外，避免邊緣出現底色
     return Padding(
       padding: const EdgeInsets.all(6),
       child: Dismissible(
         key: ValueKey(it.id),
         direction: DismissDirection.horizontal,
-
-        // 右滑：編輯
         background: slideBg(
           align: Alignment.centerLeft,
           color: primary.withOpacity(0.12),
           icon: Icons.edit,
         ),
-
-        // 左滑：刪除
         secondaryBackground: slideBg(
           align: Alignment.centerRight,
           color: errorColor.withOpacity(0.15),
           icon: Icons.delete,
         ),
-
         confirmDismiss: (dir) async {
           if (dir == DismissDirection.startToEnd) {
-            await _editCardFlow(it); // 右滑只開編輯，不真的 dismiss
+            await _editCardFlow(it);
             return false;
           }
           return await showDialog<bool>(
                 context: context,
                 builder: (_) => AlertDialog(
-                  title: const Text('刪除卡片'),
-                  content: Text('確定要刪除「${it.title}」嗎？'),
+                  title: Text(l.deleteCardTitle),
+                  content: Text(l.deleteCardMessage(it.title)),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('取消'),
+                      child: Text(l.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('刪除'),
+                      child: Text(l.delete),
                     ),
                   ],
                 ),
               ) ??
               false;
         },
-
         onDismissed: (dir) {
           if (dir == DismissDirection.endToStart) {
             widget.settings.removeCard(it.id);
             setState(() {});
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('已刪除：${it.title}')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l.deletedCardToast(it.title))),
+            );
           }
         },
-
-        // ★ 只裁切卡片，不裁切背景
         child: ClipRRect(
           borderRadius: BorderRadius.circular(_tileRadius),
           clipBehavior: Clip.hardEdge,
           child: PhotoQuoteCard(
-            image: imageProviderOfCardItem(it), // ← 這個 helper 見下方
+            image: imageProviderOfCardItem(it),
             title: it.title,
             birthday: it.birthday,
             quote: it.quote,
@@ -273,7 +264,6 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  // ====== 篩選 ======
   List<CardItem> _filtered(List<CardItem> src) {
     return src.where((c) {
       final okCat =
@@ -286,7 +276,6 @@ class _CardsViewState extends State<CardsView> {
     }).toList();
   }
 
-  // ====== 新增／編輯流程 ======
   Future<void> _addCardFlow() async {
     final created = await showDialog<CardItem>(
       context: context,
@@ -308,12 +297,12 @@ class _CardsViewState extends State<CardsView> {
       setState(() {});
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('已更新卡片')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.updatedCardToast)));
     }
   }
 
-  // ====== 卡片操作（長按）======
   Future<void> _showCardActions(CardItem item) async {
+    final l = context.l10n;
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -323,17 +312,17 @@ class _CardsViewState extends State<CardsView> {
           children: [
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('編輯卡片'),
+              title: Text(l.editCard),
               onTap: () => Navigator.pop(context, 'edit'),
             ),
             ListTile(
               leading: const Icon(Icons.label_important_outline),
-              title: const Text('指派 / 新增分類'),
+              title: Text(l.categoryAssignOrAdd),
               onTap: () => Navigator.pop(context, 'cat'),
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline),
-              title: const Text('刪除'),
+              title: Text(l.delete),
               textColor: Theme.of(context).colorScheme.error,
               iconColor: Theme.of(context).colorScheme.error,
               onTap: () => Navigator.pop(context, 'del'),
@@ -355,16 +344,16 @@ class _CardsViewState extends State<CardsView> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('刪除卡片'),
-          content: Text('確定要刪除「${item.title}」嗎？'),
+          title: Text(l.deleteCardTitle),
+          content: Text(l.deleteCardMessage(item.title)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(l.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('刪除'),
+              child: Text(l.delete),
             ),
           ],
         ),
@@ -380,12 +369,11 @@ class _CardsViewState extends State<CardsView> {
       final picked = await showDialog<List<String>>(
         context: context,
         builder: (_) => _CategoryPickerDialog(
-          settings: widget.settings, // ← 新增這行
+          settings: widget.settings,
           all: widget.settings.categories.toList(),
           selected: item.categories,
         ),
       );
-
       if (picked != null) {
         for (final c in picked) {
           if (!widget.settings.categories.contains(c)) {
@@ -400,7 +388,6 @@ class _CardsViewState extends State<CardsView> {
 }
 
 // ====== 建立/編輯卡片 Dialog ======
-// 放在檔案底部原本的位置，整段覆蓋
 class _EditCardDialog extends StatefulWidget {
   const _EditCardDialog({required this.settings, this.initial});
   final AppSettings settings;
@@ -443,8 +430,9 @@ class _EditCardDialogState extends State<_EditCardDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: Text(widget.initial == null ? '新增卡片' : '編輯卡片'),
+      title: Text(widget.initial == null ? l.newCardTitle : l.editCardTitle),
       content: SingleChildScrollView(
         child: SizedBox(
           width: 360,
@@ -453,14 +441,13 @@ class _EditCardDialogState extends State<_EditCardDialog> {
             children: [
               TextField(
                 controller: _title,
-                decoration: const InputDecoration(
-                  labelText: '名稱（必填）',
+                decoration: InputDecoration(
+                  labelText: l.nameRequiredLabel,
                   isDense: true,
                 ),
               ),
               const SizedBox(height: 8),
 
-              // 圖片來源切換 → 改成滑動開關
               Align(
                 alignment: Alignment.center,
                 child: SizedBox(
@@ -468,14 +455,14 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                   child: CupertinoSlidingSegmentedControl<_ImageMode>(
                     groupValue: _mode,
                     padding: const EdgeInsets.all(4),
-                    children: const {
+                    children: {
                       _ImageMode.byUrl: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6),
-                        child: Text('以網址'),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(l.imageByUrl),
                       ),
                       _ImageMode.byLocal: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6),
-                        child: Text('本地照片'),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(l.imageByLocal),
                       ),
                     },
                     onValueChanged: (v) =>
@@ -488,10 +475,10 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               if (_mode == _ImageMode.byUrl) ...[
                 TextField(
                   controller: _url,
-                  decoration: const InputDecoration(
-                    labelText: '圖片 URL',
+                  decoration: InputDecoration(
+                    labelText: l.imageUrl,
                     isDense: true,
-                    prefixIcon: Icon(Icons.link),
+                    prefixIcon: const Icon(Icons.link),
                   ),
                   keyboardType: TextInputType.url,
                   onChanged: (_) => setState(() {}),
@@ -510,7 +497,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               ] else ...[
                 OutlinedButton.icon(
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('從相簿選擇'),
+                  label: Text(l.pickFromGallery),
                   onPressed: () async {
                     final p = await pickAndCopyToLocal();
                     if (p != null) setState(() => _pickedLocalPath = p);
@@ -532,8 +519,8 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: _quote,
-                decoration: const InputDecoration(
-                  labelText: '語錄（可選）',
+                decoration: InputDecoration(
+                  labelText: l.quoteOptionalLabel,
                   isDense: true,
                 ),
               ),
@@ -546,7 +533,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                       icon: const Icon(Icons.cake_outlined),
                       label: Text(
                         _birthday == null
-                            ? '選擇生日（可選）'
+                            ? l.pickBirthdayOptional
                             : '${_birthday!.year}-${_birthday!.month.toString().padLeft(2, '0')}-${_birthday!.day.toString().padLeft(2, '0')}',
                       ),
                       onPressed: () async {
@@ -578,30 +565,29 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                           final ok = await showDialog<bool>(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: const Text('刪除分類'),
-                              content: Text('確定要刪除分類「$c」嗎？\n（會從所有卡片移除）'),
+                              title: Text(l.deleteCategoryTitle),
+                              content: Text(l.deleteCategoryMessage(c)),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.pop(context, false),
-                                  child: const Text('取消'),
+                                  child: Text(l.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('刪除'),
+                                  child: Text(l.delete),
                                 ),
                               ],
                             ),
                           );
                           if (ok == true) {
-                            // 1) 先從全域設定刪除（會同步清掉所有卡片中該分類）
                             widget.settings.removeCategory(c);
-                            // 2) 再從對話框目前的選取集合移除，然後刷新畫面
                             setState(() => _cats.remove(c));
-                            // 3) 提示
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('已刪除分類：$c')),
+                                SnackBar(
+                                  content: Text(l.deletedCategoryToast(c)),
+                                ),
                               );
                             }
                           }
@@ -609,16 +595,14 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                         child: FilterChip(
                           label: Text(c),
                           selected: _cats.contains(c),
-                          onSelected: (v) {
-                            setState(() => v ? _cats.add(c) : _cats.remove(c));
-                          },
+                          onSelected: (v) => setState(
+                            () => v ? _cats.add(c) : _cats.remove(c),
+                          ),
                         ),
                       ),
-
-                    // 仍保留「新增分類」按鈕
                     ActionChip(
                       avatar: const Icon(Icons.add, size: 18),
-                      label: const Text('新增分類'),
+                      label: Text(l.addCategory),
                       onPressed: () async {
                         final name = await _promptNewCategory(context);
                         if (name != null && name.trim().isNotEmpty) {
@@ -640,7 +624,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(l.cancel),
         ),
         FilledButton(
           onPressed: () async {
@@ -657,7 +641,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               if (_url.text.trim().isEmpty) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('請輸入圖片網址')));
+                ).showSnackBar(SnackBar(content: Text(l.inputImageUrl)));
                 return;
               }
               try {
@@ -666,21 +650,21 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                   preferName: id,
                 );
                 imageUrl = _url.text.trim();
-              } catch (e) {
+              } catch (_) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text('下載失敗：$e')));
+                ).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
                 return;
               }
             } else {
               if (_pickedLocalPath == null) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('請選擇本地照片')));
+                ).showSnackBar(SnackBar(content: Text(l.pickLocalPhoto)));
                 return;
               }
               localPath = _pickedLocalPath!;
-              imageUrl = widget.initial?.imageUrl; // 保留原網址（若有）
+              imageUrl = widget.initial?.imageUrl;
             }
 
             Navigator.pop(
@@ -696,7 +680,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               ),
             );
           },
-          child: const Text('儲存'),
+          child: Text(l.save),
         ),
       ],
     );
@@ -706,28 +690,29 @@ class _EditCardDialogState extends State<_EditCardDialog> {
     height: 120,
     alignment: Alignment.center,
     color: Theme.of(context).colorScheme.surfaceVariant,
-    child: const Text('預覽失敗'),
+    child: Text(context.l10n.previewFailed),
   );
 
   Future<String?> _promptNewCategory(BuildContext context) async {
+    final l = context.l10n;
     final ctrl = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('新增分類'),
+        title: Text(l.addCategory),
         content: TextField(
           controller: ctrl,
-          decoration: const InputDecoration(hintText: '輸入分類名稱'),
+          decoration: InputDecoration(hintText: l.newCategoryNameHint),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(l.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, ctrl.text),
-            child: const Text('新增'),
+            child: Text(l.add),
           ),
         ],
       ),
@@ -735,14 +720,13 @@ class _EditCardDialogState extends State<_EditCardDialog> {
   }
 }
 
-// 勾選／新增分類 Dialog
 class _CategoryPickerDialog extends StatefulWidget {
   const _CategoryPickerDialog({
-    required this.settings, // ← 新增
+    required this.settings,
     required this.all,
     required this.selected,
   });
-  final AppSettings settings; // ← 新增
+  final AppSettings settings;
   final List<String> all;
   final List<String> selected;
 
@@ -762,8 +746,9 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('指派分類'),
+      title: Text(l.assignCategoryTitle),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -778,44 +763,43 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                       contentPadding: EdgeInsets.zero,
                       leading: Checkbox(
                         value: _sel.contains(cat),
-                        onChanged: (v) => setState(() {
-                          if (v == true)
-                            _sel.add(cat);
-                          else
-                            _sel.remove(cat);
-                        }),
+                        onChanged: (v) => setState(
+                          () => v == true ? _sel.add(cat) : _sel.remove(cat),
+                        ),
                       ),
                       title: Text(cat),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
-                        tooltip: '刪除分類',
+                        tooltip: l.deleteCategoryTooltip,
                         onPressed: () async {
                           final ok = await showDialog<bool>(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: const Text('刪除分類'),
-                              content: Text('確定要刪除分類「$cat」嗎？\n（將同時自所有卡片移除該分類）'),
+                              title: Text(l.deleteCategoryTitle),
+                              content: Text(l.deleteCategoryMessage(cat)),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.pop(context, false),
-                                  child: const Text('取消'),
+                                  child: Text(l.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('刪除'),
+                                  child: Text(l.delete),
                                 ),
                               ],
                             ),
                           );
                           if (ok == true) {
-                            widget.settings.removeCategory(cat); // ← 直接刪
+                            widget.settings.removeCategory(cat);
                             setState(() {
                               _sel.remove(cat);
-                              widget.all.remove(cat); // 對話框內即時更新列表
+                              widget.all.remove(cat);
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('已刪除分類：$cat')),
+                              SnackBar(
+                                content: Text(l.deletedCategoryToast(cat)),
+                              ),
                             );
                           }
                         },
@@ -830,8 +814,8 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                 Expanded(
                   child: TextField(
                     controller: _ctrl,
-                    decoration: const InputDecoration(
-                      hintText: '新增分類名稱',
+                    decoration: InputDecoration(
+                      hintText: l.newCategoryNameHint,
                       isDense: true,
                     ),
                   ),
@@ -842,7 +826,7 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                     final name = _ctrl.text.trim();
                     if (name.isEmpty) return;
                     if (!widget.all.contains(name)) {
-                      widget.settings.addCategory(name); // 保持和全域同步
+                      widget.settings.addCategory(name);
                       setState(() => widget.all.add(name));
                     }
                     setState(() => _sel.add(name));
@@ -857,11 +841,11 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(l.cancel),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _sel.toList()),
-          child: const Text('確定'),
+          child: Text(l.confirm),
         ),
       ],
     );

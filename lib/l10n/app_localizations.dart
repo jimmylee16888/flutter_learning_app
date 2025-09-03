@@ -5,8 +5,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_ja.dart';
+import 'app_localizations_ko.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -95,8 +97,10 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
     Locale('en'),
     Locale('ja'),
+    Locale('ko'),
     Locale('zh'),
     Locale('zh', 'TW'),
   ];
@@ -184,6 +188,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Japanese'**
   String get languageJa;
+
+  /// No description provided for @languageKo.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get languageKo;
+
+  /// No description provided for @languageDe.
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get languageDe;
 
   /// No description provided for @aboutTitle.
   ///
@@ -293,6 +309,48 @@ abstract class AppLocalizations {
   /// **'Favorited'**
   String get favorited;
 
+  /// No description provided for @accountStatusGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mode'**
+  String get accountStatusGuest;
+
+  /// No description provided for @accountStatusSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in'**
+  String get accountStatusSignedIn;
+
+  /// No description provided for @accountStatusSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out'**
+  String get accountStatusSignedOut;
+
+  /// No description provided for @accountGuestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Using guest mode; data is stored only on this device'**
+  String get accountGuestSubtitle;
+
+  /// No description provided for @accountNoInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'(No account info)'**
+  String get accountNoInfo;
+
+  /// No description provided for @accountBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to sign-in'**
+  String get accountBackToLogin;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
   /// No description provided for @helloDeveloperTitle.
   ///
   /// In en, this message translates to:
@@ -347,6 +405,114 @@ abstract class AppLocalizations {
   /// **'See collection stats: totals, sources, top artists'**
   String get stats_nav_subtitle;
 
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Mini Cards'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in or create an account to sync settings and data'**
+  String get welcomeSubtitle;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get authRegister;
+
+  /// No description provided for @authContinueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as guest'**
+  String get authContinueAsGuest;
+
+  /// No description provided for @authAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account (Email / any string)'**
+  String get authAccount;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authCreateAndSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account and sign in'**
+  String get authCreateAndSignIn;
+
+  /// No description provided for @authName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get authName;
+
+  /// No description provided for @authGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get authGender;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get genderFemale;
+
+  /// No description provided for @genderOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other/Prefer not to say'**
+  String get genderOther;
+
+  /// No description provided for @birthdayPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick date'**
+  String get birthdayPick;
+
+  /// No description provided for @birthdayNotChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get birthdayNotChosen;
+
+  /// No description provided for @errorLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed'**
+  String get errorLoginFailed;
+
+  /// No description provided for @errorRegisterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Register failed'**
+  String get errorRegisterFailed;
+
+  /// No description provided for @errorPickBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your birthday'**
+  String get errorPickBirthday;
+
   /// No description provided for @common_local.
   ///
   /// In en, this message translates to:
@@ -376,6 +542,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} ({pinyin})'**
   String nameWithPinyin(Object name, Object pinyin);
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @deleteCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete category'**
+  String get deleteCategoryTitle;
+
+  /// No description provided for @deleteCategoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”? This will also be removed from all cards.'**
+  String deleteCategoryMessage(Object name);
+
+  /// No description provided for @deletedCategoryToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted category: {name}'**
+  String deletedCategoryToast(Object name);
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name / card text'**
+  String get searchHint;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @noCards.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards'**
+  String get noCards;
+
+  /// No description provided for @addCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add card'**
+  String get addCard;
+
+  /// No description provided for @deleteCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete card'**
+  String get deleteCardTitle;
+
+  /// No description provided for @deleteCardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{title}”?'**
+  String deleteCardMessage(Object title);
+
+  /// No description provided for @deletedCardToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted: {title}'**
+  String deletedCardToast(Object title);
+
+  /// No description provided for @editCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get editCard;
+
+  /// No description provided for @categoryAssignOrAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign / add categories'**
+  String get categoryAssignOrAdd;
+
+  /// No description provided for @newCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New card'**
+  String get newCardTitle;
+
+  /// No description provided for @editCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get editCardTitle;
+
+  /// No description provided for @nameRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (required)'**
+  String get nameRequiredLabel;
+
+  /// No description provided for @imageByUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'By URL'**
+  String get imageByUrl;
+
+  /// No description provided for @imageByLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local photo'**
+  String get imageByLocal;
+
+  /// No description provided for @imageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL'**
+  String get imageUrl;
+
+  /// No description provided for @pickFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get pickFromGallery;
+
+  /// No description provided for @quoteOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote (optional)'**
+  String get quoteOptionalLabel;
+
+  /// No description provided for @pickBirthdayOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick birthday (optional)'**
+  String get pickBirthdayOptional;
+
+  /// No description provided for @inputImageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter image URL'**
+  String get inputImageUrl;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get downloadFailed;
+
+  /// No description provided for @pickLocalPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a local photo'**
+  String get pickLocalPhoto;
+
+  /// No description provided for @updatedCardToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Card updated'**
+  String get updatedCardToast;
+
+  /// No description provided for @manageCategoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get manageCategoriesTitle;
+
+  /// No description provided for @newCategoryNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New category name'**
+  String get newCategoryNameHint;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// No description provided for @deleteCategoryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete category'**
+  String get deleteCategoryTooltip;
+
+  /// No description provided for @assignCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign categories'**
+  String get assignCategoryTitle;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @confirmDeleteCategoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”? This category will be removed from all cards.'**
+  String confirmDeleteCategoryMessage(Object name);
+
+  /// No description provided for @addedCategoryToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Added category: {name}'**
+  String addedCategoryToast(Object name);
+
+  /// No description provided for @noMiniCardsPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No mini cards yet. Tap here or swipe up to add.'**
+  String get noMiniCardsPreviewHint;
+
+  /// No description provided for @detailSwipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up to open mini-cards (scan/share QR inside)'**
+  String get detailSwipeHint;
+
+  /// No description provided for @noMiniCardsEmptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'No mini cards yet. Tap + to add.'**
+  String get noMiniCardsEmptyList;
+
+  /// No description provided for @miniLocalImageBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Local image'**
+  String get miniLocalImageBadge;
+
+  /// No description provided for @miniHasBackBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Has back image'**
+  String get miniHasBackBadge;
+
+  /// No description provided for @tagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tagsLabel;
+
+  /// No description provided for @tagsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags {n}'**
+  String tagsCount(int n);
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nameLabel;
+
+  /// No description provided for @serialNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial number'**
+  String get serialNumber;
+
+  /// No description provided for @album.
+  ///
+  /// In en, this message translates to:
+  /// **'Album'**
+  String get album;
+
+  /// No description provided for @addAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Add album'**
+  String get addAlbum;
+
+  /// No description provided for @enterAlbumName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter album name'**
+  String get enterAlbumName;
+
+  /// No description provided for @cardType.
+  ///
+  /// In en, this message translates to:
+  /// **'Card type'**
+  String get cardType;
+
+  /// No description provided for @addCardType.
+  ///
+  /// In en, this message translates to:
+  /// **'Add card type'**
+  String get addCardType;
+
+  /// No description provided for @enterCardTypeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter card type name'**
+  String get enterCardTypeName;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteLabel;
+
+  /// No description provided for @newTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag…'**
+  String get newTagHint;
+
+  /// No description provided for @frontSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get frontSide;
+
+  /// No description provided for @backSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backSide;
+
+  /// No description provided for @frontImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Front image'**
+  String get frontImageTitle;
+
+  /// No description provided for @backImageTitleOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Back image (optional)'**
+  String get backImageTitleOptional;
+
+  /// No description provided for @frontImageUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Front image URL'**
+  String get frontImageUrlLabel;
+
+  /// No description provided for @backImageUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Back image URL'**
+  String get backImageUrlLabel;
+
+  /// No description provided for @clearUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear URL'**
+  String get clearUrl;
+
+  /// No description provided for @clearLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear local'**
+  String get clearLocal;
+
+  /// No description provided for @clearBackImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear back image'**
+  String get clearBackImage;
+
+  /// No description provided for @localPickedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked: Local'**
+  String get localPickedLabel;
+
+  /// No description provided for @miniCardEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit mini card'**
+  String get miniCardEditTitle;
+
+  /// No description provided for @miniCardNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New mini card'**
+  String get miniCardNewTitle;
+
+  /// No description provided for @errorFrontImageUrlRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the front image URL or switch to Local.'**
+  String get errorFrontImageUrlRequired;
+
+  /// No description provided for @errorFrontLocalRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a local front photo or switch to URL.'**
+  String get errorFrontLocalRequired;
 }
 
 class _AppLocalizationsDelegate
@@ -389,7 +945,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'ja', 'zh'].contains(locale.languageCode);
+      <String>['de', 'en', 'ja', 'ko', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -410,10 +966,14 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'de':
+      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
     case 'ja':
       return AppLocalizationsJa();
+    case 'ko':
+      return AppLocalizationsKo();
     case 'zh':
       return AppLocalizationsZh();
   }
