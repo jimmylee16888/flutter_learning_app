@@ -9,6 +9,9 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get authSignInWithGoogle => 'Google でサインイン';
+
+  @override
   String get appTitle => 'MyApp デモ';
 
   @override

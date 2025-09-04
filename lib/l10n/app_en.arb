@@ -1,5 +1,7 @@
 ﻿{
   "@@locale": "en",
+  "authSignInWithGoogle": "Sign in with Google",
+
   "appTitle": "MyApp Demo",
   "navCards": "Cards",
   "navExplore": "Explore",

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "766149685714",
+    "project_id": "pop-card-bf635",
+    "storage_bucket": "pop-card-bf635.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766149685714:android:3400c76587e1345d83580b",
+        "android_client_info": {
+          "package_name": "com.popcard.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.popcard.app",
+            "certificate_hash": "c0202e4b4e64626b951cf9c2568e08f041eb670d"
+          }
+        },
+        {
+          "client_id": "766149685714-ccjj2puk7qc31h750ageglji1o0oc9ab.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC50Y2VGwJpocL4RW6JLhLBrPcJbPajv6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "766149685714-ccjj2puk7qc31h750ageglji1o0oc9ab.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

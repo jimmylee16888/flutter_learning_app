@@ -1,5 +1,8 @@
 {
   "@@locale": "ko",
+  
+  "authSignInWithGoogle": "Google로 로그인",
+
   "appTitle": "MyApp 데모",
   "navCards": "카드",
   "navExplore": "탐색",

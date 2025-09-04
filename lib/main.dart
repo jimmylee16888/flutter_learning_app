@@ -1,6 +1,9 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart'; // ⬅ 新增
+import 'firebase_options.dart'; // ⬅ 新增
+
 import 'services/mini_card_store.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n.dart';
@@ -12,11 +15,15 @@ import 'screens/auth/login_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ⬇ 先連 Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   final settings = await AppSettings.load();
+
+  // ⬇ 用 Firebase 版的 AuthController（下面第 2 步會提供完整檔案）
   final auth = AuthController();
   await auth.init();
 
-  // ★ 先建立 store，並於啟動時把 SharedPreferences 的小卡灌進來
   final miniCardStore = MiniCardStore();
   await miniCardStore.hydrateFromPrefs(artists: settings.cardItems);
 
@@ -24,7 +31,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: miniCardStore),
-        ChangeNotifierProvider.value(value: auth), // ← 加這行
+        ChangeNotifierProvider.value(value: auth),
       ],
       child: AppRoot(settings: settings, auth: auth),
     ),

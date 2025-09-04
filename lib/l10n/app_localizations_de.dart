@@ -9,6 +9,9 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get authSignInWithGoogle => 'Mit Google anmelden';
+
+  @override
   String get appTitle => 'MyApp Demo';
 
   @override

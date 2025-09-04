@@ -1,5 +1,8 @@
 ﻿{
   "@@locale": "ja",
+
+  "authSignInWithGoogle": "Google でサインイン",
+
   "appTitle": "MyApp デモ",
   "navCards": "カード",
   "navExplore": "探索",

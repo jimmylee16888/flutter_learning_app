@@ -9,6 +9,9 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get authSignInWithGoogle => 'Google로 로그인';
+
+  @override
   String get appTitle => 'MyApp 데모';
 
   @override

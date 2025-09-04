@@ -1,5 +1,8 @@
 ﻿{
   "@@locale": "zh_TW",
+
+  "authSignInWithGoogle": "使用 Google 登入",
+  
   "appTitle": "MyApp 範例",
   "navCards": "卡片",
   "navExplore": "探索",

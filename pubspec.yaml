@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.0.3+1
+version: 1.0.4+1
 
 environment:
   sdk: ^3.9.0
@@ -17,7 +17,7 @@ dependencies:
 
   qr_flutter: ^4.1.0
   mobile_scanner: ^6.0.2
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
   cupertino_icons: ^1.0.8
 
   # 下載圖片、挑圖、存檔、分享
@@ -30,13 +30,17 @@ dependencies:
   google_mlkit_barcode_scanning: ^0.11.0
 
   # google 登入
-  google_sign_in: ^6.2.1
+  google_sign_in: ^7.1.1
 
   # 廣告/連結開啟
   url_launcher: ^6.3.0
   open_filex: ^4.5.0
   dio: ^5.9.0
   package_info_plus: ^8.3.1
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  cloud_firestore: ^6.0.1
+  firebase_analytics: ^12.0.1
 
 dev_dependencies:
   flutter_test:
@@ -58,3 +62,4 @@ flutter:
   assets:
     - assets/images/popcard.png
     - assets/images/ad_banner.png
+    - assets/images/pop_card_without_background.png

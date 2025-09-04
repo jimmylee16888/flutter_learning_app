@@ -9,6 +9,9 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get authSignInWithGoogle => '使用 Google 登入';
+
+  @override
   String get appTitle => 'MyApp 範例';
 
   @override
@@ -445,6 +448,9 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
+
+  @override
+  String get authSignInWithGoogle => '使用 Google 登入';
 
   @override
   String get appTitle => 'MyApp 範例';
