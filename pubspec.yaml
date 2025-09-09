@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.0.4+1
+version: 1.1.0
 
 environment:
   sdk: ^3.9.0
@@ -42,6 +42,9 @@ dependencies:
   cloud_firestore: ^6.0.1
   firebase_analytics: ^12.0.1
 
+  # 網路
+  connectivity_plus: ^6.0.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -51,9 +54,15 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/popcard.png
-  adaptive_icon_background: "#FFFFFF"
+
+  # 必填：兩端的來源圖
+  image_path_android: assets/images/popcard.png
+  image_path_ios: assets/images/popcard.png
+
+  # ANDROID Adaptive（有就會用 Adaptive；沒支援的密度會回退到 image_path_android）
   adaptive_icon_foreground: assets/images/popcard.png
+  adaptive_icon_background: "#FFFFFF"   # 或 assets/images/your_bg.png
+
 
 flutter:
   uses-material-design: true

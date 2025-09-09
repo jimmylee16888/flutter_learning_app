@@ -2,6 +2,9 @@
   "@@locale": "en",
   "authSignInWithGoogle": "Sign in with Google",
 
+  "continueAsGuest": "Continue as Guest",
+  "noNetworkGuestTip": "You're offline. You can continue as a guest.",
+
   "appTitle": "MyApp Demo",
   "navCards": "Cards",
   "navExplore": "Explore",
@@ -177,5 +180,61 @@
   "miniCardEditTitle": "Edit mini card",
   "miniCardNewTitle": "New mini card",
   "errorFrontImageUrlRequired": "Please enter the front image URL or switch to Local.",
-  "errorFrontLocalRequired": "Please choose a local front photo or switch to URL."
+  "errorFrontLocalRequired": "Please choose a local front photo or switch to URL.",
+
+  "userProfileTitle": "User profile",
+  "userProfileTile": "User profile",
+  "nicknameLabel": "Nickname",
+  "nicknameRequired": "Nickname is required",
+  "notSet": "Not set",
+  "clearBirthday": "Clear birthday",
+  "userProfileSaved": "Profile saved",
+  "ready": "All set",
+  "fillNicknameAndBirthday": "Please fill in nickname and birthday",
+
+  "navSocial": "Social",
+
+  "timeJustNow": "just now",
+  "timeMinutesAgo": "{n} min ago",
+  "@timeMinutesAgo": {"placeholders": {"n": {"type":"int"}}},
+  "timeHoursAgo": "{n} hr ago",
+  "@timeHoursAgo": {"placeholders": {"n": {"type":"int"}}},
+  "timeDaysAgo": "{n} day(s) ago",
+  "@timeDaysAgo": {"placeholders": {"n": {"type":"int"}}},
+
+  "socialFriends": "Friends",
+  "socialHot": "Hot",
+  "socialFollowing": "Following",
+
+  "publish": "Publish",
+  "socialShareHint": "What's on your mind?",
+  "leaveACommentHint": "Leave a comment…",
+  "commentsTitle": "Comments",
+  "commentsCount": "Comments ({n})",
+  "@commentsCount": {"placeholders": {"n":{"type":"int"}}},
+
+  "addTagHint": "Add a tag…",
+  "followedTag": "Followed #{tag}",
+  "@followedTag": {"placeholders": {"tag": {}}},
+  "unfollowedTag": "Unfollowed #{tag}",
+  "@unfollowedTag": {"placeholders": {"tag": {}}},
+
+  "friendCardsTitle": "Friend cards",
+  "addFriendCard": "Add card",
+  "editFriendCard": "Edit card",
+  "scanQr": "Scan QR code",
+  "tapToFlip": "Tap to flip",
+  "deleteFriendCardTitle": "Delete card",
+  "deleteFriendCardMessage": "Delete “{name}”?",
+  "@deleteFriendCardMessage": {"placeholders": {"name": {}}},
+  "followArtistsLabel": "Followed artists",
+
+  "limitReached": "Limit reached ({text})",
+  "@limitReached": {
+    "description": "Shown when the user tries to add more than the allowed tags.",
+    "placeholders": { "text": { "type": "String" } }
+  }
+
+  
+
 }

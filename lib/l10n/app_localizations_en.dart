@@ -12,6 +12,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignInWithGoogle => 'Sign in with Google';
 
   @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get noNetworkGuestTip =>
+      'You\'re offline. You can continue as a guest.';
+
+  @override
   String get appTitle => 'MyApp Demo';
 
   @override
@@ -450,4 +457,122 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorFrontLocalRequired =>
       'Please choose a local front photo or switch to URL.';
+
+  @override
+  String get userProfileTitle => 'User profile';
+
+  @override
+  String get userProfileTile => 'User profile';
+
+  @override
+  String get nicknameLabel => 'Nickname';
+
+  @override
+  String get nicknameRequired => 'Nickname is required';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get clearBirthday => 'Clear birthday';
+
+  @override
+  String get userProfileSaved => 'Profile saved';
+
+  @override
+  String get ready => 'All set';
+
+  @override
+  String get fillNicknameAndBirthday => 'Please fill in nickname and birthday';
+
+  @override
+  String get navSocial => 'Social';
+
+  @override
+  String get timeJustNow => 'just now';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n hr ago';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return '$n day(s) ago';
+  }
+
+  @override
+  String get socialFriends => 'Friends';
+
+  @override
+  String get socialHot => 'Hot';
+
+  @override
+  String get socialFollowing => 'Following';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String get socialShareHint => 'What\'s on your mind?';
+
+  @override
+  String get leaveACommentHint => 'Leave a comment…';
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String commentsCount(int n) {
+    return 'Comments ($n)';
+  }
+
+  @override
+  String get addTagHint => 'Add a tag…';
+
+  @override
+  String followedTag(Object tag) {
+    return 'Followed #$tag';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return 'Unfollowed #$tag';
+  }
+
+  @override
+  String get friendCardsTitle => 'Friend cards';
+
+  @override
+  String get addFriendCard => 'Add card';
+
+  @override
+  String get editFriendCard => 'Edit card';
+
+  @override
+  String get scanQr => 'Scan QR code';
+
+  @override
+  String get tapToFlip => 'Tap to flip';
+
+  @override
+  String get deleteFriendCardTitle => 'Delete card';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get followArtistsLabel => 'Followed artists';
+
+  @override
+  String limitReached(String text) {
+    return 'Limit reached ($text)';
+  }
 }

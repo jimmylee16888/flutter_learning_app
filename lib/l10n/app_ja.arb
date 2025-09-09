@@ -2,6 +2,8 @@
   "@@locale": "ja",
 
   "authSignInWithGoogle": "Google でサインイン",
+  "continueAsGuest": "ゲストとして続行",
+  "noNetworkGuestTip": "現在オフラインです。ゲストとして利用できます。",
 
   "appTitle": "MyApp デモ",
   "navCards": "カード",
@@ -167,5 +169,58 @@
   "miniCardEditTitle": "ミニカードを編集",
   "miniCardNewTitle": "新しいミニカード",
   "errorFrontImageUrlRequired": "表面画像のURLを入力するか、ローカルに切り替えてください。",
-  "errorFrontLocalRequired": "表面のローカル写真を選択するか、URLに戻してください。"
+  "errorFrontLocalRequired": "表面のローカル写真を選択するか、URLに戻してください。",
+
+  "userProfileTitle": "使用者設定",
+  "userProfileTile": "使用者設定",
+  "nicknameLabel": "暱稱",
+  "nicknameRequired": "暱稱不可空白",
+  "notSet": "未設定",
+  "clearBirthday": "清除生日",
+  "userProfileSaved": "已儲存使用者設定",
+  "ready": "已完成",
+  "fillNicknameAndBirthday": "請填寫暱稱與生日",
+
+  "navSocial": "ソーシャル",
+
+  "timeJustNow": "たった今",
+  "timeMinutesAgo": "{n} 分前",
+  "@timeMinutesAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeHoursAgo": "{n} 時間前",
+  "@timeHoursAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeDaysAgo": "{n} 日前",
+  "@timeDaysAgo": { "placeholders": { "n": { "type": "int" } } },
+
+  "socialFriends": "友達",
+  "socialHot": "人気",
+  "socialFollowing": "フォロー中",
+
+  "publish": "投稿",
+  "socialShareHint": "今なにしてる？",
+  "leaveACommentHint": "コメントを入力…",
+  "commentsTitle": "コメント",
+  "commentsCount": "コメント（{n}）",
+  "@commentsCount": { "placeholders": { "n": { "type": "int" } } },
+
+  "addTagHint": "タグを追加…",
+  "followedTag": "#{tag} をフォローしました",
+  "@followedTag": { "placeholders": { "tag": {} } },
+  "unfollowedTag": "#{tag} のフォローを解除しました",
+  "@unfollowedTag": { "placeholders": { "tag": {} } },
+
+  "friendCardsTitle": "友だち名刺",
+  "addFriendCard": "名刺を追加",
+  "editFriendCard": "名刺を編集",
+  "scanQr": "QRコードをスキャン",
+  "tapToFlip": "タップで反転",
+  "deleteFriendCardTitle": "名刺を削除",
+  "deleteFriendCardMessage": "「{name}」を削除しますか？",
+  "@deleteFriendCardMessage": { "placeholders": { "name": {} } },
+  "followArtistsLabel": "フォロー中のアーティスト",
+
+  "limitReached": "上限に達しました（{text}）",
+  "@limitReached": {
+    "description": "タグの上限を超えたときの案内",
+    "placeholders": { "text": { "type": "String" } }
+  }
 }

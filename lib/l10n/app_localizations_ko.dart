@@ -12,6 +12,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authSignInWithGoogle => 'Google로 로그인';
 
   @override
+  String get continueAsGuest => '게스트로 계속';
+
+  @override
+  String get noNetworkGuestTip => '현재 오프라인입니다. 게스트로 이용할 수 있습니다.';
+
+  @override
   String get appTitle => 'MyApp 데모';
 
   @override
@@ -444,4 +450,122 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorFrontLocalRequired => '앞면 로컬 사진을 선택하거나 URL로 다시 전환하세요.';
+
+  @override
+  String get userProfileTitle => '사용자 설정';
+
+  @override
+  String get userProfileTile => '사용자 설정';
+
+  @override
+  String get nicknameLabel => '닉네임';
+
+  @override
+  String get nicknameRequired => '닉네임은 필수입니다';
+
+  @override
+  String get notSet => '미설정';
+
+  @override
+  String get clearBirthday => '생일 지우기';
+
+  @override
+  String get userProfileSaved => '사용자 설정이 저장되었습니다';
+
+  @override
+  String get ready => '완료';
+
+  @override
+  String get fillNicknameAndBirthday => '닉네임과 생일을 입력해 주세요';
+
+  @override
+  String get navSocial => '소셜';
+
+  @override
+  String get timeJustNow => '방금 전';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n분 전';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n시간 전';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return '$n일 전';
+  }
+
+  @override
+  String get socialFriends => '친구';
+
+  @override
+  String get socialHot => '인기';
+
+  @override
+  String get socialFollowing => '팔로잉';
+
+  @override
+  String get publish => '게시';
+
+  @override
+  String get socialShareHint => '무슨 생각을 하고 있나요?';
+
+  @override
+  String get leaveACommentHint => '댓글을 남겨보세요…';
+
+  @override
+  String get commentsTitle => '댓글';
+
+  @override
+  String commentsCount(int n) {
+    return '댓글 $n개';
+  }
+
+  @override
+  String get addTagHint => '태그 추가…';
+
+  @override
+  String followedTag(Object tag) {
+    return '#$tag 팔로우함';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return '#$tag 팔로우 해제';
+  }
+
+  @override
+  String get friendCardsTitle => '친구 명함';
+
+  @override
+  String get addFriendCard => '명함 추가';
+
+  @override
+  String get editFriendCard => '명함 편집';
+
+  @override
+  String get scanQr => 'QR 코드 스캔';
+
+  @override
+  String get tapToFlip => '탭하여 뒤집기';
+
+  @override
+  String get deleteFriendCardTitle => '명함 삭제';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return '“$name”을(를) 삭제하시겠습니까?';
+  }
+
+  @override
+  String get followArtistsLabel => '팔로우하는 아티스트';
+
+  @override
+  String limitReached(String text) {
+    return '최대 한도에 도달했습니다 ($text)';
+  }
 }

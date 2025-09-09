@@ -111,6 +111,18 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get authSignInWithGoogle;
 
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @noNetworkGuestTip.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. You can continue as a guest.'**
+  String get noNetworkGuestTip;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -938,6 +950,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please choose a local front photo or switch to URL.'**
   String get errorFrontLocalRequired;
+
+  /// No description provided for @userProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User profile'**
+  String get userProfileTitle;
+
+  /// No description provided for @userProfileTile.
+  ///
+  /// In en, this message translates to:
+  /// **'User profile'**
+  String get userProfileTile;
+
+  /// No description provided for @nicknameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
+  String get nicknameLabel;
+
+  /// No description provided for @nicknameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname is required'**
+  String get nicknameRequired;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @clearBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear birthday'**
+  String get clearBirthday;
+
+  /// No description provided for @userProfileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get userProfileSaved;
+
+  /// No description provided for @ready.
+  ///
+  /// In en, this message translates to:
+  /// **'All set'**
+  String get ready;
+
+  /// No description provided for @fillNicknameAndBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in nickname and birthday'**
+  String get fillNicknameAndBirthday;
+
+  /// No description provided for @navSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Social'**
+  String get navSocial;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min ago'**
+  String timeMinutesAgo(int n);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} hr ago'**
+  String timeHoursAgo(int n);
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} day(s) ago'**
+  String timeDaysAgo(int n);
+
+  /// No description provided for @socialFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get socialFriends;
+
+  /// No description provided for @socialHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get socialHot;
+
+  /// No description provided for @socialFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get socialFollowing;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @socialShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s on your mind?'**
+  String get socialShareHint;
+
+  /// No description provided for @leaveACommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a comment…'**
+  String get leaveACommentHint;
+
+  /// No description provided for @commentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// No description provided for @commentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments ({n})'**
+  String commentsCount(int n);
+
+  /// No description provided for @addTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag…'**
+  String get addTagHint;
+
+  /// No description provided for @followedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Followed #{tag}'**
+  String followedTag(Object tag);
+
+  /// No description provided for @unfollowedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollowed #{tag}'**
+  String unfollowedTag(Object tag);
+
+  /// No description provided for @friendCardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend cards'**
+  String get friendCardsTitle;
+
+  /// No description provided for @addFriendCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add card'**
+  String get addFriendCard;
+
+  /// No description provided for @editFriendCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get editFriendCard;
+
+  /// No description provided for @scanQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code'**
+  String get scanQr;
+
+  /// No description provided for @tapToFlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to flip'**
+  String get tapToFlip;
+
+  /// No description provided for @deleteFriendCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete card'**
+  String get deleteFriendCardTitle;
+
+  /// No description provided for @deleteFriendCardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String deleteFriendCardMessage(Object name);
+
+  /// No description provided for @followArtistsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Followed artists'**
+  String get followArtistsLabel;
+
+  /// Shown when the user tries to add more than the allowed tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit reached ({text})'**
+  String limitReached(String text);
 }
 
 class _AppLocalizationsDelegate

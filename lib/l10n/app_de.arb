@@ -3,6 +3,9 @@
   
   "authSignInWithGoogle": "Mit Google anmelden",
 
+  "continueAsGuest": "Als Gast fortfahren",
+  "noNetworkGuestTip": "Sie sind offline. Sie können als Gast fortfahren.",
+
   "appTitle": "MyApp Demo",
   "navCards": "Karten",
   "navExplore": "Entdecken",
@@ -168,6 +171,59 @@
   "miniCardEditTitle": "Mini-Karte bearbeiten",
   "miniCardNewTitle": "Neue Mini-Karte",
   "errorFrontImageUrlRequired": "Bitte geben Sie eine URL für das Bild der Vorderseite ein oder wechseln Sie zu lokal.",
-  "errorFrontLocalRequired": "Bitte wählen Sie ein lokales Foto der Vorderseite aus oder wechseln Sie zurück zur URL."
+  "errorFrontLocalRequired": "Bitte wählen Sie ein lokales Foto der Vorderseite aus oder wechseln Sie zurück zur URL.",
+
+  "userProfileTitle": "Benutzereinstellungen",
+  "userProfileTile": "Benutzereinstellungen",
+  "nicknameLabel": "Spitzname",
+  "nicknameRequired": "Spitzname ist erforderlich",
+  "notSet": "Nicht festgelegt",
+  "clearBirthday": "Geburtstag löschen",
+  "userProfileSaved": "Benutzereinstellungen gespeichert",
+  "ready": "Fertig",
+  "fillNicknameAndBirthday": "Bitte Spitzname und Geburtstag ausfüllen",
+
+  "navSocial": "Sozial",
+
+  "timeJustNow": "Gerade eben",
+  "timeMinutesAgo": "vor {n} Min.",
+  "@timeMinutesAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeHoursAgo": "vor {n} Std.",
+  "@timeHoursAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeDaysAgo": "vor {n} Tagen",
+  "@timeDaysAgo": { "placeholders": { "n": { "type": "int" } } },
+
+  "socialFriends": "Freunde",
+  "socialHot": "Beliebt",
+  "socialFollowing": "Folge ich",
+
+  "publish": "Veröffentlichen",
+  "socialShareHint": "Woran denkst du gerade?",
+  "leaveACommentHint": "Einen Kommentar schreiben…",
+  "commentsTitle": "Kommentare",
+  "commentsCount": "Kommentare ({n})",
+  "@commentsCount": { "placeholders": { "n": { "type": "int" } } },
+
+  "addTagHint": "Tag hinzufügen…",
+  "followedTag": "#{tag} gefolgt",
+  "@followedTag": { "placeholders": { "tag": {} } },
+  "unfollowedTag": "Folgen für #{tag} entfernt",
+  "@unfollowedTag": { "placeholders": { "tag": {} } },
+
+  "friendCardsTitle": "Freundekarten",
+  "addFriendCard": "Karte hinzufügen",
+  "editFriendCard": "Karte bearbeiten",
+  "scanQr": "QR-Code scannen",
+  "tapToFlip": "Tippen zum Umdrehen",
+  "deleteFriendCardTitle": "Karte löschen",
+  "deleteFriendCardMessage": "„{name}“ löschen?",
+  "@deleteFriendCardMessage": { "placeholders": { "name": {} } },
+  "followArtistsLabel": "Verfolgte Künstler",
+  "limitReached": "Limit erreicht ({text})",
+  "@limitReached": {
+    "description": "Hinweis beim Überschreiten des Tag-Limits",
+    "placeholders": { "text": { "type": "String" } }
+  }
+
 
 }

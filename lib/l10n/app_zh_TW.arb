@@ -2,6 +2,9 @@
   "@@locale": "zh_TW",
 
   "authSignInWithGoogle": "使用 Google 登入",
+
+  "continueAsGuest": "以訪客使用",
+  "noNetworkGuestTip": "目前離線，您可改以訪客使用",
   
   "appTitle": "MyApp 範例",
   "navCards": "卡片",
@@ -168,5 +171,58 @@
   "miniCardEditTitle": "編輯小卡",
   "miniCardNewTitle": "新增小卡",
   "errorFrontImageUrlRequired": "請輸入正面圖片網址或切換為本地。",
-  "errorFrontLocalRequired": "請選擇正面本地照片或切回網址。"
+  "errorFrontLocalRequired": "請選擇正面本地照片或切回網址。",
+
+  "userProfileTitle": "使用者設定",
+  "userProfileTile": "使用者設定",
+  "nicknameLabel": "暱稱",
+  "nicknameRequired": "暱稱不可空白",
+  "notSet": "未設定",
+  "clearBirthday": "清除生日",
+  "userProfileSaved": "已儲存使用者設定",
+  "ready": "已完成",
+  "fillNicknameAndBirthday": "請填寫暱稱與生日",
+
+  "navSocial": "社群",
+
+  "timeJustNow": "剛剛",
+  "timeMinutesAgo": "{n} 分鐘前",
+  "@timeMinutesAgo": {"placeholders": {"n":{"type":"int"}}},
+  "timeHoursAgo": "{n} 小時前",
+  "@timeHoursAgo": {"placeholders": {"n":{"type":"int"}}},
+  "timeDaysAgo": "{n} 天前",
+  "@timeDaysAgo": {"placeholders": {"n":{"type":"int"}}},
+
+  "socialFriends": "好友",
+  "socialHot": "熱門",
+  "socialFollowing": "追蹤",
+
+  "publish": "發佈",
+  "socialShareHint": "想分享什麼？",
+  "leaveACommentHint": "留下你的想法…",
+  "commentsTitle": "留言",
+  "commentsCount": "留言（{n}）",
+  "@commentsCount": {"placeholders": {"n":{"type":"int"}}},
+
+  "addTagHint": "新增標籤…",
+  "followedTag": "已追蹤 #{tag}",
+  "@followedTag": {"placeholders": {"tag": {}}},
+  "unfollowedTag": "已取消追蹤 #{tag}",
+  "@unfollowedTag": {"placeholders": {"tag": {}}},
+
+  "friendCardsTitle": "好友名片",
+  "addFriendCard": "新增名片",
+  "editFriendCard": "編輯名片",
+  "scanQr": "掃描 QRCode",
+  "tapToFlip": "點擊可翻面",
+  "deleteFriendCardTitle": "刪除名片",
+  "deleteFriendCardMessage": "確定刪除「{name}」嗎？",
+  "@deleteFriendCardMessage": {"placeholders": {"name": {}}},
+  "followArtistsLabel": "追蹤的藝人",
+
+  "limitReached": "已達上限（{text}）",
+  "@limitReached": {
+    "description": "顯示超過可新增標籤上限時的提示",
+    "placeholders": { "text": { "type": "String" } }
+  }
 }

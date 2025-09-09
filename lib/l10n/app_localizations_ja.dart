@@ -12,6 +12,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get authSignInWithGoogle => 'Google でサインイン';
 
   @override
+  String get continueAsGuest => 'ゲストとして続行';
+
+  @override
+  String get noNetworkGuestTip => '現在オフラインです。ゲストとして利用できます。';
+
+  @override
   String get appTitle => 'MyApp デモ';
 
   @override
@@ -444,4 +450,122 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorFrontLocalRequired => '表面のローカル写真を選択するか、URLに戻してください。';
+
+  @override
+  String get userProfileTitle => '使用者設定';
+
+  @override
+  String get userProfileTile => '使用者設定';
+
+  @override
+  String get nicknameLabel => '暱稱';
+
+  @override
+  String get nicknameRequired => '暱稱不可空白';
+
+  @override
+  String get notSet => '未設定';
+
+  @override
+  String get clearBirthday => '清除生日';
+
+  @override
+  String get userProfileSaved => '已儲存使用者設定';
+
+  @override
+  String get ready => '已完成';
+
+  @override
+  String get fillNicknameAndBirthday => '請填寫暱稱與生日';
+
+  @override
+  String get navSocial => 'ソーシャル';
+
+  @override
+  String get timeJustNow => 'たった今';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n 分前';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n 時間前';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return '$n 日前';
+  }
+
+  @override
+  String get socialFriends => '友達';
+
+  @override
+  String get socialHot => '人気';
+
+  @override
+  String get socialFollowing => 'フォロー中';
+
+  @override
+  String get publish => '投稿';
+
+  @override
+  String get socialShareHint => '今なにしてる？';
+
+  @override
+  String get leaveACommentHint => 'コメントを入力…';
+
+  @override
+  String get commentsTitle => 'コメント';
+
+  @override
+  String commentsCount(int n) {
+    return 'コメント（$n）';
+  }
+
+  @override
+  String get addTagHint => 'タグを追加…';
+
+  @override
+  String followedTag(Object tag) {
+    return '#$tag をフォローしました';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return '#$tag のフォローを解除しました';
+  }
+
+  @override
+  String get friendCardsTitle => '友だち名刺';
+
+  @override
+  String get addFriendCard => '名刺を追加';
+
+  @override
+  String get editFriendCard => '名刺を編集';
+
+  @override
+  String get scanQr => 'QRコードをスキャン';
+
+  @override
+  String get tapToFlip => 'タップで反転';
+
+  @override
+  String get deleteFriendCardTitle => '名刺を削除';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return '「$name」を削除しますか？';
+  }
+
+  @override
+  String get followArtistsLabel => 'フォロー中のアーティスト';
+
+  @override
+  String limitReached(String text) {
+    return '上限に達しました（$text）';
+  }
 }

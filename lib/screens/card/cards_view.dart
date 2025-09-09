@@ -180,86 +180,155 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  // ====== 單一卡片（右滑編輯、左滑刪除；零間隙）======
+  // ====== 上層照片可滑（位移限制 < 下層寬度），下層編輯/刪除；圓角無縫 ======
   Widget _buildTile(CardItem it) {
     final l = context.l10n;
-    final errorColor = Theme.of(context).colorScheme.error;
-    final primary = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final errorColor = theme.colorScheme.error;
+    final primary = theme.colorScheme.primary;
 
-    Widget slideBg({
-      required Alignment align,
-      required Color color,
-      required IconData icon,
-    }) {
-      return Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(_tileRadius + 6),
-        ),
-        alignment: align,
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        child: Icon(icon, color: errorColor, size: 22),
-      );
-    }
+    final BorderRadius outerR = BorderRadius.circular(_tileRadius); // 外層統一裁切
+    final BorderRadius innerR = BorderRadius.circular(
+      _tileRadius + 0.8,
+    ); // 內層略大，避免細縫
+
+    const double bgRatio = 0.40; // 下層區塊寬度 = 卡片寬 * 0.40
+    const double minBg = 120.0; // 下層最小寬
+    const double maxBg = 220.0; // 下層最大寬
+    const double dragInset = 12.0; // ★ 上層最大拖動距離 = 下層寬 - 這個像素（讓它略小於下層）
+    const double triggerRatio = 0.66; // 觸發門檻（相對 dragLimit）
 
     return Padding(
       padding: const EdgeInsets.all(6),
-      child: Dismissible(
-        key: ValueKey(it.id),
-        direction: DismissDirection.horizontal,
-        background: slideBg(
-          align: Alignment.centerLeft,
-          color: primary.withOpacity(0.12),
-          icon: Icons.edit,
-        ),
-        secondaryBackground: slideBg(
-          align: Alignment.centerRight,
-          color: errorColor.withOpacity(0.15),
-          icon: Icons.delete,
-        ),
-        confirmDismiss: (dir) async {
-          if (dir == DismissDirection.startToEnd) {
-            await _editCardFlow(it);
-            return false;
+      child: LayoutBuilder(
+        builder: (context, c) {
+          // 下層顯示寬度（編輯/刪除）
+          final double actionW = (c.maxWidth * bgRatio).clamp(minBg, maxBg);
+
+          // ★ 上層實際允許的最大位移（略小於下層）
+          final double dragLimit = (actionW - dragInset).clamp(80.0, actionW);
+
+          double dx = 0; // 左負右正（限制在 ±dragLimit）
+
+          Future<void> _animateBack(StateSetter setStateSB) async {
+            setStateSB(() => dx = 0);
           }
-          return await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: Text(l.deleteCardTitle),
-                  content: Text(l.deleteCardMessage(it.title)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: Text(l.cancel),
+
+          Future<void> _handleEnd(StateSetter setStateSB) async {
+            final double threshold = dragLimit * triggerRatio; // 門檻用 dragLimit
+            if (dx >= threshold) {
+              await _editCardFlow(it);
+              await _animateBack(setStateSB);
+            } else if (dx <= -threshold) {
+              final ok =
+                  await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: Text(l.deleteCardTitle),
+                      content: Text(l.deleteCardMessage(it.title)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(l.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(l.delete),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(l.delete),
-                    ),
-                  ],
+                  ) ??
+                  false;
+              if (ok) {
+                widget.settings.removeCard(it.id);
+                if (mounted) {
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.deletedCardToast(it.title))),
+                  );
+                }
+              } else {
+                await _animateBack(setStateSB);
+              }
+            } else {
+              await _animateBack(setStateSB);
+            }
+          }
+
+          return ClipRRect(
+            borderRadius: outerR,
+            clipBehavior: Clip.antiAlias, // 外層統一裁切（背景＋前景），無縫
+            child: Stack(
+              children: [
+                // ─── 下層：編輯 / 刪除背景（左右各一塊，寬度 = actionW） ───
+                Positioned.fill(
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: actionW,
+                        child: Container(
+                          color: primary.withOpacity(0.12),
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Icon(Icons.edit, color: errorColor, size: 22),
+                        ),
+                      ),
+                      const Expanded(child: SizedBox.shrink()),
+                      SizedBox(
+                        width: actionW,
+                        child: Container(
+                          color: errorColor.withOpacity(0.15),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Icon(
+                            Icons.delete,
+                            color: errorColor,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ) ??
-              false;
+
+                // ─── 上層：照片（位移限制在 ±dragLimit） ───
+                StatefulBuilder(
+                  builder: (context, setStateSB) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragUpdate: (d) {
+                        setStateSB(() {
+                          dx = (dx + d.delta.dx).clamp(
+                            -dragLimit,
+                            dragLimit,
+                          ); // ★ 用 dragLimit
+                        });
+                      },
+                      onHorizontalDragEnd: (_) => _handleEnd(setStateSB),
+                      onHorizontalDragCancel: () => _handleEnd(setStateSB),
+
+                      child: AnimatedSlide(
+                        duration: const Duration(milliseconds: 160),
+                        curve: Curves.easeOut,
+                        offset: Offset(dx / c.maxWidth, 0),
+                        child: ClipRRect(
+                          borderRadius: innerR,
+                          clipBehavior: Clip.antiAlias,
+                          child: PhotoQuoteCard(
+                            image: imageProviderOfCardItem(it),
+                            title: it.title,
+                            birthday: it.birthday,
+                            quote: it.quote,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
         },
-        onDismissed: (dir) {
-          if (dir == DismissDirection.endToStart) {
-            widget.settings.removeCard(it.id);
-            setState(() {});
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l.deletedCardToast(it.title))),
-            );
-          }
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(_tileRadius),
-          clipBehavior: Clip.hardEdge,
-          child: PhotoQuoteCard(
-            image: imageProviderOfCardItem(it),
-            title: it.title,
-            birthday: it.birthday,
-            quote: it.quote,
-          ),
-        ),
       ),
     );
   }

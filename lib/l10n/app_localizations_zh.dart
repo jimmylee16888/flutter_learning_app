@@ -12,6 +12,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authSignInWithGoogle => '使用 Google 登入';
 
   @override
+  String get continueAsGuest => '以訪客使用';
+
+  @override
+  String get noNetworkGuestTip => '目前離線，您可改以訪客使用';
+
+  @override
   String get appTitle => 'MyApp 範例';
 
   @override
@@ -443,6 +449,124 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
+
+  @override
+  String get userProfileTitle => '使用者設定';
+
+  @override
+  String get userProfileTile => '使用者設定';
+
+  @override
+  String get nicknameLabel => '暱稱';
+
+  @override
+  String get nicknameRequired => '暱稱不可空白';
+
+  @override
+  String get notSet => '未設定';
+
+  @override
+  String get clearBirthday => '清除生日';
+
+  @override
+  String get userProfileSaved => '已儲存使用者設定';
+
+  @override
+  String get ready => '已完成';
+
+  @override
+  String get fillNicknameAndBirthday => '請填寫暱稱與生日';
+
+  @override
+  String get navSocial => '社群';
+
+  @override
+  String get timeJustNow => '剛剛';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n 分鐘前';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n 小時前';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return '$n 天前';
+  }
+
+  @override
+  String get socialFriends => '好友';
+
+  @override
+  String get socialHot => '熱門';
+
+  @override
+  String get socialFollowing => '追蹤';
+
+  @override
+  String get publish => '發佈';
+
+  @override
+  String get socialShareHint => '想分享什麼？';
+
+  @override
+  String get leaveACommentHint => '留下你的想法…';
+
+  @override
+  String get commentsTitle => '留言';
+
+  @override
+  String commentsCount(int n) {
+    return '留言（$n）';
+  }
+
+  @override
+  String get addTagHint => '新增標籤…';
+
+  @override
+  String followedTag(Object tag) {
+    return '已追蹤 #$tag';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return '已取消追蹤 #$tag';
+  }
+
+  @override
+  String get friendCardsTitle => '好友名片';
+
+  @override
+  String get addFriendCard => '新增名片';
+
+  @override
+  String get editFriendCard => '編輯名片';
+
+  @override
+  String get scanQr => '掃描 QRCode';
+
+  @override
+  String get tapToFlip => '點擊可翻面';
+
+  @override
+  String get deleteFriendCardTitle => '刪除名片';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return '確定刪除「$name」嗎？';
+  }
+
+  @override
+  String get followArtistsLabel => '追蹤的藝人';
+
+  @override
+  String limitReached(String text) {
+    return '已達上限（$text）';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -453,6 +577,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get authSignInWithGoogle => '使用 Google 登入';
 
   @override
+  String get continueAsGuest => '以訪客使用';
+
+  @override
+  String get noNetworkGuestTip => '目前離線，您可改以訪客使用';
+
+  @override
   String get appTitle => 'MyApp 範例';
 
   @override
@@ -884,4 +1014,122 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
+
+  @override
+  String get userProfileTitle => '使用者設定';
+
+  @override
+  String get userProfileTile => '使用者設定';
+
+  @override
+  String get nicknameLabel => '暱稱';
+
+  @override
+  String get nicknameRequired => '暱稱不可空白';
+
+  @override
+  String get notSet => '未設定';
+
+  @override
+  String get clearBirthday => '清除生日';
+
+  @override
+  String get userProfileSaved => '已儲存使用者設定';
+
+  @override
+  String get ready => '已完成';
+
+  @override
+  String get fillNicknameAndBirthday => '請填寫暱稱與生日';
+
+  @override
+  String get navSocial => '社群';
+
+  @override
+  String get timeJustNow => '剛剛';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n 分鐘前';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n 小時前';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return '$n 天前';
+  }
+
+  @override
+  String get socialFriends => '好友';
+
+  @override
+  String get socialHot => '熱門';
+
+  @override
+  String get socialFollowing => '追蹤';
+
+  @override
+  String get publish => '發佈';
+
+  @override
+  String get socialShareHint => '想分享什麼？';
+
+  @override
+  String get leaveACommentHint => '留下你的想法…';
+
+  @override
+  String get commentsTitle => '留言';
+
+  @override
+  String commentsCount(int n) {
+    return '留言（$n）';
+  }
+
+  @override
+  String get addTagHint => '新增標籤…';
+
+  @override
+  String followedTag(Object tag) {
+    return '已追蹤 #$tag';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return '已取消追蹤 #$tag';
+  }
+
+  @override
+  String get friendCardsTitle => '好友名片';
+
+  @override
+  String get addFriendCard => '新增名片';
+
+  @override
+  String get editFriendCard => '編輯名片';
+
+  @override
+  String get scanQr => '掃描 QRCode';
+
+  @override
+  String get tapToFlip => '點擊可翻面';
+
+  @override
+  String get deleteFriendCardTitle => '刪除名片';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return '確定刪除「$name」嗎？';
+  }
+
+  @override
+  String get followArtistsLabel => '追蹤的藝人';
+
+  @override
+  String limitReached(String text) {
+    return '已達上限（$text）';
+  }
 }

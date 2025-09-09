@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "766149685714-ag0u52r114ciq7q44fhkqbd5s53omk4u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.popcard.app",
+            "certificate_hash": "e97dd461844337dbfcd804d6c76cee4a5b6d4408"
+          }
+        },
+        {
           "client_id": "766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -37,6 +45,13 @@
             {
               "client_id": "766149685714-ccjj2puk7qc31h750ageglji1o0oc9ab.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "766149685714-jvpc78c82du92a73bl3rqq5g4euah4nv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterLearningApp"
+              }
             }
           ]
         }

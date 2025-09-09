@@ -12,6 +12,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authSignInWithGoogle => 'Mit Google anmelden';
 
   @override
+  String get continueAsGuest => 'Als Gast fortfahren';
+
+  @override
+  String get noNetworkGuestTip =>
+      'Sie sind offline. Sie können als Gast fortfahren.';
+
+  @override
   String get appTitle => 'MyApp Demo';
 
   @override
@@ -452,4 +459,123 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get errorFrontLocalRequired =>
       'Bitte wählen Sie ein lokales Foto der Vorderseite aus oder wechseln Sie zurück zur URL.';
+
+  @override
+  String get userProfileTitle => 'Benutzereinstellungen';
+
+  @override
+  String get userProfileTile => 'Benutzereinstellungen';
+
+  @override
+  String get nicknameLabel => 'Spitzname';
+
+  @override
+  String get nicknameRequired => 'Spitzname ist erforderlich';
+
+  @override
+  String get notSet => 'Nicht festgelegt';
+
+  @override
+  String get clearBirthday => 'Geburtstag löschen';
+
+  @override
+  String get userProfileSaved => 'Benutzereinstellungen gespeichert';
+
+  @override
+  String get ready => 'Fertig';
+
+  @override
+  String get fillNicknameAndBirthday =>
+      'Bitte Spitzname und Geburtstag ausfüllen';
+
+  @override
+  String get navSocial => 'Sozial';
+
+  @override
+  String get timeJustNow => 'Gerade eben';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return 'vor $n Min.';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return 'vor $n Std.';
+  }
+
+  @override
+  String timeDaysAgo(int n) {
+    return 'vor $n Tagen';
+  }
+
+  @override
+  String get socialFriends => 'Freunde';
+
+  @override
+  String get socialHot => 'Beliebt';
+
+  @override
+  String get socialFollowing => 'Folge ich';
+
+  @override
+  String get publish => 'Veröffentlichen';
+
+  @override
+  String get socialShareHint => 'Woran denkst du gerade?';
+
+  @override
+  String get leaveACommentHint => 'Einen Kommentar schreiben…';
+
+  @override
+  String get commentsTitle => 'Kommentare';
+
+  @override
+  String commentsCount(int n) {
+    return 'Kommentare ($n)';
+  }
+
+  @override
+  String get addTagHint => 'Tag hinzufügen…';
+
+  @override
+  String followedTag(Object tag) {
+    return '#$tag gefolgt';
+  }
+
+  @override
+  String unfollowedTag(Object tag) {
+    return 'Folgen für #$tag entfernt';
+  }
+
+  @override
+  String get friendCardsTitle => 'Freundekarten';
+
+  @override
+  String get addFriendCard => 'Karte hinzufügen';
+
+  @override
+  String get editFriendCard => 'Karte bearbeiten';
+
+  @override
+  String get scanQr => 'QR-Code scannen';
+
+  @override
+  String get tapToFlip => 'Tippen zum Umdrehen';
+
+  @override
+  String get deleteFriendCardTitle => 'Karte löschen';
+
+  @override
+  String deleteFriendCardMessage(Object name) {
+    return '„$name“ löschen?';
+  }
+
+  @override
+  String get followArtistsLabel => 'Verfolgte Künstler';
+
+  @override
+  String limitReached(String text) {
+    return 'Limit erreicht ($text)';
+  }
 }

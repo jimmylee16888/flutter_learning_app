@@ -3,6 +3,9 @@
   
   "authSignInWithGoogle": "Google로 로그인",
 
+  "continueAsGuest": "게스트로 계속",
+  "noNetworkGuestTip": "현재 오프라인입니다. 게스트로 이용할 수 있습니다.",
+
   "appTitle": "MyApp 데모",
   "navCards": "카드",
   "navExplore": "탐색",
@@ -170,5 +173,61 @@
   "miniCardEditTitle": "미니 카드 편집",
   "miniCardNewTitle": "새 미니 카드",
   "errorFrontImageUrlRequired": "앞면 이미지 URL을 입력하거나 로컬로 전환하세요.",
-  "errorFrontLocalRequired": "앞면 로컬 사진을 선택하거나 URL로 다시 전환하세요."
+  "errorFrontLocalRequired": "앞면 로컬 사진을 선택하거나 URL로 다시 전환하세요.",
+
+  "userProfileTitle": "사용자 설정",
+  "userProfileTile": "사용자 설정",
+  "nicknameLabel": "닉네임",
+  "nicknameRequired": "닉네임은 필수입니다",
+  "notSet": "미설정",
+  "clearBirthday": "생일 지우기",
+  "userProfileSaved": "사용자 설정이 저장되었습니다",
+  "ready": "완료",
+  "fillNicknameAndBirthday": "닉네임과 생일을 입력해 주세요",
+
+
+  "navSocial": "소셜",
+
+  "timeJustNow": "방금 전",
+  "timeMinutesAgo": "{n}분 전",
+  "@timeMinutesAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeHoursAgo": "{n}시간 전",
+  "@timeHoursAgo": { "placeholders": { "n": { "type": "int" } } },
+  "timeDaysAgo": "{n}일 전",
+  "@timeDaysAgo": { "placeholders": { "n": { "type": "int" } } },
+
+  "socialFriends": "친구",
+  "socialHot": "인기",
+  "socialFollowing": "팔로잉",
+
+  "publish": "게시",
+
+  "socialShareHint": "무슨 생각을 하고 있나요?",
+  "leaveACommentHint": "댓글을 남겨보세요…",
+  "commentsTitle": "댓글",
+  "commentsCount": "댓글 {n}개",
+  "@commentsCount": { "placeholders": { "n": { "type": "int" } } },
+
+
+  "addTagHint": "태그 추가…",
+  "followedTag": "#{tag} 팔로우함",
+  "@followedTag": { "placeholders": { "tag": {} } },
+  "unfollowedTag": "#{tag} 팔로우 해제",
+  "@unfollowedTag": { "placeholders": { "tag": {} } },
+
+  "friendCardsTitle": "친구 명함",
+  "addFriendCard": "명함 추가",
+  "editFriendCard": "명함 편집",
+  "scanQr": "QR 코드 스캔",
+  "tapToFlip": "탭하여 뒤집기",
+  "deleteFriendCardTitle": "명함 삭제",
+  "deleteFriendCardMessage": "“{name}”을(를) 삭제하시겠습니까?",
+  "@deleteFriendCardMessage": { "placeholders": { "name": {} } },
+  "followArtistsLabel": "팔로우하는 아티스트",
+
+  "limitReached": "최대 한도에 도달했습니다 ({text})",
+  "@limitReached": {
+    "description": "태그 최대 개수를 초과했을 때 표시",
+    "placeholders": { "text": { "type": "String" } }
+  }
 }
