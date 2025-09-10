@@ -142,16 +142,20 @@ class SettingsView extends StatelessWidget {
               if (isSignedIn) {
                 await auth.signOut();
               } else {
-                final ok = await auth.loginWithGoogle();
+                // ← 這裡解構 (ok, reason)
+                final (ok, reason) = await auth.loginWithGoogle();
                 if (!context.mounted) return;
                 if (!ok) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(l.errorLoginFailed)));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('登入失敗：${reason ?? l.errorLoginFailed}'),
+                    ),
+                  );
                 }
               }
             },
           ),
+
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(

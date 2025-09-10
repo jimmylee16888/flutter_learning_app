@@ -1,90 +1,21 @@
 // lib/screens/social/social_feed_page.dart
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui'; // for ImageFilter
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../app_settings.dart';
 import '../../l10n/l10n.dart';
 import 'friend_cards_page.dart';
 
-/// ───────────────────────────────────────────────────────────────
-/// 簡易模型 + 假資料（若你已有 models/social_models.dart，可改用該檔）
-/// ───────────────────────────────────────────────────────────────
-class SocialUser {
-  final String id;
-  final String name;
-  final String? avatarAsset;
-  const SocialUser({required this.id, required this.name, this.avatarAsset});
-}
+// models / services / 本地標籤記憶
+import '../../models/social_models.dart';
+import '../../services/social_api.dart';
+import '../../services/tag_prefs.dart';
 
-class SocialComment {
-  final String id;
-  final SocialUser author;
-  final String text;
-  final DateTime createdAt;
-  SocialComment({
-    required this.id,
-    required this.author,
-    required this.text,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
-}
-
-class SocialPost {
-  final String id;
-  final SocialUser author;
-  final DateTime createdAt;
-  String text;
-  List<File?> images;
-  int likeCount;
-  bool likedByMe;
-  final List<SocialComment> comments;
-  final List<String> tags;
-
-  SocialPost({
-    required this.id,
-    required this.author,
-    required this.text,
-    List<File?>? images,
-    DateTime? createdAt,
-    this.likeCount = 0,
-    this.likedByMe = false,
-    List<SocialComment>? comments,
-    List<String>? tags,
-  }) : images = images ?? <File?>[],
-       createdAt = createdAt ?? DateTime.now(),
-       comments = comments ?? <SocialComment>[],
-       tags = tags ?? <String>[];
-}
-
-final _mockAlice = SocialUser(id: 'u_alice', name: 'Alice');
-final _mockBob = SocialUser(id: 'u_bob', name: 'Bob');
-
-List<SocialPost> mockPosts(SocialUser current) => [
-  SocialPost(
-    id: 'p1',
-    author: _mockBob,
-    text: '今天把 UI 卡片邊角修好了 ✅',
-    images: [],
-    likeCount: 5,
-    comments: [],
-    createdAt: DateTime.now().subtract(const Duration(minutes: 60)),
-    tags: ['flutter', 'design'],
-  ),
-  SocialPost(
-    id: 'p_me',
-    author: current,
-    text: '嗨！這是我的第一篇 🙂',
-    images: [],
-    likeCount: 1,
-    comments: [],
-    createdAt: DateTime.now().subtract(const Duration(minutes: 3)),
-    tags: ['hello'],
-  ),
-];
-
-/// ───────────────────────────────────────────────────────────────
+// 帖文編輯器
+import 'post_composer.dart';
 
 enum FeedTab { friends, hot, following }
 
@@ -97,27 +28,112 @@ class SocialFeedPage extends StatefulWidget {
 }
 
 class _SocialFeedPageState extends State<SocialFeedPage> {
-  SocialUser get _currentUser => SocialUser(
-    id: 'u_me',
-    name: (widget.settings.nickname ?? 'Me').trim().isEmpty
-        ? 'Me'
-        : widget.settings.nickname!,
-    avatarAsset: null,
-  );
+  late final SocialUser _me;
+  late final SocialApi _api;
 
-  // 假資料：好友名單（包含 Bob）
   final Set<String> _myFriendIds = {'u_bob'};
-
-  // 帖文列表
-  final List<SocialPost> _posts = [];
-
-  // 目前頁籤
+  List<SocialPost> _posts = [];
   FeedTab _tab = FeedTab.friends;
+
+  // 追蹤標籤（最多 30 個）
+  List<String> _followed = [];
+
+  bool _loading = false;
+
+  // === 網路狀態 ===
+  bool _isOffline = false;
+  StreamSubscription<ConnectivityResult>? _connSub;
 
   @override
   void initState() {
     super.initState();
-    _posts.addAll(mockPosts(_currentUser));
+    _me = SocialUser(
+      id: 'u_me',
+      name: (widget.settings.nickname ?? 'Me').trim().isEmpty
+          ? 'Me'
+          : widget.settings.nickname!,
+    );
+    _api = SocialApi(meId: _me.id, meName: _me.name);
+    _setupConnectivity();
+    _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    _connSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _setupConnectivity() async {
+    final c = Connectivity();
+    // 初始狀態
+    final r = await c.checkConnectivity();
+    _setOffline(r == ConnectivityResult.none);
+    // 監聽變化（不要做任何 cast）
+    _connSub =
+        c.onConnectivityChanged.listen((result) {
+              _setOffline(result == ConnectivityResult.none);
+            })
+            as StreamSubscription<ConnectivityResult>?;
+  }
+
+  void _setOffline(bool v) {
+    if (!mounted || v == _isOffline) return;
+    setState(() => _isOffline = v);
+    if (!v) {
+      // 從離線回到線上，自動重試
+      _refresh();
+    } else {
+      _showSnack('目前處於離線狀態', isError: true);
+    }
+  }
+
+  void _showSnack(String msg, {bool isError = false}) {
+    if (!mounted) return;
+    final cs = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: isError ? cs.error : null),
+    );
+  }
+
+  // ==== 兩種防護：有回傳值 / 無回傳值 ====
+
+  /// 有回傳值（例如：fetchPosts / toggleLike / addComment）
+  Future<T?> _guardValue<T>(Future<T> Function() task) async {
+    try {
+      return await task().timeout(const Duration(seconds: 15));
+    } on SocketException {
+      _showSnack('連不上伺服器，請檢查網路或後端服務是否啟動。', isError: true);
+    } on TimeoutException {
+      _showSnack('連線逾時，請稍後重試。', isError: true);
+    } on HttpException catch (e) {
+      _showSnack('HTTP 錯誤：${e.message}', isError: true);
+    } catch (e) {
+      _showSnack('發生錯誤：$e', isError: true);
+    }
+    return null;
+  }
+
+  /// 無回傳值（例如：createPost / updatePost / deletePost 若其回傳型別是 Future<void>）
+  Future<bool> _guardVoid(Future<void> Function() task) async {
+    try {
+      await task().timeout(const Duration(seconds: 15));
+      return true;
+    } on SocketException {
+      _showSnack('連不上伺服器，請檢查網路或後端服務是否啟動。', isError: true);
+    } on TimeoutException {
+      _showSnack('連線逾時，請稍後重試。', isError: true);
+    } on HttpException catch (e) {
+      _showSnack('HTTP 錯誤：${e.message}', isError: true);
+    } catch (e) {
+      _showSnack('發生錯誤：$e', isError: true);
+    }
+    return false;
+  }
+
+  Future<void> _bootstrap() async {
+    _followed = await TagPrefs.load();
+    await _refresh();
   }
 
   String _timeAgo(BuildContext context, DateTime dt) {
@@ -129,241 +145,141 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     return l.timeDaysAgo(diff.inDays);
   }
 
-  // 依分頁過濾/排序
-  List<SocialPost> _visible() {
-    final list = List<SocialPost>.from(_posts);
-    switch (_tab) {
-      case FeedTab.friends:
-        // 好友 + 自己
-        return list
-            .where(
-              (p) =>
-                  _myFriendIds.contains(p.author.id) ||
-                  p.author.id == _currentUser.id,
-            )
-            .toList();
-      case FeedTab.hot:
-        list.sort((a, b) => b.likeCount.compareTo(a.likeCount));
-        return list;
-      case FeedTab.following:
-        final follow = (widget.settings.followedTags ?? const <String>[])
-            .map((e) => e.toLowerCase())
-            .toSet();
-        if (follow.isEmpty) return const <SocialPost>[];
-        return list
-            .where(
-              (p) => p.tags
-                  .map((e) => e.toLowerCase())
-                  .toSet()
-                  .intersection(follow)
-                  .isNotEmpty,
-            )
-            .toList();
+  Future<void> _refresh() async {
+    if (_isOffline) {
+      _showSnack('目前離線，無法更新貼文。', isError: true);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      List<SocialPost>? list;
+      switch (_tab) {
+        case FeedTab.friends:
+          list = await _guardValue(
+            () => _api.fetchPosts(tab: FeedTabApi.friends),
+          );
+          if (list != null) {
+            list = list
+                .where(
+                  (p) =>
+                      _myFriendIds.contains(p.author.id) ||
+                      p.author.id == _me.id,
+                )
+                .toList();
+          }
+          break;
+        case FeedTab.hot:
+          list = await _guardValue(() => _api.fetchPosts(tab: FeedTabApi.hot));
+          break;
+        case FeedTab.following:
+          list = await _guardValue(
+            () => _api.fetchPosts(tab: FeedTabApi.following, tags: _followed),
+          );
+          break;
+      }
+      if (list != null) {
+        setState(() => _posts = list!);
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
-  void _toggleLike(SocialPost p) {
-    setState(() {
-      p.likedByMe = !p.likedByMe;
-      p.likeCount += p.likedByMe ? 1 : -1;
-    });
-  }
+  Future<void> _onCreate() async {
+    if (_isOffline) {
+      _showSnack('離線中，無法發佈貼文。', isError: true);
+      return;
+    }
+    final res = await showPostComposer(context);
+    if (res == null) return;
 
-  // 建立貼文（每篇標籤最多 5 個）；選圖立刻顯示；底部不留白
-  Future<void> _createPost() async {
-    const int maxPostTags = 5;
-
-    final l = context.l10n;
-    final cs = Theme.of(context).colorScheme;
-    final textCtrl = TextEditingController();
-    final tagCtrl = TextEditingController();
-    final Set<String> tags = {};
-    File? pickedImage;
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: cs.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (ctx, setSB) {
-            void addTag(String raw) {
-              final t = raw.trim().toLowerCase();
-              if (t.isEmpty) return;
-              if (tags.length >= maxPostTags) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Tag limit $maxPostTags')),
-                );
-                return;
-              }
-              tags.add(t);
-              tagCtrl.clear();
-              setSB(() {});
-            }
-
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 12,
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        _Avatar(user: _currentUser),
-                        const SizedBox(width: 12),
-                        Text(
-                          _currentUser.name,
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: textCtrl,
-                      maxLines: 6,
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(hintText: l.socialShareHint),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // 選圖即時預覽
-                    if (pickedImage != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(pickedImage!, fit: BoxFit.cover),
-                      ),
-
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        TextButton.icon(
-                          onPressed: () async {
-                            final x = await ImagePicker().pickImage(
-                              source: ImageSource.gallery,
-                              imageQuality: 80,
-                            );
-                            if (x != null) {
-                              pickedImage = File(x.path);
-                              setSB(() {}); // 立刻刷新預覽
-                            }
-                          },
-                          icon: Icon(Icons.photo, color: cs.onSurface),
-                          label: Text(
-                            l.pickFromGallery,
-                            style: TextStyle(color: cs.onSurface),
-                          ),
-                        ),
-                        const Spacer(),
-                        FilledButton(
-                          onPressed: () {
-                            final text = textCtrl.text.trim();
-                            if (text.isEmpty && pickedImage == null) {
-                              Navigator.pop(context);
-                              return;
-                            }
-                            setState(() {
-                              _posts.insert(
-                                0,
-                                SocialPost(
-                                  id: 'p_${DateTime.now().microsecondsSinceEpoch}',
-                                  author: _currentUser,
-                                  text: text,
-                                  images: [pickedImage],
-                                  tags: tags.toList(),
-                                ),
-                              );
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: Text(l.publish),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text(
-                          l.tagsLabel,
-                          style: TextStyle(color: cs.onSurface),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${tags.length}/$maxPostTags',
-                          style: TextStyle(color: cs.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: tagCtrl,
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(hintText: l.addTagHint),
-                            onSubmitted: addTag,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton.tonal(
-                          onPressed: () => addTag(tagCtrl.text),
-                          child: Text(l.add),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: -8,
-                        children: [
-                          for (final t in tags)
-                            InputChip(
-                              label: Text('#$t'),
-                              onDeleted: () {
-                                tags.remove(t);
-                                setSB(() {});
-                              },
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SafeArea(
-                      top: false,
-                      minimum: EdgeInsets.only(bottom: 6),
-                      child: SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+    // 假設 createPost 是 Future<void>；若你回傳 Post，改用 _guardValue<Post>(...)
+    final ok = await _guardVoid(
+      () =>
+          _api.createPost(text: res.text, tags: res.tags, imageFile: res.image),
     );
+    if (ok) await _refresh();
   }
 
-  void _openComments(SocialPost p) {
+  Future<void> _onEdit(SocialPost p) async {
+    if (_isOffline) {
+      _showSnack('離線中，無法編輯貼文。', isError: true);
+      return;
+    }
+    final res = await showPostComposer(
+      context,
+      initialText: p.text,
+      initialTags: p.tags,
+    );
+    if (res == null) return;
+
+    // 假設 updatePost 是 Future<void>；若你回傳 Post，改用 _guardValue<Post>(...)
+    final ok = await _guardVoid(
+      () => _api.updatePost(
+        id: p.id,
+        text: res.text,
+        tags: res.tags,
+        imageFile: res.image,
+      ),
+    );
+    if (ok) await _refresh();
+  }
+
+  Future<void> _onDelete(String postId) async {
+    if (_isOffline) {
+      _showSnack('離線中，無法刪除貼文。', isError: true);
+      return;
+    }
+    // 假設 deletePost 是 Future<void>
+    final ok = await _guardVoid(() => _api.deletePost(postId));
+    if (ok) await _refresh();
+  }
+
+  Future<void> _onToggleLike(SocialPost p) async {
+    if (_isOffline) {
+      _showSnack('離線中，無法按讚。', isError: true);
+      return;
+    }
+    final updated = await _guardValue(() => _api.toggleLike(p.id));
+    if (updated != null) {
+      setState(() {
+        _posts = _posts.map((e) => e.id == updated.id ? updated : e).toList();
+      });
+    }
+  }
+
+  Future<void> _onAddComment(SocialPost p, String text) async {
+    if (_isOffline) {
+      _showSnack('離線中，無法留言。', isError: true);
+      return;
+    }
+    final updated = await _guardValue(
+      () => _api.addComment(postId: p.id, text: text),
+    );
+    if (updated != null) {
+      setState(() {
+        _posts = _posts.map((e) => e.id == updated.id ? updated : e).toList();
+      });
+    }
+  }
+
+  Future<void> _followTagAndShow(String tag) async {
+    if (_followed.length >= TagPrefs.maxTags &&
+        !_followed.contains(tag.toLowerCase())) {
+      _showSnack('已達 ${TagPrefs.maxTags} 個追蹤標籤上限', isError: true);
+      return;
+    }
+    _followed = await TagPrefs.add(tag);
+    setState(() => _tab = FeedTab.following);
+    await _refresh();
+  }
+
+  Future<void> _showCommentsSheet(SocialPost p) async {
+    final cs = Theme.of(context).colorScheme;
     final l = context.l10n;
     final cCtrl = TextEditingController();
-    final cs = Theme.of(context).colorScheme;
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: cs.surface,
@@ -409,7 +325,13 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _Avatar(user: c.author, size: 28),
+                          CircleAvatar(
+                            child: Text(
+                              c.author.name.isNotEmpty
+                                  ? c.author.name.characters.first.toUpperCase()
+                                  : '?',
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
@@ -417,15 +339,11 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                               children: [
                                 Text(
                                   c.author.name,
-                                  style: TextStyle(
-                                    color: cs.onSurface,
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                Text(
-                                  c.text,
-                                  style: TextStyle(color: cs.onSurface),
-                                ),
+                                Text(c.text),
                                 const SizedBox(height: 4),
                                 Text(
                                   _timeAgo(context, c.createdAt),
@@ -447,12 +365,9 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                   child: Row(
                     children: [
-                      _Avatar(user: _currentUser, size: 28),
-                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: cCtrl,
-                          style: TextStyle(color: cs.onSurface),
                           decoration: InputDecoration(
                             hintText: l.leaveACommentHint,
                           ),
@@ -460,21 +375,13 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                       ),
                       const SizedBox(width: 8),
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final t = cCtrl.text.trim();
                           if (t.isEmpty) return;
-                          setState(() {
-                            p.comments.add(
-                              SocialComment(
-                                id: 'c_${DateTime.now().microsecondsSinceEpoch}',
-                                author: _currentUser,
-                                text: t,
-                              ),
-                            );
-                          });
+                          await _onAddComment(p, t);
                           cCtrl.clear();
                         },
-                        icon: Icon(Icons.send, color: cs.onSurface),
+                        icon: const Icon(Icons.send),
                       ),
                     ],
                   ),
@@ -491,17 +398,33 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final cs = Theme.of(context).colorScheme;
-    final list = _visible();
-    final followed = (widget.settings.followedTags ?? const <String>[]);
 
     return DefaultTabController(
       length: 3,
       initialIndex: _tab.index,
       child: Scaffold(
-        // 沒有 AppBar：把頁籤與按鈕放在 body 最上層，避免任何多餘上邊距
         body: Column(
           children: [
-            // 頁籤 + 朋友名片按鈕（緊貼螢幕頂部）
+            // === 離線提示橫幅 ===
+            if (_isOffline)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                color: cs.errorContainer,
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off, size: 18),
+                    const SizedBox(width: 8),
+                    const Expanded(child: Text('離線中：部分功能不可用')),
+                    TextButton(onPressed: _refresh, child: const Text('重試')),
+                  ],
+                ),
+              ),
+
+            // 頁籤 + 朋友名片 + 刷新
             SafeArea(
               bottom: false,
               child: Padding(
@@ -510,7 +433,10 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                   children: [
                     Expanded(
                       child: TabBar(
-                        onTap: (i) => setState(() => _tab = FeedTab.values[i]),
+                        onTap: (i) async {
+                          setState(() => _tab = FeedTab.values[i]);
+                          await _refresh();
+                        },
                         indicatorWeight: 3,
                         indicatorColor: cs.primary,
                         labelColor: cs.onSurface,
@@ -531,13 +457,18 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                       ),
                       icon: const Icon(Icons.badge_outlined, size: 28),
                     ),
+                    IconButton(
+                      tooltip: 'Refresh',
+                      onPressed: _refresh,
+                      icon: const Icon(Icons.refresh),
+                    ),
                   ],
                 ),
               ),
             ),
 
-            // 上方顯示追蹤標籤（僅顯示）
-            if (followed.isNotEmpty)
+            // 追蹤標籤列（顯示在頁籤與按鈕下方）
+            if (_followed.isNotEmpty)
               SizedBox(
                 height: 44,
                 child: ListView(
@@ -545,12 +476,23 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                   scrollDirection: Axis.horizontal,
                   children: [
                     const SizedBox(width: 4),
-                    for (final t in followed)
+                    for (final t in _followed)
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: Chip(
+                        child: InputChip(
                           label: Text('#${t.trim()}'),
                           visualDensity: VisualDensity.compact,
+                          onPressed: () async {
+                            if (_tab != FeedTab.following) {
+                              setState(() => _tab = FeedTab.following);
+                            }
+                            await _refresh();
+                          },
+                          onDeleted: () async {
+                            _followed = await TagPrefs.remove(t);
+                            setState(() {});
+                            if (_tab == FeedTab.following) await _refresh();
+                          },
                         ),
                       ),
                   ],
@@ -559,216 +501,227 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
 
             // 貼文列表
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
-                itemCount: list.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (_, i) {
-                  final p = list[i];
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: cs.surface.withOpacity(0.65), // 半透明
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
+                      itemCount: _posts.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (_, i) {
+                        final p = _posts[i];
+                        return ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: cs.outlineVariant),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                              child: Row(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: cs.surface.withOpacity(0.65),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: cs.outlineVariant),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _Avatar(user: p.author),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                  // Header
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      12,
+                                      12,
+                                      8,
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          p.author.name,
-                                          style: TextStyle(
-                                            color: cs.onSurface,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
+                                        CircleAvatar(
+                                          child: Text(
+                                            p.author.name.isNotEmpty
+                                                ? p.author.name.characters.first
+                                                      .toUpperCase()
+                                                : '?',
                                           ),
                                         ),
-                                        Text(
-                                          _timeAgo(context, p.createdAt),
-                                          style: TextStyle(
-                                            color: cs.onSurfaceVariant,
-                                            fontSize: 12,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                p.author.name,
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              Text(
+                                                _timeAgo(context, p.createdAt),
+                                                style: TextStyle(
+                                                  color: cs.onSurfaceVariant,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
+                                        if (p.author.id == _me.id)
+                                          PopupMenuButton<String>(
+                                            color: cs.surface,
+                                            itemBuilder: (_) => [
+                                              PopupMenuItem(
+                                                value: 'edit',
+                                                child: Text(
+                                                  l.edit,
+                                                  style: TextStyle(
+                                                    color: cs.onSurface,
+                                                  ),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'delete',
+                                                child: Text(
+                                                  l.delete,
+                                                  style: TextStyle(
+                                                    color: cs.onSurface,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                            onSelected: (v) {
+                                              if (v == 'delete')
+                                                _onDelete(p.id);
+                                              if (v == 'edit') _onEdit(p);
+                                            },
+                                            icon: Icon(
+                                              Icons.more_horiz,
+                                              color: cs.onSurface,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
-                                  if (p.author.id == _currentUser.id)
-                                    PopupMenuButton<String>(
-                                      color: cs.surface,
-                                      itemBuilder: (_) => [
-                                        PopupMenuItem(
-                                          value: 'delete',
-                                          child: Text(
-                                            l.delete,
+
+                                  if (p.text.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: Text(
+                                        p.text,
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
+
+                                  if (p.tags.isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      child: Wrap(
+                                        spacing: 6,
+                                        runSpacing: -8,
+                                        children: [
+                                          for (final t in p.tags)
+                                            ActionChip(
+                                              label: Text('#$t'),
+                                              onPressed: () async {
+                                                if (_followed.length >=
+                                                        TagPrefs.maxTags &&
+                                                    !_followed.contains(
+                                                      t.toLowerCase(),
+                                                    )) {
+                                                  _showSnack(
+                                                    '已達 ${TagPrefs.maxTags} 個追蹤標籤上限',
+                                                    isError: true,
+                                                  );
+                                                  return;
+                                                }
+                                                await _followTagAndShow(t);
+                                              },
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+
+                                  // 圖片（後端 imageUrl）
+                                  if (p.imageUrl != null) ...[
+                                    const SizedBox(height: 8),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          '$kBaseUrl${p.imageUrl!}',
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              const SizedBox.shrink(),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      4,
+                                      0,
+                                      4,
+                                      4,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () => _onToggleLike(p),
+                                          icon: Icon(
+                                            p.likedByMe
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: p.likedByMe
+                                                ? cs.primary
+                                                : cs.onSurface,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${p.likeCount}',
+                                          style: TextStyle(color: cs.onSurface),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        TextButton.icon(
+                                          onPressed: () =>
+                                              _showCommentsSheet(p),
+                                          icon: Icon(
+                                            Icons.mode_comment_outlined,
+                                            color: cs.onSurface,
+                                          ),
+                                          label: Text(
+                                            '${l.commentsTitle} (${p.comments.length})',
                                             style: TextStyle(
                                               color: cs.onSurface,
                                             ),
                                           ),
                                         ),
                                       ],
-                                      onSelected: (v) {
-                                        if (v == 'delete') {
-                                          setState(
-                                            () => _posts.removeWhere(
-                                              (x) => x.id == p.id,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      icon: Icon(
-                                        Icons.more_horiz,
-                                        color: cs.onSurface,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-
-                            if (p.text.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: Text(
-                                  p.text,
-                                  style: TextStyle(
-                                    color: cs.onSurface,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-
-                            if (p.tags.isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Wrap(
-                                  spacing: 6,
-                                  runSpacing: -8,
-                                  children: [
-                                    for (final t in p.tags)
-                                      Chip(
-                                        label: Text('#$t'),
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-
-                            if (p.images.isNotEmpty &&
-                                p.images.first != null) ...[
-                              const SizedBox(height: 8),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    p.images.first!,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ],
-
-                            const SizedBox(height: 4),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => _toggleLike(p),
-                                    icon: Icon(
-                                      p.likedByMe
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: p.likedByMe
-                                          ? cs.primary
-                                          : cs.onSurface,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${p.likeCount}',
-                                    style: TextStyle(color: cs.onSurface),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  TextButton.icon(
-                                    onPressed: () => _openComments(p),
-                                    icon: Icon(
-                                      Icons.mode_comment_outlined,
-                                      color: cs.onSurface,
-                                    ),
-                                    label: Text(
-                                      '${l.commentsTitle} (${p.comments.length})',
-                                      style: TextStyle(color: cs.onSurface),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: _createPost,
+          onPressed: _onCreate,
           icon: const Icon(Icons.edit),
           label: Text(l.publish),
         ),
       ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final SocialUser user;
-  final double size;
-  const _Avatar({required this.user, this.size = 36});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final bg = cs.surfaceContainerHighest;
-    if (user.avatarAsset != null) {
-      return CircleAvatar(
-        radius: size / 2,
-        backgroundColor: bg,
-        backgroundImage: AssetImage(user.avatarAsset!),
-      );
-    }
-    final letter = user.name.isNotEmpty
-        ? user.name.characters.first.toUpperCase()
-        : '?';
-    return CircleAvatar(
-      radius: size / 2,
-      backgroundColor: bg,
-      child: Text(letter, style: TextStyle(color: cs.onSurface)),
     );
   }
 }

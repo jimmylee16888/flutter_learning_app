@@ -234,16 +234,18 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: (_isOffline || auth.isLoading)
                                         ? null
                                         : () async {
-                                            final ok = await auth
+                                            // ✅ 解構 (ok, reason)
+                                            final (ok, reason) = await auth
                                                 .loginWithGoogle();
-                                            if (!mounted) return; // ← 先確認還在
+                                            if (!mounted) return;
+
                                             if (!ok) {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    l.errorLoginFailed,
+                                                    '登入失敗：${reason ?? l.errorLoginFailed}',
                                                   ),
                                                 ),
                                               );
@@ -252,8 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 context,
                                                 widget.settings,
                                               );
-                                              if (!mounted)
-                                                return; // ← ★ ensureProfile 結束後再檢查一次
+                                              if (!mounted) return;
                                               _goHome();
                                             }
                                           },
