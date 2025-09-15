@@ -21,7 +21,7 @@ import 'app_localizations_zh.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'l10n/app_localizations.dart';
+/// import 'gen_l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -70,8 +70,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -97,12 +97,12 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
     Locale('en'),
-    Locale('zh', 'TW'),
     Locale('ja'),
     Locale('ko'),
-    Locale('de'),
     Locale('zh'),
+    Locale('zh', 'TW'),
   ];
 
   /// No description provided for @authSignInWithGoogle.
@@ -1664,24 +1664,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to fetch from backend: {error}'**
   String fetchFromBackendFailed(Object error);
-
-  /// No description provided for @addFollowedTagFailedOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'You are offline. Tag added locally.'**
-  String get addFollowedTagFailedOffline;
-
-  /// No description provided for @removeFollowedTagFailedOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'You are offline. Tag removed locally.'**
-  String get removeFollowedTagFailedOffline;
-
-  /// No description provided for @loading.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading…'**
-  String get loading;
 }
 
 class _AppLocalizationsDelegate

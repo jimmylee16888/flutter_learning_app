@@ -1,9 +1,9 @@
 // lib/services/mini_card_store.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_learning_app/models/card_item.dart';
+import 'package:flutter_learning_app/models/mini_card_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/mini_card_data.dart';
-import '../models/card_item.dart';
 
 class MiniCardStore extends ChangeNotifier {
   // owner(通常用藝人名或 card detail 的 title) -> 小卡清單

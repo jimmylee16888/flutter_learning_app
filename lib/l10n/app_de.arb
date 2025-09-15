@@ -223,7 +223,149 @@
   "@limitReached": {
     "description": "Hinweis beim Überschreiten des Tag-Limits",
     "placeholders": { "text": { "type": "String" } }
-  }
+  },
 
+  "searchFriendsOrArtistsHint": "Freunde oder Künstler suchen",
+  "@searchFriendsOrArtistsHint": {
+    "description": "Hinweistext in der Freundekarten-Suchleiste"
+  },
+
+  "retry": "Erneut versuchen",
+  "offlineBanner": "Offline: Einige Funktionen sind nicht verfügbar",
+
+  "manageFollowedTags": "Verfolgte Tags",
+  "noFriendsYet": "Noch keine Freunde",
+  "friendAddAction": "Freund hinzufügen",
+  "friendRemoveAction": "Freund entfernen",
+  "friendAddedStatus": "Hinzugefügt",
+  "remove": "Entfernen",
+
+  "changeAvatar": "Avatar ändern",
+  "socialLinksTitle": "Soziale Links",
+  "showInstagramOnProfile": "Instagram im Profil anzeigen",
+  "showFacebookOnProfile": "Facebook im Profil anzeigen",
+  "showLineOnProfile": "LINE im Profil anzeigen",
+
+  "followedTagsCount": "Verfolgte Tags ({n})",
+  "@followedTagsCount": { "placeholders": { "n": { "type": "int" } } },
+  "addFollowedTag": "Verfolgten Tag hinzufügen",
+  "addFollowedTagHint": "Gib einen Tagnamen ein und drücke Enter",
+
+  "manageCards": "Visitenkarten verwalten",
+
+  "phoneLabel": "Telefon",
+  "lineLabel": "LINE",
+  "facebookLabel": "Facebook",
+  "instagramLabel": "Instagram",
+
+   "followedTagsTitle": "Verfolgte Tags",
+
+  "noFollowedTagsYet": "Noch keine verfolgten Tags",
+
+  "addedFollowedTagToast": "Tag wurde hinzugefügt",
+  "addFollowedTagFailed": "Hinzufügen fehlgeschlagen: {error}",
+  "@addFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "removedFollowedTagToast": "Tag wurde entfernt",
+  "removeFollowedTagFailed": "Entfernen fehlgeschlagen: {error}",
+  "@removeFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "loadFailed": "Laden fehlgeschlagen: {error}",
+  "@loadFailed": { "placeholders": { "error": {} } },
+
+    "miniCardsOf": "Mini-Cards von {title}",
+  "@miniCardsOf": { "placeholders": { "title": {} } },
+
+  "importFromJsonTooltip": "Aus JSON importieren",
+  "exportJsonMultiTooltip": "JSON exportieren (mehrere)",
+
+  "scan": "Scannen",
+  "share": "Teilen",
+  "shareThisCard": "Diese Karte teilen",
+
+  "importedMiniCardsToast": "{n} Mini-Cards importiert",
+  "@importedMiniCardsToast": { "placeholders": { "n": { "type": "int" } } },
+
+  "shareMultipleCards": "Mehrere Karten teilen (Mehrfachauswahl)",
+  "shareMultipleCardsSubtitle": "Karten auswählen, dann Fotos teilen oder JSON exportieren",
+  "shareOneCard": "Eine Karte zum Teilen auswählen…",
+
+  "selectCardsForJsonTitle": "Karten zum Teilen auswählen (JSON)",
+  "selectCardsForShareOrExportTitle": "Karten zum Teilen/Exportieren auswählen",
+  "blockedLocalImageNote": "Enthält lokale Bilder; Export nach JSON nicht möglich",
+
+  "shareMultiplePhotos": "{n} Fotos teilen",
+  "@shareMultiplePhotos": { "placeholders": { "n": { "type": "int" } } },
+  "exportJson": "JSON exportieren",
+  "exportJsonSkipLocalHint": "Karten mit ausschließlich lokalen Bildern werden übersprungen",
+
+  "triedShareSummary": "{total} Freigaben versucht, erfolgreich {ok} / fehlgeschlagen {fail}",
+  "@triedShareSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "ok": { "type": "int" },
+      "fail": { "type": "int" }
+    }
+  },
+
+  "shareQrCode": "QR-Code teilen",
+  "shareQrAutoBackendHint": "Bei großer Datenmenge wird automatisch in den Backend-Modus gewechselt",
+  "cannotShareByQr": "Teilen per QR nicht möglich",
+  "noImageUrl": "Keine Bild-URL",
+  "noImageUrlPhotoOnly": "Keine Bild-URL; nur direktes Teilen des Fotos möglich",
+  "shareThisPhoto": "Dieses Foto teilen",
+  "shareFailed": "Teilen fehlgeschlagen: {error}",
+  "@shareFailed": { "placeholders": { "error": {} } },
+
+  "transportBackendHint": "Backend-Modus (über API)",
+  "transportEmbeddedHint": "Eingebettet (lokal)",
+  "qrIdOnlyNotice": "Dieser QR enthält nur die Karten-ID. Der Empfänger ruft die Inhalte vom Backend ab.",
+  "qrGenerationFailed": "QR-Bild konnte nicht erzeugt werden",
+
+  "pasteJsonTitle": "JSON-Text einfügen",
+  "pasteJsonHint": "Unterstützt mini_card_bundle_v2/v1 oder mini_card_v2/v1",
+  "import": "Importieren",
+  "importedFromJsonToast": "{n} Mini-Cards aus JSON importiert",
+  "@importedFromJsonToast": { "placeholders": { "n": { "type": "int" } } },
+  "importFailed": "Import fehlgeschlagen: {error}",
+  "@importFailed": { "placeholders": { "error": {} } },
+  "cannotExportJsonAllLocal": "Alle ausgewählten Karten enthalten nur lokale Bilder und können nicht als JSON exportiert werden",
+  "skippedLocalImagesCount": "{n} Karte(n) mit nur lokalen Bildern übersprungen",
+  "@skippedLocalImagesCount": { "placeholders": { "n": { "type": "int" } } },
+  "close": "Schließen",
+  "copy": "Kopieren",
+  "copiedJsonToast": "JSON kopiert",
+  "copyJson": "JSON kopieren",
+
+  "none": "Keine",
+  "selectCardsToShareTitle": "Karten zum Teilen auswählen",
+  "hasImageUrlJsonOk": "Bild-URL vorhanden; Versand per JSON möglich",
+  "exportJsonOnlyUrlHint": "Hinweis: Exportiertes JSON enthält nur Karten mit Bild-URL; nur lokale Bilder werden übersprungen.",
+  "sharePhotos": "Fotos teilen",
+  "containsLocalImages": "Enthält lokale Bilder",
+  "containsLocalImagesDetail": "{blocked} Karte(n) können nicht als JSON exportiert werden. Nur die verwendbaren {allowed} Karte(n) exportieren?",
+  "@containsLocalImagesDetail": {
+    "placeholders": {
+      "blocked": { "type": "int" },
+      "allowed": { "type": "int" }
+    }
+  },
+  "onlyExportUsable": "Nur verwendbare exportieren",
+
+  "shareMiniCardTitle": "Mini-Card teilen",
+  "qrCodeTab": "QR-Code",
+  "qrTooLargeUseJsonHint": "Wenn der QR-Code nicht angezeigt wird, sind die Daten evtl. zu groß. Nutzen Sie stattdessen JSON.",
+
+  "scanMiniCardQrTitle": "Mini-Card-QR scannen",
+  "scanFromGallery": "Aus Galerie scannen",
+  "noQrFoundInImage": "Kein QR im Bild gefunden",
+  "qrFormatInvalid": "QR-Format ungültig",
+  "qrTypeUnsupported": "QR-Typ wird nicht unterstützt",
+  "fetchFromBackendFailed": "Abruf vom Backend fehlgeschlagen: {error}",
+  "@fetchFromBackendFailed": { "placeholders": { "error": {} } },
+
+  "addFollowedTagFailedOffline": "Du bist offline. Tag wurde lokal hinzugefügt.",
+  "removeFollowedTagFailedOffline": "Du bist offline. Tag wurde lokal entfernt.",
+  "loading": "Wird geladen …"
 
 }

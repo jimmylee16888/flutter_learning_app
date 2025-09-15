@@ -2,10 +2,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // for Ticker
+import 'package:flutter_learning_app/services/auth/auth_controller.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../services/auth_controller.dart';
 import '../../app_settings.dart'; // ← 依你的實際路徑調整
 import '../../l10n/l10n.dart';
 import '../explore/grid_paper.dart';

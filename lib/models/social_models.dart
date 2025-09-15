@@ -1,32 +1,128 @@
 // lib/models/social_models.dart
 import 'dart:io';
 
+/// ===============================================================
+/// Models for Social feature
+/// - SocialUser: 含暱稱、頭像、email、追蹤的標籤/好友清單，及社群資訊(可選擇是否顯示)
+/// - SocialPost / SocialComment: 貼文與留言
+/// - FriendCard: 好友名片（可獨立管理）
+/// ===============================================================
+
 /// ============== Users / Comments / Posts ==============
 
 class SocialUser {
+  /// 使用者 ID（後端唯一鍵）
   final String id;
+
+  /// 顯示名稱（暱稱）
   final String name;
-  final String? avatarAsset; // 先用本地 asset，未來可換後端 URL
-  const SocialUser({required this.id, required this.name, this.avatarAsset});
+
+  /// 頭像（目前使用本地 asset；未來可換成後端 URL）
+  final String? avatarAsset;
+
+  /// 可選：頭像 URL（若接後端可改用此欄位）
+  final String? avatarUrl;
+
+  /// 使用者 Email
+  final String? email;
+
+  /// 追蹤的標籤（#tag）
+  final List<String> followedTags;
+
+  /// 追蹤/加入的好友（userId 清單）
+  final List<String> followingUserIds;
+
+  /// ---- 社群資訊（使用者可選擇是否顯示）----
+  final String? instagram;
+  final String? facebook;
+  final String? lineId;
+
+  /// 是否公開顯示這些社群欄位
+  final bool showInstagram;
+  final bool showFacebook;
+  final bool showLine;
+
+  const SocialUser({
+    required this.id,
+    required this.name,
+    this.avatarAsset,
+    this.avatarUrl,
+    this.email,
+    this.followedTags = const [],
+    this.followingUserIds = const [],
+    this.instagram,
+    this.facebook,
+    this.lineId,
+    this.showInstagram = false,
+    this.showFacebook = false,
+    this.showLine = false,
+  });
 
   factory SocialUser.fromJson(Map<String, dynamic> j) => SocialUser(
     id: j['id'] as String,
     name: j['name'] as String,
     avatarAsset: j['avatarAsset'] as String?,
+    avatarUrl: j['avatarUrl'] as String?,
+    email: j['email'] as String?,
+    followedTags: ((j['followedTags'] as List?) ?? const [])
+        .map((e) => '$e')
+        .toList(),
+    followingUserIds: ((j['followingUserIds'] as List?) ?? const [])
+        .map((e) => '$e')
+        .toList(),
+    instagram: j['instagram'] as String?,
+    facebook: j['facebook'] as String?,
+    lineId: j['lineId'] as String?,
+    showInstagram: j['showInstagram'] as bool? ?? false,
+    showFacebook: j['showFacebook'] as bool? ?? false,
+    showLine: j['showLine'] as bool? ?? false,
   );
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
     if (avatarAsset != null) 'avatarAsset': avatarAsset,
+    if (avatarUrl != null) 'avatarUrl': avatarUrl,
+    if (email != null) 'email': email,
+    'followedTags': followedTags,
+    'followingUserIds': followingUserIds,
+    if (instagram != null) 'instagram': instagram,
+    if (facebook != null) 'facebook': facebook,
+    if (lineId != null) 'lineId': lineId,
+    'showInstagram': showInstagram,
+    'showFacebook': showFacebook,
+    'showLine': showLine,
   };
 
-  SocialUser copyWith({String? id, String? name, String? avatarAsset}) =>
-      SocialUser(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        avatarAsset: avatarAsset ?? this.avatarAsset,
-      );
+  SocialUser copyWith({
+    String? id,
+    String? name,
+    String? avatarAsset,
+    String? avatarUrl,
+    String? email,
+    List<String>? followedTags,
+    List<String>? followingUserIds,
+    String? instagram,
+    String? facebook,
+    String? lineId,
+    bool? showInstagram,
+    bool? showFacebook,
+    bool? showLine,
+  }) => SocialUser(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    avatarAsset: avatarAsset ?? this.avatarAsset,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    email: email ?? this.email,
+    followedTags: followedTags ?? this.followedTags,
+    followingUserIds: followingUserIds ?? this.followingUserIds,
+    instagram: instagram ?? this.instagram,
+    facebook: facebook ?? this.facebook,
+    lineId: lineId ?? this.lineId,
+    showInstagram: showInstagram ?? this.showInstagram,
+    showFacebook: showFacebook ?? this.showFacebook,
+    showLine: showLine ?? this.showLine,
+  );
 }
 
 class SocialComment {
@@ -158,8 +254,15 @@ class SocialPost {
 
 /// ============== 假資料（之後可接後端） ==============
 
-final _mockAlice = SocialUser(id: 'u_alice', name: 'Alice');
-final _mockBob = SocialUser(id: 'u_bob', name: 'Bob');
+final _mockAlice = SocialUser(
+  id: 'u_alice',
+  name: 'Alice',
+  email: 'alice@example.com',
+  instagram: '@alice',
+  showInstagram: true,
+);
+
+final _mockBob = SocialUser(id: 'u_bob', name: 'Bob', email: 'bob@example.com');
 
 List<SocialPost> mockPosts(SocialUser current) {
   return [

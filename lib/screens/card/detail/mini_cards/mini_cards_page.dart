@@ -2,23 +2,25 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_learning_app/services/utils/qr/qr_codec.dart' as codec;
+import 'package:flutter_learning_app/services/utils/qr/qr_image_builder.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io' as io;
 
+import '../../../../l10n/l10n.dart'; // ← i18n
 import '../../../../models/mini_card_data.dart';
 import '../../../../utils/mini_card_io.dart';
 import '../edit_mini_cards_page.dart';
 
-import 'scan_qr_page.dart';
-import 'qr_preview_dialog.dart';
-import '../../../../services/qr_codec.dart' as codec;
-import '../../../../services/qr_image_builder.dart';
+// ⚠️ 加上前綴，避免與另一個檔案中的同名類別衝突
+import 'scan_qr_page.dart' as scan;
+import 'qr_preview_dialog.dart' as qr;
+
 import 'widgets/flip_big_card.dart';
 import 'widgets/mini_card_front.dart';
 import 'widgets/mini_card_back.dart';
 import 'widgets/tool_card.dart';
-import 'package:flutter/services.dart'; // ← 新增
 
 class MiniCardsPage extends StatefulWidget {
   const MiniCardsPage({
@@ -36,10 +38,8 @@ class MiniCardsPage extends StatefulWidget {
 }
 
 class _MiniCardsPageState extends State<MiniCardsPage> {
-  // 可選：若要後端模式，上傳/下載卡片的 API base
   static const String _kApiBase = 'https://YOUR_BACKEND_HOST';
 
-  // ---- Toast / Snack ----
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   void _snack(String msg, {SnackBarAction? action, int seconds = 3}) {
     final m = _messengerKey.currentState;
@@ -57,13 +57,12 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   late List<MiniCardData> _cards = List.of(widget.cards);
   final Set<String> _activeTags = {};
 
-  static const int _kQrSafeLimit = 500; // 直接內嵌 QR 長度上限
+  static const int _kQrSafeLimit = 500;
 
   bool _exists(String? p) =>
       p != null && p.isNotEmpty && io.File(p).existsSync();
   bool _canShareQr(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty;
 
-  // —— PageView 狀態 —— //
   int get _pageCount => _cards.length + 2;
   int _computeInitialPage() {
     if (_cards.isEmpty) return 0;
@@ -111,26 +110,27 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.title;
+    final l = context.l10n;
+
     return WillPopScope(
       onWillPop: _popWithResult,
       child: ScaffoldMessenger(
         key: _messengerKey,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('$title 的小卡'),
+            title: Text(l.miniCardsOf(widget.title)),
             leading: BackButton(
               onPressed: () => Navigator.pop(context, _cards),
             ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.upload_file),
-                tooltip: '從 JSON 匯入',
+                tooltip: l.importFromJsonTooltip,
                 onPressed: _importFromJsonDialog,
               ),
               IconButton(
                 icon: const Icon(Icons.download),
-                tooltip: '匯出 JSON（可多張）',
+                tooltip: l.exportJsonMultiTooltip,
                 onPressed: () async {
                   final visible = _currentVisibleCards();
                   await _exportJsonFlow(visible);
@@ -141,7 +141,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
           body: Column(
             children: [
               const SizedBox(height: 0),
-              // 標籤篩選列
+              // tag filter row
               Builder(
                 builder: (_) {
                   final allTags = _cards.expand((c) => c.tags).toSet().toList()
@@ -168,7 +168,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   );
                 },
               ),
-              // 內容
               Builder(
                 builder: (_) {
                   final visibleCards = _currentVisibleCards();
@@ -187,7 +186,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
                         if (i == 0 || i == pageCount - 1) {
                           return Align(
-                            alignment: const Alignment(0, -0.2), // 往上移一點
+                            alignment: const Alignment(0, -0.2),
                             child: AnimatedScale(
                               scale: scale,
                               duration: const Duration(milliseconds: 200),
@@ -214,7 +213,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
                         final card = visibleCards[i - 1];
                         return Align(
-                          alignment: const Alignment(0, -0.2), // 往上移一點
+                          alignment: const Alignment(0, -0.2),
                           child: AnimatedScale(
                             scale: scale,
                             duration: const Duration(milliseconds: 200),
@@ -247,6 +246,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
           ),
           floatingActionButton: Builder(
             builder: (ctx) {
+              final l = ctx.l10n;
               final visibleCards = _currentVisibleCards();
               final pageCount = visibleCards.length + 2;
               final isAtLeftTool = _currentPageRound() == 0;
@@ -259,23 +259,21 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                     return;
                   }
                   if (isAtRightTool) {
-                    // 右側工具卡 → 提供「多選」或「單張」動作
                     await _rightToolActions(visibleCards);
                     return;
                   }
-                  // 中間卡片 → 單張分享選單
                   final idx = _currentPageRound() - 1;
                   if (idx >= 0 && idx < visibleCards.length) {
                     await _shareOptionsForCard(context, visibleCards[idx]);
                   }
                 },
                 icon: Icon(
-                  isAtLeftTool
-                      ? Icons.qr_code_scanner
-                      : (isAtRightTool ? Icons.ios_share : Icons.ios_share),
+                  isAtLeftTool ? Icons.qr_code_scanner : Icons.ios_share,
                 ),
                 label: Text(
-                  isAtLeftTool ? '掃描' : (isAtRightTool ? '分享' : '分享此卡'),
+                  isAtLeftTool
+                      ? l.scan
+                      : (isAtRightTool ? l.share : l.shareThisCard),
                 ),
               );
             },
@@ -291,11 +289,12 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       ? _cards
       : _cards.where((c) => c.tags.any(_activeTags.contains)).toList();
 
-  // ===== 掃描 / 分享 =====
+  // ===== scan / share =====
   Future<void> _scanAndImport() async {
+    final l = context.l10n;
     final results = await Navigator.push<List<MiniCardData>>(
       context,
-      MaterialPageRoute(builder: (_) => const ScanQrPage()),
+      MaterialPageRoute(builder: (_) => const scan.ScanQrPage()),
     );
     if (results == null || results.isEmpty) return;
 
@@ -309,11 +308,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       added++;
     }
     if (mounted) setState(() {});
-    if (mounted) _snack('已匯入 $added 張小卡');
+    if (mounted) _snack(l.importedMiniCardsToast(added));
   }
 
-  // 右側工具卡：提供「多選分享/匯出」或「選一張分享」
   Future<void> _rightToolActions(List<MiniCardData> visible) async {
+    final l = context.l10n;
     await showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -323,21 +322,18 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.collections),
-              title: const Text('分享多張卡片（多選）'),
-              subtitle: const Text('先勾選卡片，之後選擇「分享照片」或「匯出 JSON」'),
+              title: Text(l.shareMultipleCards),
+              subtitle: Text(l.shareMultipleCardsSubtitle),
               onTap: () async {
-                Navigator.pop(context); // ← 用 context 關閉面板
-                await _pickAndShareOrExport(
-                  visible, // ← 用傳進來的清單
-                  // preselect: {...}                 // （右側工具卡沒有單一卡片可預選，先不預選）
-                );
+                Navigator.pop(context);
+                await _pickAndShareOrExport(visible);
               },
             ),
             ListTile(
               leading: const Icon(Icons.filter_1),
-              title: const Text('選一張分享…'),
+              title: Text(l.shareOneCard),
               onTap: () async {
-                Navigator.pop(context); // ← 同上
+                Navigator.pop(context);
                 await _chooseAndShare(context);
               },
             ),
@@ -347,8 +343,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  // 單張：先挑卡再開單張分享選單
   Future<void> _chooseAndShare(BuildContext context) async {
+    final l = context.l10n;
     if (_cards.isEmpty) return;
     final chosen = await showModalBottomSheet<MiniCardData>(
       context: context,
@@ -373,7 +369,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   ),
                 ),
                 title: Text(
-                  c.note.isEmpty ? '(無敘述)' : c.note,
+                  c.note.isEmpty ? l.common_unnamed : c.note,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -387,12 +383,12 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     if (chosen != null) await _shareOptionsForCard(context, chosen);
   }
 
-  // 多選清單（簡單 checkbox 版）
   Future<List<MiniCardData>?> _pickMultipleCards(
     List<MiniCardData> source, {
-    bool jsonOnly = false, // 只允許可轉 JSON 的卡片
-    Set<String>? preselect, // 預設勾選
+    bool jsonOnly = false,
+    Set<String>? preselect,
   }) async {
+    final l = context.l10n;
     final sel = <String>{...(preselect ?? const <String>{})};
 
     return showModalBottomSheet<List<MiniCardData>>(
@@ -400,7 +396,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => SafeArea(
-        // 🔧 用 StatefulBuilder 包起來，才能在底sheet內 setState
         child: StatefulBuilder(
           builder: (modalCtx, setModalState) => DraggableScrollableSheet(
             expand: false,
@@ -412,13 +407,15 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          jsonOnly ? '選擇要分享（JSON）的卡片' : '選擇要分享/匯出的卡片',
+                          jsonOnly
+                              ? l.selectCardsForJsonTitle
+                              : l.selectCardsForShareOrExportTitle,
                         ),
                       ),
                       TextButton(
                         onPressed: () =>
                             Navigator.pop(modalCtx, <MiniCardData>[]),
-                        child: const Text('取消'),
+                        child: Text(l.cancel),
                       ),
                       FilledButton(
                         onPressed: () {
@@ -427,7 +424,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                               .toList();
                           Navigator.pop(modalCtx, picked);
                         },
-                        child: const Text('確定'),
+                        child: Text(l.confirm),
                       ),
                     ],
                   ),
@@ -452,13 +449,15 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                   sel.remove(c.id);
                                 }
                               })
-                            : null, // 不允許的直接 disabled
+                            : null,
                         title: Text(
-                          c.note.isNotEmpty ? c.note : '(無敘述)',
+                          c.note.isNotEmpty ? c.note : l.common_unnamed,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: allowed ? null : const Text('含本地照片，無法轉 JSON'),
+                        subtitle: allowed
+                            ? null
+                            : Text(l.blockedLocalImageNote),
                         secondary: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: Image(
@@ -480,8 +479,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  // 多選後：選擇「分享照片」或「匯出 JSON」
   Future<void> _multiShareOrExportFlow(List<MiniCardData> picked) async {
+    final l = context.l10n;
     await showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -491,7 +490,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.ios_share),
-              title: Text('分享多張照片（${picked.length} 張）'),
+              title: Text(l.shareMultiplePhotos(picked.length)),
               onTap: () async {
                 Navigator.pop(context);
                 await _shareMultiplePhotos(picked);
@@ -499,8 +498,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             ),
             ListTile(
               leading: const Icon(Icons.data_object),
-              title: const Text('匯出 JSON'),
-              subtitle: const Text('本地照片將被略過'),
+              title: Text(l.exportJson),
+              subtitle: Text(l.exportJsonSkipLocalHint),
               onTap: () async {
                 Navigator.pop(context);
                 await _exportJsonFlow(picked);
@@ -512,8 +511,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  // 逐張呼叫原本單張分享（避免額外依賴）
   Future<void> _shareMultiplePhotos(List<MiniCardData> list) async {
+    final l = context.l10n;
     int ok = 0, fail = 0;
     for (final c in list) {
       try {
@@ -523,11 +522,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         fail++;
       }
     }
-    _snack('已嘗試分享 ${list.length} 張，成功 $ok / 失敗 $fail', seconds: 4);
+    _snack(l.triedShareSummary(list.length, ok, fail), seconds: 4);
   }
 
-  // 分享選項
   Future<void> _shareOptionsForCard(BuildContext ctx, MiniCardData c) async {
+    final l = ctx.l10n;
     showModalBottomSheet(
       context: ctx,
       showDragHandle: true,
@@ -538,8 +537,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             if (_canShareQr(c))
               ListTile(
                 leading: const Icon(Icons.qr_code_2),
-                title: const Text('分享 QR code'),
-                subtitle: const Text('大檔案會自動切換以後端傳送，掃描端皆可接收'),
+                title: Text(l.shareQrCode),
+                subtitle: Text(l.shareQrAutoBackendHint),
                 onTap: () async {
                   final pageCtx = this.context;
                   Navigator.pop(ctx);
@@ -550,39 +549,36 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             else
               ListTile(
                 leading: const Icon(Icons.block),
-                title: const Text('無法以 QR 分享'),
-                subtitle: const Text('此卡沒有圖片網址'),
+                title: Text(l.cannotShareByQr),
+                subtitle: Text(l.noImageUrl),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _snack('此卡沒有圖片網址，僅能直接分享照片');
+                  _snack(l.noImageUrlPhotoOnly);
                 },
               ),
 
-            // 單張照片
             ListTile(
               leading: const Icon(Icons.ios_share),
-              title: const Text('直接分享此張照片'),
+              title: Text(l.shareThisPhoto),
               onTap: () async {
                 Navigator.pop(ctx);
                 try {
                   await sharePhoto(c);
                 } catch (e) {
-                  if (mounted) _snack('分享失敗：$e');
+                  if (mounted) _snack(l.shareFailed('$e'));
                 }
               },
             ),
 
-            // ✅ 整合後的「多張卡片」入口：勾選 → 再選分享模式（照片或 JSON）
             ListTile(
               leading: const Icon(Icons.collections),
-              title: const Text('分享多張卡片（多選）'),
-              subtitle: const Text('直接分享照片 / 匯出 JSON'),
-              // ✅ 整合後的一頁式流程
+              title: Text(l.shareMultipleCards),
+              subtitle: Text(l.shareMultipleCardsSubtitle),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _pickAndShareOrExport(
                   _currentVisibleCards(),
-                  preselect: {c.id}, // 預先勾選目前這張
+                  preselect: {c.id},
                 );
               },
             ),
@@ -592,15 +588,16 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  // === 依長度決定「直接內嵌」或「後端傳送」 ===
   Future<void> _showQrForCard(
     BuildContext context,
     String owner,
     MiniCardData card,
   ) async {
+    final l = context.l10n;
+
     if ((card.imageUrl ?? '').isEmpty) {
       if (!mounted) return;
-      _snack('這張小卡沒有網址，改用「分享整張照片」喔');
+      _snack(l.noImageUrlPhotoOnly);
       return;
     }
 
@@ -631,7 +628,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     bool backendMode = false;
     if (data.length > _kQrSafeLimit) {
       backendMode = true;
-      data = card.id; // 掃描端用 id 呼叫 API 取完整資料
+      data = card.id;
     }
 
     final pngBytes = await QrImageBuilder.buildPngBytes(
@@ -642,14 +639,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
     if (pngBytes == null) {
       if (!mounted) return;
-      _snack('生成 QR 影像失敗');
+      _snack(l.qrGenerationFailed);
       return;
     }
     if (!mounted) return;
 
-    final hint = backendMode ? '後端模式（走 API）' : '直接內嵌';
+    final hint = backendMode ? l.transportBackendHint : l.transportEmbeddedHint;
 
-    await QrPreviewDialog.show(
+    await qr.QrPreviewDialog.show(
       context,
       pngBytes,
       transportHint: hint,
@@ -657,11 +654,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
 
     if (backendMode) {
-      _snack('此 QR 僅包含卡片 ID，掃描端會連線後端取得完整內容', seconds: 4);
+      _snack(l.qrIdOnlyNotice, seconds: 4);
     }
   }
 
-  /// （如果你真的要上傳給後端）
   Future<String> _uploadCardToBackend(String owner, MiniCardData card) async {
     final uri = Uri.parse('$_kApiBase/api/cards');
     final body = jsonEncode({
@@ -675,41 +671,41 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       body: body,
     );
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
+      throw Exception('response ${resp.statusCode}: ${resp.body}');
     }
     final decoded = jsonDecode(resp.body);
     final id = decoded['id'] as String?;
     if (id == null || id.isEmpty) {
-      throw Exception('回應缺少 id');
+      throw Exception('response missing id');
     }
     return id;
   }
 
-  // ---- 匯入 / 匯出 JSON ----
+  // ===== import / export JSON =====
 
-  // 匯入：貼上文字（支援單張/多張）
   Future<void> _importFromJsonDialog() async {
+    final l = context.l10n;
     final controller = TextEditingController();
     final text = await showDialog<String>(
       context: context,
       builder: (dCtx) => AlertDialog(
-        title: const Text('貼上 JSON 文字'),
+        title: Text(l.pasteJsonTitle),
         content: TextField(
           controller: controller,
           maxLines: 12,
-          decoration: const InputDecoration(
-            hintText: '支援 mini_card_bundle_v2/v1 或 mini_card_v2/v1',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: l.pasteJsonHint,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dCtx),
-            child: const Text('取消'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dCtx, controller.text.trim()),
-            child: const Text('匯入'),
+            child: Text(l.import),
           ),
         ],
       ),
@@ -728,19 +724,19 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         added++;
       }
       if (mounted) setState(() {});
-      if (mounted) _snack('已自 JSON 匯入 $added 張小卡');
+      if (mounted) _snack(l.importedFromJsonToast(added));
     } catch (e) {
-      if (mounted) _snack('匯入失敗：$e');
+      if (mounted) _snack(l.importFailed('$e'));
     }
   }
 
-  // 匯出：把可轉 JSON 的卡片打包成 bundle，顯示在對話框並可複製
   Future<void> _exportJsonFlow(List<MiniCardData> source) async {
+    final l = context.l10n;
     final allowed = source.where(_cardJsonAllowed).toList();
     final skipped = source.length - allowed.length;
 
     if (allowed.isEmpty) {
-      _snack('選取的卡片都包含本地圖片，無法轉 JSON');
+      _snack(l.cannotExportJsonAllLocal);
       return;
     }
 
@@ -757,7 +753,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('匯出 JSON'),
+        title: Text(l.exportJson),
         content: SizedBox(
           width: 520,
           child: Column(
@@ -769,7 +765,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '已略過 $skipped 張含本地照片的卡片',
+                      l.skippedLocalImagesCount(skipped),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -791,14 +787,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('關閉'),
+            child: Text(l.close),
           ),
           FilledButton.icon(
             icon: const Icon(Icons.copy),
-            label: const Text('複製'),
+            label: Text(l.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: s));
-              _snack('已複製 JSON');
+              _snack(l.copiedJsonToast);
             },
           ),
         ],
@@ -806,11 +802,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  // 匯入：自動判斷單張或多張
   Future<List<MiniCardData>> _parseAnyJson(String text) async {
     final decoded = jsonDecode(text);
 
-    if (decoded is! Map) throw const FormatException('JSON 不是物件');
+    if (decoded is! Map) throw const FormatException('JSON is not an object');
 
     final type = decoded['type'];
     if (type == 'mini_card_bundle_v2' || type == 'mini_card_bundle_v1') {
@@ -820,10 +815,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       final cardMap = Map<String, dynamic>.from(decoded['card'] as Map);
       return [await _inflateOneFromMap(cardMap)];
     }
-    throw const FormatException('不支援的 type');
+    throw const FormatException('Unsupported type');
   }
 
-  // 多張 bundle 解析
   Future<List<MiniCardData>> _parseBundle(Map data) async {
     final List list = data['cards'] as List? ?? const [];
     final out = <MiniCardData>[];
@@ -834,7 +828,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     return out;
   }
 
-  // 單張：下載遠端圖片到本地；若 back 有遠端也會下載
   Future<MiniCardData> _inflateOneFromMap(Map<String, dynamic> map) async {
     var card = MiniCardData.fromJson(map);
 
@@ -859,9 +852,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     return card;
   }
 
-  // —— JSON 允許判斷：前面必須是遠端網址；背面若有本地也禁止 —— //
   bool _cardJsonAllowed(MiniCardData c) {
-    final frontOk = (c.imageUrl ?? '').isNotEmpty; // 前面必須是 URL
+    final frontOk = (c.imageUrl ?? '').isNotEmpty;
     final backLocalOnly =
         (c.backLocalPath ?? '').isNotEmpty && (c.backImageUrl ?? '').isEmpty;
     return frontOk && !backLocalOnly;
@@ -891,19 +883,22 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       (c.imageUrl ?? '').isEmpty && (c.localPath ?? '').isNotEmpty;
 
   String _frontSourceLabel(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty
-      ? '網址'
-      : ((c.localPath ?? '').isNotEmpty ? '本地' : '無');
+      ? context.l10n.common_url
+      : ((c.localPath ?? '').isNotEmpty
+            ? context.l10n.common_local
+            : context.l10n.none);
 
   String _backSourceLabel(MiniCardData c) {
-    if ((c.backImageUrl ?? '').isNotEmpty) return '網址';
-    if ((c.backLocalPath ?? '').isNotEmpty) return '本地';
-    return '無';
+    if ((c.backImageUrl ?? '').isNotEmpty) return context.l10n.common_url;
+    if ((c.backLocalPath ?? '').isNotEmpty) return context.l10n.common_local;
+    return context.l10n.none;
   }
 
   Future<void> _pickAndShareOrExport(
     List<MiniCardData> source, {
     Set<String>? preselect,
   }) async {
+    final l = context.l10n;
     final sel = <String>{...(preselect ?? const <String>{})};
 
     await showModalBottomSheet(
@@ -916,22 +911,21 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             expand: false,
             builder: (sheetCtx, ctrl) => Column(
               children: [
-                // 標題列
+                // title row
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                   child: Row(
                     children: [
-                      const Expanded(child: Text('選擇要分享的卡片')),
+                      Expanded(child: Text(l.selectCardsToShareTitle)),
                       TextButton(
                         onPressed: () => Navigator.pop(modalCtx),
-                        child: const Text('關閉'),
+                        child: Text(l.close),
                       ),
                     ],
                   ),
                 ),
                 const Divider(height: 8),
 
-                // 勾選清單
                 Expanded(
                   child: ListView.builder(
                     controller: ctrl,
@@ -949,7 +943,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                             sel.remove(c.id);
                           }
                         }),
-                        // 圖片縮圖
                         secondary: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: Image(
@@ -959,28 +952,26 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        // 文字
                         title: Text(
-                          c.note.isNotEmpty ? c.note : '(無敘述)',
+                          c.note.isNotEmpty ? c.note : l.common_unnamed,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: _hasLocal(c)
-                            ? const Text('含圖片網址，可以JSON傳送')
+                            ? Text(l.hasImageUrlJsonOk)
                             : null,
                       );
                     },
                   ),
                 ),
 
-                // 提示 + 底部兩個按鈕
                 const Divider(height: 8),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '提示：匯出 JSON 只包含有「圖片網址」的卡片；含本地照片將自動略過。',
+                      l.exportJsonOnlyUrlHint,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -989,28 +980,26 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Row(
                     children: [
-                      // 左：分享照片（無限制）
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.ios_share),
-                          label: const Text('分享照片'),
+                          label: Text(l.sharePhotos),
                           onPressed: sel.isEmpty
                               ? null
                               : () async {
                                   final picked = source
                                       .where((c) => sel.contains(c.id))
                                       .toList();
-                                  Navigator.pop(modalCtx); // 關底部
+                                  Navigator.pop(modalCtx);
                                   await _shareMultiplePhotos(picked);
                                 },
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // 右：匯出 JSON（遇本地先提醒）
                       Expanded(
                         child: FilledButton.icon(
                           icon: const Icon(Icons.data_object),
-                          label: const Text('匯出 JSON'),
+                          label: Text(l.exportJson),
                           onPressed: sel.isEmpty
                               ? null
                               : () async {
@@ -1024,33 +1013,35 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                       picked.length - allowed.length;
 
                                   Future<void> doExport() async {
-                                    Navigator.pop(modalCtx); // 關底部
+                                    Navigator.pop(modalCtx);
                                     if (allowed.isEmpty) {
-                                      _snack('選取的卡片都包含本地圖片，無法轉 JSON');
+                                      _snack(l.cannotExportJsonAllLocal);
                                     } else {
                                       await _exportJsonFlow(allowed);
                                     }
                                   }
 
                                   if (blocked > 0) {
-                                    // 有本地圖 → 先詢問
                                     final ok = await showDialog<bool>(
                                       context: context,
                                       builder: (_) => AlertDialog(
-                                        title: const Text('包含本地圖片'),
+                                        title: Text(l.containsLocalImages),
                                         content: Text(
-                                          '共有 $blocked 張含本地圖片，無法輸出到 JSON。\n要只輸出其餘可用的 ${allowed.length} 張嗎？',
+                                          l.containsLocalImagesDetail(
+                                            blocked,
+                                            allowed.length,
+                                          ),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
                                                 Navigator.pop(context, false),
-                                            child: const Text('取消'),
+                                            child: Text(l.cancel),
                                           ),
                                           FilledButton(
                                             onPressed: () =>
                                                 Navigator.pop(context, true),
-                                            child: const Text('只輸出可用的'),
+                                            child: Text(l.onlyExportUsable),
                                           ),
                                         ],
                                       ),

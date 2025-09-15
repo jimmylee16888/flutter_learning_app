@@ -4,13 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'widgets/fullscreen_qr_viewer.dart';
 
 class QrPreviewDialog {
   /// 顯示小卡分享對話框
-  /// [pngBytes] 可能為 null（例如尚未生成 QR 或切到 JSON 分頁時不用）
-  /// [transportHint] 文字說明（例如：'直接內嵌(本地)' 或 '後端模式(走 API)'）
-  /// [jsonText] JSON 文字（供 JSON 分頁顯示 / 複製）
   static Future<void> show(
     BuildContext context,
     Uint8List? pngBytes, {
@@ -26,11 +24,9 @@ class QrPreviewDialog {
       builder: (dialogContext) {
         final size = MediaQuery.of(dialogContext).size;
 
-        // 對話框外距大一些，避免靠邊貼齊
         const hPad = 28.0;
         const vPad = 28.0;
 
-        // 預估 QR 能舒適顯示的邊長（避免被邊角吃到）
         final side = math.max(
           200.0,
           math.min(
@@ -56,7 +52,7 @@ class QrPreviewDialog {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 child: Stack(
                   children: [
-                    // 右上角：傳輸方式小圖示（不佔一整行）
+                    // 右上角：傳輸方式小圖示
                     Positioned(
                       top: 0,
                       right: 0,
@@ -65,7 +61,7 @@ class QrPreviewDialog {
                         preferBelow: false,
                         child: InkResponse(
                           radius: 18,
-                          onTap: () {}, // 預留：需要可改成顯示說明對話框
+                          onTap: () {},
                           child: Icon(
                             _transportIcon(transportHint),
                             size: 18,
@@ -75,18 +71,17 @@ class QrPreviewDialog {
                       ),
                     ),
 
-                    // 主要內容
+                    // 內容
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 標題
                         Text(
                           '小卡分享',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
 
-                        // 滑動開關：QR / JSON
+                        // 分段切換 QR / JSON
                         Align(
                           alignment: Alignment.center,
                           child: SizedBox(
@@ -110,9 +105,8 @@ class QrPreviewDialog {
                         ),
                         const SizedBox(height: 12),
 
-                        // 內容：依分頁切換
                         if (tab == 0) ...[
-                          // ====== QR 分頁 ======
+                          // ===== QR 分頁 =====
                           if (pngBytes == null)
                             const Padding(
                               padding: EdgeInsets.all(20),
@@ -152,7 +146,7 @@ class QrPreviewDialog {
                               ),
                             ),
                         ] else ...[
-                          // ====== JSON 分頁 ======
+                          // ===== JSON 分頁 =====
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 300),
                             child: TextField(
@@ -189,7 +183,6 @@ class QrPreviewDialog {
                         ],
 
                         const SizedBox(height: 8),
-                        // 固定提示
                         Text(
                           '若 QR code 無法正常顯示可能是資料太大，建議用 JSON 傳送',
                           textAlign: TextAlign.center,
@@ -197,7 +190,6 @@ class QrPreviewDialog {
                         ),
 
                         const SizedBox(height: 8),
-                        // 關閉按鈕
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -218,10 +210,8 @@ class QrPreviewDialog {
   }
 }
 
-/// 判斷是否為 API/後端模式（用於決定右上角 icon）
 bool _isApiTransport(String hint) =>
     hint.contains('API') || hint.contains('後端');
 
-/// 本地(內嵌)用手機圖示；API 用雲朵圖示
 IconData _transportIcon(String hint) =>
     _isApiTransport(hint) ? Icons.cloud_outlined : Icons.smartphone;

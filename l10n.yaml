@@ -2,5 +2,13 @@
 template-arb-file: app_en.arb
 output-class: AppLocalizations
 output-localization-file: app_localizations.dart
-synthetic-package: false
-nullable-getter: false
+
+use-deferred-loading: false
+
+# （可選）明確列出支援語系；也可以省略，工具會依檔名自動偵測
+preferred-supported-locales:
+  - en
+  - zh_TW
+  - ja
+  - ko
+  - de

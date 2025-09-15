@@ -229,5 +229,149 @@
   "@limitReached": {
     "description": "태그 최대 개수를 초과했을 때 표시",
     "placeholders": { "text": { "type": "String" } }
-  }
+  },
+
+  "searchFriendsOrArtistsHint": "친구 또는 아티스트 검색",
+  "@searchFriendsOrArtistsHint": {
+    "description": "친구 카드 검색창 힌트"
+  },
+
+  "retry": "다시 시도",
+  "offlineBanner": "오프라인: 일부 기능을 사용할 수 없습니다",
+
+  "manageFollowedTags": "팔로우한 태그",
+  "noFriendsYet": "추가된 친구가 없습니다",
+  "friendAddAction": "친구 추가",
+  "friendRemoveAction": "친구 해제",
+  "friendAddedStatus": "추가됨",
+  "remove": "제거",
+
+  "changeAvatar": "아바타 변경",
+  "socialLinksTitle": "소셜 링크",
+  "showInstagramOnProfile": "프로필에 Instagram 표시",
+  "showFacebookOnProfile": "프로필에 Facebook 표시",
+  "showLineOnProfile": "프로필에 LINE 표시",
+
+  "followedTagsCount": "팔로우한 태그 ({n})",
+  "@followedTagsCount": { "placeholders": { "n": { "type": "int" } } },
+  "addFollowedTag": "팔로우할 태그 추가",
+  "addFollowedTagHint": "태그 이름을 입력한 뒤 Enter 키를 누르세요",
+
+  "manageCards": "명함 관리",
+
+  "phoneLabel": "전화",
+  "lineLabel": "LINE",
+  "facebookLabel": "Facebook",
+  "instagramLabel": "Instagram",
+   "followedTagsTitle": "팔로우한 태그",
+
+  "noFollowedTagsYet": "팔로우한 태그가 없습니다",
+
+  "addedFollowedTagToast": "태그를 팔로우했습니다",
+  "addFollowedTagFailed": "추가 실패: {error}",
+  "@addFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "removedFollowedTagToast": "태그 팔로우를 해제했습니다",
+  "removeFollowedTagFailed": "삭제 실패: {error}",
+  "@removeFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "loadFailed": "불러오기에 실패했습니다: {error}",
+  "@loadFailed": { "placeholders": { "error": {} } },
+
+   "miniCardsOf": "{title}의 미니 카드",
+  "@miniCardsOf": { "placeholders": { "title": {} } },
+
+  "importFromJsonTooltip": "JSON에서 가져오기",
+  "exportJsonMultiTooltip": "JSON 내보내기(여러 개)",
+
+  "scan": "스캔",
+  "share": "공유",
+  "shareThisCard": "이 카드를 공유",
+
+  "importedMiniCardsToast": "미니 카드 {n}장을 가져왔습니다",
+  "@importedMiniCardsToast": { "placeholders": { "n": { "type": "int" } } },
+
+  "shareMultipleCards": "여러 카드 공유(다중 선택)",
+  "shareMultipleCardsSubtitle": "카드를 선택한 뒤, 사진 공유 또는 JSON 내보내기",
+  "shareOneCard": "한 장 선택하여 공유…",
+
+  "selectCardsForJsonTitle": "공유할 카드 선택(JSON)",
+  "selectCardsForShareOrExportTitle": "공유/내보낼 카드 선택",
+  "blockedLocalImageNote": "로컬 이미지를 포함하여 JSON으로 내보낼 수 없습니다",
+
+  "shareMultiplePhotos": "사진 {n}장 공유",
+  "@shareMultiplePhotos": { "placeholders": { "n": { "type": "int" } } },
+  "exportJson": "JSON 내보내기",
+  "exportJsonSkipLocalHint": "로컬 이미지 전용 카드는 건너뜁니다",
+
+  "triedShareSummary": "{total}개 공유 시도, 성공 {ok} / 실패 {fail}",
+  "@triedShareSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "ok": { "type": "int" },
+      "fail": { "type": "int" }
+    }
+  },
+
+  "shareQrCode": "QR 코드 공유",
+  "shareQrAutoBackendHint": "데이터가 큰 경우 자동으로 백엔드 모드로 전환됩니다",
+  "cannotShareByQr": "QR로 공유할 수 없습니다",
+  "noImageUrl": "이미지 URL이 없음",
+  "noImageUrlPhotoOnly": "이미지 URL이 없어 사진 직접 공유만 가능합니다",
+  "shareThisPhoto": "이 사진 공유",
+  "shareFailed": "공유 실패: {error}",
+  "@shareFailed": { "placeholders": { "error": {} } },
+
+  "transportBackendHint": "백엔드 모드(API 사용)",
+  "transportEmbeddedHint": "임베디드(로컬)",
+  "qrIdOnlyNotice": "이 QR에는 카드 ID만 포함되어 있습니다. 수신 측에서 백엔드에서 전체 내용을 가져옵니다.",
+  "qrGenerationFailed": "QR 이미지 생성 실패",
+
+  "pasteJsonTitle": "JSON 텍스트 붙여넣기",
+  "pasteJsonHint": "mini_card_bundle_v2/v1 또는 mini_card_v2/v1 지원",
+  "import": "가져오기",
+  "importedFromJsonToast": "JSON에서 미니 카드 {n}장을 가져왔습니다",
+  "@importedFromJsonToast": { "placeholders": { "n": { "type": "int" } } },
+  "importFailed": "가져오기 실패: {error}",
+  "@importFailed": { "placeholders": { "error": {} } },
+  "cannotExportJsonAllLocal": "선택한 카드가 모두 로컬 이미지 전용이어서 JSON으로 내보낼 수 없습니다",
+  "skippedLocalImagesCount": "로컬 이미지 전용 카드 {n}장을 건너뜀",
+  "@skippedLocalImagesCount": { "placeholders": { "n": { "type": "int" } } },
+  "close": "닫기",
+  "copy": "복사",
+  "copiedJsonToast": "JSON을 복사했습니다",
+  "copyJson": "JSON 복사",
+
+  "none": "없음",
+  "selectCardsToShareTitle": "공유할 카드 선택",
+  "hasImageUrlJsonOk": "이미지 URL 있음: JSON으로 전송 가능",
+  "exportJsonOnlyUrlHint": "팁: 내보낸 JSON에는 이미지 URL이 있는 카드만 포함됩니다. 로컬 전용 이미지는 건너뜁니다.",
+  "sharePhotos": "사진 공유",
+  "containsLocalImages": "로컬 이미지 포함",
+  "containsLocalImagesDetail": "{blocked}장은 JSON으로 내보낼 수 없습니다. 사용 가능한 {allowed}장만 내보낼까요?",
+  "@containsLocalImagesDetail": {
+    "placeholders": {
+      "blocked": { "type": "int" },
+      "allowed": { "type": "int" }
+    }
+  },
+  "onlyExportUsable": "사용 가능한 것만 내보내기",
+
+  "shareMiniCardTitle": "미니 카드 공유",
+  "qrCodeTab": "QR 코드",
+  "qrTooLargeUseJsonHint": "QR 코드가 표시되지 않으면 데이터가 너무 클 수 있습니다. JSON 사용을 고려하세요.",
+
+  "scanMiniCardQrTitle": "미니 카드 QR 스캔",
+  "scanFromGallery": "갤러리에서 스캔",
+  "noQrFoundInImage": "이미지에서 QR을 찾지 못했습니다",
+  "qrFormatInvalid": "QR 형식이 올바르지 않습니다",
+  "qrTypeUnsupported": "지원되지 않는 QR 유형입니다",
+  "fetchFromBackendFailed": "백엔드에서 가져오기 실패: {error}",
+  "@fetchFromBackendFailed": { "placeholders": { "error": {} } },
+
+  "addFollowedTagFailedOffline": "오프라인입니다. 태그가 로컬에 추가되었습니다.",
+  "removeFollowedTagFailedOffline": "오프라인입니다. 태그가 로컬에서 제거되었습니다.",
+
+  "loading": "불러오는 중…"
+
 }

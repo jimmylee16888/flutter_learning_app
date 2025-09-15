@@ -1,27 +1,33 @@
-// lib/screens/social/friend_cards_page.dart
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:flutter_learning_app/services/social/social_api.dart';
+import 'package:flutter_learning_app/services/services.dart'; // FriendFollowController
 import '../../l10n/l10n.dart';
 import '../../models/social_models.dart';
+import 'friend_profile_page.dart';
 
 class FriendCardsPage extends StatefulWidget {
-  const FriendCardsPage({super.key});
+  const FriendCardsPage({super.key, required this.api});
+  final SocialApi api;
 
   @override
   State<FriendCardsPage> createState() => _FriendCardsPageState();
 }
 
 class _FriendCardsPageState extends State<FriendCardsPage> {
+  // 本地名片資訊（顯示補充用；名稱會被後端覆蓋）
   final List<FriendCard> _cards = [
     FriendCard(
-      id: 'f1',
+      id: 'u_alice',
       nickname: '小明',
       artists: ['LE SSERAFIM', 'IVE'],
       phone: '0912-345-678',
       instagram: '@ming',
     ),
     FriendCard(
-      id: 'f2',
+      id: 'u_bob',
       nickname: '小美',
       artists: ['NewJeans'],
       lineId: 'mei_line',
@@ -29,9 +35,56 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     ),
   ];
 
+  final Map<String, String> _nameById = {}; // 後端名稱快取
   String _query = '';
 
-  void _addOrEditCard({FriendCard? initial}) async {
+  @override
+  void initState() {
+    super.initState();
+    // 首頁面：預抓目前追蹤好友的名稱
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ids = context.read<FriendFollowController>().friends;
+      _prefetchRemoteNames(ids);
+    });
+  }
+
+  Future<void> _prefetchRemoteNames(Iterable<String> ids) async {
+    for (final id in ids) {
+      if (_nameById.containsKey(id)) continue;
+      _loadRemoteName(id);
+    }
+  }
+
+  Future<void> _loadRemoteName(String userId) async {
+    try {
+      final p = await widget.api.fetchUserProfile(userId);
+      final name = (p['name'] ?? p['nickname'] ?? '') as String;
+      if (!mounted) return;
+      if (name.trim().isNotEmpty) {
+        setState(() => _nameById[userId] = name.trim());
+      }
+    } catch (_) {}
+  }
+
+  String _displayName(FriendCard c) => _nameById[c.id] ?? c.nickname;
+
+  List<FriendCard> _filtered(Set<String> following) {
+    final joined = _cards.where((c) => following.contains(c.id)).toList();
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return joined;
+    return joined.where((c) {
+      final name = _displayName(c).toLowerCase();
+      final inName = name.contains(q);
+      final inArtists = c.artists.any((a) => a.toLowerCase().contains(q));
+      final inPhone = (c.phone ?? '').toLowerCase().contains(q);
+      final inLine = (c.lineId ?? '').toLowerCase().contains(q);
+      final inFb = (c.facebook ?? '').toLowerCase().contains(q);
+      final inIg = (c.instagram ?? '').toLowerCase().contains(q);
+      return inName || inArtists || inPhone || inLine || inFb || inIg;
+    }).toList();
+  }
+
+  Future<void> _addOrEditCard({FriendCard? initial}) async {
     final res = await showDialog<FriendCard>(
       context: context,
       builder: (_) => _EditFriendDialog(initial: initial),
@@ -45,29 +98,18 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         _cards.add(res);
       }
     });
+    // 若 id 在追蹤清單裡就抓一下顯示名稱
+    _loadRemoteName(res.id);
   }
 
   void _deleteCard(FriendCard c) {
     setState(() => _cards.removeWhere((x) => x.id == c.id));
   }
 
-  List<FriendCard> get _filtered {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return _cards;
-    return _cards.where((c) {
-      final inNick = c.nickname.toLowerCase().contains(q);
-      final inArtists = c.artists.any((a) => a.toLowerCase().contains(q));
-      final inPhone = (c.phone ?? '').toLowerCase().contains(q);
-      final inLine = (c.lineId ?? '').toLowerCase().contains(q);
-      final inFb = (c.facebook ?? '').toLowerCase().contains(q);
-      final inIg = (c.instagram ?? '').toLowerCase().contains(q);
-      return inNick || inArtists || inPhone || inLine || inFb || inIg;
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final following = context.watch<FriendFollowController>().friends;
 
     return Scaffold(
       appBar: AppBar(
@@ -88,19 +130,58 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         children: [
           _frostedSearchBar(),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              itemCount: _filtered.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) {
-                final c = _filtered[i];
-                return _FriendCardTile(
-                  card: c,
-                  onEdit: () => _addOrEditCard(initial: c),
-                  onDelete: () => _deleteCard(c),
-                );
-              },
-            ),
+            child: _filtered(following).isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        '尚未加入任何好友',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    itemCount: _filtered(following).length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (_, i) {
+                      final c = _filtered(following)[i];
+                      final name = _displayName(c);
+                      if (!_nameById.containsKey(c.id)) {
+                        _loadRemoteName(c.id);
+                      }
+                      final isFollowing = context
+                          .watch<FriendFollowController>()
+                          .contains(c.id);
+
+                      return _FriendCardTile(
+                        card: c,
+                        displayName: name,
+                        initialFollowing: isFollowing,
+                        onEdit: () => _addOrEditCard(initial: c),
+                        onDelete: () => _deleteCard(c),
+                        onOpenProfile: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => FriendProfilePage(
+                                api: widget.api,
+                                userId: c.id,
+                              ),
+                            ),
+                          );
+                        },
+                        onToggleFollow: () async {
+                          await context.read<FriendFollowController>().toggle(
+                            c.id,
+                          );
+                          // 名稱快取維持即可；若剛加入才去抓
+                          _loadRemoteName(c.id);
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -112,7 +193,6 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     );
   }
 
-  // ── Frosted Glass 搜尋列（和 CardsView 一致） ──
   Widget _frostedSearchBar() {
     final l = context.l10n;
     final bg = Theme.of(context).colorScheme.surface;
@@ -130,7 +210,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
             child: TextField(
               onChanged: (s) => setState(() => _query = s),
               decoration: InputDecoration(
-                hintText: '搜尋好友或藝人',
+                hintText: l.searchFriendsOrArtistsHint,
                 border: InputBorder.none,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _query.isEmpty
@@ -155,12 +235,21 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
 
 class _FriendCardTile extends StatefulWidget {
   final FriendCard card;
+  final String displayName;
+  final bool initialFollowing;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onOpenProfile;
+  final Future<void> Function() onToggleFollow;
+
   const _FriendCardTile({
     required this.card,
+    required this.displayName,
+    required this.initialFollowing,
     required this.onEdit,
     required this.onDelete,
+    required this.onOpenProfile,
+    required this.onToggleFollow,
   });
 
   @override
@@ -169,8 +258,16 @@ class _FriendCardTile extends StatefulWidget {
 
 class _FriendCardTileState extends State<_FriendCardTile> {
   bool _flipped = false;
+  late bool _following = widget.initialFollowing;
 
-  // 卡片顏色：深色主題稍微白一點、淺色主題稍微黑一點
+  @override
+  void didUpdateWidget(covariant _FriendCardTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialFollowing != widget.initialFollowing) {
+      _following = widget.initialFollowing;
+    }
+  }
+
   Color _cardColor(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final b = Theme.of(context).brightness;
@@ -185,10 +282,10 @@ class _FriendCardTileState extends State<_FriendCardTile> {
     final cs = Theme.of(context).colorScheme;
 
     const double radius = 16.0;
-    const double bgRatio = 0.40; // 背景操作區寬度 = 卡片寬 * 0.40
+    const double bgRatio = 0.40;
     const double minBg = 120.0;
     const double maxBg = 220.0;
-    const double dragInset = 12.0; // 上層最大拖動 = 背景寬 - dragInset
+    const double dragInset = 12.0;
     const double triggerRatio = 0.66;
 
     return Padding(
@@ -199,25 +296,21 @@ class _FriendCardTileState extends State<_FriendCardTile> {
           final double dragLimit = (actionW - dragInset).clamp(80.0, actionW);
           double dx = 0;
 
-          Future<void> _animateBack(StateSetter sb) async {
-            sb(() => dx = 0);
-          }
+          Future<void> _animateBack(StateSetter sb) async => sb(() => dx = 0);
 
           Future<void> _handleEnd(StateSetter sb) async {
             final th = dragLimit * triggerRatio;
             if (dx >= th) {
-              // 往右滑：編輯
               widget.onEdit();
               await _animateBack(sb);
             } else if (dx <= -th) {
-              // 往左滑：刪除
               final ok =
                   await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
                       title: Text(l.deleteFriendCardTitle),
                       content: Text(
-                        l.deleteFriendCardMessage(widget.card.nickname),
+                        l.deleteFriendCardMessage(widget.displayName),
                       ),
                       actions: [
                         TextButton(
@@ -241,10 +334,10 @@ class _FriendCardTileState extends State<_FriendCardTile> {
 
           return ClipRRect(
             borderRadius: BorderRadius.circular(radius),
-            clipBehavior: Clip.antiAlias, // 統一裁切，避免任何縫隙
+            clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
-                // 背景：左＝編輯；右＝刪除（滿版，無圓角，和上層完全貼齊）
+                // 背景：左＝編輯；右＝刪除
                 Positioned.fill(
                   child: Row(
                     children: [
@@ -285,7 +378,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                   ),
                 ),
 
-                // 上層：卡片（可拖曳＋點擊翻面）
+                // 上層：卡片
                 StatefulBuilder(
                   builder: (context, sb) {
                     return GestureDetector(
@@ -318,7 +411,17 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                             ),
                             child: _flipped
                                 ? _BackSide(onEditTap: widget.onEdit)
-                                : _FrontSide(card: widget.card),
+                                : _FrontSide(
+                                    displayName: widget.displayName,
+                                    card: widget.card,
+                                    following: _following,
+                                    onToggleFollow: () async {
+                                      await widget.onToggleFollow();
+                                      if (!mounted) return;
+                                      setState(() => _following = !_following);
+                                    },
+                                    onAvatarTap: widget.onOpenProfile,
+                                  ),
                           ),
                         ),
                       ),
@@ -337,7 +440,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
     required BuildContext context,
     required Color color,
     required Widget child,
-    double radius = 16.0, // 和外層 ClipRRect 一致
+    double radius = 16.0,
   }) {
     final cs = Theme.of(context).colorScheme;
     return Material(
@@ -347,15 +450,26 @@ class _FriendCardTileState extends State<_FriendCardTile> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
-      clipBehavior: Clip.antiAlias, // 確保圓角內的內容與水波紋被裁切
-      child: child, // ✅ 不再加 DecoratedBox/border，內部完全無邊框
+      clipBehavior: Clip.antiAlias,
+      child: child,
     );
   }
 }
 
 class _FrontSide extends StatelessWidget {
   final FriendCard card;
-  const _FrontSide({required this.card});
+  final String displayName;
+  final bool following;
+  final VoidCallback onToggleFollow;
+  final VoidCallback onAvatarTap;
+
+  const _FrontSide({
+    required this.card,
+    required this.displayName,
+    required this.following,
+    required this.onToggleFollow,
+    required this.onAvatarTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -365,11 +479,14 @@ class _FrontSide extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: cs.surfaceContainerHighest,
-            child: Text(
-              card.nickname.isNotEmpty ? card.nickname.characters.first : '?',
+          GestureDetector(
+            onTap: onAvatarTap,
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: cs.surfaceContainerHighest,
+              child: Text(
+                displayName.isNotEmpty ? displayName.characters.first : '?',
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -378,7 +495,7 @@ class _FrontSide extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  card.nickname,
+                  displayName,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface,
@@ -413,6 +530,16 @@ class _FrontSide extends StatelessWidget {
             ),
           ),
           const Icon(Icons.qr_code_2),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: onToggleFollow,
+            icon: Icon(following ? Icons.person_remove : Icons.person_add),
+            label: Text(
+              following
+                  ? context.l10n.friendAddedStatus
+                  : context.l10n.friendAddAction,
+            ),
+          ),
         ],
       ),
     );
@@ -430,7 +557,6 @@ class _BackSide extends StatelessWidget {
     return Container(
       key: const ValueKey('back'),
       color: Color.alphaBlend(
-        // 背面也做同樣的亮/暗微調
         Theme.of(context).brightness == Brightness.dark
             ? Colors.white.withOpacity(0.08)
             : Colors.black.withOpacity(0.06),
@@ -440,14 +566,14 @@ class _BackSide extends StatelessWidget {
       alignment: Alignment.center,
       child: Stack(
         children: [
-          Align(
+          const Align(
             alignment: Alignment.center,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.qr_code_2, size: 120),
-                const SizedBox(height: 8),
-                Text(l.tapToFlip),
+                Icon(Icons.qr_code_2, size: 120),
+                SizedBox(height: 8),
+                Text('點擊翻面'),
               ],
             ),
           ),
@@ -513,6 +639,17 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
       _fb.text = i.facebook ?? '';
       _ig.text = i.instagram ?? '';
     }
+  }
+
+  @override
+  void dispose() {
+    _nick.dispose();
+    _artistsCtrl.dispose();
+    _phone.dispose();
+    _line.dispose();
+    _fb.dispose();
+    _ig.dispose();
+    super.dispose();
   }
 
   @override

@@ -5,7 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'explore_item.dart';
-import '../../services/explore_store.dart';
+import 'package:flutter_learning_app/services/services.dart';
 import 'draggable_card.dart';
 import 'countdown_flip_card.dart';
 import 'grid_paper.dart';

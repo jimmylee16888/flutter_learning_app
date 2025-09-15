@@ -850,15 +850,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String fetchFromBackendFailed(Object error) {
     return '向後端取資料失敗：$error';
   }
-
-  @override
-  String get addFollowedTagFailedOffline => '目前離線，已先在本機加入標籤';
-
-  @override
-  String get removeFollowedTagFailedOffline => '目前離線，已先在本機移除標籤';
-
-  @override
-  String get loading => '載入中…';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1707,13 +1698,4 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String fetchFromBackendFailed(Object error) {
     return '向後端取資料失敗：$error';
   }
-
-  @override
-  String get addFollowedTagFailedOffline => '目前離線，已先在本機加入標籤';
-
-  @override
-  String get removeFollowedTagFailedOffline => '目前離線，已先在本機移除標籤';
-
-  @override
-  String get loading => '載入中…';
 }

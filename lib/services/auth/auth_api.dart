@@ -1,11 +1,11 @@
 // lib/services/auth_api.dart
 import 'package:dio/dio.dart';
-import 'base_url.dart';
+import 'package:flutter_learning_app/services/core/base_url.dart';
 
 class AuthApi {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: kBaseUrl,
+      baseUrl: kApiBaseUrl,
       connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 12),
       headers: {'Content-Type': 'application/json'},

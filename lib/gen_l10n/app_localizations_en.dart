@@ -869,15 +869,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String fetchFromBackendFailed(Object error) {
     return 'Failed to fetch from backend: $error';
   }
-
-  @override
-  String get addFollowedTagFailedOffline =>
-      'You are offline. Tag added locally.';
-
-  @override
-  String get removeFollowedTagFailedOffline =>
-      'You are offline. Tag removed locally.';
-
-  @override
-  String get loading => 'Loading…';
 }

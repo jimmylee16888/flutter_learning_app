@@ -1,29 +1,30 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/services/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart'; // ⬅ 新增
-import 'firebase_options.dart'; // ⬅ 新增
+import 'firebase_options.dart';
 
-import 'services/mini_card_store.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n.dart';
 import 'app_settings.dart';
 import 'screens/root_nav.dart';
-import 'services/auth_controller.dart';
 import 'screens/auth/login_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ⬇ 先連 Firebase
+  // Firebase 初始化
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // 載入本機設定
   final settings = await AppSettings.load();
 
-  // ⬇ 用 Firebase 版的 AuthController（下面第 2 步會提供完整檔案）
+  // AuthController（Firebase 版本）
   final auth = AuthController();
   await auth.init();
 
+  // MiniCard 本機儲存
   final miniCardStore = MiniCardStore();
   await miniCardStore.hydrateFromPrefs(artists: settings.cardItems);
 
@@ -32,6 +33,46 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider.value(value: miniCardStore),
         ChangeNotifierProvider.value(value: auth),
+
+        // ★ 全域標籤控制器：所有頁面共用（Following 分頁/個人設定/標籤管理）
+        ChangeNotifierProvider<TagFollowController>(
+          create: (_) {
+            final user = FirebaseAuth.instance.currentUser;
+            final meId = user?.uid ?? 'u_me';
+            final meName = (settings.nickname?.trim().isNotEmpty == true)
+                ? settings.nickname!.trim()
+                : (user?.displayName ?? 'Me');
+            final ctl = TagFollowController(
+              api: SocialApi(
+                meId: meId,
+                meName: meName,
+                // 若要用 Firebase 驗證頭：idTokenProvider: () => user?.getIdToken(true),
+              ),
+            );
+            ctl.bootstrap(); // 從後端載入，必要時遷移本機舊資料
+            return ctl;
+          },
+        ),
+
+        // ★ 全域好友控制器：所有頁面共用（名片頁/使用者設定/個人頁）
+        ChangeNotifierProvider<FriendFollowController>(
+          create: (_) {
+            final user = FirebaseAuth.instance.currentUser;
+            final meId = user?.uid ?? 'u_me';
+            final meName = (settings.nickname?.trim().isNotEmpty == true)
+                ? settings.nickname!.trim()
+                : (user?.displayName ?? 'Me');
+            final ctl = FriendFollowController(
+              api: SocialApi(
+                meId: meId,
+                meName: meName,
+                // idTokenProvider: () => user?.getIdToken(true),
+              ),
+            );
+            ctl.bootstrap(); // 後端 ↔ 本地同步（後端空 → 回填本地）
+            return ctl;
+          },
+        ),
       ],
       child: AppRoot(settings: settings, auth: auth),
     ),

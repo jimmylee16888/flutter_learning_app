@@ -2,15 +2,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/services/utils/qr/qr_codec.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' as ms;
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
     as ml;
 import 'package:http/http.dart' as http;
 
+import '../../../../l10n/l10n.dart'; // i18n
 import '../../../../models/mini_card_data.dart';
 import '../../../../utils/mini_card_io.dart';
-import '../../../../services/qr_codec.dart';
 
 class ScanQrPage extends StatefulWidget {
   const ScanQrPage({super.key});
@@ -42,6 +43,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
 
   /// 從相簿選擇 QR 圖片並辨識
   Future<void> _scanFromGallery() async {
+    final l = context.l10n;
     final picker = ImagePicker();
     final XFile? img = await picker.pickImage(source: ImageSource.gallery);
     if (img == null) return;
@@ -52,7 +54,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
       final result = await scanner.processImage(input);
       final code = result.isNotEmpty ? result.first.rawValue : null;
       if (code == null) {
-        _toast('圖片中未偵測到 QR');
+        _toast(l.noQrFoundInImage);
         return;
       }
       await _handleCode(code);
@@ -63,9 +65,10 @@ class _ScanQrPageState extends State<ScanQrPage> {
 
   /// 處理掃描到的 QR 內容
   Future<bool> _handleCode(String code) async {
+    final l = context.l10n;
     final payload = QrCodec.decode(code);
     if (payload == null) {
-      _toast('QR 格式不符');
+      _toast(l.qrFormatInvalid);
       return false;
     }
 
@@ -87,7 +90,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
             .map((e) => Map<String, dynamic>.from(e))
             .toList();
       } else {
-        _toast('QR 類型不支援');
+        _toast(l.qrTypeUnsupported);
         return false;
       }
 
@@ -141,7 +144,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
 
         out.add(c);
       } catch (e) {
-        _toast('向後端取資料失敗：$e');
+        _toast(l.fetchFromBackendFailed('$e'));
         return false;
       }
     }
@@ -177,6 +180,8 @@ class _ScanQrPageState extends State<ScanQrPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+
     return WillPopScope(
       onWillPop: () async {
         try {
@@ -186,12 +191,12 @@ class _ScanQrPageState extends State<ScanQrPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('掃描小卡 QR'),
+          title: Text(l.scanMiniCardQrTitle),
           actions: [
             IconButton(
               icon: const Icon(Icons.photo_library_outlined),
               onPressed: _scanFromGallery,
-              tooltip: '相簿掃描',
+              tooltip: l.scanFromGallery,
             ),
           ],
         ),

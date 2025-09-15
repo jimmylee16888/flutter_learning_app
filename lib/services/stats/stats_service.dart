@@ -1,6 +1,7 @@
 // lib/services/stats_service.dart
-import '../models/card_item.dart';
-import '../models/mini_card_data.dart';
+
+import 'package:flutter_learning_app/models/card_item.dart';
+import 'package:flutter_learning_app/models/mini_card_data.dart';
 
 class StatsSummary {
   final int artistCount;

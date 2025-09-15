@@ -233,8 +233,148 @@
   "@limitReached": {
     "description": "Shown when the user tries to add more than the allowed tags.",
     "placeholders": { "text": { "type": "String" } }
-  }
+  },
 
-  
+  "retry": "Retry",
+  "offlineBanner": "Offline: some features are unavailable",
+
+  "manageFollowedTags": "Followed tags",
+  "noFriendsYet": "No friends yet",
+  "friendAddAction": "Add friend",
+  "friendRemoveAction": "Remove friend",
+  "friendAddedStatus": "Added",
+  "remove": "Remove",
+
+  "changeAvatar": "Change avatar",
+  "socialLinksTitle": "Social links",
+  "showInstagramOnProfile": "Show Instagram on profile",
+  "showFacebookOnProfile": "Show Facebook on profile",
+  "showLineOnProfile": "Show Line on profile",
+
+  "followedTagsCount": "Followed tags ({n})",
+  "@followedTagsCount": { "placeholders": { "n": { "type": "int" } } },
+  "addFollowedTag": "Add followed tag",
+  "addFollowedTagHint": "Enter a tag name, then press Enter",
+
+  "manageCards": "Manage cards",
+
+  "phoneLabel": "Phone",
+  "lineLabel": "Line",
+  "facebookLabel": "Facebook",
+  "instagramLabel": "Instagram",
+
+  "searchFriendsOrArtistsHint": "Search friends or artists",
+  "@searchFriendsOrArtistsHint": { "description": "Hint text in the friend cards search bar" },
+
+  "followedTagsTitle": "Followed tags",
+
+  "noFollowedTagsYet": "No followed tags yet",
+
+  "addedFollowedTagToast": "Added followed tag",
+  "addFollowedTagFailed": "Failed to add tag: {error}",
+  "@addFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "removedFollowedTagToast": "Removed followed tag",
+  "removeFollowedTagFailed": "Failed to remove tag: {error}",
+  "@removeFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "loadFailed": "Failed to load: {error}",
+  "@loadFailed": { "placeholders": { "error": {} } },
+
+  "miniCardsOf": "{title}'s mini cards",
+  "@miniCardsOf": { "placeholders": { "title": {} } },
+
+  "importFromJsonTooltip": "Import from JSON",
+  "exportJsonMultiTooltip": "Export JSON (multiple)",
+
+  "scan": "Scan",
+  "share": "Share",
+  "shareThisCard": "Share this card",
+
+  "importedMiniCardsToast": "Imported {n} mini card(s)",
+  "@importedMiniCardsToast": { "placeholders": { "n": { "type": "int" } } },
+
+  "shareMultipleCards": "Share multiple cards (multi-select)",
+  "shareMultipleCardsSubtitle": "Select cards, then share photos or export JSON",
+  "shareOneCard": "Pick one to share…",
+
+  "selectCardsForJsonTitle": "Select cards to share (JSON)",
+  "selectCardsForShareOrExportTitle": "Select cards to share / export",
+  "blockedLocalImageNote": "Contains local image; cannot export to JSON",
+
+  "shareMultiplePhotos": "Share {n} photos",
+  "@shareMultiplePhotos": { "placeholders": { "n": { "type": "int" } } },
+  "exportJson": "Export JSON",
+  "exportJsonSkipLocalHint": "Cards with local-only images will be skipped",
+
+  "triedShareSummary": "Tried to share {total}, success {ok} / failed {fail}",
+  "@triedShareSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "ok": { "type": "int" },
+      "fail": { "type": "int" }
+    }
+  },
+
+  "shareQrCode": "Share QR code",
+  "shareQrAutoBackendHint": "Large payloads switch to backend mode automatically",
+  "cannotShareByQr": "Cannot share via QR",
+  "noImageUrl": "No image URL",
+  "noImageUrlPhotoOnly": "No image URL; can only share the photo directly",
+  "shareThisPhoto": "Share this photo",
+  "shareFailed": "Share failed: {error}",
+  "@shareFailed": { "placeholders": { "error": {} } },
+
+  "transportBackendHint": "Backend mode (via API)",
+  "transportEmbeddedHint": "Embedded (local)",
+  "qrIdOnlyNotice": "This QR contains only the card ID. The receiver will fetch full content from backend.",
+  "qrGenerationFailed": "Failed to generate QR image",
+
+  "pasteJsonTitle": "Paste JSON text",
+  "pasteJsonHint": "Supports mini_card_bundle_v2/v1 or mini_card_v2/v1",
+  "import": "Import",
+  "importedFromJsonToast": "Imported {n} mini card(s) from JSON",
+  "@importedFromJsonToast": { "placeholders": { "n": { "type": "int" } } },
+  "importFailed": "Import failed: {error}",
+  "@importFailed": { "placeholders": { "error": {} } },
+  "cannotExportJsonAllLocal": "All selected cards contain local-only images and cannot be exported to JSON",
+  "skippedLocalImagesCount": "Skipped {n} card(s) that contain local-only images",
+  "@skippedLocalImagesCount": { "placeholders": { "n": { "type": "int" } } },
+  "close": "Close",
+  "copy": "Copy",
+  "copiedJsonToast": "Copied JSON",
+  "copyJson": "Copy JSON",
+
+  "none": "None",
+  "selectCardsToShareTitle": "Select cards to share",
+  "hasImageUrlJsonOk": "Has image URL; can be sent via JSON",
+  "exportJsonOnlyUrlHint": "Tip: Exported JSON includes only cards with an image URL; local-only images will be skipped.",
+  "sharePhotos": "Share photos",
+  "containsLocalImages": "Contains local images",
+  "containsLocalImagesDetail": "{blocked} card(s) cannot be exported to JSON. Export only the usable {allowed} card(s)?",
+  "@containsLocalImagesDetail": {
+    "placeholders": {
+      "blocked": { "type": "int" },
+      "allowed": { "type": "int" }
+    }
+  },
+  "onlyExportUsable": "Export usable only",
+
+  "shareMiniCardTitle": "Share mini card",
+  "qrCodeTab": "QR code",
+  "qrTooLargeUseJsonHint": "If the QR code fails to render, the data might be too large. Consider using JSON instead.",
+
+  "scanMiniCardQrTitle": "Scan mini card QR",
+  "scanFromGallery": "Scan from gallery",
+  "noQrFoundInImage": "No QR found in the image",
+  "qrFormatInvalid": "QR format invalid",
+  "qrTypeUnsupported": "QR type unsupported",
+  "fetchFromBackendFailed": "Failed to fetch from backend: {error}",
+  "@fetchFromBackendFailed": { "placeholders": { "error": {} } },
+
+  "addFollowedTagFailedOffline": "You are offline. Tag added locally.",
+  "removeFollowedTagFailedOffline": "You are offline. Tag removed locally.",
+
+  "loading": "Loading…"
 
 }

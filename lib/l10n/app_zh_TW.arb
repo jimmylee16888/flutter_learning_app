@@ -224,5 +224,149 @@
   "@limitReached": {
     "description": "顯示超過可新增標籤上限時的提示",
     "placeholders": { "text": { "type": "String" } }
-  }
+  },
+  "searchFriendsOrArtistsHint": "搜尋好友或藝人",
+  "@searchFriendsOrArtistsHint": {
+    "description": "好友名片搜尋列提示"
+  },
+
+  "retry": "重試",
+  "offlineBanner": "離線中：部分功能不可用",
+
+  "manageFollowedTags": "追蹤標籤",
+  "noFriendsYet": "尚未加入任何好友",
+  "friendAddAction": "加入好友",
+  "friendRemoveAction": "解除好友",
+  "friendAddedStatus": "已加入",
+  "remove": "移除",
+
+  "changeAvatar": "更換頭像",
+  "socialLinksTitle": "社群連結",
+  "showInstagramOnProfile": "在個人頁顯示 Instagram",
+  "showFacebookOnProfile": "在個人頁顯示 Facebook",
+  "showLineOnProfile": "在個人頁顯示 Line",
+
+  "followedTagsCount": "追蹤的標籤（{n}）",
+  "@followedTagsCount": { "placeholders": { "n": { "type": "int" } } },
+  "addFollowedTag": "新增追蹤標籤",
+  "addFollowedTagHint": "輸入標籤名稱，按 Enter 加入",
+
+  "manageCards": "管理名片",
+
+  "phoneLabel": "電話",
+  "lineLabel": "LINE",
+  "facebookLabel": "Facebook",
+  "instagramLabel": "Instagram",
+
+   "followedTagsTitle": "追蹤的標籤",
+
+  "noFollowedTagsYet": "尚未追蹤任何標籤",
+
+  "addedFollowedTagToast": "已加入追蹤標籤",
+  "addFollowedTagFailed": "新增失敗：{error}",
+  "@addFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "removedFollowedTagToast": "已移除追蹤標籤",
+  "removeFollowedTagFailed": "移除失敗：{error}",
+  "@removeFollowedTagFailed": { "placeholders": { "error": {} } },
+
+  "loadFailed": "讀取失敗：{error}",
+  "@loadFailed": { "placeholders": { "error": {} } },
+
+    "miniCardsOf": "{title} 的小卡",
+  "@miniCardsOf": { "placeholders": { "title": {} } },
+
+  "importFromJsonTooltip": "從 JSON 匯入",
+  "exportJsonMultiTooltip": "匯出 JSON（多張）",
+
+  "scan": "掃描",
+  "share": "分享",
+  "shareThisCard": "分享此卡",
+
+  "importedMiniCardsToast": "已匯入 {n} 張小卡",
+  "@importedMiniCardsToast": { "placeholders": { "n": { "type": "int" } } },
+
+  "shareMultipleCards": "分享多張卡片（多選）",
+  "shareMultipleCardsSubtitle": "先勾選卡片，之後分享照片或匯出 JSON",
+  "shareOneCard": "選一張分享…",
+
+  "selectCardsForJsonTitle": "選擇要分享的卡片（JSON）",
+  "selectCardsForShareOrExportTitle": "選擇要分享／匯出的卡片",
+  "blockedLocalImageNote": "包含本地圖片；無法匯出為 JSON",
+
+  "shareMultiplePhotos": "分享 {n} 張照片",
+  "@shareMultiplePhotos": { "placeholders": { "n": { "type": "int" } } },
+  "exportJson": "匯出 JSON",
+  "exportJsonSkipLocalHint": "只含本地圖片的卡片將被略過",
+
+  "triedShareSummary": "已嘗試分享 {total} 張，成功 {ok}／失敗 {fail}",
+  "@triedShareSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "ok": { "type": "int" },
+      "fail": { "type": "int" }
+    }
+  },
+
+  "shareQrCode": "分享 QR code",
+  "shareQrAutoBackendHint": "資料過大會自動切換為後端模式",
+  "cannotShareByQr": "無法以 QR 分享",
+  "noImageUrl": "沒有圖片網址",
+  "noImageUrlPhotoOnly": "沒有圖片網址；僅能直接分享照片",
+  "shareThisPhoto": "分享此張照片",
+  "shareFailed": "分享失敗：{error}",
+  "@shareFailed": { "placeholders": { "error": {} } },
+
+  "transportBackendHint": "後端模式（透過 API）",
+  "transportEmbeddedHint": "內嵌（本地）",
+  "qrIdOnlyNotice": "此 QR 僅包含卡片 ID。接收端會向後端取得完整內容。",
+  "qrGenerationFailed": "產生 QR 影像失敗",
+
+  "pasteJsonTitle": "貼上 JSON 文字",
+  "pasteJsonHint": "支援 mini_card_bundle_v2/v1 或 mini_card_v2/v1",
+  "import": "匯入",
+  "importedFromJsonToast": "已自 JSON 匯入 {n} 張小卡",
+  "@importedFromJsonToast": { "placeholders": { "n": { "type": "int" } } },
+  "importFailed": "匯入失敗：{error}",
+  "@importFailed": { "placeholders": { "error": {} } },
+  "cannotExportJsonAllLocal": "所選卡片皆為僅含本地圖片，無法匯出為 JSON",
+  "skippedLocalImagesCount": "已略過 {n} 張僅含本地圖片的卡片",
+  "@skippedLocalImagesCount": { "placeholders": { "n": { "type": "int" } } },
+  "close": "關閉",
+  "copy": "複製",
+  "copiedJsonToast": "已複製 JSON",
+  "copyJson": "複製 JSON",
+
+  "none": "無",
+  "selectCardsToShareTitle": "選擇要分享的卡片",
+  "hasImageUrlJsonOk": "有圖片網址；可用 JSON 傳送",
+  "exportJsonOnlyUrlHint": "提示：匯出的 JSON 只包含有圖片網址的卡片；僅本地圖片將被略過。",
+  "sharePhotos": "分享照片",
+  "containsLocalImages": "包含本地圖片",
+  "containsLocalImagesDetail": "{blocked} 張卡片無法匯出為 JSON。是否只匯出可用的 {allowed} 張？",
+  "@containsLocalImagesDetail": {
+    "placeholders": {
+      "blocked": { "type": "int" },
+      "allowed": { "type": "int" }
+    }
+  },
+  "onlyExportUsable": "僅匯出可用項目",
+
+  "shareMiniCardTitle": "分享小卡",
+  "qrCodeTab": "QR code",
+  "qrTooLargeUseJsonHint": "若 QR 無法顯示，可能資料過大，建議改用 JSON。",
+
+  "scanMiniCardQrTitle": "掃描小卡 QR",
+  "scanFromGallery": "從相簿掃描",
+  "noQrFoundInImage": "圖片中未偵測到 QR",
+  "qrFormatInvalid": "QR 格式不正確",
+  "qrTypeUnsupported": "不支援的 QR 類型",
+  "fetchFromBackendFailed": "向後端取資料失敗：{error}",
+  "@fetchFromBackendFailed": { "placeholders": { "error": {} } },
+
+  "addFollowedTagFailedOffline": "目前離線，已先在本機加入標籤",
+  "removeFollowedTagFailedOffline": "目前離線，已先在本機移除標籤",
+
+  "loading": "載入中…"
+
 }

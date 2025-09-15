@@ -855,13 +855,4 @@ class AppLocalizationsJa extends AppLocalizations {
   String fetchFromBackendFailed(Object error) {
     return 'バックエンドからの取得に失敗しました: $error';
   }
-
-  @override
-  String get addFollowedTagFailedOffline => 'オフラインです。タグをローカルに追加しました。';
-
-  @override
-  String get removeFollowedTagFailedOffline => 'オフラインです。タグをローカルで削除しました。';
-
-  @override
-  String get loading => '読み込み中…';
 }

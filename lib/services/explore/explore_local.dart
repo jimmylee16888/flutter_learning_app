@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_learning_app/screens/explore/explore_item.dart';
 import 'package:path_provider/path_provider.dart';
-import '../screens/explore/explore_item.dart';
 
 class ExploreStore {
   ExploreStore._();

@@ -1,7 +1,9 @@
+// lib/screens/detail/mini_cards/widgets/mini_card_back.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+
+import '../../../../../l10n/l10n.dart';
 import '../../../../../models/mini_card_data.dart';
-import '../../../../../utils/mini_card_io.dart';
 import '../../edit_mini_cards_page.dart';
 
 class MiniCardBack extends StatefulWidget {
@@ -17,6 +19,7 @@ class MiniCardBack extends StatefulWidget {
 class _MiniCardBackState extends State<MiniCardBack> {
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final c = widget.card;
 
     final hasBackUrl = (c.backImageUrl ?? '').isNotEmpty;
@@ -80,7 +83,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
                           ? Colors.white
                           : Colors.black87,
                     ),
-                    tooltip: '清除背面圖',
+                    tooltip: l.clearBackImage, // i18n
                     icon: const Icon(Icons.delete_outline),
                     onPressed: _confirmAndClearBackImage,
                   ),
@@ -96,7 +99,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
                         : Colors.black87,
                   ),
                   icon: const Icon(Icons.info_outline),
-                  tooltip: '編輯資訊',
+                  tooltip: l.editCard, // i18n
                   onPressed: _editInfo,
                 ),
               ],
@@ -147,7 +150,9 @@ class _MiniCardBackState extends State<MiniCardBack> {
                       child: Text(
                         (c.name?.trim().isNotEmpty == true
                                 ? c.name!
-                                : (c.note.isNotEmpty ? c.note : '（無名稱）'))
+                                : (c.note.isNotEmpty
+                                      ? c.note
+                                      : l.common_unnamed)) // i18n
                             .trim(),
                         textAlign: TextAlign.center,
                         style: Theme.of(
@@ -163,19 +168,21 @@ class _MiniCardBackState extends State<MiniCardBack> {
   }
 
   Future<void> _confirmAndClearBackImage() async {
+    final l = context.l10n;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('清除背面圖片？'),
-        content: const Text('將同時移除背面網址與本地檔。清除後若正面是遠端圖片，就可以分享 QR / JSON。'),
+        title: Text(l.clearBackImage), // i18n
+        // 為了不新增字串，這裡不放內容敘述；需要的話可再加 ARB 鍵
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('取消'),
+            child: Text(l.cancel), // i18n
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('清除'),
+            child: Text(l.clear), // i18n
           ),
         ],
       ),
@@ -184,9 +191,12 @@ class _MiniCardBackState extends State<MiniCardBack> {
       final c = widget.card;
       final updated = c.copyWith(backImageUrl: null, backLocalPath: null);
       widget.onChanged(updated);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('已清除背面圖片')));
+
+      // 為了不新增字串，使用通用提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.updatedCardToast)), // i18n
+      );
+
       setState(() {}); // 觸發重繪（背景變白、按鈕隱藏）
     }
   }
@@ -209,24 +219,5 @@ class _MiniCardBackState extends State<MiniCardBack> {
     if (edited != null && mounted) {
       widget.onChanged(edited);
     }
-  }
-
-  Widget _field(
-    BuildContext ctx,
-    String label,
-    TextEditingController ctl, {
-    int maxLines = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: ctl,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
   }
 }

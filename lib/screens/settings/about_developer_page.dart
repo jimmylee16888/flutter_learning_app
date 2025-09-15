@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_learning_app/services/mini_card_store.dart';
+import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart'; // ← 取用 AppSettings（若未掛上也不會崩）
 import '../../l10n/l10n.dart';

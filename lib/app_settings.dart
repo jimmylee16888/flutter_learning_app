@@ -1,4 +1,3 @@
-// lib/app_settings.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,7 @@ class AppSettings extends ChangeNotifier {
   static const _kNickname = 'user_nickname';
   static const _kBirthdayISO = 'user_birthday_iso'; // yyyy-MM-dd
 
-  // ★ 追蹤標籤（全域設定，Follow 分頁會用到）
+  // ★ 追蹤標籤（歷史相容；新版本請改用 TagFollowController）
   static const _kFollowedTags = 'followed_tags'; // 目標格式：json array<string>
   static const int followedTagsMax = 30;
 
@@ -43,7 +42,7 @@ class AppSettings extends ChangeNotifier {
   String? get nickname => _nickname;
   DateTime? get birthday => _birthday;
 
-  // ★ 追蹤標籤（標準化後的值，全小寫、去重、最多 30）
+  // ★ 追蹤標籤（僅作為歷史/快取，實際邏輯請用 TagFollowController）
   List<String> _followedTags = [];
   List<String> get followedTags => List.unmodifiable(_followedTags);
 
@@ -117,11 +116,11 @@ class AppSettings extends ChangeNotifier {
     // 可能的舊格式：StringList；新格式：JSON String
     final dynamic raw = _prefs!.get(_kFollowedTags); // 不指定型別以檢查現況
     if (raw is List<String>) {
-      // 舊資料：StringList -> 正規化 -> 寫回 JSON String → 移除型別衝突可能
+      // 舊資料：StringList -> 正規化 -> 寫回 JSON String
       final norm = _normalizeTags(raw);
       _followedTags = norm;
       await _prefs!.setString(_kFollowedTags, jsonEncode(norm));
-      // 不需要手動移除 StringList 版本；後續一律用 getString 讀
+      // 後續一律用 getString 讀
     } else if (raw is String) {
       // 新資料：JSON 字串
       try {
@@ -186,13 +185,19 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ====== 追蹤標籤（上限 30） ======
+  // ====== 追蹤標籤（歷史相容：請改用 TagFollowController） ======
+
+  /// 以**本機**為準覆蓋標籤快取。
+  /// 新邏輯應使用 TagFollowController 來處理標籤（含後端同步）。
+  @Deprecated('Use TagFollowController instead')
   void setFollowedTags(List<String> tags) {
     _followedTags = _normalizeTags(tags);
     _prefs?.setString(_kFollowedTags, jsonEncode(_followedTags));
     notifyListeners();
   }
 
+  /// 新增單一標籤到**本機**快取。新邏輯請改用 TagFollowController.add()
+  @Deprecated('Use TagFollowController instead')
   bool addFollowedTag(String tag) {
     final t = tag.trim().toLowerCase();
     if (t.isEmpty) return false;
@@ -204,6 +209,8 @@ class AppSettings extends ChangeNotifier {
     return true;
   }
 
+  /// 從**本機**快取移除標籤。新邏輯請改用 TagFollowController.remove()
+  @Deprecated('Use TagFollowController instead')
   void removeFollowedTag(String tag) {
     final t = tag.trim().toLowerCase();
     _followedTags = _followedTags.where((e) => e != t).toList();

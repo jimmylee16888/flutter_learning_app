@@ -855,13 +855,4 @@ class AppLocalizationsKo extends AppLocalizations {
   String fetchFromBackendFailed(Object error) {
     return '백엔드에서 가져오기 실패: $error';
   }
-
-  @override
-  String get addFollowedTagFailedOffline => '오프라인입니다. 태그가 로컬에 추가되었습니다.';
-
-  @override
-  String get removeFollowedTagFailedOffline => '오프라인입니다. 태그가 로컬에서 제거되었습니다.';
-
-  @override
-  String get loading => '불러오는 중…';
 }

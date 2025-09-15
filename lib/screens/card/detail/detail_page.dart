@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/screens/card/detail/mini_cards/mini_cards_page.dart';
+import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/mini_card_data.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
 import 'package:provider/provider.dart';
-import '../../../services/mini_card_store.dart';
 import '../../../l10n/l10n.dart'; // ← i18n
 
 class CardDetailPage extends StatefulWidget {
