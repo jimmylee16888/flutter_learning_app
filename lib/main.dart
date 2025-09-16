@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart'; // ★ 加這個
 import 'package:flutter_learning_app/services/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,16 +12,21 @@ import 'app_settings.dart';
 import 'screens/root_nav.dart';
 import 'screens/auth/login_page.dart';
 
+import 'package:flutter_learning_app/utils/mini_card_io.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase 初始化
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // 本地圖片儲存初始化（Web 先開 Hive box；行動/桌面無動作）
+  await miniCardStorageInit();
+
   // 載入本機設定
   final settings = await AppSettings.load();
 
-  // AuthController（Firebase 版本）
+  // AuthController
   final auth = AuthController();
   await auth.init();
 
@@ -34,7 +40,7 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: miniCardStore),
         ChangeNotifierProvider.value(value: auth),
 
-        // ★ 全域標籤控制器：所有頁面共用（Following 分頁/個人設定/標籤管理）
+        // 全域標籤控制器
         ChangeNotifierProvider<TagFollowController>(
           create: (_) {
             final user = FirebaseAuth.instance.currentUser;
@@ -49,12 +55,12 @@ Future<void> main() async {
                 // 若要用 Firebase 驗證頭：idTokenProvider: () => user?.getIdToken(true),
               ),
             );
-            ctl.bootstrap(); // 從後端載入，必要時遷移本機舊資料
+            ctl.bootstrap();
             return ctl;
           },
         ),
 
-        // ★ 全域好友控制器：所有頁面共用（名片頁/使用者設定/個人頁）
+        // 全域好友控制器
         ChangeNotifierProvider<FriendFollowController>(
           create: (_) {
             final user = FirebaseAuth.instance.currentUser;
@@ -69,7 +75,7 @@ Future<void> main() async {
                 // idTokenProvider: () => user?.getIdToken(true),
               ),
             );
-            ctl.bootstrap(); // 後端 ↔ 本地同步（後端空 → 回填本地）
+            ctl.bootstrap();
             return ctl;
           },
         ),
@@ -77,6 +83,21 @@ Future<void> main() async {
       child: AppRoot(settings: settings, auth: auth),
     ),
   );
+}
+
+/// ★ 讓 PageView/Scrollable 支援滑鼠與觸控板拖曳（Web/桌面）
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse, // 滑鼠拖曳
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.unknown, // 某些瀏覽器的觸控板事件會跑到這裡
+    // 若你的 Flutter SDK 支援，打開下一行會讓 macOS 觸控板更自然：
+    // PointerDeviceKind.trackpad,
+  };
 }
 
 class AppRoot extends StatelessWidget {
@@ -108,6 +129,10 @@ class AppRoot extends StatelessWidget {
                 colorSchemeSeed: Colors.blue,
               ),
               themeMode: settings.themeMode,
+
+              // ★ 關鍵：全域套用支援滑鼠/觸控板拖曳
+              scrollBehavior: const AppScrollBehavior(),
+
               home: auth.isAuthenticated
                   ? RootNav(settings: settings)
                   : LoginPage(auth: auth, settings: settings),

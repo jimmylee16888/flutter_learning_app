@@ -126,22 +126,30 @@ class AuthController extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      await GoogleSignIn.instance.initialize();
-      final gUser = await GoogleSignIn.instance.authenticate(); // v7 API
-      if (gUser == null) return (false, 'cancelled');
+      if (kIsWeb) {
+        // 🔹 Web：用 Firebase 的彈出視窗，不需要 meta client_id
+        final provider = GoogleAuthProvider()
+          ..setCustomParameters({'prompt': 'select_account'});
 
-      final gAuth = await gUser.authentication; // v7: 沒有 accessToken
-      final cred = GoogleAuthProvider.credential(
-        idToken: gAuth.idToken,
-        // accessToken: 不要再填，v7 沒有了
-      );
+        final userCred = await _auth.signInWithPopup(provider);
+        final u = userCred.user!;
+        await _postLogin(u, provider: 'google');
+        return (true, null);
+      } else {
+        // 🔹 Android/iOS/桌面：維持 google_sign_in v7 流程
+        await GoogleSignIn.instance.initialize();
+        final gUser = await GoogleSignIn.instance.authenticate();
+        if (gUser == null) return (false, 'cancelled');
 
-      final userCred = await _auth.signInWithCredential(cred);
-      final u = userCred.user!;
-
-      // …後續快取/FireStore 寫入（同你現在的流程）
-      return (true, null);
+        final gAuth = await gUser.authentication; // v7 僅 idToken
+        final cred = GoogleAuthProvider.credential(idToken: gAuth.idToken);
+        final userCred = await _auth.signInWithCredential(cred);
+        final u = userCred.user!;
+        await _postLogin(u, provider: 'google');
+        return (true, null);
+      }
     } on FirebaseAuthException catch (e) {
+      // 若瀏覽器擋彈窗，可提示用戶改走 Redirect：signInWithRedirect(provider)
       return (false, e.code);
     } catch (e) {
       return (false, e.toString());
@@ -150,6 +158,62 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> _postLogin(User u, {required String provider}) async {
+    // Firestore 使用者檔
+    await _db.collection('users').doc(u.uid).set({
+      'email': u.email,
+      'displayName': u.displayName,
+      'photoURL': u.photoURL,
+      'lastLoginAt': FieldValue.serverTimestamp(),
+      'provider': provider,
+    }, SetOptions(merge: true));
+
+    // 快取「上次登入使用者」供離線模式
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_uid', u.uid);
+    await prefs.setString('last_email', u.email ?? '');
+    await prefs.setString('last_displayName', u.displayName ?? '');
+    await prefs.setString('last_photoURL', u.photoURL ?? '');
+    _lastUid = u.uid;
+    _lastEmail = u.email;
+    _lastDisplayName = u.displayName;
+    _lastPhotoURL = u.photoURL;
+
+    isAuthenticated = true;
+    isOfflineSession = false;
+    account = u.email;
+    token = await u.getIdToken();
+  }
+
+  // Future<(bool ok, String? reason)> loginWithGoogle() async {
+  //   isLoading = true;
+  //   notifyListeners();
+  //   try {
+  //     await GoogleSignIn.instance.initialize();
+  //     final gUser = await GoogleSignIn.instance.authenticate(); // v7 API
+  //     if (gUser == null) return (false, 'cancelled');
+
+  //     final gAuth = await gUser.authentication; // v7: 沒有 accessToken
+  //     final cred = GoogleAuthProvider.credential(
+  //       idToken: gAuth.idToken,
+  //       // accessToken: 不要再填，v7 沒有了
+  //     );
+
+  //     final userCred = await _auth.signInWithCredential(cred);
+  //     final u = userCred.user!;
+
+  //     // …後續快取/FireStore 寫入（同你現在的流程）
+  //     return (true, null);
+  //   } on FirebaseAuthException catch (e) {
+  //     return (false, e.code);
+  //   } catch (e) {
+  //     return (false, e.toString());
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   /// ✅ 離線沿用上次登入帳號進入（不觸發 Firebase）
   Future<bool> continueOfflineWithLastUser() async {

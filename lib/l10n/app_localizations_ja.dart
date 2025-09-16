@@ -18,7 +18,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noNetworkGuestTip => '現在オフラインです。ゲストとして利用できます。';
 
   @override
-  String get appTitle => 'MyApp デモ';
+  String get appTitle => 'Pop Card';
 
   @override
   String get navCards => 'カード';

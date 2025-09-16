@@ -1,8 +1,10 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import '../../../models/mini_card_data.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image.dart';
 import '../../../l10n/l10n.dart'; // ← i18n
 
 class EditMiniCardsPage extends StatefulWidget {
@@ -48,13 +50,35 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
         ],
       ),
       body: _cards.isEmpty
-          ? Center(child: Text(l.noMiniCardsEmptyList)) // 新 key：空清單提示
+          ? Center(child: Text(l.noMiniCardsEmptyList))
           : ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: _cards.length,
               separatorBuilder: (_, __) => const Divider(height: 0),
               itemBuilder: (context, i) {
                 final c = _cards[i];
+
+                // 判斷是否只有遠端 URL（Web 時要用 NoCorsImage）
+                final hasLocal =
+                    (c.localPath ?? '').isNotEmpty &&
+                    !(kIsWeb && (c.localPath?.startsWith('url:') ?? false));
+                final hasRemote = (c.imageUrl ?? '').isNotEmpty;
+
+                final thumb = (kIsWeb && !hasLocal && hasRemote)
+                    ? NoCorsImage(
+                        c.imageUrl!,
+                        fit: BoxFit.cover,
+                        width: 56,
+                        height: 56,
+                        borderRadius: 8,
+                      )
+                    : Image(
+                        image: imageProviderOf(c),
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      );
+
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -64,12 +88,7 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
                     borderRadius: BorderRadius.circular(8),
                     child: Stack(
                       children: [
-                        Image(
-                          image: imageProviderOf(c),
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                        ),
+                        thumb,
                         if (_isLocalOnly(c))
                           Positioned(
                             left: 0,
@@ -125,7 +144,7 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
                             _chip(
                               text: l.tagsCount(c.tags.length),
                               icon: Icons.sell_outlined,
-                            ), // 新 key（含 n）
+                            ),
                           if ((c.imageUrl ?? '').isNotEmpty)
                             _chip(text: l.common_url, icon: Icons.link_outlined)
                           else if ((c.localPath ?? '').isNotEmpty)
@@ -155,10 +174,12 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
                           if (edited != null) {
                             setState(() {
                               _cards[i] = edited;
-                              if ((edited.album ?? '').isNotEmpty)
+                              if ((edited.album ?? '').isNotEmpty) {
                                 _allAlbums.add(edited.album!);
-                              if ((edited.cardType ?? '').isNotEmpty)
+                              }
+                              if ((edited.cardType ?? '').isNotEmpty) {
                                 _allCardTypes.add(edited.cardType!);
+                              }
                             });
                           }
                         },
@@ -186,8 +207,9 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
             setState(() => _cards.add(created));
             if ((created.album ?? '').isNotEmpty)
               _allAlbums.add(created.album!);
-            if ((created.cardType ?? '').isNotEmpty)
+            if ((created.cardType ?? '').isNotEmpty) {
               _allCardTypes.add(created.cardType!);
+            }
           }
         },
         child: const Icon(Icons.add),
@@ -610,12 +632,19 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
           if (_frontUrl.text.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                _frontUrl.text,
-                height: 120,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _previewFallback(context),
-              ),
+              child: kIsWeb
+                  ? NoCorsImage(
+                      _frontUrl.text,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      borderRadius: 8,
+                    )
+                  : Image.network(
+                      _frontUrl.text,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _previewFallback(context),
+                    ),
             ),
         ] else ...[
           Row(
@@ -647,8 +676,8 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
           if (_frontLocal != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                File(_frontLocal!),
+              child: Image(
+                image: imageProviderForLocalPath(_frontLocal!),
                 height: 120,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => _previewFallback(context),
@@ -737,8 +766,8 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
           if (_backLocal != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                File(_backLocal!),
+              child: Image(
+                image: imageProviderForLocalPath(_backLocal!),
                 height: 120,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => _previewFallback(context),
@@ -774,6 +803,7 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
         return;
       }
       try {
+        // Web 端 downloadImageToLocal 會回 'url:...'，App 端會實存到檔案
         localPath = await downloadImageToLocal(url, preferName: id);
         imageUrl = url;
       } catch (_) {

@@ -4,23 +4,33 @@ import '../screens/card/detail/detail_page.dart';
 class PhotoQuoteCard extends StatefulWidget {
   const PhotoQuoteCard({
     super.key,
-    required this.image, // ← 改成吃 ImageProvider
+    this.image, // 可為 null
+    this.imageWidget, // 可為 null（Web 用 NoCorsImage 時會傳這個）
     required this.title,
     required this.quote,
     this.birthday,
     this.initiallyLiked = false,
     this.borderRadius = 16,
-  });
+  }) : assert(
+         image != null || imageWidget != null,
+         'PhotoQuoteCard 需要提供 image 或 imageWidget 其中之一',
+       );
 
-  /// 通用：可為 FileImage / NetworkImage / MemoryImage
-  final ImageProvider image;
+  /// 圖片（行動/桌面通常走 ImageProvider）
+  final ImageProvider? image;
+
+  /// 直接給一個圖片 Widget（Web 可用 NoCorsImage 避開 CORS）
+  final Widget? imageWidget;
+
   final String title;
   final String quote;
   final DateTime? birthday;
   final bool initiallyLiked;
+
+  /// 卡片圓角（外部也可再包 ClipRRect 做一致裁切）
   final double borderRadius;
 
-  /// 相容舊用法：若你手上只有網址，還是可以用這個建構子
+  /// 相容舊用法：只有網址時也能建構
   factory PhotoQuoteCard.fromUrl({
     Key? key,
     required String imageUrl,
@@ -51,11 +61,13 @@ class PhotoQuoteCard extends StatefulWidget {
 class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
   late bool _liked = widget.initiallyLiked;
 
-  void _openDetail(BuildContext context) {
+  // <-- 這裡拿掉 BuildContext 參數，直接用 this.context
+  void _openDetail() {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CardDetailPage(
-          image: widget.image, // ← 直接帶入 ImageProvider
+          image: widget.image,
+          imageWidget: widget.imageWidget,
           title: widget.title,
           birthday: widget.birthday,
           quote: widget.quote,
@@ -69,28 +81,39 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    // ★ 關鍵：若有傳入自訂 imageWidget（例如 Web 的 HtmlElementView），
+    //   用 IgnorePointer 包起來，避免攔截點擊/手勢。
+    final imageView = (widget.imageWidget != null)
+        ? IgnorePointer(ignoring: true, child: widget.imageWidget!)
+        : Image(
+            image: widget.image!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                size: 48,
+                color: Colors.grey,
+              ),
+            ),
+          );
+
     return Card(
       margin: EdgeInsets.zero,
       elevation: 0,
-      clipBehavior: Clip.none, // 不裁切，避免 1px 白邊
+      clipBehavior: Clip.none,
       child: InkWell(
-        onTap: () => _openDetail(context),
+        onTap: _openDetail,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // ← 用通用的 ImageProvider 顯示（支援本地或網址）
-            Image(
-              image: widget.image,
-              fit: BoxFit.cover,
-              // 若是 NetworkImage，loadingBuilder 會被忽略；這裡保持簡潔
-              errorBuilder: (_, __, ___) => const Center(
-                child: Icon(
-                  Icons.image_not_supported_outlined,
-                  size: 48,
-                  color: Colors.grey,
-                ),
-              ),
+            // 圖片（做一次內層裁切，避免微小縫隙）
+            ClipRRect(
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              child: SizedBox.expand(child: imageView),
             ),
+
+            // 底部標題漸層
             Positioned(
               left: 0,
               right: 0,
@@ -112,15 +135,28 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2,
+                        color: Colors.black45,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+
+            // 右上角收藏按鈕
             Positioned(
               top: 6,
               right: 6,
               child: IconButton(
-                style: IconButton.styleFrom(backgroundColor: Colors.black26),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black26,
+                  minimumSize: const Size(36, 36),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 onPressed: _toggleLike,
                 icon: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 180),
@@ -129,12 +165,12 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                   child: _liked
                       ? const Icon(
                           Icons.favorite,
-                          key: ValueKey('on'),
+                          key: ValueKey('fav-on'),
                           color: Colors.pinkAccent,
                         )
                       : const Icon(
                           Icons.favorite_border,
-                          key: ValueKey('off'),
+                          key: ValueKey('fav-off'),
                           color: Colors.white,
                         ),
                 ),

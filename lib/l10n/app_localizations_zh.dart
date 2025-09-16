@@ -18,7 +18,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noNetworkGuestTip => '目前離線，您可改以訪客使用';
 
   @override
-  String get appTitle => 'MyApp 範例';
+  String get appTitle => 'Pop Card';
 
   @override
   String get navCards => '卡片';
@@ -875,7 +875,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get noNetworkGuestTip => '目前離線，您可改以訪客使用';
 
   @override
-  String get appTitle => 'MyApp 範例';
+  String get appTitle => 'Pop Card';
 
   @override
   String get navCards => '卡片';

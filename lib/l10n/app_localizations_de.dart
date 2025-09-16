@@ -19,7 +19,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sie sind offline. Sie können als Gast fortfahren.';
 
   @override
-  String get appTitle => 'MyApp Demo';
+  String get appTitle => 'Pop Card';
 
   @override
   String get navCards => 'Karten';

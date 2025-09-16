@@ -1,11 +1,13 @@
-import 'dart:io';
+// lib/screens/card/cards_view.dart
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart'; // kIsWeb / debugPrint
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../app_settings.dart';
 import '../../models/card_item.dart';
 import '../../widgets/photo_quote_card.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image.dart'; // Web CORS 避開元件
 import '../../l10n/l10n.dart'; // ← i18n
 
 class CardsView extends StatefulWidget {
@@ -195,17 +197,14 @@ class _CardsViewState extends State<CardsView> {
     const double bgRatio = 0.40; // 下層區塊寬度 = 卡片寬 * 0.40
     const double minBg = 120.0; // 下層最小寬
     const double maxBg = 220.0; // 下層最大寬
-    const double dragInset = 12.0; // ★ 上層最大拖動距離 = 下層寬 - 這個像素（讓它略小於下層）
+    const double dragInset = 12.0; // 上層最大拖動距離 = 下層寬 - 這個像素
     const double triggerRatio = 0.66; // 觸發門檻（相對 dragLimit）
 
     return Padding(
       padding: const EdgeInsets.all(6),
       child: LayoutBuilder(
         builder: (context, c) {
-          // 下層顯示寬度（編輯/刪除）
           final double actionW = (c.maxWidth * bgRatio).clamp(minBg, maxBg);
-
-          // ★ 上層實際允許的最大位移（略小於下層）
           final double dragLimit = (actionW - dragInset).clamp(80.0, actionW);
 
           double dx = 0; // 左負右正（限制在 ±dragLimit）
@@ -215,7 +214,7 @@ class _CardsViewState extends State<CardsView> {
           }
 
           Future<void> _handleEnd(StateSetter setStateSB) async {
-            final double threshold = dragLimit * triggerRatio; // 門檻用 dragLimit
+            final double threshold = dragLimit * triggerRatio;
             if (dx >= threshold) {
               await _editCardFlow(it);
               await _animateBack(setStateSB);
@@ -255,12 +254,29 @@ class _CardsViewState extends State<CardsView> {
             }
           }
 
+          // ─────────────────────────────────────────────
+          // Web 假本地('url:...') 判斷：遇到就用 NoCorsImage
+          final String localPath = it.localPath ?? '';
+          final bool hasRemote = (it.imageUrl?.isNotEmpty ?? false);
+
+          final bool isWeb = kIsWeb;
+          final bool isFakeLocalUrlOnWeb =
+              isWeb && localPath.startsWith('url:');
+
+          // 只有真正的本地檔案（或 data:）才算本地
+          final bool hasRealLocal =
+              localPath.isNotEmpty && !isFakeLocalUrlOnWeb;
+
+          final bool useImageProvider = (!isWeb || hasRealLocal);
+          final bool useNoCors = (isWeb && !hasRealLocal && hasRemote);
+          // ─────────────────────────────────────────────
+
           return ClipRRect(
             borderRadius: outerR,
             clipBehavior: Clip.antiAlias, // 外層統一裁切（背景＋前景），無縫
             child: Stack(
               children: [
-                // ─── 下層：編輯 / 刪除背景（左右各一塊，寬度 = actionW） ───
+                // 下層：編輯 / 刪除背景
                 Positioned.fill(
                   child: Row(
                     children: [
@@ -291,22 +307,18 @@ class _CardsViewState extends State<CardsView> {
                   ),
                 ),
 
-                // ─── 上層：照片（位移限制在 ±dragLimit） ───
+                // 上層：照片（位移限制在 ±dragLimit）
                 StatefulBuilder(
                   builder: (context, setStateSB) {
                     return GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onHorizontalDragUpdate: (d) {
                         setStateSB(() {
-                          dx = (dx + d.delta.dx).clamp(
-                            -dragLimit,
-                            dragLimit,
-                          ); // ★ 用 dragLimit
+                          dx = (dx + d.delta.dx).clamp(-dragLimit, dragLimit);
                         });
                       },
                       onHorizontalDragEnd: (_) => _handleEnd(setStateSB),
                       onHorizontalDragCancel: () => _handleEnd(setStateSB),
-
                       child: AnimatedSlide(
                         duration: const Duration(milliseconds: 160),
                         curve: Curves.easeOut,
@@ -315,7 +327,16 @@ class _CardsViewState extends State<CardsView> {
                           borderRadius: innerR,
                           clipBehavior: Clip.antiAlias,
                           child: PhotoQuoteCard(
-                            image: imageProviderOfCardItem(it),
+                            image: useImageProvider
+                                ? imageProviderOfCardItem(it)
+                                : null,
+                            imageWidget: useNoCors
+                                ? NoCorsImage(
+                                    it.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    borderRadius: _tileRadius + 0.8,
+                                  )
+                                : null,
                             title: it.title,
                             birthday: it.birthday,
                             quote: it.quote,
@@ -556,12 +577,20 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 if (_url.text.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      _url.text,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _fallbackPreview(context),
-                    ),
+                    child: kIsWeb
+                        ? NoCorsImage(
+                            _url.text,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            borderRadius: 8,
+                          )
+                        : Image.network(
+                            _url.text,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _fallbackPreview(context),
+                          ),
                   ),
               ] else ...[
                 OutlinedButton.icon(
@@ -576,8 +605,8 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 if (_pickedLocalPath != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(_pickedLocalPath!),
+                    child: Image(
+                      image: imageProviderForLocalPath(_pickedLocalPath!),
                       height: 120,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _fallbackPreview(context),
@@ -707,23 +736,24 @@ class _EditCardDialogState extends State<_EditCardDialog> {
             String? localPath;
 
             if (_mode == _ImageMode.byUrl) {
-              if (_url.text.trim().isEmpty) {
+              final url = _url.text.trim();
+              if (url.isEmpty) {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(l.inputImageUrl)));
                 return;
               }
+
+              // 先記下 URL；下載只是最佳化，失敗不擋儲存
+              imageUrl = url;
               try {
-                localPath = await downloadImageToLocal(
-                  _url.text.trim(),
-                  preferName: id,
-                );
-                imageUrl = _url.text.trim();
-              } catch (_) {
+                localPath = await downloadImageToLocal(url, preferName: id);
+              } catch (e) {
+                debugPrint('downloadImageToLocal failed: $e');
+                localPath = null;
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
-                return;
               }
             } else {
               if (_pickedLocalPath == null) {

@@ -1,26 +1,29 @@
-// lib/screens/detail/mini_cards/mini_cards_page.dart
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_learning_app/services/utils/qr/qr_codec.dart' as codec;
-import 'package:flutter_learning_app/services/utils/qr/qr_image_builder.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
-import '../../../../l10n/l10n.dart'; // ← i18n
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../../l10n/l10n.dart';
 import '../../../../models/mini_card_data.dart';
 import '../../../../utils/mini_card_io.dart';
+import '../../../../utils/no_cors_image.dart';
 import '../edit_mini_cards_page.dart';
 
-// ⚠️ 加上前綴，避免與另一個檔案中的同名類別衝突
-import 'scan_qr_page.dart' as scan;
+// 前綴避免同名衝突
 import 'qr_preview_dialog.dart' as qr;
+import 'scan_qr_page.dart' as scan;
 
 import 'widgets/flip_big_card.dart';
-import 'widgets/mini_card_front.dart';
 import 'widgets/mini_card_back.dart';
+import 'widgets/mini_card_front.dart';
 import 'widgets/tool_card.dart';
+
+import 'package:flutter_learning_app/services/utils/qr/qr_codec.dart' as codec;
+import 'package:flutter_learning_app/services/utils/qr/qr_image_builder.dart';
 
 class MiniCardsPage extends StatefulWidget {
   const MiniCardsPage({
@@ -66,7 +69,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   int get _pageCount => _cards.length + 2;
   int _computeInitialPage() {
     if (_cards.isEmpty) return 0;
-    final want = widget.initialIndex + 1;
+    final want = widget.initialIndex + 1; // 左工具卡佔一頁
     return want.clamp(1, _pageCount - 2);
   }
 
@@ -106,6 +109,39 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   Future<bool> _popWithResult() async {
     Navigator.pop(context, _cards);
     return false;
+  }
+
+  /// 清單/挑選/預覽通用縮圖：Web + 無本地 → NoCorsImage；其餘 ImageProvider
+  Widget _miniThumb(
+    MiniCardData c, {
+    double w = 48,
+    double h = 48,
+    double r = 6,
+  }) {
+    final hasLocal =
+        (c.localPath ?? '').isNotEmpty &&
+        !(kIsWeb && (c.localPath?.startsWith('url:') ?? false));
+    final hasRemote = (c.imageUrl ?? '').isNotEmpty;
+
+    final Widget child = (kIsWeb && !hasLocal && hasRemote)
+        ? NoCorsImage(
+            c.imageUrl!,
+            fit: BoxFit.cover,
+            width: w,
+            height: h,
+            borderRadius: r,
+          )
+        : Image(
+            image: imageProviderOf(c),
+            fit: BoxFit.cover,
+            width: w,
+            height: h,
+          );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(r),
+      child: SizedBox(width: w, height: h, child: child),
+    );
   }
 
   @override
@@ -184,6 +220,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           1.0,
                         );
 
+                        // 左右工具卡
                         if (i == 0 || i == pageCount - 1) {
                           return Align(
                             alignment: const Alignment(0, -0.2),
@@ -211,15 +248,22 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           );
                         }
 
+                        // 一般卡片
                         final card = visibleCards[i - 1];
+
+                        // 自適應尺寸（Web 顯示更清楚）
+                        final maxW = MediaQuery.of(context).size.width * 0.9;
+                        final cardW = maxW.clamp(320.0, 520.0);
+                        final cardH = cardW * 3 / 2; // 接近 320x480
+
                         return Align(
                           alignment: const Alignment(0, -0.2),
                           child: AnimatedScale(
                             scale: scale,
                             duration: const Duration(milliseconds: 200),
                             child: SizedBox(
-                              width: 320,
-                              height: 480,
+                              width: cardW,
+                              height: cardH,
                               child: FlipBigCard(
                                 front: MiniCardFront(card: card),
                                 back: MiniCardBack(
@@ -359,15 +403,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             itemBuilder: (context, i) {
               final c = _cards[i];
               return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image(
-                    image: imageProviderOf(c),
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                leading: _miniThumb(c, w: 56, h: 56, r: 8),
                 title: Text(
                   c.note.isEmpty ? l.common_unnamed : c.note,
                   maxLines: 1,
@@ -458,15 +494,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                         subtitle: allowed
                             ? null
                             : Text(l.blockedLocalImageNote),
-                        secondary: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Image(
-                            image: imageProviderOf(c),
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        secondary: _miniThumb(c),
                       );
                     },
                   ),
@@ -556,7 +584,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   _snack(l.noImageUrlPhotoOnly);
                 },
               ),
-
             ListTile(
               leading: const Icon(Icons.ios_share),
               title: Text(l.shareThisPhoto),
@@ -569,7 +596,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                 }
               },
             ),
-
             ListTile(
               leading: const Icon(Icons.collections),
               title: Text(l.shareMultipleCards),
@@ -631,7 +657,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       data = card.id;
     }
 
-    final pngBytes = await QrImageBuilder.buildPngBytes(
+    final Uint8List? pngBytes = await QrImageBuilder.buildPngBytes(
       data,
       220,
       quietZone: 24,
@@ -879,20 +905,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     'note': c.note,
   };
 
-  bool _isFrontLocalOnly(MiniCardData c) =>
-      (c.imageUrl ?? '').isEmpty && (c.localPath ?? '').isNotEmpty;
-
-  String _frontSourceLabel(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty
-      ? context.l10n.common_url
-      : ((c.localPath ?? '').isNotEmpty
-            ? context.l10n.common_local
-            : context.l10n.none);
-
-  String _backSourceLabel(MiniCardData c) {
-    if ((c.backImageUrl ?? '').isNotEmpty) return context.l10n.common_url;
-    if ((c.backLocalPath ?? '').isNotEmpty) return context.l10n.common_local;
-    return context.l10n.none;
-  }
+  bool _hasLocal(MiniCardData c) =>
+      ((c.localPath?.isNotEmpty ?? false) &&
+          (c.imageUrl?.isNotEmpty ?? false)) ||
+      ((c.backLocalPath?.isNotEmpty ?? false) &&
+          (c.backImageUrl?.isNotEmpty ?? false));
 
   Future<void> _pickAndShareOrExport(
     List<MiniCardData> source, {
@@ -911,7 +928,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
             expand: false,
             builder: (sheetCtx, ctrl) => Column(
               children: [
-                // title row
+                // 標題列
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                   child: Row(
@@ -926,6 +943,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                 ),
                 const Divider(height: 8),
 
+                // 勾選清單
                 Expanded(
                   child: ListView.builder(
                     controller: ctrl,
@@ -943,15 +961,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                             sel.remove(c.id);
                           }
                         }),
-                        secondary: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Image(
-                            image: imageProviderOf(c),
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        secondary: _miniThumb(c),
                         title: Text(
                           c.note.isNotEmpty ? c.note : l.common_unnamed,
                           maxLines: 1,
@@ -976,6 +986,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                     ),
                   ),
                 ),
+
+                // 底部動作：分享相片 / 匯出 JSON
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Row(
@@ -1063,12 +1075,6 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       ),
     );
   }
-
-  bool _hasLocal(MiniCardData c) =>
-      ((c.localPath?.isNotEmpty ?? false) &&
-          (c.imageUrl?.isNotEmpty ?? false)) ||
-      ((c.backLocalPath?.isNotEmpty ?? false) &&
-          (c.backImageUrl?.isNotEmpty ?? false));
 }
 
 void _printJson(String tag, String json) {

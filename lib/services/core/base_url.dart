@@ -9,8 +9,8 @@ const String kApiBaseUrl = String.fromEnvironment(
 /// 社群後端（如與主 API 分離）
 const String kSocialBaseUrl = String.fromEnvironment(
   'SOCIAL_BASE_URL',
-  // defaultValue: 'https://socialdemo-backend.onrender.com',
-  defaultValue: 'http://10.0.2.2:8088',
+  defaultValue: 'https://socialdemo-backend.onrender.com',
+  // defaultValue: 'http://10.0.2.2:8088',
 );
 
 /// 小工具：把相對路徑補成完整網址（/path → https://host/path）

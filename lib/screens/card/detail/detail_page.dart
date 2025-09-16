@@ -1,25 +1,28 @@
 import 'dart:convert';
-import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/screens/card/detail/mini_cards/mini_cards_page.dart';
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/mini_card_data.dart';
 import 'package:flutter_learning_app/utils/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/l10n.dart'; // ← i18n
+import '../../../l10n/l10n.dart'; // i18n
 
 class CardDetailPage extends StatefulWidget {
   const CardDetailPage({
     super.key,
-    required this.image,
+    this.image, // 可為 null
+    this.imageWidget, // 可為 null（Web 用 NoCorsImage 時會傳這個）
     required this.title,
     this.birthday,
     required this.quote,
     this.initiallyLiked = false,
-  });
+  }) : assert(image != null || imageWidget != null);
 
-  final ImageProvider image;
+  final ImageProvider? image;
+  final Widget? imageWidget;
   final String title;
   final DateTime? birthday;
   final String quote;
@@ -106,6 +109,21 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ? l.birthdayNotChosen
         : '${b.year}-${b.month.toString().padLeft(2, '0')}-${b.day.toString().padLeft(2, '0')}';
 
+    // 優先使用傳入的 imageWidget（Web NoCorsImage），否則用 ImageProvider
+    final topImage =
+        widget.imageWidget ??
+        Image(
+          image: widget.image!,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 48,
+              color: Colors.grey,
+            ),
+          ),
+        );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -125,10 +143,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ListView(
             padding: EdgeInsets.zero,
             children: [
-              AspectRatio(
-                aspectRatio: 4 / 3,
-                child: Image(image: widget.image, fit: BoxFit.cover),
-              ),
+              AspectRatio(aspectRatio: 4 / 3, child: topImage),
               ListTile(
                 leading: const Icon(Icons.cake_outlined),
                 title: Text(l.birthday),
@@ -182,7 +197,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                         child: _miniCards.isEmpty
                             ? Center(
                                 child: Text(
-                                  l.noMiniCardsPreviewHint, // 新 key
+                                  l.noMiniCardsPreviewHint,
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               )
@@ -190,12 +205,16 @@ class _CardDetailPageState extends State<CardDetailPage> {
                                 cards: _miniCards,
                                 height: previewHeight,
                                 borderRadius: 14,
-                                onTapCenter: _openMiniCardsPage,
+                                // 用 wrapper，帶進 index
+                                onTapCenter: ({int initialIndex = 0}) =>
+                                    _openMiniCardsPage(
+                                      initialIndex: initialIndex,
+                                    ),
                               ),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        l.detailSwipeHint, // 新 key
+                        l.detailSwipeHint,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),
@@ -225,7 +244,9 @@ class _BottomMiniCarousel extends StatefulWidget {
   final List<MiniCardData> cards;
   final double height;
   final double borderRadius;
-  final VoidCallback? onTapCenter;
+
+  /// 需要能接 `{int initialIndex}` 的 callback
+  final void Function({int initialIndex})? onTapCenter;
   final int initialIndex;
 
   @override
@@ -287,7 +308,23 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
               final d = ((_page) - i).abs();
               final scale = (1 - d * 0.12).clamp(0.86, 1.0);
               final opacity = (1 - d * 0.6).clamp(0.4, 1.0);
-              final isCenter = d < 0.5;
+
+              // 預覽縮圖（Web 外站改用 NoCorsImage）
+              Widget thumb;
+              final hasLocal =
+                  (data.localPath ?? '').isNotEmpty &&
+                  !(kIsWeb && (data.localPath?.startsWith('url:') ?? false));
+              final hasRemote = (data.imageUrl ?? '').isNotEmpty;
+              if (kIsWeb && !hasLocal && hasRemote) {
+                thumb = NoCorsImage(data.imageUrl!, fit: BoxFit.cover);
+              } else if (hasLocal) {
+                thumb = Image(
+                  image: imageProviderForLocalPath(data.localPath!),
+                  fit: BoxFit.cover,
+                );
+              } else {
+                thumb = Image(image: imageProviderOf(data), fit: BoxFit.cover);
+              }
 
               return Center(
                 child: AnimatedScale(
@@ -304,23 +341,20 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                           borderRadius: BorderRadius.circular(
                             widget.borderRadius,
                           ),
-                          onTap: () {
-                            _pc!.animateToPage(
+                          onTap: () async {
+                            // 先把目標捲到正中間，再一定開頁
+                            await _pc!.animateToPage(
                               i,
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.easeOut,
                             );
-                            if (isCenter && widget.onTapCenter != null)
-                              widget.onTapCenter!();
+                            widget.onTapCenter?.call(initialIndex: i);
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(
                               widget.borderRadius,
                             ),
-                            child: Image(
-                              image: imageProviderOf(data),
-                              fit: BoxFit.cover,
-                            ),
+                            child: thumb,
                           ),
                         ),
                       ),

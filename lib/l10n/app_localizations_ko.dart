@@ -18,7 +18,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noNetworkGuestTip => '현재 오프라인입니다. 게스트로 이용할 수 있습니다.';
 
   @override
-  String get appTitle => 'MyApp 데모';
+  String get appTitle => 'Pop Card';
 
   @override
   String get navCards => '카드';
