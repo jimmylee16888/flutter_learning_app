@@ -27,11 +27,25 @@ class _LoginPageState extends State<LoginPage> {
   StreamSubscription<List<ConnectivityResult>>? _connSub;
   bool _isOffline = false;
 
+  // ➊ 首頁載入動畫控制
+  bool _isBooting = true; // 初始為載入中
+  Future<void>? _bootTask; // 可視需要保留引用
+
   @override
   void initState() {
     super.initState();
-    _loadVersion();
-    _initConnectivityWatcher();
+    _bootTask = _bootAsync(); // 啟動載入流程
+  }
+
+  Future<void> _bootAsync() async {
+    // 並行做版本與網路偵測初始化
+    await Future.wait([_loadVersion(), _initConnectivityWatcher()]);
+
+    // 讓動畫至少可見一小段時間（手感更好）
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+    setState(() => _isBooting = false);
   }
 
   Future<void> _loadVersion() async {
@@ -49,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
     final first = await Connectivity()
         .checkConnectivity(); // List<ConnectivityResult>
     _applyConnectivity(first);
-
     _connSub = Connectivity().onConnectivityChanged.listen((results) {
       _applyConnectivity(results);
     });
@@ -224,17 +237,42 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Google 登入（離線或載入中則停用）
+                                // Google 登入（僅在 isLoading 停用；離線時點擊會提示）
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
                                   child: OutlinedButton.icon(
                                     icon: const Icon(Icons.login),
                                     label: Text(l.authSignInWithGoogle),
-                                    onPressed: (_isOffline || auth.isLoading)
+                                    onPressed: auth.isLoading
                                         ? null
                                         : () async {
-                                            // ✅ 解構 (ok, reason)
+                                            // ➋ 登入需要網路：若離線則提示並返回
+                                            if (_isOffline) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: Text(
+                                                    l.networkRequiredTitle,
+                                                  ),
+                                                  content: Text(
+                                                    l.networkRequiredBody,
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                            context,
+                                                          ),
+                                                      child: Text(l.ok),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              return;
+                                            }
+
+                                            // 有網路才真的去做 Google 登入
                                             final (ok, reason) = await auth
                                                 .loginWithGoogle();
                                             if (!mounted) return;
@@ -275,19 +313,24 @@ class _LoginPageState extends State<LoginPage> {
                                 // ===== 離線：使用上次登入帳號繼續 =====
                                 if (_isOffline && auth.canOfflineSignIn) ...[
                                   const SizedBox(height: 12),
+                                  // ⚠️ 這裡用 Expanded 讓長文字可換行，避免 overflow
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Icon(Icons.wifi_off, size: 16),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        '目前離線，可先用上次帳號離線進入，恢復網路後再登入同步。',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: cs.onSurfaceVariant,
-                                            ),
+                                      Expanded(
+                                        child: Text(
+                                          '目前離線，可先用上次帳號離線進入，恢復網路後再登入同步。',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: cs.onSurfaceVariant,
+                                              ),
+                                          softWrap: true,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -297,22 +340,24 @@ class _LoginPageState extends State<LoginPage> {
                                     height: 44,
                                     child: FilledButton.icon(
                                       icon: const Icon(Icons.person),
+                                      // ⚠️ 避免 email 太長擠爆：單行 + 省略
                                       label: Text(
                                         '離線繼續（${auth.lastEmail ?? "上次帳號"}）',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                       onPressed: auth.isLoading
                                           ? null
                                           : () async {
                                               final ok = await auth
                                                   .continueOfflineWithLastUser();
-                                              if (!mounted) return; // ← 先確認還在
+                                              if (!mounted) return;
                                               if (ok) {
                                                 await ensureProfile(
                                                   context,
                                                   widget.settings,
                                                 );
-                                                if (!mounted)
-                                                  return; // ← ★ 再檢查一次
+                                                if (!mounted) return;
                                                 _goHome();
                                               } else {
                                                 ScaffoldMessenger.of(
@@ -330,22 +375,26 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ],
 
-                                // 若離線且沒有快取帳號，給個提示
+                                // 若離線且沒有快取帳號，給個提示（同上用 Expanded）
                                 if (_isOffline && !auth.canOfflineSignIn) ...[
                                   const SizedBox(height: 12),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Icon(Icons.info_outline, size: 16),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        '目前離線，且沒有上次登入紀錄。請連網後以 Google 登入。',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: cs.onSurfaceVariant,
-                                            ),
+                                      Expanded(
+                                        child: Text(
+                                          '目前離線，且沒有上次登入紀錄。請連網後以 Google 登入。',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: cs.onSurfaceVariant,
+                                              ),
+                                          softWrap: true,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -416,6 +465,34 @@ class _LoginPageState extends State<LoginPage> {
                 initialVelocity: const Offset(-180, -120),
                 child: const _CircleIcon(Icons.style, size: 26),
               ),
+
+              // ➌ 首頁載入動畫覆蓋層（在最上方，攔住觸控；完成後淡出）
+              if (_isBooting)
+                AnimatedOpacity(
+                  opacity: _isBooting ? 1 : 0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withOpacity(0.9),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l.loading, // i18n：請在 arb 補上 "loading"
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         );

@@ -26,14 +26,33 @@ class _FollowedTagsPageState extends State<FollowedTagsPage> {
     super.dispose();
   }
 
+  String _normalize(String raw) {
+    // 去頭尾空白、拿掉「#」、中間多空白收斂成單一空白、轉小寫
+    final s = raw
+        .trim()
+        .replaceAll(RegExp(r'^#+'), '')
+        .replaceAll(RegExp(r'\s+'), ' ');
+    return s.toLowerCase();
+  }
+
   Future<void> _add() async {
-    final t = _ctrl.text.trim();
-    if (t.isEmpty) return;
     final l = context.l10n;
+    final ctl = context.read<TagFollowController>();
+
+    final t = _normalize(_ctrl.text);
+    if (t.isEmpty) return;
+
+    // 重複避免
+    if (ctl.followed.contains(t)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.addFollowedTagFailed(l.alreadyExists))),
+      );
+      return;
+    }
 
     setState(() => _sending = true);
     try {
-      await context.read<TagFollowController>().add(t);
+      await ctl.add(t);
       if (!mounted) return;
       _ctrl.clear();
       ScaffoldMessenger.of(
@@ -74,7 +93,7 @@ class _FollowedTagsPageState extends State<FollowedTagsPage> {
     final tags = ctl.followed;
     final loading = ctl.loading;
 
-    final canAdd = _ctrl.text.trim().isNotEmpty && !_sending;
+    final canAdd = _normalize(_ctrl.text).isNotEmpty && !_sending && !loading;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +101,9 @@ class _FollowedTagsPageState extends State<FollowedTagsPage> {
         actions: [
           IconButton(
             tooltip: l.retry,
-            onPressed: () => context.read<TagFollowController>().refresh(),
+            onPressed: loading
+                ? null
+                : () => context.read<TagFollowController>().refresh(),
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -116,9 +137,14 @@ class _FollowedTagsPageState extends State<FollowedTagsPage> {
                   child: TextField(
                     controller: _ctrl,
                     onChanged: (_) => setState(() {}),
+                    textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
                       hintText: l.addFollowedTagHint,
                       prefixIcon: const Icon(Icons.tag_outlined),
+                      // 顯示正規化後會儲存的樣子（僅提示，不改動輸入框內容）
+                      helperText: _normalize(_ctrl.text).isEmpty
+                          ? null
+                          : '${l.willSaveAs}: #${_normalize(_ctrl.text)}',
                     ),
                     onSubmitted: (_) => _add(),
                   ),

@@ -25,6 +25,11 @@ class RootNav extends StatefulWidget {
 
 class _RootNavState extends State<RootNav> {
   int _index = 0;
+
+  // 使用不帶型別的 GlobalKey，避免引用到私有 State 類型
+  final GlobalKey _socialKey = GlobalKey(); // 社群頁
+  final GlobalKey _profileKey = GlobalKey(); // 個人檔案頁
+
   late final List<Widget> _pages;
 
   @override
@@ -32,10 +37,13 @@ class _RootNavState extends State<RootNav> {
     super.initState();
     _pages = <Widget>[
       cv.CardsView(settings: widget.settings), // 0
-      SocialFeedPage(settings: widget.settings), // 1
+      SocialFeedPage(key: _socialKey, settings: widget.settings), // 1（社群）
       const ExploreView(), // 2
-      UserProfileSettingsPage(settings: widget.settings), // 3 個人檔案（可編輯）
-      SettingsView(settings: widget.settings), // 4 只讀設定（不再編輯個資）
+      UserProfileSettingsPage(
+        key: _profileKey,
+        settings: widget.settings,
+      ), // 3（個人檔案-可編輯）
+      SettingsView(settings: widget.settings), // 4（只讀設定）
     ];
   }
 
@@ -69,7 +77,21 @@ class _RootNavState extends State<RootNav> {
         padding: EdgeInsets.only(bottom: paddingBottom > 0 ? 0 : 0),
         child: NavigationBar(
           selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
+          onDestinationSelected: (i) async {
+            setState(() => _index = i);
+
+            // 進入社群頁就刷新
+            if (i == 1) {
+              final s = _socialKey.currentState as dynamic;
+              await s?.refreshOnEnter();
+            }
+
+            // 進入個人檔案頁就刷新（會重新抓 /me 自動回填）
+            if (i == 3) {
+              final p = _profileKey.currentState as dynamic;
+              await p?.refreshOnEnter();
+            }
+          },
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.grid_view_outlined),
@@ -87,8 +109,8 @@ class _RootNavState extends State<RootNav> {
               label: context.l10n.navExplore,
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
               label: context.l10n.userProfileTitle,
             ),
             NavigationDestination(

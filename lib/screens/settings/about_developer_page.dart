@@ -7,7 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart'; // ← 取用 AppSettings（若未掛上也不會崩）
 import '../../l10n/l10n.dart';
 import 'settings_view.dart'; // kDeveloperName... kDeveloperEmail...
-import '../easter_egg/version_showcase_page.dart';
+import 'easter_egg/version_showcase_page.dart';
 import '../../models/card_item.dart';
 import '../../app_settings.dart'; // ← 有 cardItems 的地方
 

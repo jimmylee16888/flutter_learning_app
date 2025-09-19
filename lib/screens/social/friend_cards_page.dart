@@ -1,11 +1,13 @@
+// lib/screens/social/friend_cards_page.dart
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_learning_app/services/social/social_api.dart';
-import 'package:flutter_learning_app/services/services.dart'; // FriendFollowController
-import '../../l10n/l10n.dart';
-import '../../models/social_models.dart';
+import 'package:flutter_learning_app/services/services.dart'
+    show FriendFollowController;
+import 'package:flutter_learning_app/l10n/l10n.dart';
+import 'package:flutter_learning_app/models/social_models.dart';
 import 'friend_profile_page.dart';
 
 class FriendCardsPage extends StatefulWidget {
@@ -17,34 +19,25 @@ class FriendCardsPage extends StatefulWidget {
 }
 
 class _FriendCardsPageState extends State<FriendCardsPage> {
-  // 本地名片資訊（顯示補充用；名稱會被後端覆蓋）
-  final List<FriendCard> _cards = [
-    FriendCard(
-      id: 'u_alice',
-      nickname: '小明',
-      artists: ['LE SSERAFIM', 'IVE'],
-      phone: '0912-345-678',
-      instagram: '@ming',
-    ),
-    FriendCard(
-      id: 'u_bob',
-      nickname: '小美',
-      artists: ['NewJeans'],
-      lineId: 'mei_line',
-      facebook: 'fb.me/mei',
-    ),
-  ];
+  /// 本地覆蓋資料（以好友 id 為 key）。只覆蓋電話/IG/LINE…等欄位與暱稱；
+  /// 追蹤名單本身完全以 FriendFollowController 為準。
+  final Map<String, FriendCard> _overrides = <String, FriendCard>{};
 
-  final Map<String, String> _nameById = {}; // 後端名稱快取
+  /// 後端名稱快取（id -> name）
+  final Map<String, String> _nameById = {};
   String _query = '';
 
   @override
   void initState() {
     super.initState();
-    // 首頁面：預抓目前追蹤好友的名稱
+    // 進頁面時預抓目前追蹤好友的顯示名稱
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ids = context.read<FriendFollowController>().friends;
-      _prefetchRemoteNames(ids);
+      final ctl = context.read<FriendFollowController?>();
+      if (ctl != null) {
+        _prefetchRemoteNames(ctl.friends);
+      }
+      // 若你希望每次進來都跟伺服器對齊，也可開啟這行：
+      // context.read<FriendFollowController>().refresh();
     });
   }
 
@@ -63,17 +56,28 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
       if (name.trim().isNotEmpty) {
         setState(() => _nameById[userId] = name.trim());
       }
-    } catch (_) {}
+    } catch (_) {
+      // 安靜失敗
+    }
   }
 
-  String _displayName(FriendCard c) => _nameById[c.id] ?? c.nickname;
+  /// 以追蹤集合建立顯示清單（覆蓋 > 遠端名稱 > id）
+  List<FriendCard> _joinedCards(Set<String> following) {
+    return following.map((id) {
+      final display = (_nameById[id]?.trim().isNotEmpty ?? false)
+          ? _nameById[id]!
+          : id;
+      return _overrides[id] ??
+          FriendCard(id: id, nickname: display, artists: const []);
+    }).toList();
+  }
 
   List<FriendCard> _filtered(Set<String> following) {
-    final joined = _cards.where((c) => following.contains(c.id)).toList();
+    final list = _joinedCards(following);
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return joined;
-    return joined.where((c) {
-      final name = _displayName(c).toLowerCase();
+    if (q.isEmpty) return list;
+    return list.where((c) {
+      final name = c.nickname.toLowerCase();
       final inName = name.contains(q);
       final inArtists = c.artists.any((a) => a.toLowerCase().contains(q));
       final inPhone = (c.phone ?? '').toLowerCase().contains(q);
@@ -84,26 +88,74 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     }).toList();
   }
 
-  Future<void> _addOrEditCard({FriendCard? initial}) async {
+  /// 讓使用者選一位已追蹤好友來新增/編輯名片覆蓋資料
+  Future<void> _startAddFlow() async {
+    final following = context.read<FriendFollowController>().friends.toList();
+    if (following.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.noFriendsYet)));
+      return;
+    }
+    String targetId;
+    if (following.length == 1) {
+      targetId = following.first;
+    } else {
+      final picked = await showDialog<String>(
+        context: context,
+        builder: (_) => SimpleDialog(
+          title: Text(context.l10n.friendCardsTitle),
+          children: [
+            for (final id in following)
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, id),
+                child: Text(
+                  _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
+                ),
+              ),
+          ],
+        ),
+      );
+      if (picked == null) return;
+      targetId = picked;
+    }
+    await _addOrEditCardFor(targetId);
+  }
+
+  Future<void> _addOrEditCardFor(String id) async {
+    // 以現有覆蓋資料或建一張預設卡做為初始值
+    final initial =
+        _overrides[id] ??
+        FriendCard(
+          id: id,
+          nickname: _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
+          artists: const [],
+        );
+
     final res = await showDialog<FriendCard>(
       context: context,
       builder: (_) => _EditFriendDialog(initial: initial),
     );
     if (res == null) return;
+
+    // 只寫覆蓋資料；id 固定為目標好友 id
     setState(() {
-      final idx = _cards.indexWhere((c) => c.id == res.id);
-      if (idx >= 0) {
-        _cards[idx] = res;
-      } else {
-        _cards.add(res);
-      }
+      _overrides[id] = FriendCard(
+        id: id,
+        nickname: res.nickname,
+        artists: res.artists,
+        phone: res.phone,
+        lineId: res.lineId,
+        facebook: res.facebook,
+        instagram: res.instagram,
+      );
     });
-    // 若 id 在追蹤清單裡就抓一下顯示名稱
-    _loadRemoteName(res.id);
+    _loadRemoteName(id);
   }
 
-  void _deleteCard(FriendCard c) {
-    setState(() => _cards.removeWhere((x) => x.id == c.id));
+  void _deleteLocalOverride(FriendCard c) {
+    setState(() => _overrides.remove(c.id));
   }
 
   @override
@@ -148,7 +200,6 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (_, i) {
                       final c = _filtered(following)[i];
-                      final name = _displayName(c);
                       if (!_nameById.containsKey(c.id)) {
                         _loadRemoteName(c.id);
                       }
@@ -158,10 +209,13 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
 
                       return _FriendCardTile(
                         card: c,
-                        displayName: name,
+                        displayName: _nameById[c.id]?.isNotEmpty == true
+                            ? _nameById[c.id]!
+                            : c.nickname,
                         initialFollowing: isFollowing,
-                        onEdit: () => _addOrEditCard(initial: c),
-                        onDelete: () => _deleteCard(c),
+                        onEdit: () => _addOrEditCardFor(c.id),
+                        // 只刪除本地覆蓋，不影響追蹤名單
+                        onDelete: () => _deleteLocalOverride(c),
                         onOpenProfile: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -176,7 +230,6 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                           await context.read<FriendFollowController>().toggle(
                             c.id,
                           );
-                          // 名稱快取維持即可；若剛加入才去抓
                           _loadRemoteName(c.id);
                         },
                       );
@@ -186,7 +239,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addOrEditCard(),
+        onPressed: _startAddFlow,
         icon: const Icon(Icons.add),
         label: Text(l.addFriendCard),
       ),
@@ -288,6 +341,8 @@ class _FriendCardTileState extends State<_FriendCardTile> {
     const double dragInset = 12.0;
     const double triggerRatio = 0.66;
 
+    print(context.read<FriendFollowController>().friends);
+
     return Padding(
       padding: const EdgeInsets.all(6),
       child: LayoutBuilder(
@@ -337,7 +392,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
-                // 背景：左＝編輯；右＝刪除
+                // 背景：左＝編輯；右＝刪除（刪的是本地覆蓋）
                 Positioned.fill(
                   child: Row(
                     children: [
@@ -378,7 +433,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                   ),
                 ),
 
-                // 上層：卡片
+                // 上層：卡片（可水平拖 / 點擊翻面）
                 StatefulBuilder(
                   builder: (context, sb) {
                     return GestureDetector(
@@ -611,6 +666,7 @@ class _Info extends StatelessWidget {
   }
 }
 
+/// 名片編輯對話框：結果會被當作「覆蓋資料」儲存；id 由呼叫端決定。
 class _EditFriendDialog extends StatefulWidget {
   final FriendCard? initial;
   const _EditFriendDialog({this.initial});
@@ -748,9 +804,7 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
             Navigator.pop(
               context,
               FriendCard(
-                id:
-                    widget.initial?.id ??
-                    'f_${DateTime.now().microsecondsSinceEpoch}',
+                id: widget.initial?.id ?? 'tmp', // 呼叫端會覆蓋成目標好友 id
                 nickname: n,
                 artists: _artists.toList(),
                 phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),

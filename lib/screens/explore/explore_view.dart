@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +14,9 @@ import 'hearts.dart';
 // ad
 import 'ad_config.dart';
 import 'ad_provider.dart';
+
+import 'dart:io' as io show File;
+import 'dart:convert' show base64Encode;
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -123,7 +126,7 @@ class _ExploreViewState extends State<ExploreView>
                   final it = entry.value;
 
                   if (it.kind == ExploreKind.ball) {
-                    // 小球：用 BallBubble 處理拖曳 + 反彈 + 刪除
+                    // 小球
                     final d = it.ballDiameter;
                     final clamped = _clamp(it.pos, Size(d, d), _canvasSize);
                     if (clamped != it.pos) it.pos = clamped;
@@ -178,7 +181,6 @@ class _ExploreViewState extends State<ExploreView>
                         });
                         _persistSoon();
                       },
-                      // 長按才會出現的縮放把手
                       onResize: isAd
                           ? null
                           : (delta) {
@@ -347,9 +349,16 @@ class _ExploreViewState extends State<ExploreView>
   }
 
   ImageProvider? _imageProviderOf(ExploreItem it) {
+    // Web 優先走 imageUrl（blob: or http）
+    if (kIsWeb) {
+      if ((it.imageUrl ?? '').isNotEmpty) {
+        return NetworkImage(it.imageUrl!);
+      }
+      return null;
+    }
+    // 非 Web：先 File，再 Url
     if ((it.imagePath ?? '').isNotEmpty) {
-      final f = File(it.imagePath!);
-      if (f.existsSync()) return FileImage(f);
+      return FileImage(io.File(it.imagePath!));
     }
     if ((it.imageUrl ?? '').isNotEmpty) {
       return NetworkImage(it.imageUrl!);
@@ -421,7 +430,14 @@ class _ExploreViewState extends State<ExploreView>
         final picker = ImagePicker();
         final x = await picker.pickImage(source: ImageSource.gallery);
         if (x == null) return;
-        item.imagePath = x.path;
+        if (kIsWeb) {
+          final bytes = await x.readAsBytes();
+          final mime = x.mimeType ?? 'image/png';
+          item.imageUrl = 'data:$mime;base64,${base64Encode(bytes)}';
+        } else {
+          item.imagePath = x.path;
+        }
+
         break;
       case ExploreKind.quote:
         final text = await _promptText('輸入一句話');
@@ -445,7 +461,11 @@ class _ExploreViewState extends State<ExploreView>
         final b = await _promptBall();
         if (b == null) return;
         item.ballEmoji = b.emoji;
-        item.ballImagePath = b.imagePath;
+        if (kIsWeb) {
+          item.ballImageUrl = b.imagePath; // Web：也存到 url 欄位
+        } else {
+          item.ballImagePath = b.imagePath;
+        }
         item.ballDiameter = b.diameter;
         // 以直徑同步外框 w/h
         item.w = b.diameter;
@@ -525,7 +545,17 @@ class _ExploreViewState extends State<ExploreView>
                   final x = await ImagePicker().pickImage(
                     source: ImageSource.gallery,
                   );
-                  if (x != null) setState(() => imagePath = x.path);
+                  if (x != null) {
+                    if (kIsWeb) {
+                      final bytes = await x.readAsBytes();
+                      final mime = x.mimeType ?? 'image/png';
+                      imagePath =
+                          'data:$mime;base64,${base64Encode(bytes)}'; // Web 用 data URI
+                    } else {
+                      imagePath = x.path;
+                    }
+                    setState(() {});
+                  }
                 },
                 icon: const Icon(Icons.photo),
                 label: Text(imagePath == null ? '選擇相片…' : '已選擇相片'),
@@ -657,9 +687,9 @@ class _ExploreViewState extends State<ExploreView>
       const restitution = 0.9;
       const friction = 0.998;
 
-      // 邊界（以左上角+直徑計）
+      // 邊界
       if (p.dx <= 8) {
-        p = Offset(8, p.dy);
+        p = const Offset(8, 0) + Offset(0, p.dy);
         it.ballVx = -it.ballVx * restitution;
       }
       if (p.dy <= 8) {
@@ -847,10 +877,14 @@ class _BallBubbleState extends State<_BallBubble> {
   }
 
   Widget _ballContent(ExploreItem it) {
-    if ((it.ballImagePath ?? '').isNotEmpty) {
-      final f = File(it.ballImagePath!);
-      if (f.existsSync()) {
-        return Image.file(f, fit: BoxFit.cover);
+    // Web 用 url，非 Web 用本地檔
+    if (kIsWeb) {
+      if ((it.ballImageUrl ?? '').isNotEmpty) {
+        return Image.network(it.ballImageUrl!, fit: BoxFit.cover);
+      }
+    } else {
+      if ((it.ballImagePath ?? '').isNotEmpty) {
+        return Image.file(io.File(it.ballImagePath!), fit: BoxFit.cover);
       }
     }
     return FittedBox(
@@ -863,6 +897,9 @@ class _BallBubbleState extends State<_BallBubble> {
 class _BallConfig {
   _BallConfig({this.emoji, this.imagePath, required this.diameter});
   final String? emoji;
-  final String? imagePath;
+  final String? imagePath; // Web 會是 blob: url
   final double diameter;
 }
+
+// 為了非 Web FileImage，用簡短別名避免到處 import dart:io
+// ignore: library_prefixes

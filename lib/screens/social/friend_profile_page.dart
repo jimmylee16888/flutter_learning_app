@@ -6,7 +6,7 @@ import 'package:flutter_learning_app/l10n/l10n.dart';
 import 'package:flutter_learning_app/services/social/social_api.dart';
 import 'package:flutter_learning_app/models/social_models.dart';
 import 'package:flutter_learning_app/services/services.dart'
-    show FriendFollowController; // ← 用 Provider
+    show FriendFollowController;
 
 class FriendProfilePage extends StatefulWidget {
   const FriendProfilePage({super.key, required this.api, required this.userId});
@@ -61,7 +61,6 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
     final l = context.l10n;
     final p = _profile;
 
-    // 由 Provider 取得目前是否已追蹤
     final isFriend = context.watch<FriendFollowController>().contains(
       widget.userId,
     );

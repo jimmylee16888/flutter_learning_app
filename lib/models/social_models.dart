@@ -58,24 +58,31 @@ class SocialUser {
     this.showLine = false,
   });
 
+  // --- SocialUser ---
   factory SocialUser.fromJson(Map<String, dynamic> j) => SocialUser(
-    id: j['id'] as String,
-    name: j['name'] as String,
+    id: (j['id'] ?? '').toString(),
+    name: (j['name'] ?? '').toString(),
     avatarAsset: j['avatarAsset'] as String?,
     avatarUrl: j['avatarUrl'] as String?,
     email: j['email'] as String?,
-    followedTags: ((j['followedTags'] as List?) ?? const [])
-        .map((e) => '$e')
-        .toList(),
-    followingUserIds: ((j['followingUserIds'] as List?) ?? const [])
-        .map((e) => '$e')
-        .toList(),
+    followedTags:
+        (j['followedTags'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        <String>[],
+    followingUserIds:
+        (j['followingUserIds'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        <String>[],
     instagram: j['instagram'] as String?,
     facebook: j['facebook'] as String?,
     lineId: j['lineId'] as String?,
-    showInstagram: j['showInstagram'] as bool? ?? false,
-    showFacebook: j['showFacebook'] as bool? ?? false,
-    showLine: j['showLine'] as bool? ?? false,
+    showInstagram: j['showInstagram'] == true,
+    showFacebook: j['showFacebook'] == true,
+    showLine: j['showLine'] == true,
   );
 
   Map<String, dynamic> toJson() => {
@@ -138,11 +145,13 @@ class SocialComment {
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
+  // --- SocialComment ---
   factory SocialComment.fromJson(Map<String, dynamic> j) => SocialComment(
-    id: j['id'] as String,
-    author: SocialUser.fromJson(j['author'] as Map<String, dynamic>),
-    text: j['text'] as String? ?? '',
-    createdAt: DateTime.parse(j['createdAt'] as String),
+    id: (j['id'] ?? '').toString(),
+    author: SocialUser.fromJson((j['author'] as Map).cast<String, dynamic>()),
+    text: (j['text'] ?? '').toString(),
+    createdAt:
+        DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -199,19 +208,35 @@ class SocialPost {
        tags = tags ?? <String>[];
 
   /// 後端 JSON 轉模型（對應 Go 後端欄位名稱）
+  // --- SocialPost ---
   factory SocialPost.fromJson(Map<String, dynamic> j) => SocialPost(
-    id: j['id'] as String,
-    author: SocialUser.fromJson(j['author'] as Map<String, dynamic>),
-    text: j['text'] as String? ?? '',
-    createdAt: DateTime.parse(j['createdAt'] as String),
-    images: const <File?>[], // 後端不回傳本地 image 檔
-    imageUrl: j['imageUrl'] as String?,
-    likeCount: j['likeCount'] as int? ?? 0,
-    likedByMe: j['likedByMe'] as bool? ?? false,
-    comments: ((j['comments'] as List?) ?? const [])
-        .map((e) => SocialComment.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    tags: ((j['tags'] as List?) ?? const []).map((e) => '$e').toList(),
+    id: (j['id'] ?? '').toString(),
+    author: SocialUser.fromJson((j['author'] as Map).cast<String, dynamic>()),
+    text: (j['text'] ?? '').toString(),
+    createdAt:
+        DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
+    images: const <File?>[], // 後端不回本地檔
+    imageUrl: () {
+      final v = j['imageUrl'];
+      if (v == null) return null;
+      final s = v.toString().trim();
+      return s.isEmpty ? null : s;
+    }(),
+    likeCount: (j['likeCount'] as num?)?.toInt() ?? 0,
+    likedByMe: j['likedByMe'] == true,
+    comments:
+        (j['comments'] as List?)
+            ?.map(
+              (e) => SocialComment.fromJson((e as Map).cast<String, dynamic>()),
+            )
+            .toList() ??
+        <SocialComment>[],
+    tags:
+        (j['tags'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        <String>[],
   );
 
   /// 序列化送後端（不含本地 images）
@@ -265,25 +290,7 @@ final _mockAlice = SocialUser(
 final _mockBob = SocialUser(id: 'u_bob', name: 'Bob', email: 'bob@example.com');
 
 List<SocialPost> mockPosts(SocialUser current) {
-  return [
-    SocialPost(
-      id: 'p1',
-      author: _mockAlice,
-      text: '第一篇貼文！這是一個示範的社交動態卡片 👋',
-      likeCount: 23,
-      tags: ['kpop', 'ui', 'flutter'],
-      comments: [SocialComment(id: 'c1', author: _mockBob, text: '看起來很讚！')],
-      createdAt: DateTime.now().subtract(const Duration(minutes: 18)),
-      // imageUrl 可為 null；如需測試可填 '/uploads/xxx.jpg'
-    ),
-    SocialPost(
-      id: 'p2',
-      author: _mockBob,
-      text: '今天把 UI 卡片邊角修好了 ✅',
-      tags: ['flutter', 'design'],
-      createdAt: DateTime.now().subtract(const Duration(hours: 1, minutes: 2)),
-    ),
-  ];
+  return [];
 }
 
 /// ============== 好友名片資料模型 ==============

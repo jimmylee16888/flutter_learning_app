@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../app_settings.dart';
 import '../../l10n/l10n.dart';
-import '../statistics/statistics_view.dart';
+import 'statistics/statistics_view.dart';
 import 'about_developer_page.dart';
 import '../user/user_profile_settings_page.dart';
 

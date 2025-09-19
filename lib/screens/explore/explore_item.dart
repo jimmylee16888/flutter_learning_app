@@ -1,4 +1,3 @@
-// lib/screens/explore/explore_item.dart
 import 'dart:ui';
 
 enum ExploreKind { photo, quote, countdown, ad, ball }
@@ -20,6 +19,7 @@ class ExploreItem {
     // ball 專用
     this.ballEmoji,
     this.ballImagePath,
+    this.ballImageUrl,
     this.ballVx = 180,
     this.ballVy = 140,
     this.ballDiameter = 80,
@@ -37,15 +37,16 @@ class ExploreItem {
   // 通用
   String? title;
   String? quote;
-  String? imagePath;
-  String? imageUrl;
+  String? imagePath; // 非 Web 儲存本地路徑
+  String? imageUrl; // Web 儲存 blob: 或 http url
   DateTime? countdownDate;
   bool deletable;
   bool isBack;
 
   // ball
-  String? ballEmoji; // 與 ballImagePath 擇一
-  String? ballImagePath; // 本地相片路徑
+  String? ballEmoji; // 與 ballImagePath/Url 擇一
+  String? ballImagePath; // 非 Web
+  String? ballImageUrl; // Web
   double ballVx;
   double ballVy;
   double ballDiameter;
@@ -67,6 +68,7 @@ class ExploreItem {
     isBack: j['isBack'] ?? false,
     ballEmoji: j['ballEmoji'] as String?,
     ballImagePath: j['ballImagePath'] as String?,
+    ballImageUrl: j['ballImageUrl'] as String?,
     ballVx: (j['ballVx'] ?? 180).toDouble(),
     ballVy: (j['ballVy'] ?? 140).toDouble(),
     ballDiameter: (j['ballDiameter'] ?? 80).toDouble(),
@@ -86,6 +88,7 @@ class ExploreItem {
     'isBack': isBack,
     'ballEmoji': ballEmoji,
     'ballImagePath': ballImagePath,
+    'ballImageUrl': ballImageUrl,
     'ballVx': ballVx,
     'ballVy': ballVy,
     'ballDiameter': ballDiameter,

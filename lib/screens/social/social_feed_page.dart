@@ -1,9 +1,14 @@
+// lib/screens/social/social_feed_page.dart
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui'; // for ImageFilter
+
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:flutter_learning_app/services/services.dart';
 
 import '../../app_settings.dart';
@@ -12,11 +17,13 @@ import '../../l10n/l10n.dart';
 // models / services（改走後端）
 import '../../models/social_models.dart';
 
-// 帖文編輯器 / 好友名片（原頁留著）/ 後端標籤管理 / 使用者頁
+// 帖文編輯器 / 好友名片 / 追蹤標籤 / 使用者頁
 import 'post_composer.dart';
-import 'friend_cards_page.dart' as friends; // ← 前綴避免撞名
-import 'followed_tags_page.dart' as tags; // ← 前綴避免撞名
+import 'friend_cards_page.dart' as friends;
+import 'followed_tags_page.dart' as tags;
 import 'friend_profile_page.dart';
+
+import 'dart:typed_data'; // 若 _api 接收 Uint8List
 
 enum FeedTab { friends, hot, following }
 
@@ -29,21 +36,22 @@ class SocialFeedPage extends StatefulWidget {
 }
 
 class _SocialFeedPageState extends State<SocialFeedPage> {
-  late final SocialUser _me;
-  late final SocialApi _api;
+  // === 身分 / API ===
+  late SocialUser _me;
+  late SocialApi _api;
+  static const _kDebugUidKey = 'debug_uid';
+  bool _identityReady = false;
 
+  // === 狀態 ===
+  late final TagFollowController _tagCtl;
   Set<String> _myFriendIds = {};
   List<SocialPost> _posts = [];
   FeedTab _tab = FeedTab.friends;
-
-  // 改由全域 TagFollowController 提供
-  late final TagFollowController _tagCtl;
-
   bool _loading = false;
 
   // === 網路狀態 ===
   bool _isOffline = false;
-  StreamSubscription<List<ConnectivityResult>>? _connSub;
+  StreamSubscription<ConnectivityResult>? _connSub;
 
   @override
   void initState() {
@@ -51,15 +59,12 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     _tagCtl = context.read<TagFollowController>();
     _tagCtl.addListener(_onTagsChanged);
 
-    _me = SocialUser(
-      id: 'u_me',
-      name: (widget.settings.nickname ?? 'Me').trim().isEmpty
-          ? 'Me'
-          : widget.settings.nickname!,
-    );
-    _api = SocialApi(meId: _me.id, meName: _me.name);
-    _setupConnectivity();
-    _bootstrap();
+    Future.microtask(() async {
+      await _initIdentityAndApi();
+      if (!mounted) return;
+      await _setupConnectivity();
+      await _bootstrap();
+    });
   }
 
   @override
@@ -69,6 +74,48 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     super.dispose();
   }
 
+  // ================ 身分初始化 =================
+  Future<void> _initIdentityAndApi() async {
+    final auth = FirebaseAuth.instance;
+    User? u = auth.currentUser;
+
+    String? email = u?.email?.trim();
+    String? uid = u?.uid;
+
+    if (email == null && uid == null) {
+      final sp = await SharedPreferences.getInstance();
+      var debugUid = sp.getString(_kDebugUidKey);
+      debugUid ??= 'dev_${const Uuid().v4()}';
+      await sp.setString(_kDebugUidKey, debugUid);
+      uid = debugUid; // 之後以 Authorization: Debug <uid>
+    }
+
+    final meId = (email != null && email.isNotEmpty)
+        ? email.toLowerCase()
+        : (uid ?? 'dev_unknown');
+    final meName = (widget.settings.nickname?.trim().isNotEmpty == true)
+        ? widget.settings.nickname!.trim()
+        : (u?.displayName?.trim().isNotEmpty == true)
+        ? u!.displayName!.trim()
+        : (email != null ? email.split('@').first : meId);
+
+    _me = SocialUser(id: meId, name: meName);
+
+    _api = SocialApi(
+      meId: _me.id,
+      meName: _me.name,
+      idTokenProvider: () async =>
+          FirebaseAuth.instance.currentUser?.getIdToken(),
+    );
+
+    if (mounted) {
+      setState(() {
+        _identityReady = true;
+      });
+    }
+  }
+
+  // ============== Tag 變更 / 連線變更 =================
   void _onTagsChanged() {
     if (!mounted) return;
     if (_tab == FeedTab.following) {
@@ -81,14 +128,14 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   Future<void> _setupConnectivity() async {
     final c = Connectivity();
 
-    // ❶ 可能回傳多個結果
-    final results = await c.checkConnectivity();
-    _setOffline(results.contains(ConnectivityResult.none));
+    final result = await c.checkConnectivity();
+    _setOffline(result == ConnectivityResult.none);
 
-    // ❷ 監聽也是 List<ConnectivityResult>
-    _connSub = c.onConnectivityChanged.listen((results) {
-      _setOffline(results.contains(ConnectivityResult.none));
-    });
+    _connSub =
+        c.onConnectivityChanged.listen((result) {
+              _setOffline(result == ConnectivityResult.none);
+            })
+            as StreamSubscription<ConnectivityResult>?;
   }
 
   void _setOffline(bool v) {
@@ -101,6 +148,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     }
   }
 
+  // ============== 共用提示 / 守門 =================
   void _showSnack(String msg, {bool isError = false}) {
     if (!mounted) return;
     final cs = Theme.of(context).colorScheme;
@@ -109,16 +157,11 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     );
   }
 
-  // ==== 兩種防護：有回傳值 / 無回傳值 ====
   Future<T?> _guardValue<T>(Future<T> Function() task) async {
     try {
       return await task().timeout(const Duration(seconds: 15));
-    } on SocketException {
-      _showSnack('連不上伺服器，請檢查網路或後端服務是否啟動。', isError: true);
     } on TimeoutException {
       _showSnack('連線逾時，請稍後重試。', isError: true);
-    } on HttpException catch (e) {
-      _showSnack('HTTP 錯誤：${e.message}', isError: true);
     } catch (e) {
       _showSnack('發生錯誤：$e', isError: true);
     }
@@ -129,26 +172,24 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     try {
       await task().timeout(const Duration(seconds: 15));
       return true;
-    } on SocketException {
-      _showSnack('連不上伺服器，請檢查網路或後端服務是否啟動。', isError: true);
     } on TimeoutException {
       _showSnack('連線逾時，請稍後重試。', isError: true);
-    } on HttpException catch (e) {
-      _showSnack('HTTP 錯誤：${e.message}', isError: true);
     } catch (e) {
       _showSnack('發生錯誤：$e', isError: true);
     }
     return false;
   }
 
+  // ============== 首次初始化 =================
   Future<void> _bootstrap() async {
+    if (!_identityReady) return;
+
     final friends = await _guardValue(() => _api.fetchMyFriends());
     if (!mounted) return;
     setState(() {
-      _myFriendIds = (friends ?? []).toSet();
+      _myFriendIds = (friends ?? []).toSet()..add(_me.id); // ★ 把自己也視為「好友來源」
     });
 
-    // ✅ 把本機暱稱寫進後端 Profile（之後發文顯示暱稱）
     final nick = widget.settings.nickname?.trim();
     if (nick != null && nick.isNotEmpty) {
       await _guardVoid(() => _api.updateProfile(nickname: nick));
@@ -166,7 +207,9 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     return l.timeDaysAgo(diff.inDays);
   }
 
+  // ============== 資料流程 =================
   Future<void> _refresh() async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('目前離線，無法更新貼文。', isError: true);
       return;
@@ -176,16 +219,20 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       List<SocialPost>? list;
       switch (_tab) {
         case FeedTab.friends:
-          // ★ 後端已依好友過濾，前端不再自行 where 篩選
+          final friendIds = {..._myFriendIds, _me.id}.toList(); // ★ 強制包含自己
           list = await _guardValue(
-            () => _api.fetchPosts(tab: FeedTabApi.friends),
+            () => _api.fetchPosts(
+              tab: FeedTabApi.friends,
+              friendIds: friendIds, // ★ 直接帶，不讓它為 null
+            ),
           );
+
           break;
         case FeedTab.hot:
           list = await _guardValue(() => _api.fetchPosts(tab: FeedTabApi.hot));
           break;
         case FeedTab.following:
-          final tags = _tagCtl.followed; // 可留可拿掉（後端也會 fallback）
+          final tags = _tagCtl.followed;
           list = await _guardValue(
             () => _api.fetchPosts(tab: FeedTabApi.following, tags: tags),
           );
@@ -198,20 +245,31 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   }
 
   Future<void> _onCreate() async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法發佈貼文。', isError: true);
       return;
     }
     final res = await showPostComposer(context);
     if (res == null) return;
+
+    // res.image 是 XFile?  → 轉成 bytes 與檔名
+    final Uint8List? bytes = await res.image?.readAsBytes();
+    final String? filename = res.image?.name; // 後端要檔名時可用
+
     final ok = await _guardVoid(
-      () =>
-          _api.createPost(text: res.text, tags: res.tags, imageFile: res.image),
+      () => _api.createPost(
+        text: res.text,
+        tags: res.tags,
+        imageBytes: bytes, // ← 用 bytes 傳
+        filename: filename, // ← 選填
+      ),
     );
     if (ok) await _refresh();
   }
 
   Future<void> _onEdit(SocialPost p) async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法編輯貼文。', isError: true);
       return;
@@ -222,18 +280,24 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       initialTags: p.tags,
     );
     if (res == null) return;
+
+    final Uint8List? bytes = await res.image?.readAsBytes();
+    final String? filename = res.image?.name;
+
     final ok = await _guardVoid(
       () => _api.updatePost(
         id: p.id,
         text: res.text,
         tags: res.tags,
-        imageFile: res.image,
+        imageBytes: bytes, // ← 用 bytes 傳
+        filename: filename, // ← 選填
       ),
     );
     if (ok) await _refresh();
   }
 
   Future<void> _onDelete(String postId) async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法刪除貼文。', isError: true);
       return;
@@ -243,6 +307,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   }
 
   Future<void> _onToggleLike(SocialPost p) async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法按讚。', isError: true);
       return;
@@ -256,6 +321,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   }
 
   Future<SocialPost?> _onAddComment(SocialPost p, String text) async {
+    if (!_identityReady) return null;
     if (_isOffline) {
       _showSnack('離線中，無法留言。', isError: true);
       return null;
@@ -272,6 +338,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   }
 
   Future<void> _followTagAndShow(String tag) async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法更新追蹤標籤。', isError: true);
       return;
@@ -283,6 +350,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   }
 
   Future<void> _removeTag(String tag) async {
+    if (!_identityReady) return;
     if (_isOffline) {
       _showSnack('離線中，無法更新追蹤標籤。', isError: true);
       return;
@@ -291,21 +359,33 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     if (_tab == FeedTab.following) await _refresh();
   }
 
+  // ===== 進入個人頁：把 FriendFollowController 帶入子路由 =====
   Future<void> _openProfile(String userId) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => FriendProfilePage(api: _api, userId: userId),
+        builder: (_) => ChangeNotifierProvider<FriendFollowController>.value(
+          value: context.read<FriendFollowController>(),
+          child: FriendProfilePage(api: _api, userId: userId),
+        ),
       ),
     );
+
     final ids = await _guardValue(() => _api.fetchMyFriends());
-    if (ids != null) _myFriendIds = ids.toSet();
+    if (ids != null) _myFriendIds = ids.toSet()..add(_me.id); // ★ 確保含自己
     if (_tab == FeedTab.friends) await _refresh();
   }
 
+  // ============== UI =================
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final cs = Theme.of(context).colorScheme;
+
+    if (!_identityReady) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator(color: cs.primary)),
+      );
+    }
 
     final followed = context.watch<TagFollowController>().followed;
 
@@ -357,15 +437,20 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                             ],
                           ),
                         ),
-
-                        // ← 左上（頂部列）功能：標籤／好友名片／重整
+                        // ===== 跳追蹤標籤頁：帶入 TagFollowController =====
                         IconButton.filledTonal(
                           tooltip: l.manageFollowedTags,
                           onPressed: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) =>
-                                    tags.FollowedTagsPage(api: _api),
+                                    ChangeNotifierProvider<
+                                      TagFollowController
+                                    >.value(
+                                      value: context
+                                          .read<TagFollowController>(),
+                                      child: tags.FollowedTagsPage(api: _api),
+                                    ),
                               ),
                             );
                             await context.read<TagFollowController>().refresh();
@@ -374,15 +459,23 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           icon: const Icon(Icons.tag),
                         ),
                         const SizedBox(width: 6),
+                        // ===== 跳好友名片頁：帶入 FriendFollowController =====
                         IconButton.filledTonal(
                           tooltip: l.friendCardsTitle,
                           onPressed: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) =>
-                                    friends.FriendCardsPage(api: _api),
+                                    ChangeNotifierProvider<
+                                      FriendFollowController
+                                    >.value(
+                                      value: context
+                                          .read<FriendFollowController>(),
+                                      child: friends.FriendCardsPage(api: _api),
+                                    ),
                               ),
                             );
+
                             if (_tab == FeedTab.friends) await _refresh();
                           },
                           icon: const Icon(Icons.badge_outlined),
@@ -436,7 +529,6 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           itemBuilder: (_, i) {
                             final p = _posts[i];
 
-                            // ✅ 圖片網址：支援相對/絕對
                             String? imgUrl;
                             if (p.imageUrl != null) {
                               final img = p.imageUrl!;
@@ -472,7 +564,6 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                         ),
                                         child: Row(
                                           children: [
-                                            // 點擊頭像 → 使用者頁
                                             InkWell(
                                               onTap: () =>
                                                   _openProfile(p.author.id),
@@ -665,7 +756,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
               ],
             ),
 
-            // 右下：發文（編輯）按鈕 — 保留
+            // 右下：發文（編輯）按鈕
             Positioned(
               right: 16,
               bottom: 16 + MediaQuery.of(context).padding.bottom,
@@ -833,5 +924,12 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
         );
       },
     );
+  }
+
+  /// 由外部（RootNav）在「進入社群頁」時呼叫
+  Future<void> refreshOnEnter() async {
+    if (!_identityReady) return; // 尚未完成身分初始化就先不刷
+    if (_loading) return; // 避免重複同時打 API
+    await _refresh();
   }
 }

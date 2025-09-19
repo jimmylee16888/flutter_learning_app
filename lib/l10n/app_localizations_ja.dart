@@ -864,4 +864,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loading => '読み込み中…';
+
+  @override
+  String get networkRequiredTitle => 'ネットワーク接続が必要です';
+
+  @override
+  String get networkRequiredBody => 'サインインにはインターネット接続が必要です。接続してから、もう一度お試しください。';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get willSaveAs => '次の名前で保存します';
+
+  @override
+  String get alreadyExists => '既に存在します';
 }

@@ -1,12 +1,14 @@
 // lib/screens/social/post_composer.dart
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PostComposerResult {
   final String text;
   final List<String> tags;
-  final File? image; // 交給 SocialApi 上傳
+
+  /// 選到的圖片（跨平台用 XFile；Web 用 readAsBytes，上行動裝置可用 path）
+  final XFile? image;
   const PostComposerResult({
     required this.text,
     required this.tags,
@@ -24,7 +26,9 @@ Future<PostComposerResult?> showPostComposer(
   final textCtrl = TextEditingController(text: initialText);
   final tagCtrl = TextEditingController();
   final Set<String> tags = {...initialTags.map((e) => e.toLowerCase())};
-  File? pickedImage;
+
+  XFile? pickedImage; // 真正要回傳、上傳用的檔案
+  Uint8List? pickedPreviewBytes; // 預覽用（Web/App 都走 memory，避免 Image.file）
 
   return showModalBottomSheet<PostComposerResult?>(
     context: context,
@@ -51,6 +55,19 @@ Future<PostComposerResult?> showPostComposer(
             setSB(() {});
           }
 
+          Future<void> pickFromGallery() async {
+            final x = await ImagePicker().pickImage(
+              source: ImageSource.gallery,
+              imageQuality: 85,
+            );
+            if (x != null) {
+              pickedImage = x;
+              // 用 bytes 作預覽，避免 Image.file 在 Web 崩潰
+              pickedPreviewBytes = await x.readAsBytes();
+              setSB(() {});
+            }
+          }
+
           return Padding(
             padding: EdgeInsets.only(
               left: 16,
@@ -68,24 +85,20 @@ Future<PostComposerResult?> showPostComposer(
                     decoration: const InputDecoration(hintText: '分享點什麼…'),
                   ),
                   const SizedBox(height: 8),
-                  if (pickedImage != null)
+
+                  if (pickedPreviewBytes != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.file(pickedImage!, fit: BoxFit.cover),
+                      child: Image.memory(
+                        pickedPreviewBytes!,
+                        fit: BoxFit.cover,
+                      ),
                     ),
+
                   Row(
                     children: [
                       TextButton.icon(
-                        onPressed: () async {
-                          final x = await ImagePicker().pickImage(
-                            source: ImageSource.gallery,
-                            imageQuality: 85,
-                          );
-                          if (x != null) {
-                            pickedImage = File(x.path);
-                            setSB(() {});
-                          }
-                        },
+                        onPressed: pickFromGallery,
                         icon: const Icon(Icons.photo),
                         label: const Text('相簿'),
                       ),
@@ -102,7 +115,7 @@ Future<PostComposerResult?> showPostComposer(
                             PostComposerResult(
                               text: t,
                               tags: tags.toList(),
-                              image: pickedImage,
+                              image: pickedImage, // 呼叫端可用 readAsBytes() 上傳
                             ),
                           );
                         },
@@ -111,6 +124,7 @@ Future<PostComposerResult?> showPostComposer(
                     ],
                   ),
                   const SizedBox(height: 8),
+
                   Row(
                     children: [
                       const Text('標籤'),
@@ -122,6 +136,7 @@ Future<PostComposerResult?> showPostComposer(
                     ],
                   ),
                   const SizedBox(height: 6),
+
                   Row(
                     children: [
                       Expanded(
@@ -142,6 +157,7 @@ Future<PostComposerResult?> showPostComposer(
                     ],
                   ),
                   const SizedBox(height: 6),
+
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Wrap(
@@ -159,6 +175,7 @@ Future<PostComposerResult?> showPostComposer(
                       ],
                     ),
                   ),
+
                   const SafeArea(
                     top: false,
                     minimum: EdgeInsets.only(bottom: 6),

@@ -367,6 +367,12 @@
   "addFollowedTagFailedOffline": "目前離線，已先在本機加入標籤",
   "removeFollowedTagFailedOffline": "目前離線，已先在本機移除標籤",
 
-  "loading": "載入中…"
+  "loading": "載入中…",
+  "networkRequiredTitle": "需要網路連線",
+  "networkRequiredBody": "登入需要網路連線，請連線後再試一次。",
+  "ok": "知道了",
+
+  "willSaveAs": "將會儲存為",
+  "alreadyExists": "已存在"
 
 }

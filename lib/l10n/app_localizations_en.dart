@@ -880,4 +880,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading…';
+
+  @override
+  String get networkRequiredTitle => 'Network Required';
+
+  @override
+  String get networkRequiredBody =>
+      'Sign-in requires an internet connection. Please connect and try again.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get willSaveAs => 'Will save as';
+
+  @override
+  String get alreadyExists => 'Already exists';
 }

@@ -884,4 +884,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get loading => 'Wird geladen …';
+
+  @override
+  String get networkRequiredTitle => 'Netzwerkverbindung erforderlich';
+
+  @override
+  String get networkRequiredBody =>
+      'Für die Anmeldung ist eine Internetverbindung erforderlich. Bitte verbinden Sie sich und versuchen Sie es erneut.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get willSaveAs => 'Wird gespeichert als';
+
+  @override
+  String get alreadyExists => 'Bereits vorhanden';
 }

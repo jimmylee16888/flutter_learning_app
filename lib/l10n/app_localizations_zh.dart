@@ -859,6 +859,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loading => '載入中…';
+
+  @override
+  String get networkRequiredTitle => '需要網路連線';
+
+  @override
+  String get networkRequiredBody => '登入需要網路連線，請連線後再試一次。';
+
+  @override
+  String get ok => '知道了';
+
+  @override
+  String get willSaveAs => '將會儲存為';
+
+  @override
+  String get alreadyExists => '已存在';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1716,4 +1731,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get loading => '載入中…';
+
+  @override
+  String get networkRequiredTitle => '需要網路連線';
+
+  @override
+  String get networkRequiredBody => '登入需要網路連線，請連線後再試一次。';
+
+  @override
+  String get ok => '知道了';
+
+  @override
+  String get willSaveAs => '將會儲存為';
+
+  @override
+  String get alreadyExists => '已存在';
 }

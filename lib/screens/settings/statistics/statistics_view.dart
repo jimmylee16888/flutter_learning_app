@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:provider/provider.dart';
-import '../../app_settings.dart';
-import '../../l10n/l10n.dart';
-import '../../models/card_item.dart';
-import '../../models/mini_card_data.dart';
+import '../../../app_settings.dart';
+import '../../../l10n/l10n.dart';
+import '../../../models/card_item.dart';
+import '../../../models/mini_card_data.dart';
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({super.key, required this.settings});

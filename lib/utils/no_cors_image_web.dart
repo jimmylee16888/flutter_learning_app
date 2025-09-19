@@ -28,7 +28,7 @@ class NoCorsImage extends StatelessWidget {
 
     if (!_registered.contains(viewType)) {
       ui.platformViewRegistry.registerViewFactory(viewType, (int _) {
-        // 外層包一層，裁切圓角，並讓事件穿透
+        // 外層包一層、裁切圓角，並讓事件穿透
         final wrapper = html.DivElement()
           ..style.width = '100%'
           ..style.height = '100%'
@@ -53,8 +53,14 @@ class NoCorsImage extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      // 不再使用 hitTestBehavior；全靠 CSS pointer-events: none
-      child: HtmlElementView(viewType: viewType),
+      // ⬇️ 關鍵：讓平台視圖完全不參與 Flutter 的 hit test
+      child: IgnorePointer(
+        ignoring: true,
+        child: HtmlElementView(
+          key: ValueKey(viewType), // 避免 DOM 重用導致手勢異常
+          viewType: viewType,
+        ),
+      ),
     );
   }
 

@@ -1677,11 +1677,41 @@ abstract class AppLocalizations {
   /// **'You are offline. Tag removed locally.'**
   String get removeFollowedTagFailedOffline;
 
-  /// No description provided for @loading.
+  /// Shown while the login screen is initializing
   ///
   /// In en, this message translates to:
   /// **'Loading…'**
   String get loading;
+
+  /// Title for dialog when user tries to sign in without network
+  ///
+  /// In en, this message translates to:
+  /// **'Network Required'**
+  String get networkRequiredTitle;
+
+  /// Body text for dialog when sign-in attempted offline
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in requires an internet connection. Please connect and try again.'**
+  String get networkRequiredBody;
+
+  /// Generic confirmation button
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @willSaveAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Will save as'**
+  String get willSaveAs;
+
+  /// No description provided for @alreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Already exists'**
+  String get alreadyExists;
 }
 
 class _AppLocalizationsDelegate

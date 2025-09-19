@@ -1,11 +1,12 @@
 // lib/services/social/social_api.dart
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:flutter_learning_app/models/social_models.dart';
 
+import 'package:flutter_learning_app/models/social_models.dart';
 import 'package:flutter_learning_app/services/core/base_url.dart'
     show kSocialBaseUrl, absUrl;
+import 'package:flutter_learning_app/models/tip_models.dart';
 
 enum FeedTabApi { friends, hot, following }
 
@@ -13,7 +14,13 @@ bool _ok(int code) => code >= 200 && code < 300;
 const _timeout = Duration(seconds: 20);
 
 class SocialApi {
-  SocialApi({required this.meId, required this.meName, this.idTokenProvider});
+  SocialApi({
+    required this.meId,
+    required this.meName,
+    this.idTokenProvider,
+    this.clientId, // 可選：每台裝置固定 ID（純註記來源）
+    this.clientAliasProvider, // 可選：提供「本機暱稱」，僅做 header 註記
+  });
 
   /// 僅用於顯示或在 Debug 模式下當作 Header（Debug <uid>）
   final String meId;
@@ -23,6 +30,12 @@ class SocialApi {
 
   /// 建議傳入：() => FirebaseAuth.instance.currentUser?.getIdToken(true)
   final Future<String?> Function()? idTokenProvider;
+
+  /// 每個前端裝置的固定識別（例如 dev_xxx），用於標記貼文來源（後端不以此決定身分）
+  final String? clientId;
+
+  /// 提供「此裝置上的本機暱稱」；僅加到 X-Client-Alias header 做記錄，不影響顯示名稱
+  final Future<String?> Function()? clientAliasProvider;
 
   // ================== 共用小工具 ==================
 
@@ -36,13 +49,29 @@ class SocialApi {
       final t = await idTokenProvider!();
       if (t != null && t.isNotEmpty) {
         h['Authorization'] = 'Bearer $t';
-        return h;
       }
     }
 
     // 無 token → 走 Debug 模式，後端以 Debug <uid> 放行（開發用）
-    final uid = (meId.isNotEmpty ? meId : 'u_me');
-    h['Authorization'] = 'Debug $uid';
+    if (!h.containsKey('Authorization')) {
+      final uid = (meId.isNotEmpty ? meId : (clientId ?? 'u_me'));
+      h['Authorization'] = 'Debug $uid';
+    }
+
+    // 設備與本機別名（純記錄用）
+    if (clientId != null && clientId!.isNotEmpty) {
+      h['X-Client-Id'] = clientId!;
+    }
+    if (clientAliasProvider != null) {
+      final alias = await clientAliasProvider!();
+      if (alias != null && alias.isNotEmpty) {
+        h['X-Client-Alias'] = alias;
+      }
+    }
+
+    // 冗餘身分：就算代理吃掉 Authorization，也能在 NO_AUTH=1 下被後端辨識
+    h['X-Auth-Uid'] = meId;
+
     return h;
   }
 
@@ -52,9 +81,7 @@ class SocialApi {
 
   String _absUrl(String url) => absUrl(kSocialBaseUrl, url);
 
-  /// 若伺服器好友清單為空、且本地(local)有資料：
-  /// 1) 用本地清單回寫到後端
-  /// 2) 回傳「最後採用」的集合（server 非空 → server；否則 local）
+  /// 若伺服器好友清單為空、且本地(local)有資料：回寫到後端
   Future<Set<String>> seedFriendsIfServerEmpty(Set<String> local) async {
     try {
       final server = await fetchMyFriends();
@@ -64,38 +91,50 @@ class SocialApi {
       }
       return server.toSet();
     } catch (_) {
-      // 伺服器失敗 → 退回本地
       return local;
     }
   }
 
-  // ================== 檔案上傳 ==================
+  // ================== 檔案上傳（bytes 版，Web 相容） ==================
 
-  Future<String?> uploadImage(File file) async {
+  /// 上傳圖片，回傳「相對路徑」(例如 `/uploads/xxx.jpg`)
+  Future<String?> uploadImageBytes(Uint8List bytes, {String? filename}) async {
     final req = http.MultipartRequest('POST', _uri('/upload'));
     req.headers.addAll(await _authHeaders());
-    req.files.add(await http.MultipartFile.fromPath('file', file.path));
+    req.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: filename ?? 'upload.jpg',
+      ),
+    );
 
     final resp = await req.send().timeout(_timeout);
     final body = await resp.stream.bytesToString();
     if (!_ok(resp.statusCode)) {
-      throw HttpException('upload failed ${resp.statusCode}: $body');
+      throw Exception('upload failed ${resp.statusCode}: $body');
     }
     final j = jsonDecode(body) as Map<String, dynamic>;
     final raw = j['url'] as String?;
-    // 後端已回相對路徑（/uploads/xxx.jpg），保留相對路徑交由 UI 再組完整網址
     return raw;
   }
 
-  Future<String> uploadAvatar({required File file}) async {
+  /// 上傳大頭貼，回傳「絕對網址」（方便直接顯示）
+  Future<String> uploadAvatarBytes(Uint8List bytes, {String? filename}) async {
     final req = http.MultipartRequest('POST', _uri('/upload'));
     req.headers.addAll(await _authHeaders());
-    req.files.add(await http.MultipartFile.fromPath('file', file.path));
+    req.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: filename ?? 'avatar.jpg',
+      ),
+    );
 
     final resp = await req.send().timeout(_timeout);
     final body = await resp.stream.bytesToString();
     if (!_ok(resp.statusCode)) {
-      throw HttpException('uploadAvatar ${resp.statusCode}: $body');
+      throw Exception('uploadAvatar ${resp.statusCode}: $body');
     }
     final j = jsonDecode(body) as Map<String, dynamic>;
     final dynamic pick = j['url'] ?? j['avatarUrl'] ?? j['path'];
@@ -103,7 +142,6 @@ class SocialApi {
     if (raw == null || raw.isEmpty) {
       throw const FormatException('Invalid upload response (missing "url")');
     }
-    // 回完整絕對網址，方便頭像立即顯示
     return _absUrl(raw);
   }
 
@@ -116,7 +154,7 @@ class SocialApi {
         .get(_uri(_mePath()), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchMyProfile ${resp.statusCode}: ${resp.body}');
+      throw Exception('fetchMyProfile ${resp.statusCode}: ${resp.body}');
     }
     return jsonDecode(resp.body) as Map<String, dynamic>;
   }
@@ -134,9 +172,6 @@ class SocialApi {
     List<String>? followingUserIds,
   }) async {
     final payload = <String, dynamic>{
-      // 後端以 token 覆蓋 uid，這裡的 id/name 只保留相容
-      'id': meId,
-      'name': meName,
       if (nickname != null) 'nickname': nickname,
       if (avatarUrl != null) 'avatarUrl': avatarUrl,
       if (instagram != null) 'instagram': instagram,
@@ -157,7 +192,7 @@ class SocialApi {
         )
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('updateProfile ${resp.statusCode}: ${resp.body}');
+      throw Exception('updateProfile ${resp.statusCode}: ${resp.body}');
     }
   }
 
@@ -168,7 +203,7 @@ class SocialApi {
         .get(_uri('/me/tags'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchFollowedTags ${resp.statusCode}: ${resp.body}');
+      throw Exception('fetchFollowedTags ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body);
     if (data is List) return data.map((e) => '$e').toList();
@@ -187,7 +222,7 @@ class SocialApi {
         )
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('addFollowedTag ${resp.statusCode}: ${resp.body}');
+      throw Exception('addFollowedTag ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body);
     if (data is List) return data.map((e) => '$e').toList();
@@ -202,14 +237,14 @@ class SocialApi {
         .delete(_uri('/me/tags/$tag'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('removeFollowedTag ${resp.statusCode}: ${resp.body}');
+      throw Exception('removeFollowedTag ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body);
     if (data is List) return data.map((e) => '$e').toList();
     if (data is Map && data['tags'] is List) {
       return (data['tags'] as List).map((e) => '$e').toList();
     }
-    return fetchFollowedTags();
+    return <String>[];
   }
 
   Future<List<String>> fetchMyFriends() async {
@@ -217,7 +252,7 @@ class SocialApi {
         .get(_uri('/me/friends'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchMyFriends ${resp.statusCode}: ${resp.body}');
+      throw Exception('fetchMyFriends ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body);
     if (data is List) return data.map((e) => '$e').toList();
@@ -232,7 +267,7 @@ class SocialApi {
         .post(_uri('/users/$userId/follow'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('followUser ${resp.statusCode}: ${resp.body}');
+      throw Exception('followUser ${resp.statusCode}: ${resp.body}');
     }
   }
 
@@ -241,7 +276,7 @@ class SocialApi {
         .delete(_uri('/users/$userId/follow'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('unfollowUser ${resp.statusCode}: ${resp.body}');
+      throw Exception('unfollowUser ${resp.statusCode}: ${resp.body}');
     }
   }
 
@@ -252,7 +287,7 @@ class SocialApi {
         .get(_uri('/users/$userId'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchUserProfile ${resp.statusCode}: ${resp.body}');
+      throw Exception('fetchUserProfile ${resp.statusCode}: ${resp.body}');
     }
     final data = jsonDecode(resp.body) as Map<String, dynamic>;
     final au = data['avatarUrl'];
@@ -267,52 +302,53 @@ class SocialApi {
         .get(_uri('/users/$userId/posts'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchUserPosts ${resp.statusCode}: ${resp.body}');
+      throw Exception('fetchUserPosts ${resp.statusCode}: ${resp.body}');
     }
     return (jsonDecode(resp.body) as List)
         .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  Future<List<SocialPost>> fetchPosts({
-    required FeedTabApi tab,
-    List<String>? tags,
-  }) async {
-    final q = <String, dynamic>{
-      'tab': switch (tab) {
-        FeedTabApi.friends => 'friends',
-        FeedTabApi.hot => 'hot',
-        FeedTabApi.following => 'following',
-      },
-      if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
-    };
-    final resp = await http
-        .get(_uri('/posts', q), headers: await _authHeaders())
-        .timeout(_timeout);
-    if (!_ok(resp.statusCode)) {
-      throw HttpException('fetchPosts ${resp.statusCode}: ${resp.body}');
-    }
-    return (jsonDecode(resp.body) as List)
-        .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
+  // Future<List<SocialPost>> fetchPosts({
+  //   required FeedTabApi tab,
+  //   List<String>? tags,
+  // }) async {
+  //   final q = <String, dynamic>{
+  //     'tab': switch (tab) {
+  //       FeedTabApi.friends => 'friends',
+  //       FeedTabApi.hot => 'hot',
+  //       FeedTabApi.following => 'following',
+  //     },
+  //     if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
+  //   };
+  //   final resp = await http
+  //       .get(_uri('/posts', q), headers: await _authHeaders())
+  //       .timeout(_timeout);
+  //   if (!_ok(resp.statusCode)) {
+  //     throw Exception('fetchPosts ${resp.statusCode}: ${resp.body}');
+  //   }
+  //   return (jsonDecode(resp.body) as List)
+  //       .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
+  //       .toList();
+  // }
 
-  // ================== 發文 / 讚 / 留言 ==================
+  // ================== 發文 / 讚 / 留言（bytes 版） ==================
 
   Future<SocialPost> createPost({
     required String text,
     required List<String> tags,
-    File? imageFile,
+    Uint8List? imageBytes,
+    String? filename,
   }) async {
     String? imageUrl;
-    if (imageFile != null) {
-      imageUrl = await uploadImage(imageFile);
+    if (imageBytes != null) {
+      imageUrl = await uploadImageBytes(imageBytes, filename: filename);
     }
     final body = jsonEncode({
-      // author 由後端依 token 判定，不由前端決定
       'text': text,
       'tags': tags,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (clientId != null) 'clientId': clientId,
     });
     final resp = await http
         .post(
@@ -322,7 +358,7 @@ class SocialApi {
         )
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('createPost ${resp.statusCode}: ${resp.body}');
+      throw Exception('createPost ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
@@ -331,16 +367,18 @@ class SocialApi {
     required String id,
     required String text,
     required List<String> tags,
-    File? imageFile,
+    Uint8List? imageBytes,
+    String? filename,
   }) async {
     String? imageUrl;
-    if (imageFile != null) {
-      imageUrl = await uploadImage(imageFile);
+    if (imageBytes != null) {
+      imageUrl = await uploadImageBytes(imageBytes, filename: filename);
     }
     final body = jsonEncode({
       'text': text,
       'tags': tags,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (clientId != null) 'clientId': clientId,
     });
     final resp = await http
         .put(
@@ -350,7 +388,7 @@ class SocialApi {
         )
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('updatePost ${resp.statusCode}: ${resp.body}');
+      throw Exception('updatePost ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
@@ -360,7 +398,7 @@ class SocialApi {
         .delete(_uri('/posts/$id'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('deletePost ${resp.statusCode}: ${resp.body}');
+      throw Exception('deletePost ${resp.statusCode}: ${resp.body}');
     }
   }
 
@@ -369,7 +407,7 @@ class SocialApi {
         .post(_uri('/posts/$id/like'), headers: await _authHeaders())
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('toggleLike ${resp.statusCode}: ${resp.body}');
+      throw Exception('toggleLike ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
@@ -387,7 +425,7 @@ class SocialApi {
         )
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
-      throw HttpException('addComment ${resp.statusCode}: ${resp.body}');
+      throw Exception('addComment ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
@@ -396,4 +434,86 @@ class SocialApi {
 
   /// 讓 UI 不需要知道 base url 細節（相對 → 絕對）
   String resolveUrl(String url) => _absUrl(url);
+
+  // 1) 介面新增 friendIds
+  Future<List<SocialPost>> fetchPosts({
+    required FeedTabApi tab,
+    List<String>? tags,
+    List<String>? friendIds, // ← 新增
+  }) async {
+    // 如果要帶好友名單，就用 POST（避免 GET query 太長）
+    if (tab == FeedTabApi.friends && friendIds != null) {
+      final body = jsonEncode({
+        'tab': 'friends',
+        if (tags != null && tags.isNotEmpty) 'tags': tags,
+        'friendIds': friendIds, // ← 直接把好友清單交給後端
+      });
+      final resp = await http
+          .post(
+            _uri('/posts/query'), // ← 新增的查詢端點
+            headers: await _authHeaders(json: true),
+            body: body,
+          )
+          .timeout(_timeout);
+      if (!_ok(resp.statusCode)) {
+        throw Exception('fetchPosts(query) ${resp.statusCode}: ${resp.body}');
+      }
+      return (jsonDecode(resp.body) as List)
+          .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    // 否則維持舊的 GET 行為（後端用 /me/friends 決定）
+    final q = <String, dynamic>{
+      'tab': switch (tab) {
+        FeedTabApi.friends => 'friends',
+        FeedTabApi.hot => 'hot',
+        FeedTabApi.following => 'following',
+      },
+      if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
+    };
+    final resp = await http
+        .get(_uri('/posts', q), headers: await _authHeaders())
+        .timeout(_timeout);
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchPosts ${resp.statusCode}: ${resp.body}');
+    }
+    return (jsonDecode(resp.body) as List)
+        .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  // 先在檔頭加： import 'package:flutter_learning_app/models/tip_models.dart';
+
+  Future<TipPrompt?> fetchTipOfTheDay() async {
+    // 後端可回傳 { id, title, body, imageUrl } 或 204/空陣列 表示今天不推播
+    final resp = await http
+        .get(_uri('/tips/today'), headers: await _authHeaders())
+        .timeout(_timeout);
+
+    if (resp.statusCode == 204 || resp.body.trim().isEmpty) return null;
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchTipOfTheDay ${resp.statusCode}: ${resp.body}');
+    }
+
+    final data = jsonDecode(resp.body);
+    Map<String, dynamic>? item;
+    if (data is Map<String, dynamic>) {
+      item = data;
+    } else if (data is List && data.isNotEmpty && data.first is Map) {
+      item = (data.first as Map).cast<String, dynamic>();
+    }
+
+    if (item == null) return null;
+
+    // 圖片路徑若是相對路徑，轉成絕對網址
+    final img = item['imageUrl'];
+    if (img is String && img.isNotEmpty && img.startsWith('/')) {
+      item['imageUrl'] = _absUrl(img);
+    }
+
+    final tip = TipPrompt.fromJson(item);
+    if (tip.id.isEmpty) return null;
+    return tip;
+  }
 }

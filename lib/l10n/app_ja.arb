@@ -366,7 +366,14 @@
   "addFollowedTagFailedOffline": "オフラインです。タグをローカルに追加しました。",
   "removeFollowedTagFailedOffline": "オフラインです。タグをローカルで削除しました。",
 
-  "loading": "読み込み中…"
+  "loading": "読み込み中…",
+
+  "networkRequiredTitle": "ネットワーク接続が必要です",
+  "networkRequiredBody": "サインインにはインターネット接続が必要です。接続してから、もう一度お試しください。",
+  "ok": "OK",
+
+  "willSaveAs": "次の名前で保存します",
+  "alreadyExists": "既に存在します"
 
 
 }

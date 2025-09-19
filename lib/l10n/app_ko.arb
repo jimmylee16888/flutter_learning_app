@@ -372,6 +372,13 @@
   "addFollowedTagFailedOffline": "오프라인입니다. 태그가 로컬에 추가되었습니다.",
   "removeFollowedTagFailedOffline": "오프라인입니다. 태그가 로컬에서 제거되었습니다.",
 
-  "loading": "불러오는 중…"
+  "loading": "불러오는 중…",
+
+  "networkRequiredTitle": "네트워크 연결이 필요합니다",
+  "networkRequiredBody": "로그인하려면 인터넷 연결이 필요합니다. 연결 후 다시 시도해 주세요.",
+  "ok": "확인",
+
+  "willSaveAs": "다음 이름으로 저장합니다",
+  "alreadyExists": "이미 존재합니다"
 
 }

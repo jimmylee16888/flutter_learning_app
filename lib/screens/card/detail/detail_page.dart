@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart'; // ← 新增
+
 import 'package:flutter_learning_app/screens/card/detail/mini_cards/mini_cards_page.dart';
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -186,46 +188,73 @@ class _CardDetailPageState extends State<CardDetailPage> {
               onTap: _openMiniCardsPage,
               child: SafeArea(
                 top: false,
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.transparent,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        height: previewHeight,
-                        child: _miniCards.isEmpty
-                            ? Center(
-                                child: Text(
-                                  l.noMiniCardsPreviewHint,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              )
-                            : _BottomMiniCarousel(
-                                cards: _miniCards,
-                                height: previewHeight,
-                                borderRadius: 14,
-                                // 用 wrapper，帶進 index
-                                onTapCenter: ({int initialIndex = 0}) =>
-                                    _openMiniCardsPage(
-                                      initialIndex: initialIndex,
-                                    ),
-                              ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l.detailSwipeHint,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).hintColor,
+                // （可選）整塊在 web 上也攔截 pointer，避免 HtmlElementView 吃掉事件
+                child: kIsWeb
+                    ? PointerInterceptor(
+                        child: _BottomPreviewBody(
+                          miniCards: _miniCards,
+                          previewHeight: previewHeight,
+                          onOpenMiniCards: _openMiniCardsPage,
                         ),
+                      )
+                    : _BottomPreviewBody(
+                        miniCards: _miniCards,
+                        previewHeight: previewHeight,
+                        onOpenMiniCards: _openMiniCardsPage,
                       ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomPreviewBody extends StatelessWidget {
+  const _BottomPreviewBody({
+    required this.miniCards,
+    required this.previewHeight,
+    required this.onOpenMiniCards,
+  });
+
+  final List<MiniCardData> miniCards;
+  final double previewHeight;
+  final Future<void> Function({int initialIndex}) onOpenMiniCards;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: previewHeight,
+            child: miniCards.isEmpty
+                ? Center(
+                    child: Text(
+                      context.l10n.noMiniCardsPreviewHint,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  )
+                : _BottomMiniCarousel(
+                    cards: miniCards,
+                    height: previewHeight,
+                    borderRadius: 14,
+                    onTapCenter: ({int initialIndex = 0}) =>
+                        onOpenMiniCards(initialIndex: initialIndex),
+                  ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            context.l10n.detailSwipeHint,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).hintColor,
+            ),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -324,6 +353,11 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                 );
               } else {
                 thumb = Image(image: imageProviderOf(data), fit: BoxFit.cover);
+              }
+
+              // ← 關鍵：在 Web 用 PointerInterceptor 包住 HtmlElementView，讓點擊回到外層 InkWell
+              if (kIsWeb) {
+                thumb = PointerInterceptor(child: thumb);
               }
 
               return Center(

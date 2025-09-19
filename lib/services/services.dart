@@ -81,7 +81,8 @@ export 'prefs/image_prefs.dart';
 export 'prefs/profile_cache.dart';
 
 // explore
-export 'explore/explore_local.dart';
+// export 'explore/explore_local.dart';
+export 'explore/explore_store.dart';
 
 // mini cards
 export 'mini_cards/mini_card_store.dart';

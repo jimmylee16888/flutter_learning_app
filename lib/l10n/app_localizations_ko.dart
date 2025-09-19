@@ -864,4 +864,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loading => '불러오는 중…';
+
+  @override
+  String get networkRequiredTitle => '네트워크 연결이 필요합니다';
+
+  @override
+  String get networkRequiredBody => '로그인하려면 인터넷 연결이 필요합니다. 연결 후 다시 시도해 주세요.';
+
+  @override
+  String get ok => '확인';
+
+  @override
+  String get willSaveAs => '다음 이름으로 저장합니다';
+
+  @override
+  String get alreadyExists => '이미 존재합니다';
 }

@@ -1,3 +1,4 @@
+// lib/screens/detail/mini_cards/mini_cards_page.dart
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
@@ -277,6 +278,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                     }
                                   },
                                 ),
+                                // ✅ 單擊正面 → 顯示背面（由 FlipBigCard 內部處理）
+                                // 回到正面：水平滑動往右
                               ),
                             ),
                           ),

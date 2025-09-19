@@ -1,5 +1,6 @@
+// lib/screens/settings/user_profile_settings_page.dart
 import 'dart:async';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
@@ -66,27 +67,113 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
     final user = FirebaseAuth.instance.currentUser;
     _emailText = user?.email ?? context.l10n.accountNoInfo;
 
-    final meId = user?.uid ?? 'u_me';
+    final meId = (user?.email?.toLowerCase() ?? user?.uid ?? 'u_me');
     final meName = (_nickCtrl.text.trim().isEmpty)
         ? (user?.displayName ?? 'Me')
         : _nickCtrl.text.trim();
-    _api = SocialApi(meId: meId, meName: meName);
-
+    _api = SocialApi(
+      meId: meId,
+      meName: meName,
+      idTokenProvider: () async =>
+          FirebaseAuth.instance.currentUser?.getIdToken(),
+    );
     _bootstrap();
   }
 
+  /// 啟動時以伺服器為準同步頭像與設定，並回寫本機快取
+  /// 啟動時以伺服器為準同步頭像與設定，並回寫本機快取
   Future<void> _bootstrap() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
+      // 先預設為本機快取（避免白屏）
+      String? avatarLocal = prefs.getString(_kAVATAR_URL);
+      String igLocal = prefs.getString(_kIG) ?? '';
+      String fbLocal = prefs.getString(_kFB) ?? '';
+      String lineLocal = prefs.getString(_kLINE) ?? '';
+      bool showIGLocal = prefs.getBool(_kIG_SHOW) ?? false;
+      bool showFBLocal = prefs.getBool(_kFB_SHOW) ?? false;
+      bool showLINELocal = prefs.getBool(_kLINE_SHOW) ?? false;
+
+      // 嘗試從雲端讀 /me，雲端為單一真相
+      String? serverAvatar;
+      String? serverNickname;
+      String? serverIG;
+      String? serverFB;
+      String? serverLINE;
+      bool? serverShowIG;
+      bool? serverShowFB;
+      bool? serverShowLINE;
+
+      try {
+        final me = await _api
+            .fetchMyProfile(); // { avatarUrl, nickname, instagram, ... }
+
+        serverAvatar = (me['avatarUrl'] as String?)?.trim();
+        serverNickname = (me['nickname'] as String?)?.trim();
+
+        serverIG = (me['instagram'] as String?)?.trim();
+        serverFB = (me['facebook'] as String?)?.trim();
+        serverLINE = (me['lineId'] as String?)?.trim();
+
+        // 後端若傳 null 就維持 null，讓下面用 ?? 回退到本機
+        if (me['showInstagram'] is bool)
+          serverShowIG = me['showInstagram'] as bool;
+        if (me['showFacebook'] is bool)
+          serverShowFB = me['showFacebook'] as bool;
+        if (me['showLine'] is bool) serverShowLINE = me['showLine'] as bool;
+
+        // 把雲端有值的項目同步寫回本機快取（加速下次開啟）
+        if (serverAvatar != null && serverAvatar!.isNotEmpty) {
+          await prefs.setString(_kAVATAR_URL, serverAvatar!);
+          avatarLocal = serverAvatar;
+        }
+        if (serverIG != null) {
+          await prefs.setString(_kIG, serverIG!);
+          igLocal = serverIG!;
+        }
+        if (serverFB != null) {
+          await prefs.setString(_kFB, serverFB!);
+          fbLocal = serverFB!;
+        }
+        if (serverLINE != null) {
+          await prefs.setString(_kLINE, serverLINE!);
+          lineLocal = serverLINE!;
+        }
+        if (serverShowIG != null) {
+          await prefs.setBool(_kIG_SHOW, serverShowIG!);
+          showIGLocal = serverShowIG!;
+        }
+        if (serverShowFB != null) {
+          await prefs.setBool(_kFB_SHOW, serverShowFB!);
+          showFBLocal = serverShowFB!;
+        }
+        if (serverShowLINE != null) {
+          await prefs.setBool(_kLINE_SHOW, serverShowLINE!);
+          showLINELocal = serverShowLINE!;
+        }
+
+        // 暱稱：如果雲端有值就直接覆蓋輸入框與設定
+        if (serverNickname != null && serverNickname!.isNotEmpty) {
+          _nickCtrl.text = serverNickname!;
+          widget.settings.setNickname(serverNickname!);
+        } else if (_nickCtrl.text.trim().isEmpty &&
+            widget.settings.nickname != null) {
+          _nickCtrl.text = widget.settings.nickname!;
+        }
+      } catch (_) {
+        // 雲端讀取失敗 → 沿用本機快取
+      }
+
       if (!mounted) return;
       setState(() {
-        _avatarUrl = prefs.getString(_kAVATAR_URL);
-        _igCtrl.text = prefs.getString(_kIG) ?? '';
-        _fbCtrl.text = prefs.getString(_kFB) ?? '';
-        _lineCtrl.text = prefs.getString(_kLINE) ?? '';
-        _showIG = prefs.getBool(_kIG_SHOW) ?? false;
-        _showFB = prefs.getBool(_kFB_SHOW) ?? false;
-        _showLINE = prefs.getBool(_kLINE_SHOW) ?? false;
+        _avatarUrl = avatarLocal;
+        _igCtrl.text = igLocal;
+        _fbCtrl.text = fbLocal;
+        _lineCtrl.text = lineLocal;
+        _showIG = showIGLocal;
+        _showFB = showFBLocal;
+        _showLINE = showLINELocal;
         _loading = false;
       });
 
@@ -125,6 +212,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
 
   bool get _canSave => _nickCtrl.text.trim().isNotEmpty;
 
+  /// 換頭像（Web 相容：用 bytes 上傳），並立即永久化（/me.avatarUrl）
   Future<void> _changeAvatar() async {
     try {
       final picked = await ImagePicker().pickImage(
@@ -133,15 +221,18 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
       );
       if (picked == null) return;
 
-      final file = File(picked.path);
-      final user = FirebaseAuth.instance.currentUser;
-      final meId = user?.uid ?? 'u_me';
-      final meName = _nickCtrl.text.trim().isEmpty
-          ? (user?.displayName ?? 'Me')
-          : _nickCtrl.text.trim();
-      final api = SocialApi(meId: meId, meName: meName);
-      final uploadedUrl = await api.uploadAvatar(file: file);
+      final Uint8List bytes = await picked.readAsBytes();
 
+      // 1) 上傳到伺服器（後端永久存放，回傳絕對網址或可解析之相對路徑）
+      final uploadedUrl = await _api.uploadAvatarBytes(
+        bytes,
+        filename: picked.name,
+      );
+
+      // 2) 立刻更新 /me（雲端為單一真相）
+      await _api.updateProfile(avatarUrl: uploadedUrl);
+
+      // 3) 同步本機快取
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_kAVATAR_URL, uploadedUrl);
 
@@ -181,7 +272,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
 
       await _api.updateProfile(
         nickname: _nickCtrl.text.trim(),
-        avatarUrl: _avatarUrl,
+        avatarUrl: _avatarUrl, // 冪等：已於 _changeAvatar 寫回雲端，這裡再帶一次也可
         instagram: _igCtrl.text.trim(),
         facebook: _fbCtrl.text.trim(),
         lineId: _lineCtrl.text.trim(),
@@ -399,7 +490,14 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             onPressed: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => FollowedTagsPage(api: _api),
+                                  builder: (_) =>
+                                      ChangeNotifierProvider<
+                                        TagFollowController
+                                      >.value(
+                                        value: context
+                                            .read<TagFollowController>(),
+                                        child: FollowedTagsPage(api: _api),
+                                      ),
                                 ),
                               );
                               await context
@@ -473,7 +571,14 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             onPressed: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => FriendCardsPage(api: _api),
+                                  builder: (_) =>
+                                      ChangeNotifierProvider<
+                                        FriendFollowController
+                                      >.value(
+                                        value: context
+                                            .read<FriendFollowController>(),
+                                        child: FriendCardsPage(api: _api),
+                                      ),
                                 ),
                               );
                               // 回來時若有改動，Provider 會自動反映；這裡保險再 refresh 一次
@@ -599,5 +704,12 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
 
     if (!widget.forceComplete) return scaffold;
     return WillPopScope(onWillPop: () async => _canSave, child: scaffold);
+  }
+
+  /// 由外部（RootNav）在「進入本頁」時呼叫：重新從後端刷新並套到欄位
+  Future<void> refreshOnEnter() async {
+    if (!mounted) return;
+    setState(() => _loading = true); // 顯示進度圈
+    await _bootstrap(); // 直接重跑你已有的抓取邏輯
   }
 }

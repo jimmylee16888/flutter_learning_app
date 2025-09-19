@@ -375,6 +375,20 @@
   "addFollowedTagFailedOffline": "You are offline. Tag added locally.",
   "removeFollowedTagFailedOffline": "You are offline. Tag removed locally.",
 
-  "loading": "Loading…"
+  "loading": "Loading…",
+  "@loading": { "description": "Shown while the login screen is initializing" },
+
+  "networkRequiredTitle": "Network Required",
+  "@networkRequiredTitle": { "description": "Title for dialog when user tries to sign in without network" },
+
+  "networkRequiredBody": "Sign-in requires an internet connection. Please connect and try again.",
+  "@networkRequiredBody": { "description": "Body text for dialog when sign-in attempted offline" },
+
+  "ok": "OK",
+  "@ok": { "description": "Generic confirmation button" },
+
+
+  "willSaveAs": "Will save as",
+  "alreadyExists": "Already exists"
 
 }

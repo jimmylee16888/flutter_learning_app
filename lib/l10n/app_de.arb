@@ -366,6 +366,13 @@
 
   "addFollowedTagFailedOffline": "Du bist offline. Tag wurde lokal hinzugefügt.",
   "removeFollowedTagFailedOffline": "Du bist offline. Tag wurde lokal entfernt.",
-  "loading": "Wird geladen …"
+  "loading": "Wird geladen …",
+
+  "networkRequiredTitle": "Netzwerkverbindung erforderlich",
+  "networkRequiredBody": "Für die Anmeldung ist eine Internetverbindung erforderlich. Bitte verbinden Sie sich und versuchen Sie es erneut.",
+  "ok": "OK",
+
+  "willSaveAs": "Wird gespeichert als",
+  "alreadyExists": "Bereits vorhanden"
 
 }
