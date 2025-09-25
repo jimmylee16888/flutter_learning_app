@@ -896,4 +896,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyExists => 'Already exists';
+
+  @override
+  String get common_about => 'About';
+
+  @override
+  String get settings_menu_general => 'General settings';
+
+  @override
+  String get settings_menu_user => 'User settings';
+
+  @override
+  String get settings_menu_about => 'About';
+
+  @override
+  String get settingsMenuGeneral => 'General settings';
+
+  @override
+  String get commonAbout => 'About';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String get exploreReflow => 'Reflow widgets';
+
+  @override
+  String get commonAdd => 'Add';
+
+  @override
+  String get exploreNoPhoto => 'No photo selected';
+
+  @override
+  String get exploreTapToEditQuote => 'Tap to edit quote';
+
+  @override
+  String get exploreAdd => 'Add';
+
+  @override
+  String get exploreAddPhoto => 'Photo card';
+
+  @override
+  String get exploreAddQuote => 'Quote card';
+
+  @override
+  String get exploreAddBirthday => 'Birthday countdown';
+
+  @override
+  String get exploreAddBall => 'Add ball';
+
+  @override
+  String get exploreAdBuiltIn => 'Ad is built-in';
+
+  @override
+  String get exploreEnterAQuote => 'Enter a quote';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String get exploreCountdownTitleHint => 'Idol/event (e.g. Sakura Birthday)';
+
+  @override
+  String get exploreAddBallDialogTitle => 'Add ball';
+
+  @override
+  String get exploreBallEmojiHint => 'Emoji (leave empty to use a photo)';
+
+  @override
+  String get exploreSize => 'Size';
+
+  @override
+  String get explorePickPhoto => 'Pick a photo…';
+
+  @override
+  String get explorePickedPhoto => 'Photo selected';
+
+  @override
+  String get navDex => 'Dex';
+
+  @override
+  String get dex_title => 'My Dex';
+
+  @override
+  String get dex_uncategorized => 'Uncategorized';
+
+  @override
+  String get dex_searchHint => 'Search idols or cards…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count cards';
+  }
+
+  @override
+  String get dex_empty => 'No cards collected yet';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get resetZoom => 'Reset zoom';
 }

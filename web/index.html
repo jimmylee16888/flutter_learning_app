@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- Base href 會在 flutter build 時被取代 -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="description" content="Pop Card - Mini cards & collections">
 
-  <!-- iOS / PWA meta -->
+  <!-- 全螢幕 + 安全區 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <!-- ✅ iOS「加入主畫面」顯示的名稱 -->
+  <!-- 透明疊色，狀態列顏色由頁面背景決定 -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- A2HS 名稱 -->
   <meta name="apple-mobile-web-app-title" content="Pop Card">
   <meta name="application-name" content="Pop Card">
-  <meta name="theme-color" content="#0175C2">
 
-  <!-- ✅ iOS touch icon（建議 180×180）-->
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=4">
+  <!-- Safari/瀏覽器 UI 顏色（啟動前預設；App 內會被 Flutter 動態覆蓋） -->
+  <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 
-  <!-- Favicon（瀏覽器分頁圖示）-->
-  <link rel="icon" type="image/png" href="icons/favicon.png?v=4"/>
+  <!-- 啟動前背景，避免閃色 -->
+  <style>
+    html, body { height: 100%; margin: 0; }
+    @media (prefers-color-scheme: dark)   { html, body { background: #111318; } }
+    @media (prefers-color-scheme: light)  { html, body { background: #FFFFFF; } }
+  </style>
 
-  <!-- 標籤列/瀏覽器標題（也常被當成 A2HS 預設值） -->
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=5">
+  <link rel="icon" type="image/png" href="icons/favicon.png?v=5"/>
+
   <title>Pop Card</title>
-
-  <!-- Web App Manifest -->
-  <link rel="manifest" href="manifest.json?v=4">
+  <link rel="manifest" href="manifest.json?v=5">
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

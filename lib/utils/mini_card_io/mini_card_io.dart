@@ -7,8 +7,8 @@ import 'mini_card_io_impl_io.dart'
     as impl;
 
 // 你的資料模型
-import '../models/mini_card_data.dart';
-import '../models/card_item.dart';
+import '../../models/mini_card_data.dart';
+import '../../models/card_item.dart';
 
 /// 啟動時呼叫：Web 會初始化 Hive/開 box；行動/桌面是 no-op
 Future<void> miniCardStorageInit() => impl.miniCardStorageInit();

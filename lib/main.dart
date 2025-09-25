@@ -19,14 +19,18 @@ import 'screens/auth/login_page.dart';
 import 'package:flutter_learning_app/services/services.dart';
 
 // 本地小卡儲存（若你有用到）
-import 'package:flutter_learning_app/utils/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
 
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:flutter/services.dart'
+    show Clipboard, ClipboardData, SystemUiOverlayStyle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 // ★ 新增：每日提示入口（TipGate）
 import 'widgets/tip_gate.dart';
+
+// ★ 新增：PWA chrome 動態同步
+import 'utils/pwa_chrome.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +51,19 @@ Future<void> main() async {
   // MiniCard 本機儲存
   final miniCardStore = MiniCardStore();
   await miniCardStore.hydrateFromPrefs(artists: settings.cardItems);
+
+  // 啟動後自動填入 idol:xxx（只處理尚未有 idol: 的卡）
+  try {
+    final filled = await miniCardStore.autofillIdolTags(
+      artists: settings.cardItems,
+      prefer: const <String>[],
+    );
+    // ignore: avoid_print
+    print('[Dex] Auto-filled idol for $filled cards');
+  } catch (e) {
+    // ignore: avoid_print
+    print('[Dex] Auto-fill failed: $e');
+  }
 
   runApp(
     MultiProvider(
@@ -92,19 +109,25 @@ class AppRoot extends StatelessWidget {
               supportedLocales: AppLocalizations.supportedLocales,
               locale: settings.locale,
               onGenerateTitle: (ctx) => ctx.l10n.appTitle,
-              theme: ThemeData(
-                useMaterial3: true,
-                colorSchemeSeed: Colors.blue,
-              ),
-              darkTheme: ThemeData(
-                useMaterial3: true,
-                brightness: Brightness.dark,
-                colorSchemeSeed: Colors.blue,
-              ),
+
+              // ★ 全域主題：AppBar/NavigationBar 跟底色一致，隨深淺主題切換
+              theme: _buildTheme(Brightness.light),
+              darkTheme: _buildTheme(Brightness.dark),
               themeMode: settings.themeMode,
+
               scrollBehavior: const AppScrollBehavior(),
 
-              // ★ 登入後才建立 Tag/Friend 兩個 Provider
+              // ★ 關鍵：每次 build 依當前主題同步 PWA 狀態列/背景
+              builder: (ctx, child) {
+                final theme = Theme.of(ctx);
+                updatePwaChrome(
+                  surface: theme.colorScheme.surface,
+                  dark: theme.brightness == Brightness.dark,
+                );
+                return child!;
+              },
+
+              // 登入後才建立 Tag/Friend 兩個 Provider
               home: auth.isAuthenticated
                   ? _AuthenticatedHome(settings: settings)
                   : LoginPage(auth: auth, settings: settings),
@@ -114,6 +137,40 @@ class AppRoot extends StatelessWidget {
       },
     );
   }
+}
+
+/// 建立主題：讓 AppBar/NavigationBar 使用 surface，同時關閉 M3 疊色
+ThemeData _buildTheme(Brightness brightness) {
+  final base = ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    // 你的品牌色，僅用來產出 ColorScheme（可自行調整）
+    colorSchemeSeed: const Color(0xFF4F9CFB),
+  );
+
+  final cs = base.colorScheme;
+
+  return base.copyWith(
+    appBarTheme: AppBarTheme(
+      backgroundColor: cs.surface, // 與底色一致
+      foregroundColor: cs.onSurface,
+      surfaceTintColor: Colors.transparent, // 移除 M3 疊色
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      systemOverlayStyle: brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: cs.surface, // 與底色一致
+      surfaceTintColor: Colors.transparent, // 移除 M3 疊色
+      indicatorColor: cs.secondaryContainer.withOpacity(0.24),
+    ),
+    cardTheme: const CardThemeData(surfaceTintColor: Colors.transparent),
+    bottomSheetTheme: const BottomSheetThemeData(
+      surfaceTintColor: Colors.transparent,
+    ),
+  );
 }
 
 /// ===== 本機裝置身分 / 暱稱儲存 =====
@@ -165,11 +222,10 @@ class _AuthenticatedHome extends StatelessWidget {
         : (user?.displayName ?? 'Me');
 
     // 取得 idToken 的 provider（給 SocialApi 使用 Bearer）
-    // ⚠️ 不強制 refresh：getIdToken()（要刷新才改 true）
     Future<String?> Function() idTokenProvider = () async =>
         FirebaseAuth.instance.currentUser?.getIdToken();
 
-    // 🔧 dev-only：拿一顆 ID Token 方便你貼去測後端（只在 debug 模式執行）
+    // dev only：把一顆 ID Token 複製到剪貼簿方便測試
     assert(() {
       Future.microtask(() async {
         final t = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -184,7 +240,7 @@ class _AuthenticatedHome extends StatelessWidget {
       return true;
     }());
 
-    // ★ 先把 clientId / 本機暱稱抓好，再建立 Providers
+    // 先把 clientId / 本機暱稱抓好，再建立 Providers
     return FutureBuilder<(String clientId, String meId, String meNameLocal)>(
       future: () async {
         final clientId = await _ensureClientId();
@@ -215,7 +271,7 @@ class _AuthenticatedHome extends StatelessWidget {
                 final ctl = TagFollowController(
                   api: SocialApi(
                     meId: meId,
-                    meName: meNameLocal, // 仍可做顯示用
+                    meName: meNameLocal,
                     idTokenProvider: idTokenProvider,
                     // 新增：把裝置 & 本機暱稱一起傳給 API
                     clientId: clientId,
@@ -249,7 +305,7 @@ class _AuthenticatedHome extends StatelessWidget {
             ),
           ],
 
-          // ★ 在根頁外面包 TipGate（每日提示）
+          // 在根頁外面包 TipGate（每日提示）
           child: TipGate(
             idTokenProvider: idTokenProvider,
             clientId: clientId,

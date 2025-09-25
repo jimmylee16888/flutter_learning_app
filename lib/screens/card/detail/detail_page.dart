@@ -7,8 +7,8 @@ import 'package:flutter_learning_app/screens/card/detail/mini_cards/mini_cards_p
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/mini_card_data.dart';
-import 'package:flutter_learning_app/utils/mini_card_io.dart';
-import 'package:flutter_learning_app/utils/no_cors_image.dart';
+import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image/no_cors_image.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/l10n.dart'; // i18n
 

@@ -1,12 +1,16 @@
 // lib/screens/statistics/statistics_view.dart
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:provider/provider.dart';
-import '../../../app_settings.dart';
-import '../../../l10n/l10n.dart';
-import '../../../models/card_item.dart';
-import '../../../models/mini_card_data.dart';
+
+import '../../app_settings.dart';
+import '../../l10n/l10n.dart';
+import '../../models/card_item.dart';
+import '../../models/mini_card_data.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../utils/no_cors_image/no_cors_image.dart'; // 你專案裡已有的 NoCorsImage
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({super.key, required this.settings});
@@ -17,7 +21,7 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> {
-  // 0 = 總覽頁、1..N = 第 i 位藝人
+  // 0 = 總覽、1..N = 第 i 位藝人
   late final PageController _artistPager;
   int _artistPage = 0;
 
@@ -36,41 +40,31 @@ class _StatisticsViewState extends State<StatisticsView> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    // 來源
+
     final artists = widget.settings.cardItems; // List<CardItem>
-    final store = context.watch<MiniCardStore>(); // owner -> List<MiniCardData>
+    final store = context.watch<MiniCardStore>();
     final allCards = store.allCards();
 
-    // 目前是否選到某位藝人（_artistPage: 0=總覽，>0=第 n 位藝人）
     final CardItem? selectedArtist = _artistPage > 0
         ? artists[_artistPage - 1]
         : null;
 
-    // 依選取的藝人決定要統計哪一批卡
     final List<MiniCardData> scopedCards = selectedArtist == null
         ? allCards
         : store.forOwner(selectedArtist.title);
 
-    // KPI（總覽數字仍用全域）
     final artistCount = artists.length;
     final totalCards = allCards.length;
 
-    // 本地/網址（跟著選取的藝人或全域）
     final (frontLocalCount, frontUrlCount) = _frontCounts(scopedCards);
 
-    // 顯示在卡片上的區塊標題（若有選藝人，標題後面加上名字）
-    final frontSourceTitle = selectedArtist == null
-        ? l.stats_front_source
-        : '${l.stats_front_source} · ${selectedArtist.title}';
-
-    // 各藝人小卡數（用 owner=藝人名）
     final Map<String, int> cardsPerArtist = {
       for (final a in artists) a.title: store.forOwner(a.title).length,
     };
     final top5 = _topN(cardsPerArtist, 5);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.stats_title)),
+      // appBar: AppBar(title: Text(l.stats_title)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -80,7 +74,7 @@ class _StatisticsViewState extends State<StatisticsView> {
           ),
           const SizedBox(height: 12),
 
-          // ===== Dashboard KPI（方形卡片） =====
+          // ===== KPI Dashboard =====
           _KPIGridDashboard(
             tiles: [
               // 左上：藝人數 可左右滑動（Summary + 每位藝人）
@@ -112,7 +106,7 @@ class _StatisticsViewState extends State<StatisticsView> {
             ],
           ),
 
-          // 當藝人卡片被滑到某位藝人（_artistPage > 0）→ 顯示照片區
+          // 被滑到某位藝人時 → 顯示該藝人預覽
           if (_artistPage > 0) ...[
             const SizedBox(height: 8),
             _ArtistPreviewStrip(artist: artists[_artistPage - 1]),
@@ -120,20 +114,17 @@ class _StatisticsViewState extends State<StatisticsView> {
 
           const SizedBox(height: 16),
 
-          // _Header(
-          //   title: frontSourceTitle, // ← 改這行
-          //   icon: Icons.filter_none_outlined,
-          // ),
-          const SizedBox(height: 8),
+          // 本地 / 網址比例
           _TwoBarCard(
             leftLabel: l.common_local,
-            leftValue: frontLocalCount, // ← 已改成 scoped 結果
+            leftValue: frontLocalCount,
             rightLabel: l.common_url,
-            rightValue: frontUrlCount, // ← 已改成 scoped 結果
+            rightValue: frontUrlCount,
           ),
 
           const SizedBox(height: 16),
 
+          // 各藝人前 N 長條圖
           if (cardsPerArtist.isNotEmpty) ...[
             _Header(
               title: l.stats_cards_per_artist_topN(5),
@@ -145,10 +136,9 @@ class _StatisticsViewState extends State<StatisticsView> {
                 for (final e in top5)
                   (e.$1.isEmpty ? l.common_unnamed : e.$1): e.$2,
               },
-              unitSuffix: l.common_unit_cards, // "張/枚"
+              unitSuffix: l.common_unit_cards,
               barHeight: 24,
               maxBars: 5,
-              // 不同顏色：用一組友善的色盤
               colorPalette: _nicePalette(context),
             ),
           ],
@@ -162,7 +152,6 @@ class _StatisticsViewState extends State<StatisticsView> {
     return list.take(n).map((e) => (e.key, e.value)).toList();
   }
 
-  // 計算一批卡片的正面來源（本地 / 網址）
   (int, int) _frontCounts(List<MiniCardData> list) {
     final local = list
         .where(
@@ -175,7 +164,6 @@ class _StatisticsViewState extends State<StatisticsView> {
 
   List<Color> _nicePalette(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // 取幾個與主題協調的色階
     return [
       cs.primary,
       cs.tertiary,
@@ -202,17 +190,16 @@ class _KPIGridDashboard extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: tiles.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // 一排 2 個
+        crossAxisCount: 2,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 1, // 正方形
+        childAspectRatio: 1,
       ),
       itemBuilder: (_, i) => tiles[i],
     );
   }
 }
 
-/// 一般 KPI 方塊（中上小圖示、數字大、標題小）
 class _KPISimpleTile extends StatelessWidget {
   const _KPISimpleTile({
     required this.title,
@@ -256,8 +243,7 @@ class _KPISimpleTile extends StatelessWidget {
   }
 }
 
-/// 可左右滑動的「藝人數量」KPI 卡：
-/// Page 0 為總覽（顯示總數），Page 1..N 為每位藝人（顯示該藝人擁有的小卡數）。
+/// Page 0 = 總覽；Page 1..N = 每位藝人
 class _KPIArtistPagerTile extends StatelessWidget {
   const _KPIArtistPagerTile({
     required this.title,
@@ -275,27 +261,21 @@ class _KPIArtistPagerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-
-    final pages = <Widget>[];
-
-    // Page 0：總覽
-    pages.add(
+    final pages = <Widget>[
       _KpiCenter(
         title: title,
         value: '${artists.length}',
         icon: Icons.people_alt_outlined,
       ),
-    );
+      for (final a in artists)
+        _KpiCenter(
+          title: a.title,
+          value: '${store.forOwner(a.title).length}',
+          icon: Icons.person_outline,
+        ),
+    ];
 
-    // Page 1..N：每位藝人
-    for (final a in artists) {
-      final count = store.forOwner(a.title).length;
-      pages.add(
-        _KpiCenter(title: a.title, value: '$count', icon: Icons.person_outline),
-      );
-    }
+    final cs = Theme.of(context).colorScheme;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -303,12 +283,20 @@ class _KPIArtistPagerTile extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Container(
-            color: cs.surfaceVariant.withOpacity(0.35),
-            child: PageView(
-              controller: pager,
-              onPageChanged: onPageChanged,
-              children: pages,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: cs.surfaceVariant.withOpacity(0.35),
+            ),
+            child: LayoutBuilder(
+              builder: (_, c) => SizedBox(
+                width: c.maxWidth,
+                height: c.maxHeight,
+                child: PageView(
+                  controller: pager,
+                  onPageChanged: onPageChanged,
+                  children: pages,
+                ),
+              ),
             ),
           ),
         ),
@@ -360,7 +348,7 @@ class _KpiCenter extends StatelessWidget {
   }
 }
 
-/// KPI 下方的「藝人預覽」：顯示被滑到的那位藝人的照片 + 名字
+/// KPI 下方：顯示被選到的藝人圖片（Web 僅支援 imageUrl）
 class _ArtistPreviewStrip extends StatelessWidget {
   const _ArtistPreviewStrip({required this.artist});
   final CardItem artist;
@@ -370,7 +358,33 @@ class _ArtistPreviewStrip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final ImageProvider? img = _artistImageProvider(artist);
+    Widget avatar;
+    final url = artist.imageUrl ?? '';
+
+    if (kIsWeb && url.isNotEmpty) {
+      // ✅ Web：即使被 CORS 擋，也不會出長錯誤字串
+      avatar = NoCorsImage(
+        url,
+        width: 64,
+        height: 64,
+        borderRadius: 10,
+        fit: BoxFit.cover,
+      );
+    } else if (url.isNotEmpty) {
+      // ✅ 手機/桌機 App：可用原生 NetworkImage
+      avatar = ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          url,
+          width: 64,
+          height: 64,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackBox(cs),
+        ),
+      );
+    } else {
+      avatar = _fallbackBox(cs);
+    }
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -378,17 +392,7 @@ class _ArtistPreviewStrip extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: img == null
-                  ? Container(
-                      width: 64,
-                      height: 64,
-                      color: cs.surfaceVariant,
-                      child: const Icon(Icons.person_outline),
-                    )
-                  : Image(image: img, width: 64, height: 64, fit: BoxFit.cover),
-            ),
+            avatar,
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -409,16 +413,16 @@ class _ArtistPreviewStrip extends StatelessWidget {
     );
   }
 
-  ImageProvider? _artistImageProvider(CardItem a) {
-    if ((a.localPath ?? '').isNotEmpty) {
-      final f = File(a.localPath!);
-      if (f.existsSync()) return FileImage(f);
-    }
-    if ((a.imageUrl ?? '').isNotEmpty) {
-      return NetworkImage(a.imageUrl!);
-    }
-    return null;
-  }
+  Widget _fallbackBox(ColorScheme cs) => Container(
+    width: 64,
+    height: 64,
+    decoration: BoxDecoration(
+      color: cs.surfaceVariant,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    alignment: Alignment.center,
+    child: const Icon(Icons.person_outline),
+  );
 }
 
 /// =====================
@@ -449,7 +453,6 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// 左右兩條簡易 bar（本地/網址）
 class _TwoBarCard extends StatelessWidget {
   const _TwoBarCard({
     required this.leftLabel,
@@ -529,7 +532,6 @@ class _HBar extends StatelessWidget {
   }
 }
 
-/// Top-N 長條圖（每條不同色）
 class _BarChartCard extends StatelessWidget {
   const _BarChartCard({
     required this.data,

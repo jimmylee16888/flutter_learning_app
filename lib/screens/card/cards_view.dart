@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import '../../app_settings.dart';
 import '../../models/card_item.dart';
 import '../../widgets/photo_quote_card.dart';
-import 'package:flutter_learning_app/utils/mini_card_io.dart';
-import 'package:flutter_learning_app/utils/no_cors_image.dart'; // Web CORS 避開元件
+import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image/no_cors_image.dart'; // Web CORS 避開元件
 import '../../l10n/l10n.dart'; // ← i18n
 
 class CardsView extends StatefulWidget {

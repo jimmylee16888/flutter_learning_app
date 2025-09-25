@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/mini_card_data.dart';
-import 'package:flutter_learning_app/utils/mini_card_io.dart';
-import 'package:flutter_learning_app/utils/no_cors_image.dart';
+import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
+import 'package:flutter_learning_app/utils/no_cors_image/no_cors_image.dart';
 import '../../../l10n/l10n.dart'; // ← i18n
 
 class EditMiniCardsPage extends StatefulWidget {

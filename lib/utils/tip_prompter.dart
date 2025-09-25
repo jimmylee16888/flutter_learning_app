@@ -60,10 +60,10 @@ class TipPrompter {
     final pool = <TipPrompt>[
       TipPrompt(
         id: 'mock_update_notice',
-        title: 'Explore 頁面永久化更新',
-        body: 'Explore 頁面的本地永久儲存已經完成，可以盡情編輯不用怕他不見～\n#功能',
+        title: 'Dex 圖鑑功能 全新推出',
+        body: 'Dex 圖鑑功能以全新推出，可以至更多查看～\n若顯示未分類可將json下載下來重新貼上，系統就會自動填入\n#功能',
         // 支援 asset: 前綴（會用 Image.asset）
-        imageUrl: 'asset:assets/images/tip_explore.png',
+        imageUrl: 'asset:assets/images/tip_explore2.png',
       ),
       // 想播網路圖就放 http/https：
       // TipPrompt(

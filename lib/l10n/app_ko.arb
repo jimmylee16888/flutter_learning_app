@@ -379,6 +379,58 @@
   "ok": "확인",
 
   "willSaveAs": "다음 이름으로 저장합니다",
-  "alreadyExists": "이미 존재합니다"
+  "alreadyExists": "이미 존재합니다",
+
+  "common_about": "정보",
+  "@common_about": {"description": "About title"},
+  "settings_menu_general": "일반 설정",
+  "@settings_menu_general": {"description": "Bottom sheet: general"},
+  "settings_menu_user": "사용자 설정",
+  "@settings_menu_user": {"description": "Bottom sheet: user settings"},
+  "settings_menu_about": "정보",
+  "@settings_menu_about": {"description": "Bottom sheet: about"},
+
+  "settingsMenuGeneral": "일반 설정",
+  "@settingsMenuGeneral": {
+    "description": "바텀시트 항목: 일반 설정"
+  },
+  "commonAbout": "정보",
+  "@commonAbout": {
+    "description": "앱 정보 페이지/메뉴 제목"
+  },
+
+  "navMore": "더보기",
+
+  "exploreReflow": "위젯 정렬",
+  "commonAdd": "추가",
+  "exploreNoPhoto": "사진이 선택되지 않았습니다",
+  "exploreTapToEditQuote": "탭하여 인용문 편집",
+  "exploreAdd": "추가",
+  "exploreAddPhoto": "사진 카드",
+  "exploreAddQuote": "인용 카드",
+  "exploreAddBirthday": "생일 카운트다운",
+  "exploreAddBall": "공 추가",
+  "exploreAdBuiltIn": "광고는 내장되어 있습니다",
+  "exploreEnterAQuote": "인용문을 입력하세요",
+  "commonCancel": "취소",
+  "commonOk": "확인",
+  "exploreCountdownTitleHint": "아이돌/이벤트 (예: 사쿠라 생일)",
+  "exploreAddBallDialogTitle": "공 추가",
+  "exploreBallEmojiHint": "이모지(비우면 사진 사용)",
+  "exploreSize": "크기",
+  "explorePickPhoto": "사진 선택…",
+  "explorePickedPhoto": "사진 선택됨",
+
+  "navDex": "도감",
+  "dex_title": "내 도감",
+  "dex_uncategorized": "미분류",
+  "dex_searchHint": "아이돌 또는 카드를 검색…",
+  "dex_cardsCount": "{count} 장",
+  "dex_empty": "아직 수집한 카드가 없습니다",
+
+  "zoomIn": "확대",
+  "zoomOut": "축소",
+  "resetZoom": "확대/축소 초기화"
+
 
 }

@@ -109,7 +109,7 @@
   "searchHint": "搜尋人名／卡片內容",
   "clear": "清除",
   "noCards": "沒有卡片",
-  "addCard": "新增卡片",
+  "addCard": "新增藝人卡",
 
   "deleteCardTitle": "刪除卡片",
   "deleteCardMessage": "確定要刪除「{title}」嗎？",
@@ -118,7 +118,7 @@
   "editCard": "編輯卡片",
   "categoryAssignOrAdd": "指派／新增分類",
 
-  "newCardTitle": "新增卡片",
+  "newCardTitle": "新增藝人卡",
   "editCardTitle": "編輯卡片",
   "nameRequiredLabel": "名稱（必填）",
   "imageByUrl": "以網址",
@@ -373,6 +373,57 @@
   "ok": "知道了",
 
   "willSaveAs": "將會儲存為",
-  "alreadyExists": "已存在"
+  "alreadyExists": "已存在",
+
+  "common_about": "關於",
+  "@common_about": {"description": "關於 頁/選單標題"},
+  "settings_menu_general": "一般設定",
+  "@settings_menu_general": {"description": "底部選單：一般設定"},
+  "settings_menu_user": "使用者設定",
+  "@settings_menu_user": {"description": "底部選單：使用者設定"},
+  "settings_menu_about": "關於",
+  "@settings_menu_about": {"description": "底部選單：關於"},
+
+  "settingsMenuGeneral": "一般設定",
+  "@settingsMenuGeneral": {
+    "description": "底部選單：一般設定"
+  },
+  "commonAbout": "關於",
+  "@commonAbout": {
+    "description": "關於頁面／選單標題"
+  },
+
+  "navMore": "更多",
+
+  "exploreReflow": "元件歸位",
+  "commonAdd": "新增",
+  "exploreNoPhoto": "未選擇照片",
+  "exploreTapToEditQuote": "點一下編輯引言",
+  "exploreAdd": "新增",
+  "exploreAddPhoto": "照片卡",
+  "exploreAddQuote": "引言卡",
+  "exploreAddBirthday": "生日倒數",
+  "exploreAddBall": "新增小球",
+  "exploreAdBuiltIn": "廣告已內建",
+  "exploreEnterAQuote": "輸入一句話",
+  "commonCancel": "取消",
+  "commonOk": "確定",
+  "exploreCountdownTitleHint": "偶像／事件名稱（例如：Sakura 生日）",
+  "exploreAddBallDialogTitle": "新增小球",
+  "exploreBallEmojiHint": "Emoji（留空則使用相片）",
+  "exploreSize": "大小",
+  "explorePickPhoto": "選擇相片…",
+  "explorePickedPhoto": "已選擇相片",
+
+  "navDex": "圖鑑",
+  "dex_title": "我的圖鑑",
+  "dex_uncategorized": "未分類",
+  "dex_searchHint": "搜尋偶像或卡片…",
+  "dex_cardsCount": "{count} 張",
+  "dex_empty": "目前還沒有蒐集到卡片",
+
+  "zoomIn": "放大",
+  "zoomOut": "縮小",
+  "resetZoom": "重設縮放"
 
 }

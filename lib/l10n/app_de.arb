@@ -373,6 +373,60 @@
   "ok": "OK",
 
   "willSaveAs": "Wird gespeichert als",
-  "alreadyExists": "Bereits vorhanden"
+  "alreadyExists": "Bereits vorhanden",
+
+
+  "common_about": "Info",
+  "@common_about": {"description": "About title"},
+  "settings_menu_general": "Allgemeine Einstellungen",
+  "@settings_menu_general": {"description": "Bottom sheet: general"},
+  "settings_menu_user": "Benutzereinstellungen",
+  "@settings_menu_user": {"description": "Bottom sheet: user settings"},
+  "settings_menu_about": "Info",
+  "@settings_menu_about": {"description": "Bottom sheet: about"},
+
+  "settingsMenuGeneral": "Allgemeine Einstellungen",
+  "@settingsMenuGeneral": {
+    "description": "Bottom-Sheet-Eintrag: Allgemeine Einstellungen"
+  },
+  "commonAbout": "Info",
+  "@commonAbout": {
+    "description": "Info/Über-Seite bzw. Menütitel"
+  },
+
+  "navMore": "Mehr",
+
+  "exploreReflow": "Widgets neu anordnen",
+  "commonAdd": "Hinzufügen",
+  "exploreNoPhoto": "Kein Foto ausgewählt",
+  "exploreTapToEditQuote": "Tippen, um Zitat zu bearbeiten",
+  "exploreAdd": "Hinzufügen",
+  "exploreAddPhoto": "Foto-Karte",
+  "exploreAddQuote": "Zitat-Karte",
+  "exploreAddBirthday": "Geburtstags-Countdown",
+  "exploreAddBall": "Ball hinzufügen",
+  "exploreAdBuiltIn": "Anzeigen sind integriert",
+  "exploreEnterAQuote": "Ein Zitat eingeben",
+  "commonCancel": "Abbrechen",
+  "commonOk": "OK",
+  "exploreCountdownTitleHint": "Idol/Ereignis (z. B. Sakura Geburtstag)",
+  "exploreAddBallDialogTitle": "Ball hinzufügen",
+  "exploreBallEmojiHint": "Emoji (leer lassen für Foto)",
+  "exploreSize": "Größe",
+  "explorePickPhoto": "Foto auswählen…",
+  "explorePickedPhoto": "Foto ausgewählt",
+
+  "navDex": "Pokédex",
+  "dex_title": "Mein Pokédex",
+  "dex_uncategorized": "Nicht kategorisiert",
+  "dex_searchHint": "Idole oder Karten suchen…",
+  "dex_cardsCount": "{count} Karten",
+  "dex_empty": "Noch keine Karten gesammelt",
+
+  "zoomIn": "Vergrößern",
+  "zoomOut": "Verkleinern",
+  "resetZoom": "Zoom zurücksetzen"
+
+
 
 }

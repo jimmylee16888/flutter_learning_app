@@ -1712,6 +1712,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already exists'**
   String get alreadyExists;
+
+  /// About page/menu title
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get common_about;
+
+  /// Bottom sheet item: general settings
+  ///
+  /// In en, this message translates to:
+  /// **'General settings'**
+  String get settings_menu_general;
+
+  /// Bottom sheet item: user settings
+  ///
+  /// In en, this message translates to:
+  /// **'User settings'**
+  String get settings_menu_user;
+
+  /// Bottom sheet item: about
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settings_menu_about;
+
+  /// Bottom sheet item: general settings
+  ///
+  /// In en, this message translates to:
+  /// **'General settings'**
+  String get settingsMenuGeneral;
+
+  /// About page/menu title
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get commonAbout;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @exploreReflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reflow widgets'**
+  String get exploreReflow;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @exploreNoPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'No photo selected'**
+  String get exploreNoPhoto;
+
+  /// No description provided for @exploreTapToEditQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit quote'**
+  String get exploreTapToEditQuote;
+
+  /// No description provided for @exploreAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get exploreAdd;
+
+  /// No description provided for @exploreAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo card'**
+  String get exploreAddPhoto;
+
+  /// No description provided for @exploreAddQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote card'**
+  String get exploreAddQuote;
+
+  /// No description provided for @exploreAddBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday countdown'**
+  String get exploreAddBirthday;
+
+  /// No description provided for @exploreAddBall.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ball'**
+  String get exploreAddBall;
+
+  /// No description provided for @exploreAdBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad is built-in'**
+  String get exploreAdBuiltIn;
+
+  /// No description provided for @exploreEnterAQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a quote'**
+  String get exploreEnterAQuote;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get commonOk;
+
+  /// No description provided for @exploreCountdownTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Idol/event (e.g. Sakura Birthday)'**
+  String get exploreCountdownTitleHint;
+
+  /// No description provided for @exploreAddBallDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ball'**
+  String get exploreAddBallDialogTitle;
+
+  /// No description provided for @exploreBallEmojiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji (leave empty to use a photo)'**
+  String get exploreBallEmojiHint;
+
+  /// No description provided for @exploreSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get exploreSize;
+
+  /// No description provided for @explorePickPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a photo…'**
+  String get explorePickPhoto;
+
+  /// No description provided for @explorePickedPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo selected'**
+  String get explorePickedPhoto;
+
+  /// No description provided for @navDex.
+  ///
+  /// In en, this message translates to:
+  /// **'Dex'**
+  String get navDex;
+
+  /// No description provided for @dex_title.
+  ///
+  /// In en, this message translates to:
+  /// **'My Dex'**
+  String get dex_title;
+
+  /// No description provided for @dex_uncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get dex_uncategorized;
+
+  /// No description provided for @dex_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search idols or cards…'**
+  String get dex_searchHint;
+
+  /// No description provided for @dex_cardsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cards'**
+  String dex_cardsCount(Object count);
+
+  /// No description provided for @dex_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards collected yet'**
+  String get dex_empty;
+
+  /// No description provided for @zoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get zoomIn;
+
+  /// No description provided for @zoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get zoomOut;
+
+  /// No description provided for @resetZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset zoom'**
+  String get resetZoom;
 }
 
 class _AppLocalizationsDelegate

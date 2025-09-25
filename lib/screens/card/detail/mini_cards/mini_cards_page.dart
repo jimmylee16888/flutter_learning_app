@@ -10,8 +10,8 @@ import 'package:http/http.dart' as http;
 
 import '../../../../l10n/l10n.dart';
 import '../../../../models/mini_card_data.dart';
-import '../../../../utils/mini_card_io.dart';
-import '../../../../utils/no_cors_image.dart';
+import '../../../../utils/mini_card_io/mini_card_io.dart';
+import '../../../../utils/no_cors_image/no_cors_image.dart';
 import '../edit_mini_cards_page.dart';
 
 // 前綴避免同名衝突
@@ -58,7 +58,15 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  late List<MiniCardData> _cards = List.of(widget.cards);
+  MiniCardData _ensureOwner(MiniCardData c) =>
+      (c.idol == null || c.idol!.trim().isEmpty)
+      ? c.copyWith(idol: widget.title)
+      : c;
+
+  late List<MiniCardData> _cards = widget.cards
+      .map(_ensureOwner)
+      .toList(growable: true);
+
   final Set<String> _activeTags = {};
 
   static const int _kQrSafeLimit = 500;
@@ -224,7 +232,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                         // 左右工具卡
                         if (i == 0 || i == pageCount - 1) {
                           return Align(
-                            alignment: const Alignment(0, -0.2),
+                            alignment: const Alignment(0, -0.3),
                             child: AnimatedScale(
                               scale: scale,
                               duration: const Duration(milliseconds: 200),
@@ -241,7 +249,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                         ),
                                       );
                                   if (updated != null && mounted) {
-                                    setState(() => _cards = updated);
+                                    setState(
+                                      () => _cards = updated
+                                          .map(_ensureOwner)
+                                          .toList(),
+                                    );
                                   }
                                 },
                               ),
@@ -258,7 +270,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                         final cardH = cardW * 3 / 2; // 接近 320x480
 
                         return Align(
-                          alignment: const Alignment(0, -0.2),
+                          alignment: const Alignment(0, -0.3),
                           child: AnimatedScale(
                             scale: scale,
                             duration: const Duration(milliseconds: 200),
@@ -348,15 +360,39 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     int added = 0;
     for (final r in results) {
       final exists = _cards.any((c) => c.id == r.id);
-      final toInsert = exists
+      final base = exists
           ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString())
           : r;
+
+      // ⬇️ 關鍵：不論來自哪裡，統一把 idol 設成此頁的 owner (= widget.title)
+      final toInsert = base.copyWith(idol: widget.title);
+
       _cards.add(toInsert);
       added++;
     }
     if (mounted) setState(() {});
     if (mounted) _snack(l.importedMiniCardsToast(added));
   }
+  // Future<void> _scanAndImport() async {
+  //   final l = context.l10n;
+  //   final results = await Navigator.push<List<MiniCardData>>(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => const scan.ScanQrPage()),
+  //   );
+  //   if (results == null || results.isEmpty) return;
+
+  //   int added = 0;
+  //   for (final r in results) {
+  //     final exists = _cards.any((c) => c.id == r.id);
+  //     final toInsert = exists
+  //         ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString())
+  //         : r;
+  //     _cards.add(toInsert);
+  //     added++;
+  //   }
+  //   if (mounted) setState(() {});
+  //   if (mounted) _snack(l.importedMiniCardsToast(added));
+  // }
 
   Future<void> _rightToolActions(List<MiniCardData> visible) async {
     final l = context.l10n;
@@ -633,23 +669,36 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     final jsonForDialog = jsonEncode({
       'type': 'mini_card_v2',
       'owner': owner,
-      'card': _cardToQrJson(card),
+      // 'card': _cardToQrJson(card),
+      'card': _cardToQrJson(card, ownerFallback: owner),
     });
 
     _printJson('Share-Single', jsonForDialog);
 
+    // Map<String, dynamic> payload = {
+    //   'type': 'mini_card_v2',
+    //   'owner': owner,
+    //   'card': _cardToQrJson(card),
+    // };
     Map<String, dynamic> payload = {
       'type': 'mini_card_v2',
       'owner': owner,
-      'card': _cardToQrJson(card),
+      'card': _cardToQrJson(card, ownerFallback: owner), // ⭐
     };
     String data = codec.QrCodec.encodePackedJson(payload);
 
     if (data.length > _kQrSafeLimit) {
+      // payload = {
+      //   'type': 'mini_card_v1',
+      //   'owner': owner,
+      //   // 'card': _cardToSlimQrJson(card),
+      //   'card': _cardToSlimQrJson(card, ownerFallback: owner),
+      // };
+
       payload = {
         'type': 'mini_card_v1',
         'owner': owner,
-        'card': _cardToSlimQrJson(card),
+        'card': _cardToSlimQrJson(card, ownerFallback: owner), // ⭐ 保持
       };
       data = codec.QrCodec.encodePackedJson(payload);
     }
@@ -692,7 +741,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     final body = jsonEncode({
       'type': 'mini_card_v2',
       'owner': owner,
-      'card': _cardToQrJson(card),
+      // 'card': _cardToQrJson(card),
+      'card': _cardToQrJson(card, ownerFallback: owner), // ⭐
     });
     final resp = await http.post(
       uri,
@@ -773,7 +823,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       'type': 'mini_card_bundle_v2',
       'owner': widget.title,
       'count': allowed.length,
-      'cards': allowed.map(_cardToQrJson).toList(),
+      // 'cards': allowed.map(_cardToQrJson).toList(),
+      'cards': allowed
+          .map((c) => _cardToQrJson(c, ownerFallback: widget.title))
+          .toList(),
     };
 
     final s = const JsonEncoder.withIndent('  ').convert(bundle);
@@ -841,17 +894,36 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       return _parseBundle(decoded);
     }
     if (type == 'mini_card_v2' || type == 'mini_card_v1') {
+      // final cardMap = Map<String, dynamic>.from(decoded['card'] as Map);
+      // return [await _inflateOneFromMap(cardMap)];
+      final owner = (decoded['owner'] as String?) ?? widget.title; // ⭐ 外層 owner
       final cardMap = Map<String, dynamic>.from(decoded['card'] as Map);
-      return [await _inflateOneFromMap(cardMap)];
+      var c = await _inflateOneFromMap(cardMap);
+      if (c.idol == null || c.idol!.isEmpty) {
+        c = c.copyWith(idol: owner); // ⭐ 單卡也補 idol
+      }
+      return [c];
     }
     throw const FormatException('Unsupported type');
   }
 
   Future<List<MiniCardData>> _parseBundle(Map data) async {
+    // final List list = data['cards'] as List? ?? const [];
+    // final out = <MiniCardData>[];
+    // for (final e in list) {
+    //   final c = await _inflateOneFromMap(Map<String, dynamic>.from(e as Map));
+    //   out.add(c);
+    // }
+    // return out;
+    final owner = (data['owner'] as String?) ?? widget.title;
     final List list = data['cards'] as List? ?? const [];
     final out = <MiniCardData>[];
     for (final e in list) {
-      final c = await _inflateOneFromMap(Map<String, dynamic>.from(e as Map));
+      var c = await _inflateOneFromMap(Map<String, dynamic>.from(e as Map));
+      // ⭐ 若 JSON 裡沒 idol，就用外層 owner（或頁面 title）當預設
+      if (c.idol == null || c.idol!.isEmpty) {
+        c = c.copyWith(idol: owner);
+      }
       out.add(c);
     }
     return out;
@@ -878,8 +950,36 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         card = card.copyWith(backLocalPath: p2);
       } catch (_) {}
     }
-    return card;
+
+    // ⬇️ 關鍵：此頁的 owner（標題）就是 idol
+    return (card.idol == null || card.idol!.isEmpty)
+        ? card.copyWith(idol: widget.title)
+        : card;
   }
+
+  // Future<MiniCardData> _inflateOneFromMap(Map<String, dynamic> map) async {
+  //   var card = MiniCardData.fromJson(map);
+
+  //   if ((card.imageUrl ?? '').isNotEmpty) {
+  //     try {
+  //       final p = await downloadImageToLocal(
+  //         card.imageUrl!,
+  //         preferName: card.id,
+  //       );
+  //       card = card.copyWith(localPath: p);
+  //     } catch (_) {}
+  //   }
+  //   if ((card.backImageUrl ?? '').isNotEmpty) {
+  //     try {
+  //       final p2 = await downloadImageToLocal(
+  //         card.backImageUrl!,
+  //         preferName: '${card.id}_back',
+  //       );
+  //       card = card.copyWith(backLocalPath: p2);
+  //     } catch (_) {}
+  //   }
+  //   return card;
+  // }
 
   bool _cardJsonAllowed(MiniCardData c) {
     final frontOk = (c.imageUrl ?? '').isNotEmpty;
@@ -888,24 +988,44 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     return frontOk && !backLocalOnly;
   }
 
-  Map<String, dynamic> _cardToQrJson(MiniCardData c) => {
-    'id': c.id,
-    'imageUrl': c.imageUrl,
-    'backImageUrl': c.backImageUrl,
-    'note': c.note,
-    'name': c.name,
-    'serial': c.serial,
-    'language': c.language,
-    'album': c.album,
-    'cardType': c.cardType,
-    'tags': c.tags,
-    'createdAt': c.createdAt.toIso8601String(),
-  };
+  Map<String, dynamic> _cardToQrJson(MiniCardData c, {String? ownerFallback}) =>
+      {
+        'id': c.id,
+        'imageUrl': c.imageUrl,
+        'backImageUrl': c.backImageUrl,
+        'note': c.note,
+        'name': c.name,
+        'serial': c.serial,
+        'language': c.language,
+        'album': c.album,
+        'cardType': c.cardType,
+        'tags': c.tags,
+        'createdAt': c.createdAt.toIso8601String(),
+        'idol': (c.idol != null && c.idol!.isNotEmpty) ? c.idol : ownerFallback,
+      };
 
-  Map<String, dynamic> _cardToSlimQrJson(MiniCardData c) => {
+  // Map<String, dynamic> _cardToQrJson(MiniCardData c) => {
+  //   'id': c.id,
+  //   'imageUrl': c.imageUrl,
+  //   'backImageUrl': c.backImageUrl,
+  //   'note': c.note,
+  //   'name': c.name,
+  //   'serial': c.serial,
+  //   'language': c.language,
+  //   'album': c.album,
+  //   'cardType': c.cardType,
+  //   'tags': c.tags,
+  //   'createdAt': c.createdAt.toIso8601String(),
+  // };
+
+  Map<String, dynamic> _cardToSlimQrJson(
+    MiniCardData c, {
+    String? ownerFallback,
+  }) => {
     'id': c.id,
     'imageUrl': c.imageUrl,
     'note': c.note,
+    'idol': (c.idol != null && c.idol!.isNotEmpty) ? c.idol : ownerFallback,
   };
 
   bool _hasLocal(MiniCardData c) =>

@@ -900,4 +900,112 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get alreadyExists => 'Bereits vorhanden';
+
+  @override
+  String get common_about => 'Info';
+
+  @override
+  String get settings_menu_general => 'Allgemeine Einstellungen';
+
+  @override
+  String get settings_menu_user => 'Benutzereinstellungen';
+
+  @override
+  String get settings_menu_about => 'Info';
+
+  @override
+  String get settingsMenuGeneral => 'Allgemeine Einstellungen';
+
+  @override
+  String get commonAbout => 'Info';
+
+  @override
+  String get navMore => 'Mehr';
+
+  @override
+  String get exploreReflow => 'Widgets neu anordnen';
+
+  @override
+  String get commonAdd => 'Hinzufügen';
+
+  @override
+  String get exploreNoPhoto => 'Kein Foto ausgewählt';
+
+  @override
+  String get exploreTapToEditQuote => 'Tippen, um Zitat zu bearbeiten';
+
+  @override
+  String get exploreAdd => 'Hinzufügen';
+
+  @override
+  String get exploreAddPhoto => 'Foto-Karte';
+
+  @override
+  String get exploreAddQuote => 'Zitat-Karte';
+
+  @override
+  String get exploreAddBirthday => 'Geburtstags-Countdown';
+
+  @override
+  String get exploreAddBall => 'Ball hinzufügen';
+
+  @override
+  String get exploreAdBuiltIn => 'Anzeigen sind integriert';
+
+  @override
+  String get exploreEnterAQuote => 'Ein Zitat eingeben';
+
+  @override
+  String get commonCancel => 'Abbrechen';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String get exploreCountdownTitleHint =>
+      'Idol/Ereignis (z. B. Sakura Geburtstag)';
+
+  @override
+  String get exploreAddBallDialogTitle => 'Ball hinzufügen';
+
+  @override
+  String get exploreBallEmojiHint => 'Emoji (leer lassen für Foto)';
+
+  @override
+  String get exploreSize => 'Größe';
+
+  @override
+  String get explorePickPhoto => 'Foto auswählen…';
+
+  @override
+  String get explorePickedPhoto => 'Foto ausgewählt';
+
+  @override
+  String get navDex => 'Pokédex';
+
+  @override
+  String get dex_title => 'Mein Pokédex';
+
+  @override
+  String get dex_uncategorized => 'Nicht kategorisiert';
+
+  @override
+  String get dex_searchHint => 'Idole oder Karten suchen…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count Karten';
+  }
+
+  @override
+  String get dex_empty => 'Noch keine Karten gesammelt';
+
+  @override
+  String get zoomIn => 'Vergrößern';
+
+  @override
+  String get zoomOut => 'Verkleinern';
+
+  @override
+  String get resetZoom => 'Zoom zurücksetzen';
 }

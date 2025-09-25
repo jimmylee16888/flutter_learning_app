@@ -879,4 +879,111 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get alreadyExists => '既に存在します';
+
+  @override
+  String get common_about => '概要';
+
+  @override
+  String get settings_menu_general => '一般設定';
+
+  @override
+  String get settings_menu_user => 'ユーザー設定';
+
+  @override
+  String get settings_menu_about => '概要';
+
+  @override
+  String get settingsMenuGeneral => '一般設定';
+
+  @override
+  String get commonAbout => '概要';
+
+  @override
+  String get navMore => 'その他';
+
+  @override
+  String get exploreReflow => 'ウィジェットを整列';
+
+  @override
+  String get commonAdd => '追加';
+
+  @override
+  String get exploreNoPhoto => '写真が未選択です';
+
+  @override
+  String get exploreTapToEditQuote => 'タップして引用を編集';
+
+  @override
+  String get exploreAdd => '追加';
+
+  @override
+  String get exploreAddPhoto => '写真カード';
+
+  @override
+  String get exploreAddQuote => '引用カード';
+
+  @override
+  String get exploreAddBirthday => '誕生日カウントダウン';
+
+  @override
+  String get exploreAddBall => 'ボールを追加';
+
+  @override
+  String get exploreAdBuiltIn => '広告は内蔵されています';
+
+  @override
+  String get exploreEnterAQuote => '引用文を入力';
+
+  @override
+  String get commonCancel => 'キャンセル';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String get exploreCountdownTitleHint => 'アイドル／イベント名（例：さくら誕生日）';
+
+  @override
+  String get exploreAddBallDialogTitle => 'ボールを追加';
+
+  @override
+  String get exploreBallEmojiHint => '絵文字（空なら写真を使用）';
+
+  @override
+  String get exploreSize => 'サイズ';
+
+  @override
+  String get explorePickPhoto => '写真を選択…';
+
+  @override
+  String get explorePickedPhoto => '写真を選択しました';
+
+  @override
+  String get navDex => '図鑑';
+
+  @override
+  String get dex_title => 'マイ図鑑';
+
+  @override
+  String get dex_uncategorized => '未分類';
+
+  @override
+  String get dex_searchHint => 'アイドルやカードを検索…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count 枚';
+  }
+
+  @override
+  String get dex_empty => 'まだカードを収集していません';
+
+  @override
+  String get zoomIn => '拡大';
+
+  @override
+  String get zoomOut => '縮小';
+
+  @override
+  String get resetZoom => '拡大率をリセット';
 }

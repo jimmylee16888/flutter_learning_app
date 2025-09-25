@@ -1,4 +1,3 @@
-// lib/screens/settings/settings_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/services/auth/auth_controller.dart';
 import 'package:provider/provider.dart';
@@ -6,11 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../app_settings.dart';
 import '../../l10n/l10n.dart';
-import 'statistics/statistics_view.dart';
 import 'about_developer_page.dart';
 import '../user/user_profile_settings_page.dart';
 
-// ===== Developer profile =====
 const String kDeveloperName = 'Jimmy Lee';
 const String kDeveloperNamePinyin = 'LEE, PIN-FAN';
 const String kDeveloperEmail = 'jimmylee16888@gmail.com';
@@ -18,8 +15,14 @@ const String kDeveloperAvatarUrl =
     'https://avatars.githubusercontent.com/u/204156154?s=400&u=e6b3149c987b1e918122f9fc8af4ea6789e543ae&v=4';
 
 class SettingsView extends StatelessWidget {
-  const SettingsView({super.key, required this.settings});
+  const SettingsView({
+    super.key,
+    required this.settings,
+    this.onOpenUserProfile, // 由 RootNav 傳入，避免 push 造成 Provider 範圍丟失
+  });
+
   final AppSettings settings;
+  final VoidCallback? onOpenUserProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -148,112 +151,91 @@ class SettingsView extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // ===== 使用者資料（卡片式、和 user_profile_settings_page 相同視覺語彙）=====
+        // ===== 使用者資料（整張卡可點 -> 要求切到 More > User）=====
         Card(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.userProfileTile, // "User profile"
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: cs.surfaceVariant,
-                      foregroundImage: (photoUrl != null && photoUrl.isNotEmpty)
-                          ? NetworkImage(photoUrl)
-                          : null,
-                      child: const Icon(Icons.person_outline),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            nicknameText,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            email,
-                            style: TextStyle(color: cs.onSurfaceVariant),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      child: Text(
-                        isSignedIn ? l.signOut : l.authSignInWithGoogle,
-                      ),
-                      onPressed: () async {
-                        if (isSignedIn) {
-                          await auth.signOut();
-                        } else {
-                          final (ok, reason) = await auth.loginWithGoogle();
-                          if (!context.mounted) return;
-                          if (!ok) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '登入失敗：${reason ?? l.errorLoginFailed}',
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  // child: FilledButton.tonalIcon(
-                  //   icon: const Icon(Icons.open_in_new),
-                  //   label: Text(l.edit),
-                  //   onPressed: () {
-                  //     Navigator.of(context).push(
-                  //       MaterialPageRoute(
-                  //         builder: (_) =>
-                  //             UserProfileSettingsPage(settings: settings),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ===== 統計 =====
-        Card(
-          child: ListTile(
-            contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-            leading: const Icon(Icons.insights_outlined),
-            title: Text(l.stats_title),
-            subtitle: Text(l.stats_nav_subtitle),
-            trailing: const Icon(Icons.chevron_right),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => StatisticsView(settings: settings),
-                ),
-              );
+              if (onOpenUserProfile != null) {
+                onOpenUserProfile!();
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => UserProfileSettingsPage(settings: settings),
+                  ),
+                );
+              }
             },
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.userProfileTile,
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: cs.surfaceVariant,
+                        foregroundImage:
+                            (photoUrl != null && photoUrl.isNotEmpty)
+                            ? NetworkImage(photoUrl)
+                            : null,
+                        child: const Icon(Icons.person_outline),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              nicknameText,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              email,
+                              style: TextStyle(color: cs.onSurfaceVariant),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        child: Text(
+                          isSignedIn ? l.signOut : l.authSignInWithGoogle,
+                        ),
+                        onPressed: () async {
+                          if (isSignedIn) {
+                            await auth.signOut();
+                          } else {
+                            final (ok, reason) = await auth.loginWithGoogle();
+                            if (!context.mounted) return;
+                            if (!ok) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '登入失敗：${reason ?? l.errorLoginFailed}',
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
 

@@ -879,4 +879,111 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get alreadyExists => '이미 존재합니다';
+
+  @override
+  String get common_about => '정보';
+
+  @override
+  String get settings_menu_general => '일반 설정';
+
+  @override
+  String get settings_menu_user => '사용자 설정';
+
+  @override
+  String get settings_menu_about => '정보';
+
+  @override
+  String get settingsMenuGeneral => '일반 설정';
+
+  @override
+  String get commonAbout => '정보';
+
+  @override
+  String get navMore => '더보기';
+
+  @override
+  String get exploreReflow => '위젯 정렬';
+
+  @override
+  String get commonAdd => '추가';
+
+  @override
+  String get exploreNoPhoto => '사진이 선택되지 않았습니다';
+
+  @override
+  String get exploreTapToEditQuote => '탭하여 인용문 편집';
+
+  @override
+  String get exploreAdd => '추가';
+
+  @override
+  String get exploreAddPhoto => '사진 카드';
+
+  @override
+  String get exploreAddQuote => '인용 카드';
+
+  @override
+  String get exploreAddBirthday => '생일 카운트다운';
+
+  @override
+  String get exploreAddBall => '공 추가';
+
+  @override
+  String get exploreAdBuiltIn => '광고는 내장되어 있습니다';
+
+  @override
+  String get exploreEnterAQuote => '인용문을 입력하세요';
+
+  @override
+  String get commonCancel => '취소';
+
+  @override
+  String get commonOk => '확인';
+
+  @override
+  String get exploreCountdownTitleHint => '아이돌/이벤트 (예: 사쿠라 생일)';
+
+  @override
+  String get exploreAddBallDialogTitle => '공 추가';
+
+  @override
+  String get exploreBallEmojiHint => '이모지(비우면 사진 사용)';
+
+  @override
+  String get exploreSize => '크기';
+
+  @override
+  String get explorePickPhoto => '사진 선택…';
+
+  @override
+  String get explorePickedPhoto => '사진 선택됨';
+
+  @override
+  String get navDex => '도감';
+
+  @override
+  String get dex_title => '내 도감';
+
+  @override
+  String get dex_uncategorized => '미분류';
+
+  @override
+  String get dex_searchHint => '아이돌 또는 카드를 검색…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count 장';
+  }
+
+  @override
+  String get dex_empty => '아직 수집한 카드가 없습니다';
+
+  @override
+  String get zoomIn => '확대';
+
+  @override
+  String get zoomOut => '축소';
+
+  @override
+  String get resetZoom => '확대/축소 초기화';
 }

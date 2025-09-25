@@ -373,7 +373,58 @@
   "ok": "OK",
 
   "willSaveAs": "次の名前で保存します",
-  "alreadyExists": "既に存在します"
+  "alreadyExists": "既に存在します",
+
+  "common_about": "概要",
+  "@common_about": {"description": "About title"},
+  "settings_menu_general": "一般設定",
+  "@settings_menu_general": {"description": "Bottom sheet: general"},
+  "settings_menu_user": "ユーザー設定",
+  "@settings_menu_user": {"description": "Bottom sheet: user settings"},
+  "settings_menu_about": "概要",
+  "@settings_menu_about": {"description": "Bottom sheet: about"},
+
+  "settingsMenuGeneral": "一般設定",
+  "@settingsMenuGeneral": {
+    "description": "ボトムシート：一般設定"
+  },
+  "commonAbout": "概要",
+  "@commonAbout": {
+    "description": "「このアプリについて」に相当するタイトル"
+  },
+
+  "navMore": "その他",
+
+  "exploreReflow": "ウィジェットを整列",
+  "commonAdd": "追加",
+  "exploreNoPhoto": "写真が未選択です",
+  "exploreTapToEditQuote": "タップして引用を編集",
+  "exploreAdd": "追加",
+  "exploreAddPhoto": "写真カード",
+  "exploreAddQuote": "引用カード",
+  "exploreAddBirthday": "誕生日カウントダウン",
+  "exploreAddBall": "ボールを追加",
+  "exploreAdBuiltIn": "広告は内蔵されています",
+  "exploreEnterAQuote": "引用文を入力",
+  "commonCancel": "キャンセル",
+  "commonOk": "OK",
+  "exploreCountdownTitleHint": "アイドル／イベント名（例：さくら誕生日）",
+  "exploreAddBallDialogTitle": "ボールを追加",
+  "exploreBallEmojiHint": "絵文字（空なら写真を使用）",
+  "exploreSize": "サイズ",
+  "explorePickPhoto": "写真を選択…",
+  "explorePickedPhoto": "写真を選択しました",
+
+  "navDex": "図鑑",
+  "dex_title": "マイ図鑑",
+  "dex_uncategorized": "未分類",
+  "dex_searchHint": "アイドルやカードを検索…",
+  "dex_cardsCount": "{count} 枚",
+  "dex_empty": "まだカードを収集していません",
+
+  "zoomIn": "拡大",
+  "zoomOut": "縮小",
+  "resetZoom": "拡大率をリセット"
 
 
 }

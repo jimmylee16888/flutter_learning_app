@@ -18,6 +18,8 @@ import 'ad_provider.dart';
 import 'dart:io' as io show File;
 import 'dart:convert' show base64Encode;
 
+import '../../l10n/l10n.dart'; // ← 加這個
+
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
   @override
@@ -93,6 +95,8 @@ class _ExploreViewState extends State<ExploreView>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    final l = context.l10n;
 
     return SafeArea(
       child: LayoutBuilder(
@@ -211,7 +215,7 @@ class _ExploreViewState extends State<ExploreView>
                   top: 12,
                   child: FloatingActionButton.small(
                     heroTag: 'reset',
-                    tooltip: '元件歸位',
+                    tooltip: l.exploreReflow,
                     onPressed: () {
                       _resetLayout();
                       _persistSoon();
@@ -226,7 +230,7 @@ class _ExploreViewState extends State<ExploreView>
                   bottom: 16,
                   child: FloatingActionButton.extended(
                     icon: const Icon(Icons.add),
-                    label: const Text('新增'),
+                    label: Text(l.commonAdd),
                     onPressed: _showAddSheet,
                   ),
                 ),

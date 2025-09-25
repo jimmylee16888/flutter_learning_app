@@ -389,6 +389,67 @@
 
 
   "willSaveAs": "Will save as",
-  "alreadyExists": "Already exists"
+  "alreadyExists": "Already exists",
+
+  "common_about": "About",
+  "@common_about": {
+    "description": "About page/menu title"
+  },
+  "settings_menu_general": "General settings",
+  "@settings_menu_general": {
+    "description": "Bottom sheet item: general settings"
+  },
+  "settings_menu_user": "User settings",
+  "@settings_menu_user": {
+    "description": "Bottom sheet item: user settings"
+  },
+  "settings_menu_about": "About",
+  "@settings_menu_about": {
+    "description": "Bottom sheet item: about"
+  },
+
+  "settingsMenuGeneral": "General settings",
+  "@settingsMenuGeneral": {
+    "description": "Bottom sheet item: general settings"
+  },
+  "commonAbout": "About",
+  "@commonAbout": {
+    "description": "About page/menu title"
+  },
+
+  "navMore": "More",
+
+  "exploreReflow": "Reflow widgets",
+  "commonAdd": "Add",
+  "exploreNoPhoto": "No photo selected",
+  "exploreTapToEditQuote": "Tap to edit quote",
+  "exploreAdd": "Add",
+  "exploreAddPhoto": "Photo card",
+  "exploreAddQuote": "Quote card",
+  "exploreAddBirthday": "Birthday countdown",
+  "exploreAddBall": "Add ball",
+  "exploreAdBuiltIn": "Ad is built-in",
+  "exploreEnterAQuote": "Enter a quote",
+  "commonCancel": "Cancel",
+  "commonOk": "OK",
+  "exploreCountdownTitleHint": "Idol/event (e.g. Sakura Birthday)",
+  "exploreAddBallDialogTitle": "Add ball",
+  "exploreBallEmojiHint": "Emoji (leave empty to use a photo)",
+  "exploreSize": "Size",
+  "explorePickPhoto": "Pick a photo…",
+  "explorePickedPhoto": "Photo selected",
+
+  "navDex": "Dex",
+  "dex_title": "My Dex",
+  "dex_uncategorized": "Uncategorized",
+  "dex_searchHint": "Search idols or cards…",
+  "dex_cardsCount": "{count} cards",
+  "dex_empty": "No cards collected yet",
+
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "resetZoom": "Reset zoom"
+
+
 
 }

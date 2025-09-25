@@ -267,7 +267,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noCards => '沒有卡片';
 
   @override
-  String get addCard => '新增卡片';
+  String get addCard => '新增藝人卡';
 
   @override
   String get deleteCardTitle => '刪除卡片';
@@ -289,7 +289,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryAssignOrAdd => '指派／新增分類';
 
   @override
-  String get newCardTitle => '新增卡片';
+  String get newCardTitle => '新增藝人卡';
 
   @override
   String get editCardTitle => '編輯卡片';
@@ -874,6 +874,113 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get alreadyExists => '已存在';
+
+  @override
+  String get common_about => '關於';
+
+  @override
+  String get settings_menu_general => '一般設定';
+
+  @override
+  String get settings_menu_user => '使用者設定';
+
+  @override
+  String get settings_menu_about => '關於';
+
+  @override
+  String get settingsMenuGeneral => '一般設定';
+
+  @override
+  String get commonAbout => '關於';
+
+  @override
+  String get navMore => '更多';
+
+  @override
+  String get exploreReflow => '元件歸位';
+
+  @override
+  String get commonAdd => '新增';
+
+  @override
+  String get exploreNoPhoto => '未選擇照片';
+
+  @override
+  String get exploreTapToEditQuote => '點一下編輯引言';
+
+  @override
+  String get exploreAdd => '新增';
+
+  @override
+  String get exploreAddPhoto => '照片卡';
+
+  @override
+  String get exploreAddQuote => '引言卡';
+
+  @override
+  String get exploreAddBirthday => '生日倒數';
+
+  @override
+  String get exploreAddBall => '新增小球';
+
+  @override
+  String get exploreAdBuiltIn => '廣告已內建';
+
+  @override
+  String get exploreEnterAQuote => '輸入一句話';
+
+  @override
+  String get commonCancel => '取消';
+
+  @override
+  String get commonOk => '確定';
+
+  @override
+  String get exploreCountdownTitleHint => '偶像／事件名稱（例如：Sakura 生日）';
+
+  @override
+  String get exploreAddBallDialogTitle => '新增小球';
+
+  @override
+  String get exploreBallEmojiHint => 'Emoji（留空則使用相片）';
+
+  @override
+  String get exploreSize => '大小';
+
+  @override
+  String get explorePickPhoto => '選擇相片…';
+
+  @override
+  String get explorePickedPhoto => '已選擇相片';
+
+  @override
+  String get navDex => '圖鑑';
+
+  @override
+  String get dex_title => '我的圖鑑';
+
+  @override
+  String get dex_uncategorized => '未分類';
+
+  @override
+  String get dex_searchHint => '搜尋偶像或卡片…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count 張';
+  }
+
+  @override
+  String get dex_empty => '目前還沒有蒐集到卡片';
+
+  @override
+  String get zoomIn => '放大';
+
+  @override
+  String get zoomOut => '縮小';
+
+  @override
+  String get resetZoom => '重設縮放';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1139,7 +1246,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get noCards => '沒有卡片';
 
   @override
-  String get addCard => '新增卡片';
+  String get addCard => '新增藝人卡';
 
   @override
   String get deleteCardTitle => '刪除卡片';
@@ -1161,7 +1268,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryAssignOrAdd => '指派／新增分類';
 
   @override
-  String get newCardTitle => '新增卡片';
+  String get newCardTitle => '新增藝人卡';
 
   @override
   String get editCardTitle => '編輯卡片';
@@ -1746,4 +1853,111 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get alreadyExists => '已存在';
+
+  @override
+  String get common_about => '關於';
+
+  @override
+  String get settings_menu_general => '一般設定';
+
+  @override
+  String get settings_menu_user => '使用者設定';
+
+  @override
+  String get settings_menu_about => '關於';
+
+  @override
+  String get settingsMenuGeneral => '一般設定';
+
+  @override
+  String get commonAbout => '關於';
+
+  @override
+  String get navMore => '更多';
+
+  @override
+  String get exploreReflow => '元件歸位';
+
+  @override
+  String get commonAdd => '新增';
+
+  @override
+  String get exploreNoPhoto => '未選擇照片';
+
+  @override
+  String get exploreTapToEditQuote => '點一下編輯引言';
+
+  @override
+  String get exploreAdd => '新增';
+
+  @override
+  String get exploreAddPhoto => '照片卡';
+
+  @override
+  String get exploreAddQuote => '引言卡';
+
+  @override
+  String get exploreAddBirthday => '生日倒數';
+
+  @override
+  String get exploreAddBall => '新增小球';
+
+  @override
+  String get exploreAdBuiltIn => '廣告已內建';
+
+  @override
+  String get exploreEnterAQuote => '輸入一句話';
+
+  @override
+  String get commonCancel => '取消';
+
+  @override
+  String get commonOk => '確定';
+
+  @override
+  String get exploreCountdownTitleHint => '偶像／事件名稱（例如：Sakura 生日）';
+
+  @override
+  String get exploreAddBallDialogTitle => '新增小球';
+
+  @override
+  String get exploreBallEmojiHint => 'Emoji（留空則使用相片）';
+
+  @override
+  String get exploreSize => '大小';
+
+  @override
+  String get explorePickPhoto => '選擇相片…';
+
+  @override
+  String get explorePickedPhoto => '已選擇相片';
+
+  @override
+  String get navDex => '圖鑑';
+
+  @override
+  String get dex_title => '我的圖鑑';
+
+  @override
+  String get dex_uncategorized => '未分類';
+
+  @override
+  String get dex_searchHint => '搜尋偶像或卡片…';
+
+  @override
+  String dex_cardsCount(Object count) {
+    return '$count 張';
+  }
+
+  @override
+  String get dex_empty => '目前還沒有蒐集到卡片';
+
+  @override
+  String get zoomIn => '放大';
+
+  @override
+  String get zoomOut => '縮小';
+
+  @override
+  String get resetZoom => '重設縮放';
 }
