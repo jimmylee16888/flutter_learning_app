@@ -7,29 +7,40 @@
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="description" content="Pop Card - Mini cards & collections">
 
-  <!-- 全螢幕 + 安全區 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <!-- 透明疊色，狀態列顏色由頁面背景決定 -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- A2HS 名稱 -->
   <meta name="apple-mobile-web-app-title" content="Pop Card">
   <meta name="application-name" content="Pop Card">
 
-  <!-- Safari/瀏覽器 UI 顏色（啟動前預設；App 內會被 Flutter 動態覆蓋） -->
   <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#FFFFFF"  media="(prefers-color-scheme: light)">
 
-  <!-- 啟動前背景，避免閃色 -->
   <style>
     html, body { height: 100%; margin: 0; }
-    @media (prefers-color-scheme: dark)   { html, body { background: #111318; } }
-    @media (prefers-color-scheme: light)  { html, body { background: #FFFFFF; } }
+    @media (prefers-color-scheme: dark)  { html, body { background: #111318; } }
+    @media (prefers-color-scheme: light) { html, body { background: #FFFFFF; } }
+
+    #initial-splash {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+      z-index: 9999;
+      user-select: none; -webkit-user-drag: none;
+    }
+    #initial-splash img {
+      max-width: min(40vw, 320px);
+      max-height: min(40vh, 320px);
+      object-fit: contain;
+      display: block;
+    }
   </style>
 
-  <!-- Icons -->
+  <!-- 先預載一個可能的路徑；真正的路徑會在腳本裡自動偵測 -->
+  <link rel="preload" as="image" href="assets/images/popcard01.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=5">
   <link rel="icon" type="image/png" href="icons/favicon.png?v=5"/>
 
@@ -37,6 +48,42 @@
   <link rel="manifest" href="manifest.json?v=5">
 </head>
 <body>
+  <!-- 初始 Splash -->
+  <div id="initial-splash" aria-label="Loading">
+    <img src="splash.png" alt="Pop Card">
+  </div>
+
+
   <script src="flutter_bootstrap.js" async></script>
+
+  <script>
+    // 自動偵測正確的資產路徑（避免不同部署/工具鏈導致的 assets/ 或 assets/assets/）
+    (function pickSplash() {
+      const imgEl = document.getElementById('initial-splash-img');
+      const candidates = [
+        'assets/images/popcard01.png',
+        'assets/assets/images/popcard01.png'
+      ];
+      const tryNext = (i) => {
+        if (i >= candidates.length) return; // 都不通就放空
+        fetch(candidates[i], { method: 'HEAD' })
+          .then(r => r.ok ? (imgEl.src = candidates[i]) : tryNext(i + 1))
+          .catch(() => tryNext(i + 1));
+      };
+      tryNext(0);
+    })();
+
+    // Flutter 繪出第一幀後移除初始 splash
+    window.addEventListener('flutter-first-frame', () => {
+      const s = document.getElementById('initial-splash');
+      if (s) s.remove();
+    });
+
+    // 備援：12 秒後仍未進入，也把它移除，避免殘留
+    setTimeout(() => {
+      const s = document.getElementById('initial-splash');
+      if (s) s.remove();
+    }, 12000);
+  </script>
 </body>
 </html>

@@ -204,8 +204,30 @@ class _CardsViewState extends State<CardsView> {
       padding: const EdgeInsets.all(6),
       child: LayoutBuilder(
         builder: (context, c) {
-          final double actionW = (c.maxWidth * bgRatio).clamp(minBg, maxBg);
-          final double dragLimit = (actionW - dragInset).clamp(80.0, actionW);
+          // final double actionW = (c.maxWidth * bgRatio).clamp(minBg, maxBg);
+          // final double dragLimit = (actionW - dragInset).clamp(80.0, actionW);
+
+          // 依比例算理想值
+          final double rawAction = c.maxWidth * bgRatio;
+
+          // 在小螢幕更安全的下限 / 上限
+          const double minAction = 80.0;
+          const double maxAction = 220.0;
+
+          // 不得超過「卡片寬的一半 - 安全邊距」，避免 Row 溢位
+          final double halfGuard = (c.maxWidth / 2) - 6;
+
+          // 先套上下限，再跟 halfGuard 取較小值
+          double actionW = rawAction.clamp(minAction, maxAction);
+          actionW = actionW.clamp(0, halfGuard);
+
+          // 保底：確保不是負數或 NaN/Infinity
+          if (actionW.isNaN || actionW.isInfinite || actionW < 0) {
+            actionW = 0;
+          }
+
+          // 拖動距離也做保護，至少為 0
+          final double dragLimit = (actionW - dragInset).clamp(0.0, actionW);
 
           double dx = 0; // 左負右正（限制在 ±dragLimit）
 

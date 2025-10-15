@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.1.8+11
+version: 1.1.11+13
 
 environment:
   sdk: ^3.9.0
@@ -30,6 +30,7 @@ dependencies:
   google_mlkit_barcode_scanning: ^0.11.0
   image: ^4.2.0        # 解析 JPG/PNG 為像素
   zxing2: ^0.2.2       # 純 Dart ZXing QR 解碼
+  archive: ^3.6.1
 
   # google 登入
   google_sign_in: ^7.1.1
@@ -51,11 +52,15 @@ dependencies:
 
   pointer_interceptor: ^0.9.3
 
+  # 網頁版專用
+  mime: ^1.0.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0   # ← 新增
 
 flutter_launcher_icons:
   android: true
@@ -80,3 +85,19 @@ flutter:
     - assets/images/pop_card_without_background.png
     - assets/images/tip_explore.png
     - assets/images/tip_explore2.png
+    - assets/images/popcard01.png      # ← 新增：啟動畫面要用的圖
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false           # Web 另有作法，先關掉
+
+  color: "#FFFFFF"     # 淺色背景（可換成你的 surface）
+  color_dark: "#121212"
+  image: assets/images/popcard01.png
+  android_gravity: center
+  ios_content_mode: center
+
+  android_12:
+    image: assets/images/popcard01.png
+    color: "#FFFFFF"
+    color_dark: "#121212"
