@@ -93,3 +93,6 @@ export 'stats/stats_service.dart';
 // utils
 export 'utils/qr/qr_codec.dart';
 export 'utils/qr/qr_image_builder.dart';
+
+// tips
+export 'tips/tip_service.dart';

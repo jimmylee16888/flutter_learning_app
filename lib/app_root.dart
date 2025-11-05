@@ -154,16 +154,45 @@ class _AuthenticatedHome extends StatelessWidget {
         ? settings.nickname!.trim()
         : (user?.displayName ?? 'Me');
 
-    Future<String?> Function() idTokenProvider = () async =>
-        FirebaseAuth.instance.currentUser?.getIdToken();
+    // Future<String?> Function() idTokenProvider = () async =>
+    //     FirebaseAuth.instance.currentUser?.getIdToken();
+    Future<String?> Function() idTokenProvider = () async {
+      try {
+        final u = FirebaseAuth.instance.currentUser;
+        if (u == null) return null;
+        // 不強制 refresh；離線時若強制 refresh 容易丟錯
+        final t = await u.getIdToken();
+        if (t == null || t.isEmpty) return null;
+        return t;
+      } catch (e, st) {
+        debugPrint('[idTokenProvider] $e\n$st');
+        return null;
+      }
+    };
 
+    // assert(() {
+    //   Future.microtask(() async {
+    //     final t = await FirebaseAuth.instance.currentUser?.getIdToken();
+    //     if (t != null) {
+    //       debugPrint('\n===== ID TOKEN (copy for curl) =====\n$t\n');
+    //       await Clipboard.setData(ClipboardData(text: t));
+    //       debugPrint('→ 已複製到剪貼簿');
+    //     }
+    //   });
+    //   return true;
+    // }());
     assert(() {
       Future.microtask(() async {
-        final t = await FirebaseAuth.instance.currentUser?.getIdToken();
-        if (t != null) {
+        try {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user == null) return; // 沒登入就別取 token
+          final t = await user.getIdToken(); // 可能會在離線時丟錯
+          if (t == null || t.isEmpty) return;
           debugPrint('\n===== ID TOKEN (copy for curl) =====\n$t\n');
           await Clipboard.setData(ClipboardData(text: t));
           debugPrint('→ 已複製到剪貼簿');
+        } catch (e, st) {
+          debugPrint('[debug token] skip: $e\n$st'); // 不要讓他炸掉整個 app
         }
       });
       return true;
@@ -180,6 +209,42 @@ class _AuthenticatedHome extends StatelessWidget {
         return (clientId, meId, meNameLocal);
       }(),
       builder: (context, snap) {
+        // if (!snap.hasData) {
+        //   return const Scaffold(
+        //     body: Center(child: CircularProgressIndicator()),
+        //   );
+        // }
+        if (snap.hasError) {
+          // 避免看起來像卡住；離線或SP讀取失敗時不會崩
+          return Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, size: 40),
+                    const SizedBox(height: 12),
+                    Text(
+                      '初始化失敗，請稍後重試',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snap.error}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (!snap.hasData) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -189,6 +254,24 @@ class _AuthenticatedHome extends StatelessWidget {
 
         return MultiProvider(
           providers: [
+            // ChangeNotifierProvider<TagFollowController>(
+            //   create: (_) {
+            //     final ctl = TagFollowController(
+            //       api: SocialApi(
+            //         meId: meId,
+            //         meName: meNameLocal,
+            //         idTokenProvider: idTokenProvider,
+            //         clientId: clientId,
+            //         clientAliasProvider: () async => await loadLocalAlias(
+            //           accountId: meId,
+            //           clientId: clientId,
+            //         ),
+            //       ),
+            //     );
+            //     ctl.bootstrap();
+            //     return ctl;
+            //   },
+            // ),
             ChangeNotifierProvider<TagFollowController>(
               create: (_) {
                 final ctl = TagFollowController(
@@ -203,10 +286,18 @@ class _AuthenticatedHome extends StatelessWidget {
                     ),
                   ),
                 );
-                ctl.bootstrap();
+                // 非阻塞地啟動；離線或錯誤不往外拋
+                Future.microtask(() async {
+                  try {
+                    await ctl.bootstrap();
+                  } catch (e, st) {
+                    debugPrint('[TagFollow.bootstrap] $e\n$st');
+                  }
+                });
                 return ctl;
               },
             ),
+
             ChangeNotifierProvider<FriendFollowController>(
               create: (_) {
                 final ctl = FriendFollowController(
@@ -221,10 +312,35 @@ class _AuthenticatedHome extends StatelessWidget {
                     ),
                   ),
                 );
-                ctl.bootstrap();
+                Future.microtask(() async {
+                  try {
+                    await ctl.bootstrap();
+                  } catch (e, st) {
+                    debugPrint('[FriendFollow.bootstrap] $e\n$st');
+                  }
+                });
                 return ctl;
               },
             ),
+
+            // ChangeNotifierProvider<FriendFollowController>(
+            //   create: (_) {
+            //     final ctl = FriendFollowController(
+            //       api: SocialApi(
+            //         meId: meId,
+            //         meName: meNameLocal,
+            //         idTokenProvider: idTokenProvider,
+            //         clientId: clientId,
+            //         clientAliasProvider: () async => await loadLocalAlias(
+            //           accountId: meId,
+            //           clientId: clientId,
+            //         ),
+            //       ),
+            //     );
+            //     ctl.bootstrap();
+            //     return ctl;
+            //   },
+            // ),
           ],
           child: TipGate(
             idTokenProvider: idTokenProvider,

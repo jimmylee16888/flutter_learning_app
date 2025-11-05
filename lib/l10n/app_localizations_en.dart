@@ -147,7 +147,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helloDeveloperBody =>
-      'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee';
+      'Thank you for trying out this little side project 💫 \n\nI’m a proud FEARNOT (LE SSERAFIM fan)! Every time I want to share the joy of collecting photocards with friends, I hate having to carry a whole stack around — so I made this app 💡. Now you can easily show and trade your cards with just a 6.5-inch phone.\n\nI’ll keep updating and improving this tiny project, and I’m truly grateful that you downloaded it and became part of it (or, cutely put, part of the family 🩷). If you have any ideas or feedback, feel free to reach out anytime! 💪';
 
   @override
   String get stats_title => 'Statistics';
@@ -1003,4 +1003,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetZoom => 'Reset zoom';
+
+  @override
+  String get billing_title => 'Subscription & Billing';
+
+  @override
+  String get plan_free => 'Free';
+
+  @override
+  String get plan_basic => 'Basic';
+
+  @override
+  String get plan_pro => 'Pro';
+
+  @override
+  String get plan_plus => 'Plus';
+
+  @override
+  String billing_current_plan(String plan) {
+    return 'Current plan: $plan';
+  }
+
+  @override
+  String get section_plan_notes => 'Plan notes';
+
+  @override
+  String get section_payment_invoice => 'Payment & invoice (demo)';
+
+  @override
+  String get section_terms => 'Terms (demo)';
+
+  @override
+  String get upgrade_card_title => 'Upgrade storage, collect freely';
+
+  @override
+  String get upgrade_card_desc =>
+      'Paid plans will unlock local uploads, larger storage, and multi-device sync.';
+
+  @override
+  String get badge_coming_soon => 'Coming soon';
+
+  @override
+  String get feature_external_images => 'External images (URL)';
+
+  @override
+  String get feature_small_cloud_space => 'Small cloud storage';
+
+  @override
+  String get feature_multi_device_sync => 'Multi-device sync';
+
+  @override
+  String get feature_upload_local_images => 'Upload local images';
+
+  @override
+  String get feature_priority_support => 'Priority support';
+
+  @override
+  String get feature_large_storage => 'Large cloud storage';
+
+  @override
+  String get feature_album_report => 'Album report (preview)';
+
+  @override
+  String get feature_roadmap_advance => 'Advanced features (preview)';
+
+  @override
+  String get plan_badge_recommended => 'Recommended';
+
+  @override
+  String price_per_month(Object price) {
+    return '$price/mo';
+  }
+
+  @override
+  String get upgrade_now => 'Upgrade now';
+
+  @override
+  String get manage_plan => 'Manage plan';
+
+  @override
+  String get coming_soon_title => 'Not available yet';
+
+  @override
+  String get coming_soon_body =>
+      'Local cloud storage is being prepared for launch. This is a placeholder. The official release will include local uploads, larger capacity, and multi-device sync. Stay tuned!';
+
+  @override
+  String get coming_soon_ok => 'OK';
+
+  @override
+  String get bullet_free_external => 'Free plan: external images (URLs) only';
+
+  @override
+  String get bullet_paid_local_upload =>
+      'Paid plans: upload local images to cloud with larger storage';
+
+  @override
+  String get bullet_future_tiers =>
+      'More storage tiers will be available later';
+
+  @override
+  String get bullet_pay_cards =>
+      'Currently supports credit cards (VISA / Master / JCB)';
+
+  @override
+  String get bullet_einvoice =>
+      'Domestic e-invoice; business users can enter tax ID';
+
+  @override
+  String get bullet_cancel_anytime => 'Cancel anytime; no renewal next cycle';
+
+  @override
+  String get bullet_terms =>
+      'Terms of Service, Privacy Policy, Refund Policy (links to be added)';
+
+  @override
+  String get bullet_abuse => 'Abusive/illegal uploads may lead to suspension';
 }

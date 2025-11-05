@@ -54,8 +54,8 @@
   "signOut": "Abmelden",
 
   "helloDeveloperTitle": "Hallo! Ich bin der Entwickler",
-  "helloDeveloperBody": "Danke, dass du dieses kleine Side-Project ausprobierst. Ich bin ein großer Fan von LE SSERAFIM (hier ein FEARNOT), aber ich möchte nicht jedes Mal einen Stapel Fotokarten mitnehmen, wenn ich die Freude mit Freunden teile. Deshalb habe ich diese App gebaut – damit Fans Karten direkt auf einem 6,5-Zoll-Display zeigen und tauschen können. Ich werde das Projekt weiter pflegen, und der Code bleibt auf GitHub offen. Danke fürs Herunterladen und dafür, dass du Teil dieses Projekts (oder – niedlich gesagt – dieser Familie) bist. Wenn du Fragen oder Ideen zur Verbesserung hast, melde dich gern. — Jimmy Lee",
-
+  "helloDeveloperBody": "Danke, dass du dieses kleine Side Project ausprobierst 💫 \n\nIch bin ein großer LE SSERAFIM-Fan (FEARNOT)! Jedes Mal, wenn ich die Freude am Photocard-Sammeln mit Freunden teilen will, finde ich es mühsam, einen ganzen Stapel mitzunehmen – also habe ich diese App gemacht 📱. Jetzt kannst du deine Karten ganz einfach mit nur einem 6,5-Zoll-Handy zeigen und tauschen.\n\nIch werde dieses kleine Projekt weiterhin pflegen und verbessern, und ich bin wirklich dankbar, dass du es heruntergeladen und ein Teil davon geworden bist (oder, süßer gesagt, Teil der Familie 🩷). Wenn du Ideen oder Vorschläge hast, schreib mir einfach jederzeit! 💪",
+  
   "stats_title": "Statistiken",
   "stats_overview": "Sammlungsübersicht",
   "stats_artist_count": "Anzahl der Künstler*innen",
@@ -425,8 +425,56 @@
 
   "zoomIn": "Vergrößern",
   "zoomOut": "Verkleinern",
-  "resetZoom": "Zoom zurücksetzen"
+  "resetZoom": "Zoom zurücksetzen",
 
+  "billing_title": "Abonnement & Zahlung",
+  "billing_current_plan": "Aktueller Plan: {plan}",
+  "plan_free": "Free",
+  "plan_basic": "Basic",
+  "plan_pro": "Pro",
+  "plan_plus": "Plus",
+  
 
+  "@billing_current_plan": {
+    "placeholders": {
+      "plan": { "type": "String" }
+    }
+  },
+
+  "section_plan_notes": "Hinweise zu den Plänen",
+  "section_payment_invoice": "Zahlung & Rechnung (Demo)",
+  "section_terms": "Bedingungen (Demo)",
+
+  "upgrade_card_title": "Speicher erweitern, entspannt sammeln",
+  "upgrade_card_desc": "Mit den Bezahlplänen kommen lokale Uploads, mehr Speicher und Geräte-Sync.",
+  "badge_coming_soon": "Bald verfügbar",
+
+  "feature_external_images": "Externe Bilder (URL)",
+  "feature_small_cloud_space": "Kleiner Cloud-Speicher",
+  "feature_multi_device_sync": "Mehrgeräte-Sync",
+  "feature_upload_local_images": "Lokale Bilder hochladen",
+  "feature_priority_support": "Priorisierter Support",
+  "feature_large_storage": "Großer Cloud-Speicher",
+  "feature_album_report": "Album-Reports (Vorschau)",
+  "feature_roadmap_advance": "Erweiterte Funktionen (Vorschau)",
+
+  "plan_badge_recommended": "Empfohlen",
+  "price_per_month": "{price}/Monat",
+
+  "upgrade_now": "Jetzt upgraden",
+  "manage_plan": "Plan verwalten",
+
+  "coming_soon_title": "Noch nicht verfügbar",
+  "coming_soon_body": "Der lokale Cloud-Speicher wird derzeit für den Start vorbereitet. Dies ist eine Platzhalter-Ansicht. In der finalen Version gibt es lokale Uploads, mehr Speicher und Geräte-Sync.",
+  "coming_soon_ok": "OK",
+
+  "bullet_free_external": "Gratis-Plan: Nur externe Bilder (URL) erlaubt",
+  "bullet_paid_local_upload": "Bezahlplan: Lokale Uploads in die Cloud mit mehr Speicher",
+  "bullet_future_tiers": "Weitere Speicherstufen folgen",
+  "bullet_pay_cards": "Unterstützt: Kreditkarte (VISA/Master/JCB)",
+  "bullet_einvoice": "Inländische E-Rechnung; Unternehmens-Steuernummer möglich",
+  "bullet_cancel_anytime": "Jederzeit kündbar – keine Verlängerung im nächsten Monat",
+  "bullet_terms": "Nutzungsbedingungen, Datenschutz, Rückerstattungen (Links folgen)",
+  "bullet_abuse": "Missbräuchliche/illegale Uploads führen zur Sperrung"
 
 }

@@ -145,7 +145,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get helloDeveloperBody =>
-      'この小さなサイドプロジェクトを試してくれて、ありがとうございます。私は LE SSERAFIM の大ファン（FEARNOT）ですが、友だちと喜びを分かち合うたびにフォトカードを山ほど持ち歩くのは大変。そこでこのアプリを作りました。6.5インチの画面だけでカードの表示や交換ができます。今後もメンテナンスを続け、コードは GitHub で公開します。ダウンロードして、このプロジェクト――かわいく言えば“ファミリー”――の一員になってくれて本当に感謝します。改善のアイデアや質問があれば、いつでも気軽に連絡してください。— Jimmy Lee';
+      'この小さなサイドプロジェクトを試してくれてありがとう💫 \n\n私は LE SSERAFIM の大ファン（FEARNOT）です！友達にフォトカードの喜びを共有したいけど、たくさんのカードを持ち歩くのは大変なので、このアプリを作りました📱。6.5インチのスマホ1台で簡単にカードを見せたり交換したりできます。\n\nこれからも少しずつアップデートしていくので、ダウンロードして家族（と言ってもいいよね🩷）の一員になってくれて本当にありがとう！もし何かアイデアや意見があれば、いつでも気軽に教えてね💪';
 
   @override
   String get stats_title => '統計';
@@ -986,4 +986,114 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get resetZoom => '拡大率をリセット';
+
+  @override
+  String get billing_title => 'サブスクリプションとお支払い';
+
+  @override
+  String get plan_free => 'フリー';
+
+  @override
+  String get plan_basic => 'ベーシック';
+
+  @override
+  String get plan_pro => 'プロ';
+
+  @override
+  String get plan_plus => 'プラス';
+
+  @override
+  String billing_current_plan(String plan) {
+    return '現在のプラン：$plan';
+  }
+
+  @override
+  String get section_plan_notes => 'プランの説明';
+
+  @override
+  String get section_payment_invoice => '支払いと請求（デモ）';
+
+  @override
+  String get section_terms => '利用規約（デモ）';
+
+  @override
+  String get upgrade_card_title => '容量をアップして、もっと気軽に収集';
+
+  @override
+  String get upgrade_card_desc => '有料プランでローカル画像のアップロード・大容量・複数端末同期が解放されます。';
+
+  @override
+  String get badge_coming_soon => '近日公開';
+
+  @override
+  String get feature_external_images => '外部画像（URL）';
+
+  @override
+  String get feature_small_cloud_space => '少量クラウド容量';
+
+  @override
+  String get feature_multi_device_sync => '複数端末同期';
+
+  @override
+  String get feature_upload_local_images => 'ローカル画像アップロード';
+
+  @override
+  String get feature_priority_support => '優先サポート';
+
+  @override
+  String get feature_large_storage => '大容量クラウド';
+
+  @override
+  String get feature_album_report => 'アルバムレポート（予告）';
+
+  @override
+  String get feature_roadmap_advance => '高度機能（予告）';
+
+  @override
+  String get plan_badge_recommended => 'おすすめ';
+
+  @override
+  String price_per_month(Object price) {
+    return '$price/月';
+  }
+
+  @override
+  String get upgrade_now => '今すぐアップグレード';
+
+  @override
+  String get manage_plan => 'プラン管理';
+
+  @override
+  String get coming_soon_title => '準備中です';
+
+  @override
+  String get coming_soon_body =>
+      'ローカルクラウド容量は現在リリース準備中です。今はプレースホルダー表示となります。正式版ではローカル画像アップロード・大容量・複数端末同期を提供予定です。お楽しみに！';
+
+  @override
+  String get coming_soon_ok => 'OK';
+
+  @override
+  String get bullet_free_external => '無料プラン：外部画像（URL）のみ利用可';
+
+  @override
+  String get bullet_paid_local_upload => '有料プラン：ローカル画像のアップロードと大容量を提供';
+
+  @override
+  String get bullet_future_tiers => '今後、容量の段階を拡充予定';
+
+  @override
+  String get bullet_pay_cards => '対応：クレジットカード（VISA／Master／JCB）';
+
+  @override
+  String get bullet_einvoice => '国内はクラウド請求書に対応。企業は税番号の入力可';
+
+  @override
+  String get bullet_cancel_anytime => 'いつでも解約可能。次回以降は課金されません';
+
+  @override
+  String get bullet_terms => '利用規約・プライバシー・返金ポリシー（後日リンク追加）';
+
+  @override
+  String get bullet_abuse => '不正・違法なアップロードはアカウント停止の対象';
 }

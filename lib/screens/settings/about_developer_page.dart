@@ -119,6 +119,7 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
       MaterialPageRoute(
         builder: (_) => VersionShowcasePage(
           versionText: _versionText.isEmpty ? '—' : _versionText,
+          codeName: 'Wave', // ← 底部要顯示的名稱
           cards: cards,
         ),
       ),
@@ -201,7 +202,7 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
                           runSpacing: 8,
                           children: [
                             Chip(label: Text('Flutter')),
-                            Chip(label: Text('Open Source')),
+                            // Chip(label: Text('Open Source')),
                             Chip(label: Text('Side Project')),
                           ],
                         ),

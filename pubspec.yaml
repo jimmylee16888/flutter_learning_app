@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.1.11+13
+version: 1.2.0+15
 
 environment:
   sdk: ^3.9.0
@@ -28,9 +28,9 @@ dependencies:
 
   # 相簿圖片解析 QR 用 ML Kit
   google_mlkit_barcode_scanning: ^0.11.0
-  image: ^4.2.0        # 解析 JPG/PNG 為像素
+  image: ^4.5.4        # ← 原本 4.2.0，升到 4.5.4 才會一起用 archive 4.x
   zxing2: ^0.2.2       # 純 Dart ZXing QR 解碼
-  archive: ^3.6.1
+  archive: ^4.0.7      # ← 原本 3.6.1，升到 4.x（跟 image 對上）
 
   # google 登入
   google_sign_in: ^7.1.1
@@ -55,12 +55,16 @@ dependencies:
   # 網頁版專用
   mime: ^1.0.5
 
+  # 手機重力水平面傾斜
+  sensors_plus: ^6.0.1
+  audioplayers: ^6.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.13.1
-  flutter_native_splash: ^2.4.0   # ← 新增
+  flutter_launcher_icons: ^0.14.4   
+  flutter_native_splash: ^2.4.7     
 
 flutter_launcher_icons:
   android: true

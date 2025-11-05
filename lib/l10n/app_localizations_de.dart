@@ -148,7 +148,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helloDeveloperBody =>
-      'Danke, dass du dieses kleine Side-Project ausprobierst. Ich bin ein großer Fan von LE SSERAFIM (hier ein FEARNOT), aber ich möchte nicht jedes Mal einen Stapel Fotokarten mitnehmen, wenn ich die Freude mit Freunden teile. Deshalb habe ich diese App gebaut – damit Fans Karten direkt auf einem 6,5-Zoll-Display zeigen und tauschen können. Ich werde das Projekt weiter pflegen, und der Code bleibt auf GitHub offen. Danke fürs Herunterladen und dafür, dass du Teil dieses Projekts (oder – niedlich gesagt – dieser Familie) bist. Wenn du Fragen oder Ideen zur Verbesserung hast, melde dich gern. — Jimmy Lee';
+      'Danke, dass du dieses kleine Side Project ausprobierst 💫 \n\nIch bin ein großer LE SSERAFIM-Fan (FEARNOT)! Jedes Mal, wenn ich die Freude am Photocard-Sammeln mit Freunden teilen will, finde ich es mühsam, einen ganzen Stapel mitzunehmen – also habe ich diese App gemacht 📱. Jetzt kannst du deine Karten ganz einfach mit nur einem 6,5-Zoll-Handy zeigen und tauschen.\n\nIch werde dieses kleine Projekt weiterhin pflegen und verbessern, und ich bin wirklich dankbar, dass du es heruntergeladen und ein Teil davon geworden bist (oder, süßer gesagt, Teil der Familie 🩷). Wenn du Ideen oder Vorschläge hast, schreib mir einfach jederzeit! 💪';
 
   @override
   String get stats_title => 'Statistiken';
@@ -1008,4 +1008,121 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get resetZoom => 'Zoom zurücksetzen';
+
+  @override
+  String get billing_title => 'Abonnement & Zahlung';
+
+  @override
+  String get plan_free => 'Free';
+
+  @override
+  String get plan_basic => 'Basic';
+
+  @override
+  String get plan_pro => 'Pro';
+
+  @override
+  String get plan_plus => 'Plus';
+
+  @override
+  String billing_current_plan(String plan) {
+    return 'Aktueller Plan: $plan';
+  }
+
+  @override
+  String get section_plan_notes => 'Hinweise zu den Plänen';
+
+  @override
+  String get section_payment_invoice => 'Zahlung & Rechnung (Demo)';
+
+  @override
+  String get section_terms => 'Bedingungen (Demo)';
+
+  @override
+  String get upgrade_card_title => 'Speicher erweitern, entspannt sammeln';
+
+  @override
+  String get upgrade_card_desc =>
+      'Mit den Bezahlplänen kommen lokale Uploads, mehr Speicher und Geräte-Sync.';
+
+  @override
+  String get badge_coming_soon => 'Bald verfügbar';
+
+  @override
+  String get feature_external_images => 'Externe Bilder (URL)';
+
+  @override
+  String get feature_small_cloud_space => 'Kleiner Cloud-Speicher';
+
+  @override
+  String get feature_multi_device_sync => 'Mehrgeräte-Sync';
+
+  @override
+  String get feature_upload_local_images => 'Lokale Bilder hochladen';
+
+  @override
+  String get feature_priority_support => 'Priorisierter Support';
+
+  @override
+  String get feature_large_storage => 'Großer Cloud-Speicher';
+
+  @override
+  String get feature_album_report => 'Album-Reports (Vorschau)';
+
+  @override
+  String get feature_roadmap_advance => 'Erweiterte Funktionen (Vorschau)';
+
+  @override
+  String get plan_badge_recommended => 'Empfohlen';
+
+  @override
+  String price_per_month(Object price) {
+    return '$price/Monat';
+  }
+
+  @override
+  String get upgrade_now => 'Jetzt upgraden';
+
+  @override
+  String get manage_plan => 'Plan verwalten';
+
+  @override
+  String get coming_soon_title => 'Noch nicht verfügbar';
+
+  @override
+  String get coming_soon_body =>
+      'Der lokale Cloud-Speicher wird derzeit für den Start vorbereitet. Dies ist eine Platzhalter-Ansicht. In der finalen Version gibt es lokale Uploads, mehr Speicher und Geräte-Sync.';
+
+  @override
+  String get coming_soon_ok => 'OK';
+
+  @override
+  String get bullet_free_external =>
+      'Gratis-Plan: Nur externe Bilder (URL) erlaubt';
+
+  @override
+  String get bullet_paid_local_upload =>
+      'Bezahlplan: Lokale Uploads in die Cloud mit mehr Speicher';
+
+  @override
+  String get bullet_future_tiers => 'Weitere Speicherstufen folgen';
+
+  @override
+  String get bullet_pay_cards => 'Unterstützt: Kreditkarte (VISA/Master/JCB)';
+
+  @override
+  String get bullet_einvoice =>
+      'Inländische E-Rechnung; Unternehmens-Steuernummer möglich';
+
+  @override
+  String get bullet_cancel_anytime =>
+      'Jederzeit kündbar – keine Verlängerung im nächsten Monat';
+
+  @override
+  String get bullet_terms =>
+      'Nutzungsbedingungen, Datenschutz, Rückerstattungen (Links folgen)';
+
+  @override
+  String get bullet_abuse =>
+      'Missbräuchliche/illegale Uploads führen zur Sperrung';
 }

@@ -378,7 +378,7 @@ abstract class AppLocalizations {
   /// No description provided for @helloDeveloperBody.
   ///
   /// In en, this message translates to:
-  /// **'Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee'**
+  /// **'Thank you for trying out this little side project 💫 \n\nI’m a proud FEARNOT (LE SSERAFIM fan)! Every time I want to share the joy of collecting photocards with friends, I hate having to carry a whole stack around — so I made this app 💡. Now you can easily show and trade your cards with just a 6.5-inch phone.\n\nI’ll keep updating and improving this tiny project, and I’m truly grateful that you downloaded it and became part of it (or, cutely put, part of the family 🩷). If you have any ideas or feedback, feel free to reach out anytime! 💪'**
   String get helloDeveloperBody;
 
   /// No description provided for @stats_title.
@@ -1922,6 +1922,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset zoom'**
   String get resetZoom;
+
+  /// No description provided for @billing_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription & Billing'**
+  String get billing_title;
+
+  /// No description provided for @plan_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get plan_free;
+
+  /// No description provided for @plan_basic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get plan_basic;
+
+  /// No description provided for @plan_pro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get plan_pro;
+
+  /// No description provided for @plan_plus.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus'**
+  String get plan_plus;
+
+  /// No description provided for @billing_current_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan: {plan}'**
+  String billing_current_plan(String plan);
+
+  /// No description provided for @section_plan_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan notes'**
+  String get section_plan_notes;
+
+  /// No description provided for @section_payment_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment & invoice (demo)'**
+  String get section_payment_invoice;
+
+  /// No description provided for @section_terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms (demo)'**
+  String get section_terms;
+
+  /// No description provided for @upgrade_card_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade storage, collect freely'**
+  String get upgrade_card_title;
+
+  /// No description provided for @upgrade_card_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid plans will unlock local uploads, larger storage, and multi-device sync.'**
+  String get upgrade_card_desc;
+
+  /// No description provided for @badge_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get badge_coming_soon;
+
+  /// No description provided for @feature_external_images.
+  ///
+  /// In en, this message translates to:
+  /// **'External images (URL)'**
+  String get feature_external_images;
+
+  /// No description provided for @feature_small_cloud_space.
+  ///
+  /// In en, this message translates to:
+  /// **'Small cloud storage'**
+  String get feature_small_cloud_space;
+
+  /// No description provided for @feature_multi_device_sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-device sync'**
+  String get feature_multi_device_sync;
+
+  /// No description provided for @feature_upload_local_images.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload local images'**
+  String get feature_upload_local_images;
+
+  /// No description provided for @feature_priority_support.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority support'**
+  String get feature_priority_support;
+
+  /// No description provided for @feature_large_storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Large cloud storage'**
+  String get feature_large_storage;
+
+  /// No description provided for @feature_album_report.
+  ///
+  /// In en, this message translates to:
+  /// **'Album report (preview)'**
+  String get feature_album_report;
+
+  /// No description provided for @feature_roadmap_advance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced features (preview)'**
+  String get feature_roadmap_advance;
+
+  /// No description provided for @plan_badge_recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get plan_badge_recommended;
+
+  /// No description provided for @price_per_month.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/mo'**
+  String price_per_month(Object price);
+
+  /// No description provided for @upgrade_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade now'**
+  String get upgrade_now;
+
+  /// No description provided for @manage_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage plan'**
+  String get manage_plan;
+
+  /// No description provided for @coming_soon_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available yet'**
+  String get coming_soon_title;
+
+  /// No description provided for @coming_soon_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Local cloud storage is being prepared for launch. This is a placeholder. The official release will include local uploads, larger capacity, and multi-device sync. Stay tuned!'**
+  String get coming_soon_body;
+
+  /// No description provided for @coming_soon_ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get coming_soon_ok;
+
+  /// No description provided for @bullet_free_external.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan: external images (URLs) only'**
+  String get bullet_free_external;
+
+  /// No description provided for @bullet_paid_local_upload.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid plans: upload local images to cloud with larger storage'**
+  String get bullet_paid_local_upload;
+
+  /// No description provided for @bullet_future_tiers.
+  ///
+  /// In en, this message translates to:
+  /// **'More storage tiers will be available later'**
+  String get bullet_future_tiers;
+
+  /// No description provided for @bullet_pay_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently supports credit cards (VISA / Master / JCB)'**
+  String get bullet_pay_cards;
+
+  /// No description provided for @bullet_einvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Domestic e-invoice; business users can enter tax ID'**
+  String get bullet_einvoice;
+
+  /// No description provided for @bullet_cancel_anytime.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime; no renewal next cycle'**
+  String get bullet_cancel_anytime;
+
+  /// No description provided for @bullet_terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service, Privacy Policy, Refund Policy (links to be added)'**
+  String get bullet_terms;
+
+  /// No description provided for @bullet_abuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Abusive/illegal uploads may lead to suspension'**
+  String get bullet_abuse;
 }
 
 class _AppLocalizationsDelegate

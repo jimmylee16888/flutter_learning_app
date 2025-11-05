@@ -1,23 +1,29 @@
 // lib/screens/easter_egg/version_showcase_page.dart
 import 'dart:io' show File;
-import 'dart:math' show pi, cos, sin, min, max, Random;
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart'; // Ticker
+import 'package:flutter/services.dart';
+import 'package:flutter/scheduler.dart'; // for Ticker / createTicker
+import 'package:audioplayers/audioplayers.dart';
+
 import '../../../models/card_item.dart';
 
 const String kFallbackLogo = 'assets/images/pop_card_without_background.png';
-const String kLogoBallAsset = 'assets/images/popcard.png'; // 你的 logo 球
+const String kLogoBallAsset = 'assets/images/popcard.png';
+const String kPopSfx = 'assets/audio/pop.mp3'; // 戳破音效
 
 class VersionShowcasePage extends StatefulWidget {
   const VersionShowcasePage({
     super.key,
-    required this.versionText,
+    required this.versionText, // 例：1.2.3+4
     required this.cards,
+    this.codeName = 'Wave', // 底部顯示的版本名稱
   });
 
-  final String versionText; // 例：1.2.3+4
-  final List<CardItem> cards; // 來源卡片（有 imageUrl / localPath）
+  final String versionText;
+  final String codeName;
+  final List<CardItem> cards;
 
   @override
   State<VersionShowcasePage> createState() => _VersionShowcasePageState();
@@ -25,38 +31,37 @@ class VersionShowcasePage extends StatefulWidget {
 
 class _VersionShowcasePageState extends State<VersionShowcasePage>
     with SingleTickerProviderStateMixin {
-  final Random _rnd = Random();
   late final Ticker _ticker;
+  final _player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
 
-  // 場地
   Size _arena = Size.zero;
-
-  // 球
-  final List<_Ball> _balls = [];
-
-  // 拖曳狀態
-  int? _dragIndex;
-  Offset? _lastDragPos;
-
-  // 揮擊狀態
-  Offset? _swingStart;
-  Offset? _swingLast;
-  DateTime? _swingLastTime;
-
-  // 指下游標（顯示工具 icon）
-  Offset? _cursorPos;
-  bool _cursorVisible = false;
-
-  // 時間
   Duration _lastTick = Duration.zero;
 
-  // 工具（Icon 版本）
-  Tool _tool = Tool.hand;
+  final List<_FloatItem> _items = [];
+  final _Sea _sea = _Sea(
+    waterLine: 0.58,
+    a1: 16,
+    lambda1: 210,
+    speed1: 0.28,
+    a2: 10,
+    lambda2: 120,
+    speed2: 0.46,
+    a3: 6,
+    lambda3: 70,
+    speed3: 0.63,
+  );
 
   @override
   void initState() {
     super.initState();
-    _ticker = Ticker(_tick)..start();
+    _ticker = createTicker(_tick)..start();
+
+    // ✅ 第一幀後再試一次（若當下 arena OK 但 items 還是空，就補一手）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _arena != Size.zero && _items.isEmpty) {
+        setState(_ensureSpawned);
+      }
+    });
   }
 
   @override
@@ -72,27 +77,24 @@ class _VersionShowcasePageState extends State<VersionShowcasePage>
   @override
   void dispose() {
     _ticker.dispose();
+    _player.dispose();
     super.dispose();
   }
 
-  // ───────────────────────── helpers ─────────────────────────
   ImageProvider _providerForCard(CardItem c) {
     if (!kIsWeb) {
-      final lp = c.localPath ?? '';
+      final lp = (c.localPath ?? '').trim();
       if (lp.isNotEmpty) {
         final f = File(lp);
         if (f.existsSync()) return FileImage(f);
       }
-      final iu = c.imageUrl ?? '';
-      if (iu.isNotEmpty) {
-        final uri = Uri.tryParse(iu);
-        if (uri != null && uri.scheme == 'file') {
-          final f = File(uri.toFilePath());
-          if (f.existsSync()) return FileImage(f);
-        }
+      final iu = (c.imageUrl ?? '').trim();
+      if (iu.startsWith('file://')) {
+        final f = File(Uri.parse(iu).toFilePath());
+        if (f.existsSync()) return FileImage(f);
       }
     }
-    final url = c.imageUrl ?? '';
+    final url = (c.imageUrl ?? '').trim();
     if (url.isNotEmpty) return NetworkImage(url);
     return const AssetImage(kFallbackLogo);
   }
@@ -100,74 +102,113 @@ class _VersionShowcasePageState extends State<VersionShowcasePage>
   double _clamp(double v, double lo, double hi) =>
       v < lo ? lo : (v > hi ? hi : v);
 
-  // 初始放置成光環，並插入一顆 logo 球
-  void _spawnIfNeeded() {
-    if (_arena == Size.zero || _balls.isNotEmpty) return;
+  void _ensureSpawned() {
+    if (_arena == Size.zero || _items.isNotEmpty) return;
 
-    final w = _arena.width, h = _arena.height;
-    final base = min(w, h);
+    final rnd = math.Random();
+    final w = _arena.width;
+    final h = _arena.height;
 
-    final big = _clamp(base * 0.20, 84, 160);
-    final mid = big * 0.92;
-    final sml = big * 0.84;
+    // 卡片／照片球
+    final take = math.min(widget.cards.length, 24);
+    for (int i = 0; i < take; i++) {
+      final img = _providerForCard(widget.cards[i]);
+      final title = widget.cards[i].title;
 
-    final r1 = base * 0.32;
-    final r2 = base * 0.46;
-    final r3 = base * 0.60;
+      final isBuoyant = rnd.nextBool();
+      final size = isBuoyant
+          ? (rnd.nextDouble() * 26 + 74)
+          : (rnd.nextDouble() * 18 + 62);
 
-    final total = widget.cards.length;
-    final c1 = total <= 8 ? total : min(10, total);
-    final c2 = total > c1 ? min(14, total - c1) : 0;
-    final c3 = total - c1 - c2;
+      final x = rnd.nextDouble() * w * 0.9 + w * 0.05;
+      final waterY = _sea.surfaceY(x, 0.0, h);
+      final y = isBuoyant
+          ? waterY - size * (0.35 + rnd.nextDouble() * 0.25)
+          : (h * (0.82 + rnd.nextDouble() * 0.12));
 
-    int idx = 0;
-    void addRing(int count, double radius, double size) {
-      for (int i = 0; i < count; i++) {
-        final angle = (2 * pi) * (i / count) - pi / 2;
-        final cx = w / 2 + radius * cos(angle);
-        final cy = h / 2 + radius * sin(angle);
-        final img = _providerForCard(widget.cards[idx]);
-        final title = widget.cards[idx].title;
-        idx++;
+      final vx = (rnd.nextDouble() * 10 + 4) * (rnd.nextBool() ? 1 : -1);
+      final vy = (rnd.nextDouble() * 12 - 6);
 
-        final vx = (_rnd.nextDouble() * 110 + 30) * (_rnd.nextBool() ? 1 : -1);
-        final vy = (_rnd.nextDouble() * 110 + 30) * (_rnd.nextBool() ? 1 : -1);
-
-        _balls.add(
-          _Ball(
-            pos: Offset(cx, cy),
-            vel: Offset(vx, vy),
-            size: size,
-            image: img,
-            title: title,
-          ),
-        );
-      }
+      _items.add(
+        _FloatItem.imageBall(
+          pos: Offset(x, y),
+          vel: Offset(vx, vy),
+          size: size,
+          isBuoyant: isBuoyant,
+          image: img,
+          title: title,
+        ),
+      );
     }
 
-    addRing(c1, r1, big);
-    addRing(c2, r2, mid);
-    addRing(c3, r3, sml);
-
-    // logo 球
-    final logoSize = _clamp(big * 1.05, big, big * 1.25);
-    final logoOffset = Offset(
-      w / 2 + _rnd.nextDouble() * 20 - 10,
-      h / 2 + _rnd.nextDouble() * 20 - 10,
-    );
-    _balls.add(
-      _Ball(
-        pos: logoOffset,
+    // Logo 球
+    final logoSize = _clamp(math.min(w, h) * 0.14, 72, 128);
+    final lx = rnd.nextDouble() * w * 0.8 + w * 0.1;
+    final ly = _sea.surfaceY(lx, 0.0, h) - logoSize * 0.45;
+    _items.add(
+      _FloatItem.imageBall(
+        pos: Offset(lx, ly),
         vel: Offset(
-          (_rnd.nextDouble() * 70 + 25) * (_rnd.nextBool() ? 1 : -1),
-          (_rnd.nextDouble() * 70 + 25) * (_rnd.nextBool() ? 1 : -1),
+          (rnd.nextDouble() * 20 + 10) * (rnd.nextBool() ? 1 : -1),
+          0,
         ),
         size: logoSize,
+        isBuoyant: true,
         image: const AssetImage(kLogoBallAsset),
         title: 'Logo',
-        isLogo: true,
       ),
     );
+
+    // 彩蛋：鴨子／海灘球／魚／章魚
+    _items.addAll([
+      _FloatItem.emoji(
+        emoji: '🦆',
+        title: 'Duck',
+        pos: Offset(w * 0.20, _sea.surfaceY(w * 0.20, 0, h) - 46),
+        vel: const Offset(16, 0),
+        size: 38,
+        isBuoyant: true,
+      ),
+      _FloatItem.beachBall(
+        title: 'Beach Ball',
+        pos: Offset(w * 0.75, _sea.surfaceY(w * 0.75, 0, h) - 40),
+        vel: const Offset(-18, 0),
+        size: 42,
+        isBuoyant: true,
+      ),
+      _FloatItem.emoji(
+        emoji: '🐟',
+        title: 'Fish',
+        pos: Offset(w * 0.35, h * 0.78),
+        vel: const Offset(22, 0),
+        size: 32,
+        isBuoyant: false,
+      ),
+      _FloatItem.emoji(
+        emoji: '🐙',
+        title: 'Octopus',
+        pos: Offset(w * 0.60, h * 0.82),
+        vel: const Offset(-18, 0),
+        size: 36,
+        isBuoyant: false,
+      ),
+    ]);
+  }
+
+  Future<void> _playPop() async {
+    try {
+      HapticFeedback.lightImpact();
+      await _player.stop();
+      await _player.play(AssetSource(kPopSfx));
+    } catch (_) {
+      /* 忽略音效錯誤 */
+    }
+  }
+
+  void _startPop(_FloatItem item) {
+    if (item.popProgress > 0) return;
+    item.popProgress = 0.0001; // 啟動動畫
+    _playPop();
   }
 
   void _tick(Duration now) {
@@ -178,617 +219,649 @@ class _VersionShowcasePageState extends State<VersionShowcasePage>
         : (now - _lastTick).inMicroseconds / 1e6;
     _lastTick = now;
 
-    final w = _arena.width, h = _arena.height;
+    final w = _arena.width;
+    final h = _arena.height;
 
-    const double damping = 0.998;
-    const double bounceLoss = 0.985;
+    const damping = 0.992;
+    const gravity = 420.0;
+    const springFloat = 6.0;
+    const springSink = 3.0;
+    const bottomMargin = 12.0;
 
-    for (int i = 0; i < _balls.length; i++) {
-      if (_dragIndex == i) continue;
+    final t = now.inMicroseconds / 1e6;
 
-      final b = _balls[i];
-      var x = b.pos.dx + b.vel.dx * dt;
-      var y = b.pos.dy + b.vel.dy * dt;
+    for (final b in _items) {
+      // 爆裂動畫
+      if (b.popProgress > 0) {
+        b.popProgress += dt / 0.35; // 0.35s
+        if (b.popProgress >= 1.0) {
+          b.isGone = true;
+          continue;
+        }
+      }
+
+      final vxPush = _sea.currentX(b.pos.dx, t) * (b.isBuoyant ? 0.40 : 0.18);
+
+      double ay = 0.0;
+      final ySurface = _sea.surfaceY(b.pos.dx, t, h);
+      if (b.isBuoyant) {
+        final target =
+            ySurface - (b.size * (b.kind == _Kind.beachBall ? 0.48 : 0.42));
+        ay += (target - b.pos.dy) * springFloat;
+        ay += math.sin((t * 2.2) + b.hash) * 12.0;
+      } else {
+        final bottomY = h - bottomMargin - b.size / 2;
+        final target = bottomY;
+        ay += (target - b.pos.dy) * springSink;
+        ay += math.sin((t * 1.3) + b.hash * 0.7) * 6.0;
+        ay += gravity;
+      }
+
+      b.vel = Offset(
+        (b.vel.dx + vxPush) * damping,
+        (b.vel.dy + ay * dt) * damping,
+      );
+      var newX = b.pos.dx + b.vel.dx * dt;
+      var newY = b.pos.dy + b.vel.dy * dt;
 
       final r = b.size / 2;
-
-      if (x - r < 0) {
-        x = r;
-        b.vel = Offset(b.vel.dx.abs(), b.vel.dy) * bounceLoss;
-      } else if (x + r > w) {
-        x = w - r;
-        b.vel = Offset(-b.vel.dx.abs(), b.vel.dy) * bounceLoss;
+      if (newX - r < 0) {
+        newX = r;
+        b.vel = Offset(-b.vel.dx * 0.9, b.vel.dy);
+      } else if (newX + r > w) {
+        newX = w - r;
+        b.vel = Offset(-b.vel.dx * 0.9, b.vel.dy);
       }
-      if (y - r < 0) {
-        y = r;
-        b.vel = Offset(b.vel.dx, b.vel.dy.abs()) * bounceLoss;
-      } else if (y + r > h) {
-        y = h - r;
-        b.vel = Offset(b.vel.dx, -b.vel.dy.abs()) * bounceLoss;
+      if (newY - r < 0) {
+        newY = r;
+        b.vel = Offset(b.vel.dx, -b.vel.dy * 0.5);
+      } else if (newY + r > h) {
+        newY = h - r;
+        b.vel = Offset(b.vel.dx, -b.vel.dy * 0.6);
       }
 
-      b.pos = Offset(x, y);
-      b.vel = b.vel * damping;
+      b.pos = Offset(newX, newY);
     }
 
+    _items.removeWhere((e) => e.isGone);
     setState(() {});
   }
 
-  // 找到手指按到的球（從最上層開始找）
-  int? _hitTestBall(Offset p) {
-    for (int i = _balls.length - 1; i >= 0; i--) {
-      final b = _balls[i];
-      final r = b.size / 2;
-      if ((p - b.pos).distanceSquared <= r * r) return i;
-    }
-    return null;
-  }
-
-  // 依工具施力（Icon 版）
-  void _applySwingImpulse(Offset from, Offset to) {
-    final dt =
-        (DateTime.now().millisecondsSinceEpoch -
-            (_swingLastTime?.millisecondsSinceEpoch ??
-                DateTime.now().millisecondsSinceEpoch)) /
-        1000.0;
-
-    final dir = (to - from);
-    if (dir.distance < 2) return;
-
-    final tool = _tool;
-    final reach = tool == Tool.bat
-        ? 200.0
-        : (tool == Tool.spoon ? 140.0 : 100.0);
-    final power = tool == Tool.bat
-        ? 1600.0
-        : (tool == Tool.spoon ? 1000.0 : 600.0);
-    final falloff = 0.5;
-
-    for (final b in _balls) {
-      final d = (b.pos - to).distance;
-      if (d <= reach) {
-        final dirToBall = (b.pos - from);
-        final unit = dirToBall.distance == 0
-            ? const Offset(0, 0)
-            : dirToBall / dirToBall.distance;
-
-        final vGesture = dir.distance / (dt > 0 ? dt : 0.016);
-        final gain = power * (1 - (d / reach)).clamp(0.0, 1.0);
-        final fall = (1 - falloff) + falloff * (1 - (d / reach));
-        final impulse = unit * vGesture * (gain / 7000.0) * fall;
-
-        final mass = b.isLogo ? 1.6 : 1.0;
-        b.vel += impulse / mass;
-      }
-    }
-  }
-
-  IconData _iconForTool(Tool t) {
-    switch (t) {
-      case Tool.hand:
-        return Icons.pan_tool_alt;
-      case Tool.spoon:
-        return Icons.soup_kitchen;
-      case Tool.bat:
-        // 若想棒球風格可換 Icons.sports_baseball
-        return Icons.sports_cricket;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+
+    final nowT = (_lastTick == Duration.zero)
+        ? 0.0
+        : _lastTick.inMicroseconds / 1e6;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About · Version'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: _ToolSelector(
-              value: _tool,
-              onChanged: (t) => setState(() => _tool = t),
-            ),
-          ),
-        ],
+        title: const Text('Easter Egg'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).maybePop(),
+          tooltip: 'Back',
+        ),
       ),
-      backgroundColor: scheme.surface,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final size = Size(constraints.maxWidth, constraints.maxHeight);
-          if (size != _arena) {
-            _arena = size;
-            _spawnIfNeeded();
-          }
+      backgroundColor: isDark
+          ? const Color(0xFF0B1020)
+          : const Color(0xFFF6FAFF),
+      body: SizedBox.expand(
+        // ✅ 確保拿到有內容的 constraints（不是 0）
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = Size(
+              constraints.maxWidth,
+              constraints.maxHeight,
+            ); // ✅ 不要再扣 kToolbarHeight
 
-          final base = min(_arena.width, _arena.height);
-          final versionFontSize = _clamp(base * 0.18, 36, 132);
+            if (size != _arena) {
+              _arena = size;
+              _items.clear();
+              _ensureSpawned(); // 立刻生一批
+            }
 
-          final children = <Widget>[];
+            final base = math.min(_arena.width, _arena.height);
+            final versionFontSize = _clamp(base * 0.18, 36, 128);
 
-          // 熔岩燈背景（依主題切換）
-          children.add(
-            Positioned.fill(child: _LavaLampBackground(isDark: isDark)),
-          );
+            return Stack(
+              children: [
+                // 海背景
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _SeaPainter(sea: _sea, t: nowT, dark: isDark),
+                  ),
+                ),
+                // 中央版本號
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: _arena.height / 2 - versionFontSize * 0.8,
+                  child: IgnorePointer(
+                    child: Text(
+                      widget.versionText.isEmpty ? '—' : widget.versionText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: versionFontSize,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
+                        color: isDark ? Colors.white : const Color(0xFF12203A),
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(
+                              isDark ? 0.40 : 0.18,
+                            ),
+                            blurRadius: isDark ? 22 : 14,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
 
-          // 球
-          for (int i = 0; i < _balls.length; i++) {
-            final b = _balls[i];
-            children.add(
-              Positioned(
-                left: b.pos.dx - b.size / 2,
-                top: b.pos.dy - b.size / 2,
-                width: b.size,
-                height: b.size,
-                child: _AvatarTile(image: b.image, tooltip: b.title),
-              ),
-            );
-          }
+                // 漂浮物件（可戳破）
+                // 漂浮物件（可戳破）—— 用 expand 攤平成外層 Stack 的孩子
+                ..._items.expand((b) {
+                  final under =
+                      b.pos.dy > _sea.surfaceY(b.pos.dx, nowT, _arena.height);
+                  final depth = under
+                      ? _clamp(
+                          (b.pos.dy -
+                                  _sea.surfaceY(
+                                    b.pos.dx,
+                                    nowT,
+                                    _arena.height,
+                                  )) /
+                              (_arena.height * 0.4),
+                          0,
+                          1,
+                        )
+                      : 0.0;
 
-          // 版本號
-          children.add(
-            Positioned(
-              left: 0,
-              right: 0,
-              top: _arena.height / 2 - versionFontSize * 0.8,
-              child: Column(
-                children: [
-                  Text(
-                    widget.versionText.isEmpty ? '—' : widget.versionText,
+                  final popping = b.popProgress > 0 && b.popProgress < 1.0;
+                  final p = popping ? b.popProgress : 0.0;
+                  final scale = popping
+                      ? (1.0 + 0.2 * math.sin(p * math.pi)) * (1 - p)
+                      : 1.0;
+                  final opacity = popping ? (1.0 - p) : 1.0;
+
+                  Widget child;
+                  switch (b.kind) {
+                    case _Kind.imageBall:
+                      child = _AvatarTile(
+                        image: b.image!,
+                        tooltip: b.title,
+                        depth: depth,
+                      );
+                      break;
+                    case _Kind.emoji:
+                      child = _EmojiTile(
+                        emoji: b.emoji!,
+                        size: b.size,
+                        depth: depth,
+                      );
+                      break;
+                    case _Kind.beachBall:
+                      child = _BeachBallTile(size: b.size, depth: depth);
+                      break;
+                  }
+
+                  child = GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _startPop(b),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 60),
+                      opacity: opacity,
+                      child: Transform.scale(scale: scale, child: child),
+                    ),
+                  );
+
+                  return <Widget>[
+                    // ① 球本體：直接定位到外層 Stack
+                    Positioned(
+                      left: b.pos.dx - b.size / 2,
+                      top: b.pos.dy - b.size / 2,
+                      width: b.size,
+                      height: b.size,
+                      child: child,
+                    ),
+
+                    // ② 噴濺特效：鋪滿畫面疊在上面（可選）
+                    if (popping && p > 0.05)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: CustomPaint(
+                            painter: _SplashPainter(center: b.pos, progress: p),
+                          ),
+                        ),
+                      ),
+                  ];
+                }),
+
+                // 底部版本名稱（如 Wave）
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 12 + MediaQuery.of(context).padding.bottom,
+                  child: Text(
+                    widget.codeName,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: versionFontSize,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      shadows: [
-                        Shadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.shadow.withOpacity(0.18),
-                          blurRadius: 14,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-
-          // 指下工具 icon（跟隨手勢位置）
-          if (_cursorVisible && _cursorPos != null) {
-            const double iconSize = 28;
-            children.add(
-              Positioned(
-                left: _clamp(
-                  _cursorPos!.dx - iconSize / 2,
-                  0,
-                  _arena.width - iconSize,
-                ),
-                top: _clamp(
-                  _cursorPos!.dy - iconSize / 2,
-                  0,
-                  _arena.height - iconSize,
-                ),
-                width: iconSize,
-                height: iconSize,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: scheme.surface.withOpacity(0.65),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.20),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: scheme.outlineVariant.withOpacity(0.8),
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        _iconForTool(_tool),
-                        size: 18,
-                        color: scheme.onSurface,
-                      ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onSurface.withOpacity(0.85),
+                      letterSpacing: 1.1,
                     ),
                   ),
                 ),
-              ),
+                Positioned(
+                  right: 8,
+                  bottom: 8 + MediaQuery.of(context).padding.bottom,
+                  child: Text(
+                    'arena=${_arena.width.toStringAsFixed(0)}x${_arena.height.toStringAsFixed(0)}  items=${_items.length}',
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                ),
+              ],
             );
-          }
-
-          // 手勢
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onPanStart: (d) {
-              final local = d.localPosition;
-              _cursorPos = local;
-              _cursorVisible = true;
-
-              final idx = _hitTestBall(local);
-              if (idx != null) {
-                setState(() {
-                  _dragIndex = idx;
-                  _lastDragPos = local;
-                  _swingStart = null;
-                  _swingLast = null;
-                  _swingLastTime = null;
-                  _balls[idx].vel = Offset.zero;
-                });
-              } else {
-                _dragIndex = null;
-                _lastDragPos = null;
-                _swingStart = local;
-                _swingLast = local;
-                _swingLastTime = DateTime.now();
-                setState(() {});
-              }
-            },
-            onPanUpdate: (d) {
-              _cursorPos = d.localPosition;
-
-              if (_dragIndex != null) {
-                final nowPos = d.localPosition;
-                final idx = _dragIndex!;
-                final b = _balls[idx];
-
-                final r = b.size / 2;
-                final clamped = Offset(
-                  _clamp(nowPos.dx, r, _arena.width - r),
-                  _clamp(nowPos.dy, r, _arena.height - r),
-                );
-                final delta = _lastDragPos == null
-                    ? Offset.zero
-                    : (clamped - _lastDragPos!);
-                b.pos = clamped;
-                b.vel = delta * 60.0;
-                _lastDragPos = clamped;
-                setState(() {});
-              } else if (_swingStart != null) {
-                _swingLast = d.localPosition;
-                _swingLastTime = DateTime.now();
-                setState(() {});
-              } else {
-                setState(() {}); // 僅更新游標位置
-              }
-            },
-            onPanEnd: (_) {
-              if (_dragIndex == null &&
-                  _swingStart != null &&
-                  _swingLast != null) {
-                _applySwingImpulse(_swingStart!, _swingLast!);
-              }
-              _dragIndex = null;
-              _lastDragPos = null;
-              _swingStart = null;
-              _swingLast = null;
-              _swingLastTime = null;
-
-              _cursorVisible = false;
-              _cursorPos = null;
-              setState(() {});
-            },
-            onPanCancel: () {
-              _dragIndex = null;
-              _lastDragPos = null;
-              _swingStart = null;
-              _swingLast = null;
-              _swingLastTime = null;
-
-              _cursorVisible = false;
-              _cursorPos = null;
-              setState(() {});
-            },
-            child: Stack(children: children),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ───────────────────────── 工具 UI（Icon 版） ─────────────────────────
-enum Tool { hand, spoon, bat }
-
-class _ToolSelector extends StatelessWidget {
-  const _ToolSelector({required this.value, required this.onChanged});
-
-  final Tool value;
-  final ValueChanged<Tool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = <({IconData icon, String label, Tool tool})>[
-      (icon: Icons.pan_tool_alt, label: 'Hand', tool: Tool.hand),
-      (icon: Icons.soup_kitchen, label: 'Spoon', tool: Tool.spoon),
-      (icon: Icons.sports_cricket, label: 'Bat', tool: Tool.bat),
-    ];
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
+          },
         ),
       ),
-      child: Row(
-        children: [
-          for (final it in items)
-            _ToolChip(
-              icon: it.icon,
-              label: it.label,
-              selected: value == it.tool,
-              onTap: () => onChanged(it.tool),
-            ),
-        ],
-      ),
     );
   }
 }
 
-class _ToolChip extends StatelessWidget {
-  const _ToolChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
+/* ─────────────── 模型 ─────────────── */
+
+enum _Kind { imageBall, emoji, beachBall }
+
+class _FloatItem {
+  _FloatItem._({
+    required this.kind,
+    required this.pos,
+    required this.vel,
+    required this.size,
+    required this.isBuoyant,
+    required this.title,
+    this.image,
+    this.emoji,
+  }) : hash = math.Random().nextDouble() * math.pi * 2;
+
+  factory _FloatItem.imageBall({
+    required Offset pos,
+    required Offset vel,
+    required double size,
+    required bool isBuoyant,
+    required ImageProvider image,
+    required String title,
+  }) => _FloatItem._(
+    kind: _Kind.imageBall,
+    pos: pos,
+    vel: vel,
+    size: size,
+    isBuoyant: isBuoyant,
+    title: title,
+    image: image,
+  );
+
+  factory _FloatItem.emoji({
+    required String emoji,
+    required String title,
+    required Offset pos,
+    required Offset vel,
+    required double size,
+    required bool isBuoyant,
+  }) => _FloatItem._(
+    kind: _Kind.emoji,
+    pos: pos,
+    vel: vel,
+    size: size,
+    isBuoyant: isBuoyant,
+    title: title,
+    emoji: emoji,
+  );
+
+  factory _FloatItem.beachBall({
+    required String title,
+    required Offset pos,
+    required Offset vel,
+    required double size,
+    required bool isBuoyant,
+  }) => _FloatItem._(
+    kind: _Kind.beachBall,
+    pos: pos,
+    vel: vel,
+    size: size,
+    isBuoyant: isBuoyant,
+    title: title,
+  );
+
+  final _Kind kind;
+  Offset pos;
+  Offset vel;
+  double size;
+  bool isBuoyant;
+  String title;
+
+  ImageProvider? image; // imageBall 用
+  String? emoji; // emoji 用
+
+  final double hash;
+
+  double popProgress = 0.0; // 0 未開始；0~1 動畫；>1 消失
+  bool isGone = false;
+}
+
+/* ─────────────── 海面/波浪背景 ─────────────── */
+
+class _Sea {
+  _Sea({
+    required this.waterLine,
+    required this.a1,
+    required this.lambda1,
+    required this.speed1,
+    required this.a2,
+    required this.lambda2,
+    required this.speed2,
+    required this.a3,
+    required this.lambda3,
+    required this.speed3,
   });
 
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+  final double waterLine;
+  final double a1, lambda1, speed1;
+  final double a2, lambda2, speed2;
+  final double a3, lambda3, speed3;
 
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected
-              ? scheme.primary.withOpacity(0.16)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: selected ? scheme.primary : scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: selected ? scheme.primary : scheme.onSurfaceVariant,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  double surfaceY(double x, double t, double h) {
+    final base = h * waterLine;
+    final y =
+        base +
+        a1 * math.sin((x / lambda1) * 2 * math.pi + t * speed1 * 2 * math.pi) +
+        a2 *
+            math.sin(
+              (x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2,
+            ) +
+        a3 *
+            math.sin(
+              (x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4,
+            );
+    return y;
+  }
+
+  double currentX(double x, double t) {
+    final d1 =
+        (2 * math.pi / lambda1) *
+        math.cos((x / lambda1) * 2 * math.pi + t * speed1 * 2 * math.pi);
+    final d2 =
+        (2 * math.pi / lambda2) *
+        math.cos((x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2);
+    final d3 =
+        (2 * math.pi / lambda3) *
+        math.cos((x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4);
+    return 38.0 * (d1 * a1 + d2 * a2 + d3 * a3);
   }
 }
 
-// ───────────────────────── Widgets & Models ─────────────────────────
+class _SeaPainter extends CustomPainter {
+  _SeaPainter({required this.sea, required this.t, required this.dark});
+  final _Sea sea;
+  final double t;
+  final bool dark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+
+    final sky = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: dark
+          ? [const Color(0xFF0B1020), const Color(0xFF101A34)]
+          : [const Color(0xFFEAF3FF), const Color(0xFFCFE3FF)],
+    ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawRect(Offset.zero & size, Paint()..shader = sky);
+
+    final seaTop = dark ? const Color(0xFF14305C) : const Color(0xFF4FA3FF);
+    final seaBot = dark ? const Color(0xFF0D1E3B) : const Color(0xFF0F5EA8);
+    final seaShader = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [seaTop, seaBot],
+    ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawRect(
+      Offset(0, h * sea.waterLine) & Size(w, h * (1 - sea.waterLine)),
+      Paint()..shader = seaShader,
+    );
+
+    void drawWave({
+      required double amp,
+      required double lambda,
+      required double phase,
+      required Color color,
+      required double yOffset,
+    }) {
+      final path = Path();
+      final y0 = sea.surfaceY(0, t, h) + yOffset;
+      path.moveTo(0, h);
+      path.lineTo(0, y0);
+      for (double x = 0; x <= w; x++) {
+        final y =
+            sea.surfaceY(x, t + phase, h) +
+            yOffset +
+            amp * math.sin((x / lambda) * 2 * math.pi + t * 1.2 + phase);
+        path.lineTo(x, y);
+      }
+      path.lineTo(w, h);
+      path.close();
+      canvas.drawPath(path, Paint()..color = color);
+    }
+
+    drawWave(
+      amp: 4,
+      lambda: 180,
+      phase: 0.0,
+      yOffset: -2,
+      color: Colors.white.withOpacity(dark ? 0.07 : 0.10),
+    );
+    drawWave(
+      amp: 8,
+      lambda: 240,
+      phase: 0.35,
+      yOffset: 4,
+      color: (dark ? Colors.white : Colors.black).withOpacity(
+        dark ? 0.05 : 0.04,
+      ),
+    );
+    drawWave(
+      amp: 14,
+      lambda: 320,
+      phase: 0.7,
+      yOffset: 10,
+      color: Colors.black.withOpacity(dark ? 0.16 : 0.08),
+    );
+
+    final rnd = math.Random(7);
+    final bubblePaint = Paint()
+      ..color = Colors.white.withOpacity(dark ? 0.08 : 0.10);
+    for (int i = 0; i < 36; i++) {
+      final bx = rnd.nextDouble() * w;
+      final by = sea.surfaceY(bx, t, h) + 12 + rnd.nextDouble() * (h * 0.36);
+      final r = 1 + (i % 3);
+      canvas.drawCircle(
+        Offset(bx, by + math.sin((t + i) * 0.6) * 3),
+        r.toDouble(),
+        bubblePaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SeaPainter old) =>
+      old.t != t || old.dark != dark;
+}
+
+/* ─────────────── 漂浮物件繪製 ─────────────── */
+
 class _AvatarTile extends StatelessWidget {
-  const _AvatarTile({required this.image, this.tooltip});
+  const _AvatarTile({required this.image, this.tooltip, this.depth = 0.0});
+
   final ImageProvider image;
   final String? tooltip;
+  final double depth;
 
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
-
     final avatar = Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: color.outlineVariant.withOpacity(0.6),
-          width: 1.2,
+          color: color.outlineVariant.withOpacity(0.55),
+          width: 1.1,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.shadow.withOpacity(0.12),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Image(
-        image: image,
-        fit: BoxFit.cover,
-        gaplessPlayback: true,
-        errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black12),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image(
+            image: image,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            errorBuilder: (_, __, ___) =>
+                const ColoredBox(color: Colors.black12),
+          ),
+          if (depth > 0)
+            Container(
+              color: const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+            ),
+        ],
       ),
     );
-
     return tooltip == null ? avatar : Tooltip(message: tooltip!, child: avatar);
   }
 }
 
-class _Ball {
-  _Ball({
-    required this.pos,
-    required this.vel,
-    required this.size,
-    required this.image,
-    required this.title,
-    this.isLogo = false,
-  });
-
-  Offset pos;
-  Offset vel;
-  double size;
-  ImageProvider image;
-  String title;
-  bool isLogo;
-}
-
-// ───────────────────────── 熔岩燈式背景（依主題變色） ─────────────────────────
-class _LavaLampBackground extends StatefulWidget {
-  const _LavaLampBackground({required this.isDark});
-  final bool isDark;
-
-  @override
-  State<_LavaLampBackground> createState() => _LavaLampBackgroundState();
-}
-
-class _LavaLampBackgroundState extends State<_LavaLampBackground>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ac;
-
-  @override
-  void initState() {
-    super.initState();
-    // 慢速循環：120s
-    _ac =
-        AnimationController(vsync: this, duration: const Duration(seconds: 120))
-          ..addListener(() => setState(() {}))
-          ..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ac.dispose();
-    super.dispose();
-  }
+class _EmojiTile extends StatelessWidget {
+  const _EmojiTile({required this.emoji, required this.size, this.depth = 0.0});
+  final String emoji;
+  final double size;
+  final double depth;
 
   @override
   Widget build(BuildContext context) {
-    final t = _ac.value; // 0..1
-    return CustomPaint(painter: _LavaPainter(t, widget.isDark));
+    final child = Text(emoji, style: TextStyle(fontSize: size));
+    if (depth <= 0) return Center(child: child);
+    return Center(
+      child: ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+          BlendMode.srcATop,
+        ),
+        child: child,
+      ),
+    );
   }
 }
 
-class _LavaPainter extends CustomPainter {
-  _LavaPainter(this.t, this.isDark);
-  final double t;
-  final bool isDark;
+class _BeachBallTile extends StatelessWidget {
+  const _BeachBallTile({required this.size, this.depth = 0.0});
+  final double size;
+  final double depth;
 
-  // 依主題調整基礎飽和與亮度
-  Color _hsv(double phase, double satBase, double valBase) {
-    // 深色主題：整體降低亮度、略降飽和；淺色主題：提高亮度、略升飽和
-    final valAdj = isDark ? -0.18 : 0.02; // 淺色主題少加亮
-    final satAdj = isDark ? -0.04 : 0.02; // 少一點飽和也會顯得沒那麼亮
-
-    final hue = (isDark ? 210 : 190) + 60 * sin(2 * pi * (t + phase));
-    final sat = (satBase + satAdj + 0.08 * sin(2 * pi * (t + phase * 0.7)))
-        .clamp(0.0, 1.0);
-    final val = (valBase + valAdj + 0.06 * cos(2 * pi * (t + phase * 0.5)))
-        .clamp(0.0, 1.0);
-    return HSVColor.fromAHSV(
-      1.0,
-      hue % 360,
-      sat as double,
-      val as double,
-    ).toColor();
+  @override
+  Widget build(BuildContext context) {
+    final ball = CustomPaint(
+      size: Size.square(size),
+      painter: _BeachBallPainter(),
+    );
+    if (depth <= 0) return ball;
+    return ColorFiltered(
+      colorFilter: ColorFilter.mode(
+        const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+        BlendMode.srcATop,
+      ),
+      child: ball,
+    );
   }
+}
+
+class _BeachBallPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.width / 2;
+    final center = Offset(r, r);
+
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.20)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+    canvas.drawCircle(center, r * .9, shadowPaint);
+
+    final slices = <Color>[
+      const Color(0xFFE53935), // red
+      const Color(0xFFFFEB3B), // yellow
+      const Color(0xFF1E88E5), // blue
+      const Color(0xFFFFFFFF), // white
+    ];
+
+    final paint = Paint()..style = PaintingStyle.fill;
+    for (int i = 0; i < 4; i++) {
+      paint.color = slices[i];
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: r * .9),
+        i * (math.pi / 2),
+        math.pi / 2,
+        true,
+        paint,
+      );
+    }
+
+    final hl = Paint()..color = Colors.white.withOpacity(.85);
+    canvas.drawCircle(center, r * .18, hl);
+  }
+
+  @override
+  bool shouldRepaint(covariant _BeachBallPainter oldDelegate) => false;
+}
+
+/* ─────────────── 戳破／碎片噴濺 ─────────────── */
+
+class _SplashPainter extends CustomPainter {
+  _SplashPainter({required this.center, required this.progress});
+  final Offset center;
+  final double progress; // 0..1
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final s = min(w, h);
+    if (progress <= 0 || progress >= 1) return;
 
-    // 背板底色
-    final bg = _hsv(0.0, 0.22, 0.92);
-    canvas.drawRect(Offset.zero & size, Paint()..color = bg);
+    final rnd = math.Random(13);
+    final count = 16;
+    final radius = 6.0 + progress * 36.0;
+    final fade = (1.0 - progress).clamp(0.0, 1.0);
+    final paint = Paint()..color = Colors.white.withOpacity(0.9 * fade);
 
-    // 線性漸層打底（更柔和）
-    final lg = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        _hsv(0.00, 0.26, 0.92), // 原本 0.96 → 0.92
-        _hsv(0.20, 0.24, 0.90), // 原本 0.94 → 0.90
-        _hsv(0.40, 0.22, 0.88), // 原本 0.92 → 0.88
-      ],
-    ).createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, Paint()..shader = lg);
-
-    // 幾個緩慢移動的大圓（加法混合 + 模糊），做出熔岩燈感
-    final blobs = <_Blob>[
-      _Blob(
-        center: Offset(
-          w * (0.25 + 0.05 * sin(2 * pi * (t + 0.05))),
-          h * (0.30 + 0.06 * cos(2 * pi * (t + 0.10))),
-        ),
-        radius: s * (0.55 + 0.02 * sin(2 * pi * (t + 0.15))),
-        color: _hsv(0.10, 0.40, 0.95).withOpacity(isDark ? 0.34 : 0.42),
-      ),
-      _Blob(
-        center: Offset(
-          w * (0.72 + 0.06 * cos(2 * pi * (t + 0.20))),
-          h * (0.40 + 0.05 * sin(2 * pi * (t + 0.25))),
-        ),
-        radius: s * (0.50 + 0.02 * cos(2 * pi * (t + 0.30))),
-        color: _hsv(0.30, 0.46, 0.92).withOpacity(isDark ? 0.32 : 0.40),
-      ),
-      _Blob(
-        center: Offset(
-          w * (0.50 + 0.05 * sin(2 * pi * (t + 0.40))),
-          h * (0.70 + 0.04 * cos(2 * pi * (t + 0.45))),
-        ),
-        radius: s * (0.60 + 0.015 * sin(2 * pi * (t + 0.50))),
-        color: _hsv(0.55, 0.38, 0.90).withOpacity(isDark ? 0.30 : 0.38),
-      ),
-      _Blob(
-        center: Offset(
-          w * (0.15 + 0.04 * cos(2 * pi * (t + 0.60))),
-          h * (0.78 + 0.03 * sin(2 * pi * (t + 0.65))),
-        ),
-        radius: s * (0.45 + 0.015 * cos(2 * pi * (t + 0.70))),
-        color: _hsv(0.80, 0.42, 0.94).withOpacity(isDark ? 0.28 : 0.35),
-      ),
-    ];
-
-    final blur = MaskFilter.blur(BlurStyle.normal, s * 0.06);
-    final paint = Paint()
-      ..blendMode = BlendMode.plus
-      ..maskFilter = blur;
-
-    for (final b in blobs) {
-      canvas.drawCircle(b.center, b.radius, paint..color = b.color);
+    for (int i = 0; i < count; i++) {
+      final ang = (2 * math.pi * i / count) + rnd.nextDouble() * 0.2;
+      final dist = radius * (0.6 + rnd.nextDouble() * 0.6);
+      final r = 1.2 + (i % 3) * 0.6;
+      final p = center + Offset(math.cos(ang) * dist, math.sin(ang) * dist);
+      canvas.drawCircle(p, r, paint);
     }
-
-    // 最上層淡淡霧感（深色時較弱）
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = Colors.white.withOpacity(isDark ? 0.008 : 0.016),
-    );
   }
 
   @override
-  bool shouldRepaint(covariant _LavaPainter oldDelegate) =>
-      oldDelegate.t != t || oldDelegate.isDark != isDark;
-}
-
-class _Blob {
-  final Offset center;
-  final double radius;
-  final Color color;
-  const _Blob({
-    required this.center,
-    required this.radius,
-    required this.color,
-  });
+  bool shouldRepaint(covariant _SplashPainter oldDelegate) =>
+      oldDelegate.center != center || oldDelegate.progress != progress;
 }

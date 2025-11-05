@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '766149685714',
     projectId: 'pop-card-bf635',
     storageBucket: 'pop-card-bf635.firebasestorage.app',
-    androidClientId: '766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com',
-    iosClientId: '766149685714-jvpc78c82du92a73bl3rqq5g4euah4nv.apps.googleusercontent.com',
+    androidClientId:
+        '766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com',
+    iosClientId:
+        '766149685714-jvpc78c82du92a73bl3rqq5g4euah4nv.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterLearningApp',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '766149685714',
     projectId: 'pop-card-bf635',
     storageBucket: 'pop-card-bf635.firebasestorage.app',
-    androidClientId: '766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com',
-    iosClientId: '766149685714-jvpc78c82du92a73bl3rqq5g4euah4nv.apps.googleusercontent.com',
+    androidClientId:
+        '766149685714-grt1cl6pvkqbrb3pc2896c98kv76u9j7.apps.googleusercontent.com',
+    iosClientId:
+        '766149685714-jvpc78c82du92a73bl3rqq5g4euah4nv.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterLearningApp',
   );
 

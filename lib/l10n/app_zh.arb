@@ -54,7 +54,7 @@
   "signOut": "登出",
 
   "helloDeveloperTitle": "嗨！開發者在這裡",
-  "helloDeveloperBody": "謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee",
+  "helloDeveloperBody": "謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee",
 
   "stats_title": "統計",
   "stats_overview": "收藏概覽",
@@ -425,8 +425,55 @@
 
   "zoomIn": "放大",
   "zoomOut": "縮小",
-  "resetZoom": "重設縮放"
+  "resetZoom": "重設縮放",
 
+  "billing_title": "訂閱與付款",
+  "plan_free": "免費",
+  "plan_basic": "基本",
+  "plan_pro": "進階",
+  "plan_plus": "Plus",
 
+  "billing_current_plan": "目前方案：{plan}",
+  "@billing_current_plan": {
+    "placeholders": {
+      "plan": { "type": "String" }
+    }
+  },
+
+  "section_plan_notes": "方案說明",
+  "section_payment_invoice": "付款與發票（示意）",
+  "section_terms": "條款（示意）",
+
+  "upgrade_card_title": "升級空間，收藏無負擔",
+  "upgrade_card_desc": "付費方案將開放本地圖片上傳與更大空間，並支援多裝置同步。",
+  "badge_coming_soon": "即將上線",
+
+  "feature_external_images": "外部圖片（網址）",
+  "feature_small_cloud_space": "少量雲端空間",
+  "feature_multi_device_sync": "跨裝置同步",
+  "feature_upload_local_images": "可上傳本地圖片",
+  "feature_priority_support": "優先客服",
+  "feature_large_storage": "大容量雲端空間",
+  "feature_album_report": "圖鑑報表（預告）",
+  "feature_roadmap_advance": "進階功能（預告）",
+
+  "plan_badge_recommended": "おすすめ",
+  "price_per_month": "{price}/月",
+
+  "upgrade_now": "立即升級",
+  "manage_plan": "管理方案",
+
+  "coming_soon_title": "功能即將開放",
+  "coming_soon_body": "目前「本地雲端空間」仍在加緊上線準備中，現在僅做佔位展示。正式版本將開放本地圖片上傳、更大容量與多裝置同步，敬請期待！",
+  "coming_soon_ok": "好",
+
+  "bullet_free_external": "免費方案：僅允許使用「外部圖片（網址）」",
+  "bullet_paid_local_upload": "付費方案：可上傳本地圖片到雲端，提供更大容量",
+  "bullet_future_tiers": "未來將提供更多容量級距",
+  "bullet_pay_cards": "目前支援信用卡（VISA／Master／JCB）",
+  "bullet_einvoice": "國內開立雲端發票；企業可填統編",
+  "bullet_cancel_anytime": "可隨時取消，下期不續扣",
+  "bullet_terms": "服務條款、隱私權政策、退款政策（之後補連結）",
+  "bullet_abuse": "濫用上傳（如違法內容）將被停權"
 
 }

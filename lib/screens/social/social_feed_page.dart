@@ -51,7 +51,8 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
 
   // === 網路狀態 ===
   bool _isOffline = false;
-  StreamSubscription<ConnectivityResult>? _connSub;
+  // 1) 欄位：放寬型別，避免型別不合
+  StreamSubscription<dynamic>? _connSub;
 
   @override
   void initState() {
@@ -125,24 +126,34 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     }
   }
 
+  // 2) 初始化監聽：初始值與監聽都走同一個 normalizer
   Future<void> _setupConnectivity() async {
     final c = Connectivity();
 
-    final result = await c.checkConnectivity();
-    _setOffline(result == ConnectivityResult.none);
+    final initial = await c
+        .checkConnectivity(); // 可能是 ConnectivityResult 或 List<ConnectivityResult>
+    _applyConnectivity(initial);
 
-    _connSub =
-        c.onConnectivityChanged.listen((result) {
-              _setOffline(result == ConnectivityResult.none);
-            })
-            as StreamSubscription<ConnectivityResult>?;
+    _connSub = c.onConnectivityChanged.listen(
+      _applyConnectivity,
+    ); // 新版是 List<ConnectivityResult>
   }
 
-  void _setOffline(bool v) {
-    if (!mounted || v == _isOffline) return;
-    setState(() => _isOffline = v);
-    if (!v) {
-      _refresh();
+  void _applyConnectivity(dynamic value) {
+    // 統一成 List<ConnectivityResult>
+    final list = value is List<ConnectivityResult>
+        ? value
+        : value is ConnectivityResult
+        ? <ConnectivityResult>[value]
+        : const <ConnectivityResult>[];
+
+    final offline =
+        list.isEmpty || list.every((r) => r == ConnectivityResult.none);
+    if (!mounted || offline == _isOffline) return;
+
+    setState(() => _isOffline = offline);
+    if (!offline) {
+      _refresh(); // 剛恢復連線就刷新
     } else {
       _showSnack('目前處於離線狀態', isError: true);
     }

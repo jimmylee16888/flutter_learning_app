@@ -145,7 +145,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helloDeveloperBody =>
-      '謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee';
+      '謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee';
 
   @override
   String get stats_title => '統計';
@@ -981,6 +981,116 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get resetZoom => '重設縮放';
+
+  @override
+  String get billing_title => '訂閱與付款';
+
+  @override
+  String get plan_free => '免費';
+
+  @override
+  String get plan_basic => '基本';
+
+  @override
+  String get plan_pro => '進階';
+
+  @override
+  String get plan_plus => 'Plus';
+
+  @override
+  String billing_current_plan(String plan) {
+    return '目前方案：$plan';
+  }
+
+  @override
+  String get section_plan_notes => '方案說明';
+
+  @override
+  String get section_payment_invoice => '付款與發票（示意）';
+
+  @override
+  String get section_terms => '條款（示意）';
+
+  @override
+  String get upgrade_card_title => '升級空間，收藏無負擔';
+
+  @override
+  String get upgrade_card_desc => '付費方案將開放本地圖片上傳與更大空間，並支援多裝置同步。';
+
+  @override
+  String get badge_coming_soon => '即將上線';
+
+  @override
+  String get feature_external_images => '外部圖片（網址）';
+
+  @override
+  String get feature_small_cloud_space => '少量雲端空間';
+
+  @override
+  String get feature_multi_device_sync => '跨裝置同步';
+
+  @override
+  String get feature_upload_local_images => '可上傳本地圖片';
+
+  @override
+  String get feature_priority_support => '優先客服';
+
+  @override
+  String get feature_large_storage => '大容量雲端空間';
+
+  @override
+  String get feature_album_report => '圖鑑報表（預告）';
+
+  @override
+  String get feature_roadmap_advance => '進階功能（預告）';
+
+  @override
+  String get plan_badge_recommended => 'おすすめ';
+
+  @override
+  String price_per_month(Object price) {
+    return '$price/月';
+  }
+
+  @override
+  String get upgrade_now => '立即升級';
+
+  @override
+  String get manage_plan => '管理方案';
+
+  @override
+  String get coming_soon_title => '功能即將開放';
+
+  @override
+  String get coming_soon_body =>
+      '目前「本地雲端空間」仍在加緊上線準備中，現在僅做佔位展示。正式版本將開放本地圖片上傳、更大容量與多裝置同步，敬請期待！';
+
+  @override
+  String get coming_soon_ok => '好';
+
+  @override
+  String get bullet_free_external => '免費方案：僅允許使用「外部圖片（網址）」';
+
+  @override
+  String get bullet_paid_local_upload => '付費方案：可上傳本地圖片到雲端，提供更大容量';
+
+  @override
+  String get bullet_future_tiers => '未來將提供更多容量級距';
+
+  @override
+  String get bullet_pay_cards => '目前支援信用卡（VISA／Master／JCB）';
+
+  @override
+  String get bullet_einvoice => '國內開立雲端發票；企業可填統編';
+
+  @override
+  String get bullet_cancel_anytime => '可隨時取消，下期不續扣';
+
+  @override
+  String get bullet_terms => '服務條款、隱私權政策、退款政策（之後補連結）';
+
+  @override
+  String get bullet_abuse => '濫用上傳（如違法內容）將被停權';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1124,7 +1234,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get helloDeveloperBody =>
-      '謝謝你願意試試這個小 side project。我是 LE SSERAFIM 的忠實粉絲（FEARNOT），但每次想跟朋友分享喜悅，都不想背一疊小卡，所以做了這個 App——讓大家用一支 6.5 吋手機就能展示、交換小卡。我會持續維護，也會把程式碼開源在 GitHub。再次感謝下載，成為這個專案的一小份子（可愛一點說，就是家人）。如果有任何問題或改進想法，隨時聯絡我。— Jimmy Lee';
+      '謝謝你願意試試這個小 side project 💫 \n\n我是 LE SSERAFIM 的忠實 (FEARNOT)，每次想跟朋友分享開卡的喜悅，卻又不想帶著一疊小卡到處跑，所以就誕生了這個 App —— 希望能讓大家只用一支 6.5 吋手機，就能輕鬆展示、交換小卡。\n\n我會持續更新、改進這個小作品，也感謝下載並成為這個專案的一份子（可愛一點說，就是家人🩷）。 如果有任何想法或建議，隨時都可以找我聊聊！💪';
 
   @override
   String get stats_title => '統計';
@@ -1960,4 +2070,114 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get resetZoom => '重設縮放';
+
+  @override
+  String get billing_title => '訂閱與付款';
+
+  @override
+  String get plan_free => '免費';
+
+  @override
+  String get plan_basic => '基本';
+
+  @override
+  String get plan_pro => '進階';
+
+  @override
+  String get plan_plus => 'Plus';
+
+  @override
+  String billing_current_plan(String plan) {
+    return '目前方案：$plan';
+  }
+
+  @override
+  String get section_plan_notes => '方案說明';
+
+  @override
+  String get section_payment_invoice => '付款與發票（示意）';
+
+  @override
+  String get section_terms => '條款（示意）';
+
+  @override
+  String get upgrade_card_title => '升級空間，收藏無負擔';
+
+  @override
+  String get upgrade_card_desc => '付費方案將開放本地圖片上傳與更大空間，並支援多裝置同步。';
+
+  @override
+  String get badge_coming_soon => '即將上線';
+
+  @override
+  String get feature_external_images => '外部圖片（網址）';
+
+  @override
+  String get feature_small_cloud_space => '少量雲端空間';
+
+  @override
+  String get feature_multi_device_sync => '跨裝置同步';
+
+  @override
+  String get feature_upload_local_images => '可上傳本地圖片';
+
+  @override
+  String get feature_priority_support => '優先客服';
+
+  @override
+  String get feature_large_storage => '大容量雲端空間';
+
+  @override
+  String get feature_album_report => '圖鑑報表（預告）';
+
+  @override
+  String get feature_roadmap_advance => '進階功能（預告）';
+
+  @override
+  String get plan_badge_recommended => 'おすすめ';
+
+  @override
+  String price_per_month(Object price) {
+    return '$price/月';
+  }
+
+  @override
+  String get upgrade_now => '立即升級';
+
+  @override
+  String get manage_plan => '管理方案';
+
+  @override
+  String get coming_soon_title => '功能即將開放';
+
+  @override
+  String get coming_soon_body =>
+      '目前「本地雲端空間」仍在加緊上線準備中，現在僅做佔位展示。正式版本將開放本地圖片上傳、更大容量與多裝置同步，敬請期待！';
+
+  @override
+  String get coming_soon_ok => '好';
+
+  @override
+  String get bullet_free_external => '免費方案：僅允許使用「外部圖片（網址）」';
+
+  @override
+  String get bullet_paid_local_upload => '付費方案：可上傳本地圖片到雲端，提供更大容量';
+
+  @override
+  String get bullet_future_tiers => '未來將提供更多容量級距';
+
+  @override
+  String get bullet_pay_cards => '目前支援信用卡（VISA／Master／JCB）';
+
+  @override
+  String get bullet_einvoice => '國內開立雲端發票；企業可填統編';
+
+  @override
+  String get bullet_cancel_anytime => '可隨時取消，下期不續扣';
+
+  @override
+  String get bullet_terms => '服務條款、隱私權政策、退款政策（之後補連結）';
+
+  @override
+  String get bullet_abuse => '濫用上傳（如違法內容）將被停權';
 }

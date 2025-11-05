@@ -53,8 +53,8 @@
   "signOut": "Sign out",
 
   "helloDeveloperTitle": "Hello! I'm the developer",
-  "helloDeveloperBody": "Thanks for giving this little side project a try. I’m a big fan of LE SSERAFIM (FEARNOT here!), but I don’t want to carry a whole stack of photocards every time I share the joy with friends. That’s why I built this app—so fans can show and trade cards right from a 6.5\" screen. I’ll keep maintaining it and the code will stay open on GitHub. Thanks again for downloading and being part of this project (or, to say it cutely, the family). If you have questions or ideas to improve it, don’t hesitate to contact me. — Jimmy Lee",
-
+  "helloDeveloperBody": "Thank you for trying out this little side project 💫 \n\nI’m a proud FEARNOT (LE SSERAFIM fan)! Every time I want to share the joy of collecting photocards with friends, I hate having to carry a whole stack around — so I made this app 💡. Now you can easily show and trade your cards with just a 6.5-inch phone.\n\nI’ll keep updating and improving this tiny project, and I’m truly grateful that you downloaded it and became part of it (or, cutely put, part of the family 🩷). If you have any ideas or feedback, feel free to reach out anytime! 💪",
+  
   "stats_title": "Statistics",
   "stats_overview": "Collection Overview",
   "stats_artist_count": "Number of artists",
@@ -448,7 +448,60 @@
 
   "zoomIn": "Zoom in",
   "zoomOut": "Zoom out",
-  "resetZoom": "Reset zoom"
+  "resetZoom": "Reset zoom",
+
+
+  "billing_title": "Subscription & Billing",
+
+  "plan_free": "Free",
+  "plan_basic": "Basic",
+  "plan_pro": "Pro",
+  "plan_plus": "Plus",
+
+  "billing_current_plan": "Current plan: {plan}",
+  "@billing_current_plan": {
+    "placeholders": {
+      "plan": { "type": "String" }
+    }
+  },
+
+  "section_plan_notes": "Plan notes",
+  "section_payment_invoice": "Payment & invoice (demo)",
+  "section_terms": "Terms (demo)",
+
+  "upgrade_card_title": "Upgrade storage, collect freely",
+  "upgrade_card_desc": "Paid plans will unlock local uploads, larger storage, and multi-device sync.",
+  "badge_coming_soon": "Coming soon",
+
+  "feature_external_images": "External images (URL)",
+  "feature_small_cloud_space": "Small cloud storage",
+  "feature_multi_device_sync": "Multi-device sync",
+  "feature_upload_local_images": "Upload local images",
+  "feature_priority_support": "Priority support",
+  "feature_large_storage": "Large cloud storage",
+  "feature_album_report": "Album report (preview)",
+  "feature_roadmap_advance": "Advanced features (preview)",
+
+  "plan_badge_recommended": "Recommended",
+  "price_per_month": "{price}/mo",
+
+  "upgrade_now": "Upgrade now",
+  "manage_plan": "Manage plan",
+
+  "coming_soon_title": "Not available yet",
+  "coming_soon_body": "Local cloud storage is being prepared for launch. This is a placeholder. The official release will include local uploads, larger capacity, and multi-device sync. Stay tuned!",
+  "coming_soon_ok": "OK",
+
+  "bullet_free_external": "Free plan: external images (URLs) only",
+  "bullet_paid_local_upload": "Paid plans: upload local images to cloud with larger storage",
+  "bullet_future_tiers": "More storage tiers will be available later",
+  "bullet_pay_cards": "Currently supports credit cards (VISA / Master / JCB)",
+  "bullet_einvoice": "Domestic e-invoice; business users can enter tax ID",
+  "bullet_cancel_anytime": "Cancel anytime; no renewal next cycle",
+  "bullet_terms": "Terms of Service, Privacy Policy, Refund Policy (links to be added)",
+  "bullet_abuse": "Abusive/illegal uploads may lead to suspension"
+
+
 
 
 
