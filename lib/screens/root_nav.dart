@@ -200,9 +200,7 @@ class _RootNavState extends State<RootNav> {
           child: Material(
             elevation: 8,
             color: cs.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
@@ -212,21 +210,14 @@ class _RootNavState extends State<RootNav> {
                     width: 40,
                     height: 4,
                     margin: const EdgeInsets.only(top: 6, bottom: 8),
-                    decoration: BoxDecoration(
-                      color: cs.outlineVariant,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+                    decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(999)),
                   ),
                   SubscriptionFishbowlTile(
                     plan: _currentPlan,
                     onTap: () async {
                       await _closeMoreSheetIfOpen();
                       if (!mounted) return;
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const SubscriptionPage(),
-                        ),
-                      );
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SubscriptionPage()));
                     },
                   ),
                   // Settings
@@ -320,12 +311,7 @@ class _RootNavState extends State<RootNav> {
 // ================= More 容器 =================
 
 class _MoreHost extends StatelessWidget {
-  const _MoreHost({
-    required this.settings,
-    required this.mode,
-    required this.profileKey,
-    required this.onRequestMode,
-  });
+  const _MoreHost({required this.settings, required this.mode, required this.profileKey, required this.onRequestMode});
 
   final AppSettings settings;
   final MoreMode mode; // 直接帶入當前 mode
@@ -365,10 +351,7 @@ class _MoreHost extends StatelessWidget {
 
     final pages = <Widget>[
       // Settings：把「使用者設定」卡點擊 -> 交回 RootNav 切換
-      SettingsView(
-        settings: settings,
-        onOpenUserProfile: () => onRequestMode(MoreMode.user),
-      ),
+      SettingsView(settings: settings, onOpenUserProfile: () => onRequestMode(MoreMode.user)),
       // User profile
       UserProfileSettingsPage(key: profileKey, settings: settings),
       // Statistics
@@ -404,32 +387,16 @@ _PlanPalette _paletteFor(SubscriptionPlan p) {
   switch (p) {
     case SubscriptionPlan.free:
       // 薄荷清爽
-      return const _PlanPalette(
-        [Color(0xFFB2F5EA), Color(0xFF81E6D9)],
-        Color(0xFF004D40),
-        Color(0xFF26A69A),
-      );
+      return const _PlanPalette([Color(0xFFB2F5EA), Color(0xFF81E6D9)], Color(0xFF004D40), Color(0xFF26A69A));
     case SubscriptionPlan.basic:
       // 橘黃朝氣
-      return const _PlanPalette(
-        [Color(0xFFFFE082), Color(0xFFFFC107)],
-        Color(0xFF4E342E),
-        Color(0xFFFFA000),
-      );
+      return const _PlanPalette([Color(0xFFFFE082), Color(0xFFFFC107)], Color(0xFF4E342E), Color(0xFFFFA000));
     case SubscriptionPlan.pro:
       // 藍紫專業
-      return const _PlanPalette(
-        [Color(0xFFB39DDB), Color(0xFF7E57C2)],
-        Color(0xFF1A237E),
-        Color(0xFF5E35B1),
-      );
+      return const _PlanPalette([Color(0xFFB39DDB), Color(0xFF7E57C2)], Color(0xFF1A237E), Color(0xFF5E35B1));
     case SubscriptionPlan.plus:
       // 粉桃高級
-      return const _PlanPalette(
-        [Color(0xFFFFCDD2), Color(0xFFF48FB1)],
-        Color(0xFF880E4F),
-        Color(0xFFD81B60),
-      );
+      return const _PlanPalette([Color(0xFFFFCDD2), Color(0xFFF48FB1)], Color(0xFF880E4F), Color(0xFFD81B60));
   }
 }
 
@@ -451,28 +418,15 @@ class _SubscriptionBadgeTile extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: palette.gradient,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: LinearGradient(colors: palette.gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.black.withOpacity(0.06), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: ListTile(
           leading: Badge(
             backgroundColor: palette.badgeBg,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 2,
-            ), // 上下更窄
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), // 上下更窄
             offset: const Offset(-2, 0),
             label: const Text(
               '', // 先給空，下面用 Stack 疊文字（可保留，也可直接用這個 label）
@@ -486,14 +440,8 @@ class _SubscriptionBadgeTile extends StatelessWidget {
                   right: -6,
                   top: -2,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: palette.badgeBg,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: palette.badgeBg, borderRadius: BorderRadius.circular(999)),
                     child: Text(
                       label,
                       style: const TextStyle(
@@ -510,32 +458,16 @@ class _SubscriptionBadgeTile extends StatelessWidget {
           ),
           title: Text(
             l.billing_title, // i18n
-            style: TextStyle(
-              color: palette.fg,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: palette.fg, fontWeight: FontWeight.w700, fontSize: 16),
           ),
           subtitle: Text(
             l.billing_current_plan(label),
-            style: TextStyle(
-              color: palette.fg.withOpacity(0.85),
-              fontSize: 13.5,
-            ),
+            style: TextStyle(color: palette.fg.withOpacity(0.85), fontSize: 13.5),
           ),
-          trailing: Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 18,
-            color: palette.fg,
-          ),
+          trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: palette.fg),
           onTap: onTap,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
     );
@@ -545,21 +477,15 @@ class _SubscriptionBadgeTile extends StatelessWidget {
 // ==== REPLACE from here: SubscriptionFishbowlTile with themed bowl ====
 
 class SubscriptionFishbowlTile extends StatefulWidget {
-  const SubscriptionFishbowlTile({
-    super.key,
-    required this.plan,
-    required this.onTap,
-  });
+  const SubscriptionFishbowlTile({super.key, required this.plan, required this.onTap});
   final SubscriptionPlan plan;
   final VoidCallback onTap;
 
   @override
-  State<SubscriptionFishbowlTile> createState() =>
-      _SubscriptionFishbowlTileState();
+  State<SubscriptionFishbowlTile> createState() => _SubscriptionFishbowlTileState();
 }
 
-class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
-    with SingleTickerProviderStateMixin {
+class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile> with SingleTickerProviderStateMixin {
   double _tiltRad = 0.0; // 水平面旋轉（弧度）
   late final AnimationController _anim; // 同時驅動漂浮與波浪
   StreamSubscription? _accSub;
@@ -567,10 +493,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
   @override
   void initState() {
     super.initState();
-    _anim = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2800),
-    )..repeat();
+    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 2800))..repeat();
 
     _accSub = accelerometerEvents.listen((e) {
       final angle = math.atan2(e.x, -e.y).clamp(-math.pi / 18, math.pi / 18);
@@ -601,11 +524,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
         child: Container(
           height: 96,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: t.gradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: LinearGradient(colors: t.gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -625,9 +544,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                     child: CustomPaint(
                       painter: _GlassPainter(
                         (t.goldEdge ?? false)
-                            ? const Color(
-                                0xFFFFD54F,
-                              ).withOpacity(isDark ? .55 : .45)
+                            ? const Color(0xFFFFD54F).withOpacity(isDark ? .55 : .45)
                             : t.fg.withOpacity(isDark ? .22 : .18),
                       ),
                     ),
@@ -650,9 +567,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                               heightFactor: t.waterHeightFactor,
                               widthFactor: 2.2,
                               child: ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(16),
-                                ),
+                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
@@ -665,9 +580,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                                         amplitude: t.waveAmp1,
                                         wavelength: t.waveLen1,
                                         speed: 1.0,
-                                        color: Colors.white.withOpacity(
-                                          t.waveAlpha1,
-                                        ),
+                                        color: Colors.white.withOpacity(t.waveAlpha1),
                                       ),
                                     ),
                                     CustomPaint(
@@ -676,9 +589,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                                         amplitude: t.waveAmp2,
                                         wavelength: t.waveLen2,
                                         speed: 1.6,
-                                        color: Colors.white.withOpacity(
-                                          t.waveAlpha2,
-                                        ),
+                                        color: Colors.white.withOpacity(t.waveAlpha2),
                                       ),
                                     ),
                                   ],
@@ -702,11 +613,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                       backgroundColor: t.badgeBg,
                       label: Text(
                         label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
-                        ),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 11),
                       ),
                       child: Icon(subscriptionIconOf(widget.plan), color: t.fg),
                     ),
@@ -722,19 +629,12 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                       children: [
                         Text(
                           l.billing_title,
-                          style: TextStyle(
-                            color: t.fg,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(color: t.fg, fontWeight: FontWeight.w700, fontSize: 16),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           l.billing_current_plan(label),
-                          style: TextStyle(
-                            color: t.fg.withOpacity(0.9),
-                            fontSize: 13.5,
-                          ),
+                          style: TextStyle(color: t.fg.withOpacity(0.9), fontSize: 13.5),
                         ),
                       ],
                     ),
@@ -744,11 +644,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
                   Positioned(
                     right: 10,
                     bottom: 12,
-                    child: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 18,
-                      color: t.fg,
-                    ),
+                    child: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: t.fg),
                   ),
 
                   // Plus / Pro：星芒微光
@@ -771,11 +667,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
     );
   }
 
-  List<Widget> _buildTierItems(
-    _BowlTheme t,
-    Animation<double> anim,
-    double tilt,
-  ) {
+  List<Widget> _buildTierItems(_BowlTheme t, Animation<double> anim, double tilt) {
     final items = <Widget>[];
 
     for (final it in t.items) {
@@ -783,8 +675,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
         items.add(
           _FloatingEmoji(
             emoji: it.emoji!,
-            baseBottom:
-                it.bottom + math.sin(anim.value * 2 * math.pi) * it.floatAmp,
+            baseBottom: it.bottom + math.sin(anim.value * 2 * math.pi) * it.floatAmp,
             anim: anim,
             tilt: tilt * it.tiltFactor,
             fgShadow: it.shadow,
@@ -793,8 +684,7 @@ class _SubscriptionFishbowlTileState extends State<SubscriptionFishbowlTile>
       } else if (it.type == _BowlItemType.beachBall) {
         items.add(
           _BeachBall(
-            bottom:
-                it.bottom + math.sin(anim.value * 2 * math.pi) * it.floatAmp,
+            bottom: it.bottom + math.sin(anim.value * 2 * math.pi) * it.floatAmp,
             right: it.right,
             tilt: tilt * it.tiltFactor,
             size: it.size,
@@ -884,13 +774,10 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
   switch (p) {
     case SubscriptionPlan.free:
       return _BowlTheme(
-        gradient: isDark
-            ? const [Color(0xFF2E7D71), Color(0xFF1B5E57)]
-            : const [Color(0xFFB2F5EA), Color(0xFF81E6D9)],
+        gradient: isDark ? const [Color(0xFF2E7D71), Color(0xFF1B5E57)] : const [Color(0xFFB2F5EA), Color(0xFF81E6D9)],
         fg: isDark ? Colors.white : const Color(0xFF004D40),
         badgeBg: const Color(0xFF26A69A),
-        waterColor: (isDark ? const Color(0xFF1B5E57) : const Color(0xFFA7F3D0))
-            .withOpacity(isDark ? 0.28 : 0.22),
+        waterColor: (isDark ? const Color(0xFF1B5E57) : const Color(0xFFA7F3D0)).withOpacity(isDark ? 0.28 : 0.22),
         waterHeightFactor: 0.60,
         waveAmp1: 4.5,
         waveAmp2: 3.0,
@@ -907,13 +794,10 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
 
     case SubscriptionPlan.basic:
       return _BowlTheme(
-        gradient: isDark
-            ? const [Color(0xFF6D4C00), Color(0xFF8D6E00)]
-            : const [Color(0xFFFFE082), Color(0xFFFFC107)],
+        gradient: isDark ? const [Color(0xFF6D4C00), Color(0xFF8D6E00)] : const [Color(0xFFFFE082), Color(0xFFFFC107)],
         fg: isDark ? const Color(0xFFFFF3E0) : const Color(0xFF4E342E),
         badgeBg: const Color(0xFFFFA000),
-        waterColor: (isDark ? const Color(0xFF5D4037) : const Color(0xFFFFECB3))
-            .withOpacity(isDark ? 0.30 : 0.22),
+        waterColor: (isDark ? const Color(0xFF5D4037) : const Color(0xFFFFECB3)).withOpacity(isDark ? 0.30 : 0.22),
         waterHeightFactor: 0.62,
         waveAmp1: 5.0,
         waveAmp2: 3.2,
@@ -924,26 +808,16 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
         sparkles: 2,
         items: const [
           _BowlItem.emoji(emoji: '🐠', bottom: 36, right: 26, floatAmp: 2.6),
-          _BowlItem.emoji(
-            emoji: '🪸',
-            bottom: 18,
-            right: 64,
-            floatAmp: 1.2,
-            tiltFactor: 0.2,
-            shadow: false,
-          ),
+          _BowlItem.emoji(emoji: '🪸', bottom: 18, right: 64, floatAmp: 1.2, tiltFactor: 0.2, shadow: false),
         ],
       );
 
     case SubscriptionPlan.pro:
       return _BowlTheme(
-        gradient: isDark
-            ? const [Color(0xFF3B1E6D), Color(0xFF6B3FA4)]
-            : const [Color(0xFFB39DDB), Color(0xFF7E57C2)],
+        gradient: isDark ? const [Color(0xFF3B1E6D), Color(0xFF6B3FA4)] : const [Color(0xFFB39DDB), Color(0xFF7E57C2)],
         fg: isDark ? Colors.white : const Color(0xFF1A237E),
         badgeBg: const Color(0xFF5E35B1),
-        waterColor: (isDark ? const Color(0xFF4527A0) : const Color(0xFFC7B6F5))
-            .withOpacity(isDark ? 0.32 : 0.24),
+        waterColor: (isDark ? const Color(0xFF4527A0) : const Color(0xFFC7B6F5)).withOpacity(isDark ? 0.32 : 0.24),
         waterHeightFactor: 0.64,
         waveAmp1: 5.4,
         waveAmp2: 3.4,
@@ -954,26 +828,16 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
         sparkles: 6,
         items: const [
           _BowlItem.emoji(emoji: '🐟', bottom: 36, right: 32, floatAmp: 3.0),
-          _BowlItem.emoji(
-            emoji: '💎',
-            bottom: 22,
-            right: 66,
-            floatAmp: 1.6,
-            size: 20,
-            tiltFactor: 0.15,
-          ),
+          _BowlItem.emoji(emoji: '💎', bottom: 22, right: 66, floatAmp: 1.6, size: 20, tiltFactor: 0.15),
         ],
       );
 
     case SubscriptionPlan.plus:
       return _BowlTheme(
-        gradient: isDark
-            ? const [Color(0xFF2A1648), Color(0xFF4A2A7A)]
-            : const [Color(0xFFE1BEE7), Color(0xFFD1C4E9)],
+        gradient: isDark ? const [Color(0xFF2A1648), Color(0xFF4A2A7A)] : const [Color(0xFFE1BEE7), Color(0xFFD1C4E9)],
         fg: isDark ? Colors.white : const Color(0xFF2C1B45),
         badgeBg: const Color(0xFFD81B60),
-        waterColor: (isDark ? const Color(0xFF311B92) : const Color(0xFFEADCFB))
-            .withOpacity(isDark ? 0.36 : 0.26),
+        waterColor: (isDark ? const Color(0xFF311B92) : const Color(0xFFEADCFB)).withOpacity(isDark ? 0.36 : 0.26),
         waterHeightFactor: 0.68, // 水更「厚」
         waveAmp1: 6.0,
         waveAmp2: 3.8,
@@ -984,21 +848,8 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
         goldEdge: true,
         sparkles: 12, // 更多星芒
         items: const [
-          _BowlItem.emoji(
-            emoji: '👑',
-            bottom: 40,
-            right: 28,
-            floatAmp: 2.2,
-            size: 24,
-          ),
-          _BowlItem.emoji(
-            emoji: '💎',
-            bottom: 26,
-            right: 60,
-            floatAmp: 1.8,
-            size: 22,
-            tiltFactor: 0.2,
-          ),
+          _BowlItem.emoji(emoji: '👑', bottom: 40, right: 28, floatAmp: 2.2, size: 24),
+          _BowlItem.emoji(emoji: '💎', bottom: 26, right: 60, floatAmp: 1.8, size: 22, tiltFactor: 0.2),
         ],
       );
   }
@@ -1006,11 +857,7 @@ _BowlTheme _themeForPlan(SubscriptionPlan p, bool isDark) {
 
 // ---- Sparkles: 星芒微光層 ----
 class _SparklesLayer extends StatelessWidget {
-  const _SparklesLayer({
-    required this.anim,
-    required this.count,
-    required this.color,
-  });
+  const _SparklesLayer({required this.anim, required this.count, required this.color});
   final Animation<double> anim;
   final int count;
   final Color color;
@@ -1019,22 +866,14 @@ class _SparklesLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return IgnorePointer(
       child: CustomPaint(
-        painter: _SparklesPainter(
-          progress: anim.value,
-          count: count,
-          color: color,
-        ),
+        painter: _SparklesPainter(progress: anim.value, count: count, color: color),
       ),
     );
   }
 }
 
 class _SparklesPainter extends CustomPainter {
-  _SparklesPainter({
-    required this.progress,
-    required this.count,
-    required this.color,
-  });
+  _SparklesPainter({required this.progress, required this.count, required this.color});
   final double progress;
   final int count;
   final Color color;
@@ -1069,10 +908,7 @@ class _GlassPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      const Radius.circular(18),
-    );
+    final r = RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(18));
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
@@ -1081,8 +917,7 @@ class _GlassPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GlassPainter oldDelegate) =>
-      oldDelegate.stroke != stroke;
+  bool shouldRepaint(covariant _GlassPainter oldDelegate) => oldDelegate.stroke != stroke;
 }
 
 class _WavePainter extends CustomPainter {
@@ -1110,8 +945,7 @@ class _WavePainter extends CustomPainter {
     p.lineTo(0, midY);
 
     for (double x = 0; x <= size.width; x += 1) {
-      final y =
-          midY + math.sin((x / wavelength) * 2 * math.pi + phase) * amplitude;
+      final y = midY + math.sin((x / wavelength) * 2 * math.pi + phase) * amplitude;
       p.lineTo(x, y);
     }
 
@@ -1159,13 +993,7 @@ class _FloatingEmoji extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             shadows: fgShadow
-                ? [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
+                ? [Shadow(color: Colors.black.withOpacity(0.25), blurRadius: 4, offset: const Offset(0, 1))]
                 : const [],
           ),
         ),
@@ -1234,13 +1062,7 @@ class _BeachBallPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
     for (int i = 0; i < 4; i++) {
       paint.color = slices[i];
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: r * .9),
-        i * (math.pi / 2),
-        math.pi / 2,
-        true,
-        paint,
-      );
+      canvas.drawArc(Rect.fromCircle(center: center, radius: r * .9), i * (math.pi / 2), math.pi / 2, true, paint);
     }
 
     // 白色高光

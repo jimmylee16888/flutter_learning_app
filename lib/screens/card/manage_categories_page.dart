@@ -46,11 +46,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                FilledButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: Text(l.add),
-                  onPressed: _addCategory,
-                ),
+                FilledButton.icon(icon: const Icon(Icons.add), label: Text(l.add), onPressed: _addCategory),
               ],
             );
           }
@@ -77,9 +73,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     }
     setState(() {});
     _ctrl.clear();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.addedCategoryToast(name))));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.addedCategoryToast(name))));
   }
 
   Future<void> _confirmDelete(String name) async {
@@ -90,14 +84,8 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
         title: Text(l.deleteCategoryTitle),
         content: Text(l.confirmDeleteCategoryMessage(name)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.delete),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.delete)),
         ],
       ),
     );
@@ -116,8 +104,6 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     widget.settings.removeCategory(name);
 
     setState(() {});
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(name))));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(name))));
   }
 }

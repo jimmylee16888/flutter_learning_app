@@ -27,8 +27,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
 
     final hasBackUrl = (c.backImageUrl ?? '').isNotEmpty;
     final hasBackLocal =
-        (c.backLocalPath ?? '').isNotEmpty &&
-        !(kIsWeb && (c.backLocalPath?.startsWith('url:') ?? false));
+        (c.backLocalPath ?? '').isNotEmpty && !(kIsWeb && (c.backLocalPath?.startsWith('url:') ?? false));
     final hasBackImage = hasBackUrl || hasBackLocal;
     final canClearBack = hasBackImage;
 
@@ -39,33 +38,18 @@ class _MiniCardBackState extends State<MiniCardBack> {
     // 決定背面要顯示的圖片 widget（Web + URL → NoCorsImage）
     final Widget? backImage = hasBackImage
         ? (kIsWeb && !hasBackLocal && hasBackUrl)
-              ? NoCorsImage(
-                  c.backImageUrl!,
-                  fit: BoxFit.cover,
-                  borderRadius: _radius,
-                )
+              ? NoCorsImage(c.backImageUrl!, fit: BoxFit.cover, borderRadius: _radius)
               : Image(
-                  image: hasBackLocal
-                      ? imageProviderForLocalPath(c.backLocalPath!)
-                      : NetworkImage(c.backImageUrl!),
+                  image: hasBackLocal ? imageProviderForLocalPath(c.backLocalPath!) : NetworkImage(c.backImageUrl!),
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Center(
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 48,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  errorBuilder: (_, __, ___) =>
+                      const Center(child: Icon(Icons.image_not_supported_outlined, size: 48, color: Colors.grey)),
                 )
         : null;
 
     return Card(
-      color: hasBackImage
-          ? Theme.of(context).colorScheme.surfaceContainerHighest
-          : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(_radius),
-      ),
+      color: hasBackImage ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_radius)),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
@@ -78,10 +62,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.center,
-                    colors: [
-                      Colors.black.withOpacity(0.55),
-                      Colors.transparent,
-                    ],
+                    colors: [Colors.black.withOpacity(0.55), Colors.transparent],
                   ),
                 ),
               ),
@@ -97,12 +78,8 @@ class _MiniCardBackState extends State<MiniCardBack> {
                 if (canClearBack) ...[
                   IconButton.filledTonal(
                     style: IconButton.styleFrom(
-                      backgroundColor: hasBackImage
-                          ? Colors.black.withOpacity(0.35)
-                          : Colors.black.withOpacity(0.06),
-                      foregroundColor: hasBackImage
-                          ? Colors.white
-                          : Colors.black87,
+                      backgroundColor: hasBackImage ? Colors.black.withOpacity(0.35) : Colors.black.withOpacity(0.06),
+                      foregroundColor: hasBackImage ? Colors.white : Colors.black87,
                     ),
                     tooltip: l.clearBackImage,
                     icon: const Icon(Icons.delete_outline),
@@ -112,12 +89,8 @@ class _MiniCardBackState extends State<MiniCardBack> {
                 ],
                 IconButton.filledTonal(
                   style: IconButton.styleFrom(
-                    backgroundColor: hasBackImage
-                        ? Colors.black.withOpacity(0.35)
-                        : Colors.black.withOpacity(0.06),
-                    foregroundColor: hasBackImage
-                        ? Colors.white
-                        : Colors.black87,
+                    backgroundColor: hasBackImage ? Colors.black.withOpacity(0.35) : Colors.black.withOpacity(0.06),
+                    foregroundColor: hasBackImage ? Colors.white : Colors.black87,
                   ),
                   icon: const Icon(Icons.info_outline),
                   tooltip: l.editCard,
@@ -141,12 +114,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
                             spacing: 8,
                             runSpacing: 8,
                             children: c.tags
-                                .map(
-                                  (t) => Chip(
-                                    label: Text(t),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                )
+                                .map((t) => Chip(label: Text(t), visualDensity: VisualDensity.compact))
                                 .toList(),
                           ),
                         ),
@@ -159,25 +127,15 @@ class _MiniCardBackState extends State<MiniCardBack> {
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          d,
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: Colors.white70),
-                        ),
+                        Text(d, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white70)),
                       ],
                     )
                   : Center(
                       child: Text(
-                        (c.name?.trim().isNotEmpty == true
-                                ? c.name!
-                                : (c.note.isNotEmpty
-                                      ? c.note
-                                      : l.common_unnamed))
+                        (c.name?.trim().isNotEmpty == true ? c.name! : (c.note.isNotEmpty ? c.note : l.common_unnamed))
                             .trim(),
                         textAlign: TextAlign.center,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleLarge?.copyWith(color: Colors.black87),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.black87),
                       ),
                     ),
             ),
@@ -195,14 +153,8 @@ class _MiniCardBackState extends State<MiniCardBack> {
       builder: (ctx) => AlertDialog(
         title: Text(l.clearBackImage),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.clear),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.clear)),
         ],
       ),
     );
@@ -211,9 +163,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
       final updated = c.copyWith(backImageUrl: null, backLocalPath: null);
       widget.onChanged(updated);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l.updatedCardToast)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.updatedCardToast)));
 
       setState(() {});
     }
@@ -227,11 +177,7 @@ class _MiniCardBackState extends State<MiniCardBack> {
 
     final edited = await showDialog<MiniCardData>(
       context: context,
-      builder: (_) => MiniCardEditorDialog(
-        initial: c,
-        allAlbums: albums,
-        allCardTypes: types,
-      ),
+      builder: (_) => MiniCardEditorDialog(initial: c, allAlbums: albums, allCardTypes: types),
     );
     if (edited != null && mounted) {
       widget.onChanged(edited);

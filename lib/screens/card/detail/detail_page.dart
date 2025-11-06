@@ -59,10 +59,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
 
     final raw = sp.getString(_cardsKey);
     if (raw != null && raw.isNotEmpty) {
-      final list = (jsonDecode(raw) as List)
-          .cast<Map<String, dynamic>>()
-          .map(MiniCardData.fromJson)
-          .toList();
+      final list = (jsonDecode(raw) as List).cast<Map<String, dynamic>>().map(MiniCardData.fromJson).toList();
       _miniCards = list;
       if (mounted) {
         context.read<MiniCardStore>().setForOwner(widget.title, _miniCards);
@@ -85,11 +82,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
   Future<void> _openMiniCardsPage({int initialIndex = 0}) async {
     final updated = await Navigator.of(context).push<List<MiniCardData>>(
       MaterialPageRoute(
-        builder: (_) => MiniCardsPage(
-          title: widget.title,
-          cards: List.of(_miniCards),
-          initialIndex: initialIndex,
-        ),
+        builder: (_) => MiniCardsPage(title: widget.title, cards: List.of(_miniCards), initialIndex: initialIndex),
         fullscreenDialog: true,
       ),
     );
@@ -121,9 +114,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
             image: widget.image!,
             fit: BoxFit.cover,
             gaplessPlayback: true,
-            errorBuilder: (_, __, ___) => const Center(
-              child: Icon(Icons.image_not_supported_outlined, size: 48),
-            ),
+            errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.image_not_supported_outlined, size: 48)),
           ),
     );
 
@@ -147,25 +138,15 @@ class _CardDetailPageState extends State<CardDetailPage> {
         padding: const EdgeInsets.only(bottom: _kPreviewHeight + 36), // 預留位置
         children: [
           topImage,
-          ListTile(
-            leading: const Icon(Icons.cake_outlined),
-            title: Text(l.birthday),
-            subtitle: Text(bdayText),
-          ),
+          ListTile(leading: const Icon(Icons.cake_outlined), title: Text(l.birthday), subtitle: Text(bdayText)),
           const Divider(height: 0),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              l.quoteTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            child: Text(l.quoteTitle, style: Theme.of(context).textTheme.titleMedium),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-            child: Text(
-              '“${widget.quote}”',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            child: Text('“${widget.quote}”', style: Theme.of(context).textTheme.bodyLarge),
           ),
         ],
       ),
@@ -214,11 +195,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
 // ------- Bottom Preview -------
 
 class _BottomPreviewBody extends StatelessWidget {
-  const _BottomPreviewBody({
-    required this.miniCards,
-    required this.previewHeight,
-    required this.onOpenMiniCards,
-  });
+  const _BottomPreviewBody({required this.miniCards, required this.previewHeight, required this.onOpenMiniCards});
 
   final List<MiniCardData> miniCards;
   final double previewHeight;
@@ -236,25 +213,19 @@ class _BottomPreviewBody extends StatelessWidget {
             height: previewHeight,
             child: miniCards.isEmpty
                 ? Center(
-                    child: Text(
-                      context.l10n.noMiniCardsPreviewHint,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    child: Text(context.l10n.noMiniCardsPreviewHint, style: Theme.of(context).textTheme.bodyMedium),
                   )
                 : _BottomMiniCarousel(
                     cards: miniCards,
                     height: previewHeight,
                     borderRadius: 14,
-                    onTapCenter: ({int initialIndex = 0}) =>
-                        onOpenMiniCards(initialIndex: initialIndex),
+                    onTapCenter: ({int initialIndex = 0}) => onOpenMiniCards(initialIndex: initialIndex),
                   ),
           ),
           const SizedBox(height: 6),
           Text(
             context.l10n.detailSwipeHint,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).hintColor,
-            ),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).hintColor),
           ),
           const SizedBox(height: 10),
         ],
@@ -301,23 +272,15 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
         final vf = (cardW / width).clamp(0.2, 0.95);
 
         _pc ??= PageController(
-          initialPage: widget.initialIndex.clamp(
-            0,
-            (widget.cards.length - 1).clamp(0, 999),
-          ),
+          initialPage: widget.initialIndex.clamp(0, (widget.cards.length - 1).clamp(0, 999)),
           viewportFraction: vf,
         )..addListener(() => setState(() => _page = _pc!.page ?? _page));
 
         if (_pc!.viewportFraction != vf) {
-          final curr = _pc!.hasClients
-              ? (_pc!.page ?? _pc!.initialPage.toDouble())
-              : _pc!.initialPage.toDouble();
+          final curr = _pc!.hasClients ? (_pc!.page ?? _pc!.initialPage.toDouble()) : _pc!.initialPage.toDouble();
           _pc!..dispose();
           _pc = PageController(
-            initialPage: curr.round().clamp(
-              0,
-              (widget.cards.length - 1).clamp(0, 999),
-            ),
+            initialPage: curr.round().clamp(0, (widget.cards.length - 1).clamp(0, 999)),
             viewportFraction: vf,
           )..addListener(() => setState(() => _page = _pc!.page ?? _page));
         }
@@ -341,8 +304,7 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
               // 決定縮圖來源
               Widget thumb;
               final hasLocal =
-                  (data.localPath ?? '').isNotEmpty &&
-                  !(kIsWeb && (data.localPath?.startsWith('url:') ?? false));
+                  (data.localPath ?? '').isNotEmpty && !(kIsWeb && (data.localPath?.startsWith('url:') ?? false));
               final hasRemote = (data.imageUrl ?? '').isNotEmpty;
 
               if (kIsWeb && !hasLocal && hasRemote) {
@@ -354,19 +316,11 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                   gaplessPlayback: true,
                 );
               } else {
-                thumb = Image(
-                  image: imageProviderOf(data),
-                  fit: BoxFit.cover,
-                  gaplessPlayback: true,
-                );
+                thumb = Image(image: imageProviderOf(data), fit: BoxFit.cover, gaplessPlayback: true);
               }
 
               // 強制 9:16 & cover（不論來源是什麼 widget 都一致處理）
-              thumb = _CoverBox(
-                aspectRatio: 9 / 16,
-                borderRadius: widget.borderRadius,
-                child: thumb,
-              );
+              thumb = _CoverBox(aspectRatio: 9 / 16, borderRadius: widget.borderRadius, child: thumb);
 
               // Web 上仍包 PointerInterceptor（避免 HtmlElementView 搶事件）
               if (kIsWeb) {
@@ -383,9 +337,7 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                       width: cardW,
                       height: widget.height,
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(
-                          widget.borderRadius,
-                        ),
+                        borderRadius: BorderRadius.circular(widget.borderRadius),
                         onTap: () async {
                           await _pc!.animateToPage(
                             i,
@@ -411,11 +363,7 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
 // ------- 通用：把任何 child 都「強制成 cover」並裁 9:16 -------
 
 class _CoverBox extends StatelessWidget {
-  const _CoverBox({
-    required this.child,
-    this.aspectRatio = 9 / 16,
-    this.borderRadius = 0,
-  });
+  const _CoverBox({required this.child, this.aspectRatio = 9 / 16, this.borderRadius = 0});
 
   final Widget child;
   final double aspectRatio;
@@ -432,11 +380,7 @@ class _CoverBox extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.cover,
               clipBehavior: Clip.hardEdge,
-              child: SizedBox(
-                width: c.maxWidth,
-                height: c.maxHeight,
-                child: child,
-              ),
+              child: SizedBox(width: c.maxWidth, height: c.maxHeight, child: child),
             ),
           );
         },

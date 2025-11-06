@@ -9,11 +9,7 @@ class PostComposerResult {
 
   /// 選到的圖片（跨平台用 XFile；Web 用 readAsBytes，上行動裝置可用 path）
   final XFile? image;
-  const PostComposerResult({
-    required this.text,
-    required this.tags,
-    this.image,
-  });
+  const PostComposerResult({required this.text, required this.tags, this.image});
 }
 
 Future<PostComposerResult?> showPostComposer(
@@ -35,9 +31,7 @@ Future<PostComposerResult?> showPostComposer(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: cs.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) {
       return StatefulBuilder(
         builder: (ctx, setSB) {
@@ -45,9 +39,7 @@ Future<PostComposerResult?> showPostComposer(
             final t = raw.trim().toLowerCase();
             if (t.isEmpty) return;
             if (tags.length >= maxTags) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Tag limit $maxTags')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Tag limit $maxTags')));
               return;
             }
             tags.add(t);
@@ -56,10 +48,7 @@ Future<PostComposerResult?> showPostComposer(
           }
 
           Future<void> pickFromGallery() async {
-            final x = await ImagePicker().pickImage(
-              source: ImageSource.gallery,
-              imageQuality: 85,
-            );
+            final x = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85);
             if (x != null) {
               pickedImage = x;
               // 用 bytes 作預覽，避免 Image.file 在 Web 崩潰
@@ -69,12 +58,7 @@ Future<PostComposerResult?> showPostComposer(
           }
 
           return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 12,
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
+            padding: EdgeInsets.only(left: 16, right: 16, top: 12, bottom: MediaQuery.of(context).viewInsets.bottom),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -89,10 +73,7 @@ Future<PostComposerResult?> showPostComposer(
                   if (pickedPreviewBytes != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.memory(
-                        pickedPreviewBytes!,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.memory(pickedPreviewBytes!, fit: BoxFit.cover),
                     ),
 
                   Row(
@@ -129,10 +110,7 @@ Future<PostComposerResult?> showPostComposer(
                     children: [
                       const Text('標籤'),
                       const SizedBox(width: 8),
-                      Text(
-                        '${tags.length}/$maxTags',
-                        style: TextStyle(color: cs.onSurfaceVariant),
-                      ),
+                      Text('${tags.length}/$maxTags', style: TextStyle(color: cs.onSurfaceVariant)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -143,17 +121,12 @@ Future<PostComposerResult?> showPostComposer(
                         child: TextField(
                           controller: tagCtrl,
                           textInputAction: TextInputAction.done,
-                          decoration: const InputDecoration(
-                            hintText: '新增標籤，按 Enter',
-                          ),
+                          decoration: const InputDecoration(hintText: '新增標籤，按 Enter'),
                           onSubmitted: addTag,
                         ),
                       ),
                       const SizedBox(width: 8),
-                      FilledButton.tonal(
-                        onPressed: () => addTag(tagCtrl.text),
-                        child: const Text('加入'),
-                      ),
+                      FilledButton.tonal(onPressed: () => addTag(tagCtrl.text), child: const Text('加入')),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -176,11 +149,7 @@ Future<PostComposerResult?> showPostComposer(
                     ),
                   ),
 
-                  const SafeArea(
-                    top: false,
-                    minimum: EdgeInsets.only(bottom: 6),
-                    child: SizedBox.shrink(),
-                  ),
+                  const SafeArea(top: false, minimum: EdgeInsets.only(bottom: 6), child: SizedBox.shrink()),
                 ],
               ),
             ),

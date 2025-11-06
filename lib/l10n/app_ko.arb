@@ -479,6 +479,11 @@
   "bullet_einvoice": "국내 전자세금계산서 발행, 기업 고객은 사업자번호 입력 가능",
   "bullet_cancel_anytime": "언제든 해지 가능, 다음 달부터 청구 중단",
   "bullet_terms": "서비스 약관, 개인정보 처리방침, 환불 정책(추후 링크 추가)",
-  "bullet_abuse": "불법/남용 업로드 시 이용이 제한될 수 있습니다"
+  "bullet_abuse": "불법/남용 업로드 시 이용이 제한될 수 있습니다",
+
+  "common_ok": "확인",
+  "common_okDescription": "일반 확인 버튼",
+  "common_cancel": "취소",
+  "common_cancelDescription": "일반 취소 버튼"
 
 }

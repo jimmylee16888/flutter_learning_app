@@ -3,11 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class FullscreenQrViewer extends StatelessWidget {
-  const FullscreenQrViewer({
-    super.key,
-    required this.bytes,
-    required this.heroTag,
-  });
+  const FullscreenQrViewer({super.key, required this.bytes, required this.heroTag});
 
   final Uint8List bytes;
   final Object heroTag;
@@ -22,11 +18,7 @@ class FullscreenQrViewer extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            tooltip: '關閉',
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
+          IconButton(icon: const Icon(Icons.close), tooltip: '關閉', onPressed: () => Navigator.of(context).maybePop()),
         ],
       ),
       body: SafeArea(
@@ -39,16 +31,9 @@ class FullscreenQrViewer extends StatelessWidget {
               tag: heroTag,
               // 白底 + 內距，確保掃描器有足夠安靜區（quiet zone）
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
                 padding: const EdgeInsets.all(20),
-                child: Image.memory(
-                  bytes,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.none,
-                ),
+                child: Image.memory(bytes, fit: BoxFit.contain, filterQuality: FilterQuality.none),
               ),
             ),
           ),

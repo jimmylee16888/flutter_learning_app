@@ -20,6 +20,5 @@ class GridPaperPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant GridPaperPainter oldDelegate) =>
-      oldDelegate.color != color;
+  bool shouldRepaint(covariant GridPaperPainter oldDelegate) => oldDelegate.color != color;
 }

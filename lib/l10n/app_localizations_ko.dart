@@ -1096,4 +1096,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bullet_abuse => '불법/남용 업로드 시 이용이 제한될 수 있습니다';
+
+  @override
+  String get common_ok => '확인';
+
+  @override
+  String get common_okDescription => '일반 확인 버튼';
+
+  @override
+  String get common_cancel => '취소';
+
+  @override
+  String get common_cancelDescription => '일반 취소 버튼';
 }

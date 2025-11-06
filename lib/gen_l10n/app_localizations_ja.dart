@@ -356,8 +356,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get noMiniCardsPreviewHint =>
-      'まだミニカードはありません。ここをタップするか、上にスワイプして追加してください。';
+  String get noMiniCardsPreviewHint => 'まだミニカードはありません。ここをタップするか、上にスワイプして追加してください。';
 
   @override
   String get detailSwipeHint => '上にスワイプしてミニカードページ（スキャン／QR共有を含む）へ。';
@@ -762,8 +761,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get pasteJsonTitle => 'JSON テキストを貼り付け';
 
   @override
-  String get pasteJsonHint =>
-      'mini_card_bundle_v2/v1 または mini_card_v2/v1 をサポート';
+  String get pasteJsonHint => 'mini_card_bundle_v2/v1 または mini_card_v2/v1 をサポート';
 
   @override
   String get import => 'インポート';
@@ -779,8 +777,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get cannotExportJsonAllLocal =>
-      '選択したカードはすべてローカル画像のみのため、JSON にエクスポートできません';
+  String get cannotExportJsonAllLocal => '選択したカードはすべてローカル画像のみのため、JSON にエクスポートできません';
 
   @override
   String skippedLocalImagesCount(int n) {
@@ -809,8 +806,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get hasImageUrlJsonOk => '画像 URL あり：JSON で送信可能';
 
   @override
-  String get exportJsonOnlyUrlHint =>
-      'ヒント：エクスポートされる JSON には画像 URL を持つカードのみ含まれます。ローカルのみの画像はスキップされます。';
+  String get exportJsonOnlyUrlHint => 'ヒント：エクスポートされる JSON には画像 URL を持つカードのみ含まれます。ローカルのみの画像はスキップされます。';
 
   @override
   String get sharePhotos => '写真を共有';
@@ -833,8 +829,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qrCodeTab => 'QR コード';
 
   @override
-  String get qrTooLargeUseJsonHint =>
-      'QR コードが表示されない場合、データが大きすぎる可能性があります。JSON の使用を検討してください。';
+  String get qrTooLargeUseJsonHint => 'QR コードが表示されない場合、データが大きすぎる可能性があります。JSON の使用を検討してください。';
 
   @override
   String get scanMiniCardQrTitle => 'ミニカードの QR をスキャン';

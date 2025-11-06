@@ -474,6 +474,11 @@
   "bullet_einvoice": "國內開立雲端發票；企業可填統編",
   "bullet_cancel_anytime": "可隨時取消，下期不續扣",
   "bullet_terms": "服務條款、隱私權政策、退款政策（之後補連結）",
-  "bullet_abuse": "濫用上傳（如違法內容）將被停權"
+  "bullet_abuse": "濫用上傳（如違法內容）將被停權",
+
+  "common_ok": "確定",
+  "common_okDescription": "通用確定按鈕",
+  "common_cancel": "取消",
+  "common_cancelDescription": "通用取消按鈕"
 
 }

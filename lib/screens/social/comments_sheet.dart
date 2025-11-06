@@ -13,14 +13,10 @@ Future<void> showCommentsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: cs.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (_) {
       return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.65,
           child: Column(
@@ -29,10 +25,7 @@ Future<void> showCommentsSheet(
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 12),
               const Text('留言'),
@@ -41,40 +34,24 @@ Future<void> showCommentsSheet(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: post.comments.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: cs.outlineVariant),
+                  separatorBuilder: (_, __) => Divider(color: cs.outlineVariant),
                   itemBuilder: (_, i) {
                     final c = post.comments[i];
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          child: Text(
-                            c.author.name.isNotEmpty
-                                ? c.author.name.characters.first.toUpperCase()
-                                : '?',
-                          ),
+                          child: Text(c.author.name.isNotEmpty ? c.author.name.characters.first.toUpperCase() : '?'),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                c.author.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              Text(c.author.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               Text(c.text),
                               const SizedBox(height: 4),
-                              Text(
-                                '${c.createdAt}',
-                                style: TextStyle(
-                                  color: cs.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              Text('${c.createdAt}', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                             ],
                           ),
                         ),

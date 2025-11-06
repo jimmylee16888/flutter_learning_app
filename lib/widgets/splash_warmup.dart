@@ -73,16 +73,10 @@ class _SplashWarmupState extends State<SplashWarmup> {
                 // 上方圖片（限制最大寬高，不用 Expanded 以免撐出大片空白）
                 Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: imageMaxHeight,
-                      maxWidth: imageMaxWidth,
-                    ),
+                    constraints: BoxConstraints(maxHeight: imageMaxHeight, maxWidth: imageMaxWidth),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Image.asset(
-                        widget.imageAsset,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset(widget.imageAsset, fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -92,11 +86,7 @@ class _SplashWarmupState extends State<SplashWarmup> {
 
                 // 可選：小型進度圈
                 if (widget.showSpinner) ...[
-                  const SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(strokeWidth: 3),
-                  ),
+                  const SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 3)),
                   const SizedBox(height: 12),
                 ],
 
@@ -113,16 +103,12 @@ class _SplashWarmupState extends State<SplashWarmup> {
                           duration: const Duration(milliseconds: 300),
                           switchInCurve: Curves.easeIn,
                           switchOutCurve: Curves.easeOut,
-                          transitionBuilder: (child, anim) =>
-                              FadeTransition(opacity: anim, child: child),
+                          transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
                           child: Text(
                             // 若沒有 tips，顯示預設字句
-                            (widget.tips.isEmpty
-                                ? '準備中…'
-                                : widget.tips[_index]),
+                            (widget.tips.isEmpty ? '準備中…' : widget.tips[_index]),
                             key: ValueKey(_index),
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                             softWrap: true,
                           ),
                         ),

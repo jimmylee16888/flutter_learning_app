@@ -16,12 +16,7 @@ class TipPrompt {
   final String body;
   final String imageUrl;
 
-  TipPrompt({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.imageUrl,
-  });
+  TipPrompt({required this.id, required this.title, required this.body, required this.imageUrl});
 
   factory TipPrompt.fromJson(Map<String, dynamic> j) => TipPrompt(
     id: (j['id'] ?? j['tipId'] ?? j['key'] ?? '').toString().trim().isEmpty
@@ -32,12 +27,7 @@ class TipPrompt {
     imageUrl: (j['imageUrl'] ?? j['image'] ?? j['cover'] ?? '').toString(),
   );
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'body': body,
-    'imageUrl': imageUrl,
-  };
+  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'body': body, 'imageUrl': imageUrl};
 
   static String _randId() => 'tip_${DateTime.now().microsecondsSinceEpoch}';
 }
@@ -66,14 +56,9 @@ class TipPrompter {
     if (_isShowing) return;
     _isShowing = true;
     try {
-      final tips = await _fetchTips(
-        endpointUrl,
-        httpTimeout: httpTimeout,
-      ).catchError((_) => <TipPrompt>[]);
+      final tips = await _fetchTips(endpointUrl, httpTimeout: httpTimeout).catchError((_) => <TipPrompt>[]);
 
-      final TipPrompt tipToShow = tips.isNotEmpty
-          ? _pickTipForToday(tips)
-          : _offlineFallback();
+      final TipPrompt tipToShow = tips.isNotEmpty ? _pickTipForToday(tips) : _offlineFallback();
 
       final bypassDailyGate = alwaysShowOverride || !enableDailyGate;
 
@@ -99,10 +84,7 @@ class TipPrompter {
     required String endpointUrl,
     Duration httpTimeout = const Duration(seconds: 8),
   }) async {
-    final tips = await _fetchTips(
-      endpointUrl,
-      httpTimeout: httpTimeout,
-    ).catchError((_) => <TipPrompt>[]);
+    final tips = await _fetchTips(endpointUrl, httpTimeout: httpTimeout).catchError((_) => <TipPrompt>[]);
 
     final tip = tips.isNotEmpty ? _pickTipForToday(tips) : _offlineFallback();
 
@@ -171,10 +153,7 @@ class TipPrompter {
 
     final decoded = json.decode(res.body);
     if (decoded is List) {
-      return decoded
-          .whereType<Object>()
-          .map((e) => TipPrompt.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return decoded.whereType<Object>().map((e) => TipPrompt.fromJson(e as Map<String, dynamic>)).toList();
     } else if (decoded is Map<String, dynamic>) {
       return [TipPrompt.fromJson(decoded)];
     } else {
@@ -228,49 +207,31 @@ class TipPrompter {
       builder: (_) => SafeArea(
         child: AlertDialog(
           contentPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (tip.imageUrl.trim().isNotEmpty)
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: _buildTipImage(context, tip.imageUrl),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: AspectRatio(aspectRatio: 16 / 9, child: _buildTipImage(context, tip.imageUrl)),
                 ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
                 child: Text(
                   tip.title,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Text(
-                  tip.body,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                child: Text(tip.body, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
               ),
               const SizedBox(height: 4),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('知道了'),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('知道了'))],
         ),
       ),
     );
@@ -285,11 +246,7 @@ class TipPrompter {
 
     if (url.startsWith('asset:')) {
       final assetPath = url.substring('asset:'.length);
-      return Image.asset(
-        assetPath,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => onError,
-      );
+      return Image.asset(assetPath, fit: BoxFit.cover, errorBuilder: (_, __, ___) => onError);
     }
 
     if (url.startsWith('data:')) {
@@ -300,11 +257,7 @@ class TipPrompter {
           final base64Part = url.substring(comma + 1);
           if (meta.contains('base64')) {
             final bytes = base64.decode(base64Part);
-            return Image.memory(
-              Uint8List.fromList(bytes),
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => onError,
-            );
+            return Image.memory(Uint8List.fromList(bytes), fit: BoxFit.cover, errorBuilder: (_, __, ___) => onError);
           }
         }
       } catch (_) {}
@@ -315,11 +268,7 @@ class TipPrompter {
       url = absUrl(kSocialBaseUrl, url.startsWith('/') ? url : '/$url');
     }
 
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => onError,
-    );
+    return Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => onError);
   }
 }
 

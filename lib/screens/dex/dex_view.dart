@@ -30,10 +30,8 @@ class _DexViewState extends State<DexView> {
   double _scaleAccum = 1.0;
   static const _kScaleStep = 1.15;
 
-  void _zoomIn() =>
-      setState(() => _cols = (_cols - 1).clamp(_kMinCols, _kMaxCols));
-  void _zoomOut() =>
-      setState(() => _cols = (_cols + 1).clamp(_kMinCols, _kMaxCols));
+  void _zoomIn() => setState(() => _cols = (_cols - 1).clamp(_kMinCols, _kMaxCols));
+  void _zoomOut() => setState(() => _cols = (_cols + 1).clamp(_kMinCols, _kMaxCols));
   void _zoomReset() => setState(() => _cols = 3);
 
   @override
@@ -49,21 +47,15 @@ class _DexViewState extends State<DexView> {
       );
     }
 
-    final grouped = groupMiniCardsByIdol(
-      cards,
-      uncategorized: l.dex_uncategorized,
-    );
+    final grouped = groupMiniCardsByIdol(cards, uncategorized: l.dex_uncategorized);
 
-    List<MapEntry<String, List<MiniCardData>>> entries = grouped.entries
-        .toList();
+    List<MapEntry<String, List<MiniCardData>>> entries = grouped.entries.toList();
     if (_query.trim().isNotEmpty) {
       final q = _query.trim().toLowerCase();
       entries = entries.where((e) {
         final inGroupName = e.key.toLowerCase().contains(q);
         final inCards = e.value.any(
-          (c) =>
-              (c.name ?? '').toLowerCase().contains(q) ||
-              (c.serial ?? '').toLowerCase().contains(q),
+          (c) => (c.name ?? '').toLowerCase().contains(q) || (c.serial ?? '').toLowerCase().contains(q),
         );
         return inGroupName || inCards;
       }).toList();
@@ -76,21 +68,14 @@ class _DexViewState extends State<DexView> {
       itemBuilder: (_, i) {
         final idol = entries[i].key;
         final list = [...entries[i].value]
-          ..sort(
-            (a, b) => (a.name ?? a.id).toLowerCase().compareTo(
-              (b.name ?? b.id).toLowerCase(),
-            ),
-          );
+          ..sort((a, b) => (a.name ?? a.id).toLowerCase().compareTo((b.name ?? b.id).toLowerCase()));
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
-              child: Text(
-                '$idol · ${l.dex_cardsCount(list.length)}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              child: Text('$idol · ${l.dex_cardsCount(list.length)}', style: Theme.of(context).textTheme.titleMedium),
             ),
             const Divider(height: 8),
             GridView.builder(
@@ -108,21 +93,13 @@ class _DexViewState extends State<DexView> {
                 return _MiniCardTile(
                   card: card,
                   onOpen: () async {
-                    final updated = await Navigator.of(context)
-                        .push<List<MiniCardData>>(
-                          MaterialPageRoute(
-                            builder: (_) => MiniCardsPage(
-                              title: idol,
-                              cards: list,
-                              initialIndex: j,
-                            ),
-                          ),
-                        );
+                    final updated = await Navigator.of(context).push<List<MiniCardData>>(
+                      MaterialPageRoute(
+                        builder: (_) => MiniCardsPage(title: idol, cards: list, initialIndex: j),
+                      ),
+                    );
                     if (updated != null) {
-                      await context.read<MiniCardStore>().replaceCardsForIdol(
-                        idol: idol,
-                        next: updated,
-                      );
+                      await context.read<MiniCardStore>().replaceCardsForIdol(idol: idol, next: updated);
                     }
                   },
                 );
@@ -145,23 +122,11 @@ class _DexViewState extends State<DexView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _IconSquareButton(
-                icon: Icons.zoom_in,
-                tooltip: l.zoomIn,
-                onTap: _zoomIn,
-              ),
+              _IconSquareButton(icon: Icons.zoom_in, tooltip: l.zoomIn, onTap: _zoomIn),
               const SizedBox(height: 8),
-              _IconSquareButton(
-                icon: Icons.zoom_out,
-                tooltip: l.zoomOut,
-                onTap: _zoomOut,
-              ),
+              _IconSquareButton(icon: Icons.zoom_out, tooltip: l.zoomOut, onTap: _zoomOut),
               const SizedBox(height: 8),
-              _IconSquareButton(
-                icon: Icons.aspect_ratio,
-                tooltip: l.resetZoom,
-                onTap: _zoomReset,
-              ),
+              _IconSquareButton(icon: Icons.aspect_ratio, tooltip: l.resetZoom, onTap: _zoomReset),
             ],
           ),
         ),
@@ -169,8 +134,7 @@ class _DexViewState extends State<DexView> {
     );
 
     final shortcuts = <LogicalKeySet, Intent>{
-      LogicalKeySet(LogicalKeyboardKey.equal, LogicalKeyboardKey.shift):
-          const _ZoomInIntent(),
+      LogicalKeySet(LogicalKeyboardKey.equal, LogicalKeyboardKey.shift): const _ZoomInIntent(),
       LogicalKeySet(LogicalKeyboardKey.add): const _ZoomInIntent(),
       LogicalKeySet(LogicalKeyboardKey.numpadAdd): const _ZoomInIntent(),
       LogicalKeySet(LogicalKeyboardKey.minus): const _ZoomOutIntent(),
@@ -180,12 +144,8 @@ class _DexViewState extends State<DexView> {
     };
     final actions = <Type, Action<Intent>>{
       _ZoomInIntent: CallbackAction<_ZoomInIntent>(onInvoke: (_) => _zoomIn()),
-      _ZoomOutIntent: CallbackAction<_ZoomOutIntent>(
-        onInvoke: (_) => _zoomOut(),
-      ),
-      _ZoomResetIntent: CallbackAction<_ZoomResetIntent>(
-        onInvoke: (_) => _zoomReset(),
-      ),
+      _ZoomOutIntent: CallbackAction<_ZoomOutIntent>(onInvoke: (_) => _zoomOut()),
+      _ZoomResetIntent: CallbackAction<_ZoomResetIntent>(onInvoke: (_) => _zoomReset()),
     };
 
     final content = Stack(
@@ -220,9 +180,7 @@ class _DexViewState extends State<DexView> {
               decoration: InputDecoration(
                 hintText: l.dex_searchHint,
                 prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
+                border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 isDense: true,
               ),
               onChanged: (v) => setState(() => _query = v),
@@ -258,11 +216,7 @@ class _ZoomResetIntent extends Intent {
 }
 
 class _IconSquareButton extends StatelessWidget {
-  const _IconSquareButton({
-    required this.icon,
-    required this.onTap,
-    this.tooltip,
-  });
+  const _IconSquareButton({required this.icon, required this.onTap, this.tooltip});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -294,8 +248,7 @@ class _MiniCardTile extends StatelessWidget {
   final MiniCardData card;
   final VoidCallback onOpen;
 
-  bool _isHttpUrl(String s) =>
-      s.startsWith('http://') || s.startsWith('https://');
+  bool _isHttpUrl(String s) => s.startsWith('http://') || s.startsWith('https://');
 
   @override
   Widget build(BuildContext context) {
@@ -336,9 +289,7 @@ class _MiniCardTile extends StatelessWidget {
         // data:/assets/ 等由抽象層處理（data: 會變 MemoryImage）
         img = buildFromProvider(
           imageProviderOf(card),
-          lp.startsWith('data:')
-              ? 'DATA'
-              : (lp.startsWith('assets/') ? 'ASSET' : 'MEM/PLH'),
+          lp.startsWith('data:') ? 'DATA' : (lp.startsWith('assets/') ? 'ASSET' : 'MEM/PLH'),
         );
       }
     } else {
@@ -355,16 +306,10 @@ class _MiniCardTile extends StatelessWidget {
             right: 6,
             bottom: 6,
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(6),
-              ),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(6)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                child: Text(
-                  badge,
-                  style: const TextStyle(fontSize: 10, color: Colors.white),
-                ),
+                child: Text(badge, style: const TextStyle(fontSize: 10, color: Colors.white)),
               ),
             ),
           ),

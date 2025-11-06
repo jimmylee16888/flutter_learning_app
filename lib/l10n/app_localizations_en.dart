@@ -1119,4 +1119,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bullet_abuse => 'Abusive/illegal uploads may lead to suspension';
+
+  @override
+  String get common_ok => 'OK';
+
+  @override
+  String get common_okDescription => 'Generic OK/confirm button label.';
+
+  @override
+  String get common_cancel => 'Cancel';
+
+  @override
+  String get common_cancelDescription => 'Generic cancel button label.';
 }

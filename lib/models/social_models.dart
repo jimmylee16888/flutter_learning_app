@@ -66,16 +66,9 @@ class SocialUser {
     avatarUrl: j['avatarUrl'] as String?,
     email: j['email'] as String?,
     followedTags:
-        (j['followedTags'] as List?)
-            ?.map((e) => e?.toString() ?? '')
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        <String>[],
+        (j['followedTags'] as List?)?.map((e) => e?.toString() ?? '').where((e) => e.isNotEmpty).toList() ?? <String>[],
     followingUserIds:
-        (j['followingUserIds'] as List?)
-            ?.map((e) => e?.toString() ?? '')
-            .where((e) => e.isNotEmpty)
-            .toList() ??
+        (j['followingUserIds'] as List?)?.map((e) => e?.toString() ?? '').where((e) => e.isNotEmpty).toList() ??
         <String>[],
     instagram: j['instagram'] as String?,
     facebook: j['facebook'] as String?,
@@ -138,20 +131,15 @@ class SocialComment {
   final String text;
   final DateTime createdAt;
 
-  SocialComment({
-    required this.id,
-    required this.author,
-    required this.text,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
+  SocialComment({required this.id, required this.author, required this.text, DateTime? createdAt})
+    : createdAt = createdAt ?? DateTime.now();
 
   // --- SocialComment ---
   factory SocialComment.fromJson(Map<String, dynamic> j) => SocialComment(
     id: (j['id'] ?? '').toString(),
     author: SocialUser.fromJson((j['author'] as Map).cast<String, dynamic>()),
     text: (j['text'] ?? '').toString(),
-    createdAt:
-        DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
+    createdAt: DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -161,12 +149,7 @@ class SocialComment {
     'createdAt': createdAt.toIso8601String(),
   };
 
-  SocialComment copyWith({
-    String? id,
-    SocialUser? author,
-    String? text,
-    DateTime? createdAt,
-  }) => SocialComment(
+  SocialComment copyWith({String? id, SocialUser? author, String? text, DateTime? createdAt}) => SocialComment(
     id: id ?? this.id,
     author: author ?? this.author,
     text: text ?? this.text,
@@ -213,8 +196,7 @@ class SocialPost {
     id: (j['id'] ?? '').toString(),
     author: SocialUser.fromJson((j['author'] as Map).cast<String, dynamic>()),
     text: (j['text'] ?? '').toString(),
-    createdAt:
-        DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
+    createdAt: DateTime.tryParse((j['createdAt'] ?? '').toString()) ?? DateTime.now(),
     images: const <File?>[], // 後端不回本地檔
     imageUrl: () {
       final v = j['imageUrl'];
@@ -225,18 +207,9 @@ class SocialPost {
     likeCount: (j['likeCount'] as num?)?.toInt() ?? 0,
     likedByMe: j['likedByMe'] == true,
     comments:
-        (j['comments'] as List?)
-            ?.map(
-              (e) => SocialComment.fromJson((e as Map).cast<String, dynamic>()),
-            )
-            .toList() ??
+        (j['comments'] as List?)?.map((e) => SocialComment.fromJson((e as Map).cast<String, dynamic>())).toList() ??
         <SocialComment>[],
-    tags:
-        (j['tags'] as List?)
-            ?.map((e) => e?.toString() ?? '')
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        <String>[],
+    tags: (j['tags'] as List?)?.map((e) => e?.toString() ?? '').where((e) => e.isNotEmpty).toList() ?? <String>[],
   );
 
   /// 序列化送後端（不含本地 images）

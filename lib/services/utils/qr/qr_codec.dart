@@ -17,8 +17,7 @@ class QrPayload {
   final String? id;
   const QrPayload._(this.kind, {this.json, this.id});
 
-  factory QrPayload.json(Map<String, dynamic> obj) =>
-      QrPayload._(QrPayloadKind.json, json: obj);
+  factory QrPayload.json(Map<String, dynamic> obj) => QrPayload._(QrPayloadKind.json, json: obj);
 
   factory QrPayload.id(String id) => QrPayload._(QrPayloadKind.id, id: id);
 }

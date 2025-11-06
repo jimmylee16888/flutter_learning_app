@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Heart {
-  Heart({
-    required this.pos,
-    required this.vel,
-    required this.size,
-    required this.life,
-    required this.color,
-  });
+  Heart({required this.pos, required this.vel, required this.size, required this.life, required this.color});
 
   Offset pos;
   Offset vel;
@@ -45,6 +39,5 @@ class HeartsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant HeartsPainter oldDelegate) =>
-      oldDelegate.hearts != hearts;
+  bool shouldRepaint(covariant HeartsPainter oldDelegate) => oldDelegate.hearts != hearts;
 }

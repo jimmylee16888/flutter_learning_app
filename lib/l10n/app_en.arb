@@ -499,10 +499,11 @@
   "bullet_einvoice": "Domestic e-invoice; business users can enter tax ID",
   "bullet_cancel_anytime": "Cancel anytime; no renewal next cycle",
   "bullet_terms": "Terms of Service, Privacy Policy, Refund Policy (links to be added)",
-  "bullet_abuse": "Abusive/illegal uploads may lead to suspension"
+  "bullet_abuse": "Abusive/illegal uploads may lead to suspension",
 
-
-
-
+  "common_ok": "OK",
+  "common_okDescription": "Generic OK/confirm button label.",
+  "common_cancel": "Cancel",
+  "common_cancelDescription": "Generic cancel button label."
 
 }

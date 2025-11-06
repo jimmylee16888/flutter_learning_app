@@ -15,8 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueAsGuest => 'Continue as Guest';
 
   @override
-  String get noNetworkGuestTip =>
-      'You\'re offline. You can continue as a guest.';
+  String get noNetworkGuestTip => 'You\'re offline. You can continue as a guest.';
 
   @override
   String get appTitle => 'MyApp Demo';
@@ -130,8 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountStatusSignedOut => 'Signed out';
 
   @override
-  String get accountGuestSubtitle =>
-      'Using guest mode; data is stored only on this device';
+  String get accountGuestSubtitle => 'Using guest mode; data is stored only on this device';
 
   @override
   String get accountNoInfo => '(No account info)';
@@ -170,15 +168,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get stats_nav_subtitle =>
-      'See collection stats: totals, sources, top artists';
+  String get stats_nav_subtitle => 'See collection stats: totals, sources, top artists';
 
   @override
   String get welcomeTitle => 'Welcome to Mini Cards';
 
   @override
-  String get welcomeSubtitle =>
-      'Sign in or create an account to sync settings and data';
+  String get welcomeSubtitle => 'Sign in or create an account to sync settings and data';
 
   @override
   String get authSignIn => 'Sign in';
@@ -360,12 +356,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noMiniCardsPreviewHint =>
-      'No mini cards yet. Tap here or swipe up to add.';
+  String get noMiniCardsPreviewHint => 'No mini cards yet. Tap here or swipe up to add.';
 
   @override
-  String get detailSwipeHint =>
-      'Swipe up to open mini-cards (scan/share QR inside)';
+  String get detailSwipeHint => 'Swipe up to open mini-cards (scan/share QR inside)';
 
   @override
   String get noMiniCardsEmptyList => 'No mini cards yet. Tap + to add.';
@@ -451,12 +445,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get miniCardNewTitle => 'New mini card';
 
   @override
-  String get errorFrontImageUrlRequired =>
-      'Please enter the front image URL or switch to Local.';
+  String get errorFrontImageUrlRequired => 'Please enter the front image URL or switch to Local.';
 
   @override
-  String get errorFrontLocalRequired =>
-      'Please choose a local front photo or switch to URL.';
+  String get errorFrontLocalRequired => 'Please choose a local front photo or switch to URL.';
 
   @override
   String get userProfileTitle => 'User profile';
@@ -700,8 +692,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareMultipleCards => 'Share multiple cards (multi-select)';
 
   @override
-  String get shareMultipleCardsSubtitle =>
-      'Select cards, then share photos or export JSON';
+  String get shareMultipleCardsSubtitle => 'Select cards, then share photos or export JSON';
 
   @override
   String get shareOneCard => 'Pick one to share…';
@@ -710,12 +701,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectCardsForJsonTitle => 'Select cards to share (JSON)';
 
   @override
-  String get selectCardsForShareOrExportTitle =>
-      'Select cards to share / export';
+  String get selectCardsForShareOrExportTitle => 'Select cards to share / export';
 
   @override
-  String get blockedLocalImageNote =>
-      'Contains local image; cannot export to JSON';
+  String get blockedLocalImageNote => 'Contains local image; cannot export to JSON';
 
   @override
   String shareMultiplePhotos(int n) {
@@ -726,8 +715,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportJson => 'Export JSON';
 
   @override
-  String get exportJsonSkipLocalHint =>
-      'Cards with local-only images will be skipped';
+  String get exportJsonSkipLocalHint => 'Cards with local-only images will be skipped';
 
   @override
   String triedShareSummary(int total, int ok, int fail) {
@@ -738,8 +726,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareQrCode => 'Share QR code';
 
   @override
-  String get shareQrAutoBackendHint =>
-      'Large payloads switch to backend mode automatically';
+  String get shareQrAutoBackendHint => 'Large payloads switch to backend mode automatically';
 
   @override
   String get cannotShareByQr => 'Cannot share via QR';
@@ -748,8 +735,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noImageUrl => 'No image URL';
 
   @override
-  String get noImageUrlPhotoOnly =>
-      'No image URL; can only share the photo directly';
+  String get noImageUrlPhotoOnly => 'No image URL; can only share the photo directly';
 
   @override
   String get shareThisPhoto => 'Share this photo';
@@ -766,8 +752,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transportEmbeddedHint => 'Embedded (local)';
 
   @override
-  String get qrIdOnlyNotice =>
-      'This QR contains only the card ID. The receiver will fetch full content from backend.';
+  String get qrIdOnlyNotice => 'This QR contains only the card ID. The receiver will fetch full content from backend.';
 
   @override
   String get qrGenerationFailed => 'Failed to generate QR image';
@@ -776,8 +761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pasteJsonTitle => 'Paste JSON text';
 
   @override
-  String get pasteJsonHint =>
-      'Supports mini_card_bundle_v2/v1 or mini_card_v2/v1';
+  String get pasteJsonHint => 'Supports mini_card_bundle_v2/v1 or mini_card_v2/v1';
 
   @override
   String get import => 'Import';
@@ -793,8 +777,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cannotExportJsonAllLocal =>
-      'All selected cards contain local-only images and cannot be exported to JSON';
+  String get cannotExportJsonAllLocal => 'All selected cards contain local-only images and cannot be exported to JSON';
 
   @override
   String skippedLocalImagesCount(int n) {

@@ -50,9 +50,7 @@ Map<String, List<MiniCardData>> groupMiniCardsByIdol(
 String _norm(String s) {
   final lower = s.toLowerCase();
   final only = lower.replaceAll(
-    RegExp(
-      r'[^a-z0-9\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af\uff00-\uffef]',
-    ),
+    RegExp(r'[^a-z0-9\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af\uff00-\uffef]'),
     ' ',
   );
   return only.replaceAll(RegExp(r'\s+'), ' ').trim();
@@ -79,12 +77,7 @@ Set<String> aliasesForArtist(String title, List<String> categories) {
 }
 
 /// 從 MiniCardData 的多處來源湊出待比對的文字（含拆詞）
-List<String> extractCandidateStrings({
-  String? name,
-  String? serial,
-  String? localPath,
-  String? imageUrl,
-}) {
+List<String> extractCandidateStrings({String? name, String? serial, String? localPath, String? imageUrl}) {
   final out = <String>{};
   for (final s in [name, serial, localPath, imageUrl]) {
     if (s == null || s.trim().isEmpty) continue;
@@ -96,8 +89,7 @@ List<String> extractCandidateStrings({
 /// 依卡片資訊 + 藝人清單嘗試推論偶像；回傳 `null` 表示推不到
 String? inferIdolForCard({
   required List<String> candidateText, // 已拆詞標準化
-  required Map<String, Set<String>>
-  artistAliasMap, // "TWICE" -> {"twice","tzuyu"...}
+  required Map<String, Set<String>> artistAliasMap, // "TWICE" -> {"twice","tzuyu"...}
   List<String> prefer = const [], // 偏好藝人，命中時重權
 }) {
   if (candidateText.isEmpty || artistAliasMap.isEmpty) return null;

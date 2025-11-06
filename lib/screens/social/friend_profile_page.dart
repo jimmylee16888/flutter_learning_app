@@ -5,8 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_learning_app/l10n/l10n.dart';
 import 'package:flutter_learning_app/services/social/social_api.dart';
 import 'package:flutter_learning_app/models/social_models.dart';
-import 'package:flutter_learning_app/services/services.dart'
-    show FriendFollowController;
+import 'package:flutter_learning_app/services/services.dart' show FriendFollowController;
 
 class FriendProfilePage extends StatefulWidget {
   const FriendProfilePage({super.key, required this.api, required this.userId});
@@ -61,17 +60,12 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
     final l = context.l10n;
     final p = _profile;
 
-    final isFriend = context.watch<FriendFollowController>().contains(
-      widget.userId,
-    );
+    final isFriend = context.watch<FriendFollowController>().contains(widget.userId);
 
-    final String displayName =
-        ((p?['nickname'] ?? p?['name'] ?? 'User') as String);
+    final String displayName = ((p?['nickname'] ?? p?['name'] ?? 'User') as String);
 
     final String myId = widget.api.meId;
-    final String viewedId = (p?['id']?.toString().isNotEmpty ?? false)
-        ? p!['id'].toString()
-        : widget.userId;
+    final String viewedId = (p?['id']?.toString().isNotEmpty ?? false) ? p!['id'].toString() : widget.userId;
     final bool isSelf = viewedId == myId || widget.userId == myId;
 
     return Scaffold(
@@ -92,9 +86,7 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                         CircleAvatar(
                           radius: 36,
                           backgroundColor: cs.surfaceVariant,
-                          foregroundImage:
-                              (p['avatarUrl'] is String &&
-                                  (p['avatarUrl'] as String).isNotEmpty)
+                          foregroundImage: (p['avatarUrl'] is String && (p['avatarUrl'] as String).isNotEmpty)
                               ? NetworkImage(p['avatarUrl'] as String)
                               : null,
                           child: const Icon(Icons.person_outline, size: 36),
@@ -104,39 +96,18 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                displayName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              Text(displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                               const SizedBox(height: 6),
                               Wrap(
                                 spacing: 12,
                                 runSpacing: -6,
                                 children: [
-                                  if ((p['showInstagram'] == true) &&
-                                      (p['instagram'] ?? '')
-                                          .toString()
-                                          .isNotEmpty)
-                                    _social(
-                                      cs,
-                                      Icons.camera_alt_outlined,
-                                      p['instagram'],
-                                    ),
-                                  if ((p['showFacebook'] == true) &&
-                                      (p['facebook'] ?? '')
-                                          .toString()
-                                          .isNotEmpty)
+                                  if ((p['showInstagram'] == true) && (p['instagram'] ?? '').toString().isNotEmpty)
+                                    _social(cs, Icons.camera_alt_outlined, p['instagram']),
+                                  if ((p['showFacebook'] == true) && (p['facebook'] ?? '').toString().isNotEmpty)
                                     _social(cs, Icons.facebook, p['facebook']),
-                                  if ((p['showLine'] == true) &&
-                                      (p['lineId'] ?? '').toString().isNotEmpty)
-                                    _social(
-                                      cs,
-                                      Icons.chat_bubble_outline,
-                                      p['lineId'],
-                                    ),
+                                  if ((p['showLine'] == true) && (p['lineId'] ?? '').toString().isNotEmpty)
+                                    _social(cs, Icons.chat_bubble_outline, p['lineId']),
                                 ],
                               ),
                             ],
@@ -150,20 +121,10 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
+                                    child: CircularProgressIndicator(strokeWidth: 2),
                                   )
-                                : Icon(
-                                    isFriend
-                                        ? Icons.person_remove
-                                        : Icons.person_add,
-                                  ),
-                            label: Text(
-                              isFriend
-                                  ? l.friendRemoveAction
-                                  : l.friendAddAction,
-                            ),
+                                : Icon(isFriend ? Icons.person_remove : Icons.person_add),
+                            label: Text(isFriend ? l.friendRemoveAction : l.friendAddAction),
                           ),
                       ],
                     ),
@@ -172,10 +133,7 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                 const SizedBox(height: 12),
                 Text(
                   '貼文',
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 if (_posts.isEmpty)
@@ -186,13 +144,9 @@ class _FriendProfilePageState extends State<FriendProfilePage> {
                       padding: const EdgeInsets.only(top: 8),
                       child: ListTile(
                         tileColor: cs.surfaceVariant.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         title: Text(e.text),
-                        subtitle: e.tags.isEmpty
-                            ? null
-                            : Text(e.tags.map((t) => '#$t').join(' ')),
+                        subtitle: e.tags.isEmpty ? null : Text(e.tags.map((t) => '#$t').join(' ')),
                       ),
                     ),
                   ),

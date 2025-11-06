@@ -475,6 +475,11 @@
   "bullet_einvoice": "Inländische E-Rechnung; Unternehmens-Steuernummer möglich",
   "bullet_cancel_anytime": "Jederzeit kündbar – keine Verlängerung im nächsten Monat",
   "bullet_terms": "Nutzungsbedingungen, Datenschutz, Rückerstattungen (Links folgen)",
-  "bullet_abuse": "Missbräuchliche/illegale Uploads führen zur Sperrung"
+  "bullet_abuse": "Missbräuchliche/illegale Uploads führen zur Sperrung",
+
+  "common_ok": "OK",
+  "common_okDescription": "Allgemeine OK-Schaltfläche",
+  "common_cancel": "Abbrechen",
+  "common_cancelDescription": "Allgemeine Abbrechen-Schaltfläche"
 
 }

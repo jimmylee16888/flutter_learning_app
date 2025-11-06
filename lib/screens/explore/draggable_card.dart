@@ -49,18 +49,9 @@ class _DraggableCardState extends State<DraggableCard> {
           DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(r),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 12,
-                  offset: const Offset(0, 8),
-                  color: Colors.black.withOpacity(0.12),
-                ),
-              ],
+              boxShadow: [BoxShadow(blurRadius: 12, offset: const Offset(0, 8), color: Colors.black.withOpacity(0.12))],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(r),
-              child: widget.child,
-            ),
+            child: ClipRRect(borderRadius: BorderRadius.circular(r), child: widget.child),
           ),
 
           // 右上角：刪除鈕（長按才顯示）
@@ -68,10 +59,7 @@ class _DraggableCardState extends State<DraggableCard> {
             Positioned(
               right: 6,
               top: 6,
-              child: _ToolButton(
-                icon: Icons.close_rounded,
-                onTap: widget.onDelete!,
-              ),
+              child: _ToolButton(icon: Icons.close_rounded, onTap: widget.onDelete!),
             ),
 
           // 右下角：縮放把手（長按才顯示）

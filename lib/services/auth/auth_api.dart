@@ -17,14 +17,8 @@ class AuthApi {
     return r.statusCode == 200 && r.data['ok'] == true;
   }
 
-  Future<String?> login({
-    required String account,
-    required String password,
-  }) async {
-    final r = await _dio.post(
-      '/v1/auth/login',
-      data: {'account': account, 'password': password},
-    );
+  Future<String?> login({required String account, required String password}) async {
+    final r = await _dio.post('/v1/auth/login', data: {'account': account, 'password': password});
     return r.statusCode == 200 ? r.data['token'] as String? : null;
   }
 
@@ -37,13 +31,7 @@ class AuthApi {
   }) async {
     final r = await _dio.post(
       '/v1/auth/register',
-      data: {
-        'account': account,
-        'password': password,
-        'name': name,
-        'gender': gender,
-        'birthday': birthday,
-      },
+      data: {'account': account, 'password': password, 'name': name, 'gender': gender, 'birthday': birthday},
     );
     return r.statusCode == 200 ? r.data['token'] as String? : null;
   }

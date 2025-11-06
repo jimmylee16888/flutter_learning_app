@@ -61,9 +61,7 @@ class ExploreItem {
     quote: j['quote'] as String?,
     imagePath: j['imagePath'] as String?,
     imageUrl: j['imageUrl'] as String?,
-    countdownDate: j['countdownDate'] == null
-        ? null
-        : DateTime.parse(j['countdownDate'] as String),
+    countdownDate: j['countdownDate'] == null ? null : DateTime.parse(j['countdownDate'] as String),
     deletable: j['deletable'] ?? true,
     isBack: j['isBack'] ?? false,
     ballEmoji: j['ballEmoji'] as String?,

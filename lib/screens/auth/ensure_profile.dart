@@ -66,11 +66,7 @@ Future<EditProfileResult?> showEditProfileDialog(
 }
 
 class _EditProfileDialog extends StatefulWidget {
-  const _EditProfileDialog({
-    required this.initialNickname,
-    required this.initialBirthday,
-    required this.forceComplete,
-  });
+  const _EditProfileDialog({required this.initialNickname, required this.initialBirthday, required this.forceComplete});
 
   final String initialNickname;
   final DateTime? initialBirthday;
@@ -104,9 +100,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
   void _trySubmit() {
     if (!_formKey.currentState!.validate()) return;
     if (!_canSubmit) return;
-    Navigator.of(context).pop(
-      EditProfileResult(nickname: _nickCtrl.text.trim(), birthday: _birthday!),
-    );
+    Navigator.of(context).pop(EditProfileResult(nickname: _nickCtrl.text.trim(), birthday: _birthday!));
   }
 
   @override
@@ -128,12 +122,8 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
                 autofocus: true,
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (_) => _trySubmit(),
-                decoration: InputDecoration(
-                  labelText: l.nicknameLabel,
-                  hintText: l.nicknameLabel,
-                ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? l.nicknameRequired : null,
+                decoration: InputDecoration(labelText: l.nicknameLabel, hintText: l.nicknameLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l.nicknameRequired : null,
               ),
               const SizedBox(height: 12),
               Row(
@@ -149,8 +139,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
                       onPressed: () async {
                         final d = await showDatePicker(
                           context: context,
-                          initialDate:
-                              _birthday ?? DateTime(now.year - 18, 1, 1),
+                          initialDate: _birthday ?? DateTime(now.year - 18, 1, 1),
                           firstDate: DateTime(1900),
                           lastDate: DateTime(now.year + 1),
                           helpText: l.birthdayPick,
@@ -167,15 +156,8 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
         ),
       ),
       actions: [
-        if (!widget.forceComplete)
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(null),
-            child: Text(l.cancel),
-          ),
-        FilledButton(
-          onPressed: _canSubmit ? _trySubmit : null,
-          child: Text(l.save),
-        ),
+        if (!widget.forceComplete) TextButton(onPressed: () => Navigator.of(context).pop(null), child: Text(l.cancel)),
+        FilledButton(onPressed: _canSubmit ? _trySubmit : null, child: Text(l.save)),
       ],
     );
 

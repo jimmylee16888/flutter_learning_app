@@ -1096,4 +1096,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bullet_abuse => '不正・違法なアップロードはアカウント停止の対象';
+
+  @override
+  String get common_ok => 'OK';
+
+  @override
+  String get common_okDescription => '汎用のOKボタン';
+
+  @override
+  String get common_cancel => 'キャンセル';
+
+  @override
+  String get common_cancelDescription => '汎用のキャンセルボタン';
 }

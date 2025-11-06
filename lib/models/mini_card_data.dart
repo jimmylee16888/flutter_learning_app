@@ -82,10 +82,8 @@ class MiniCardData {
     album: json['album'] as String?,
     cardType: json['cardType'] as String?,
     note: (json['note'] as String?) ?? '',
-    tags:
-        (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? const [],
-    createdAt:
-        DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    tags: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {

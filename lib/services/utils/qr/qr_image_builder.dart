@@ -5,12 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrImageBuilder {
-  static Future<Uint8List?> buildPngBytes(
-    String data,
-    double size, {
-    double quietZone = 8,
-    double scale = 1.0,
-  }) async {
+  static Future<Uint8List?> buildPngBytes(String data, double size, {double quietZone = 8, double scale = 1.0}) async {
     try {
       final double s = (size * scale).clamp(80.0, 4096.0);
       final double q = (quietZone * scale).clamp(0.0, 512.0);
@@ -20,14 +15,8 @@ class QrImageBuilder {
         version: QrVersions.auto,
         errorCorrectionLevel: QrErrorCorrectLevel.L,
         gapless: false,
-        eyeStyle: const QrEyeStyle(
-          eyeShape: QrEyeShape.square,
-          color: Colors.black,
-        ),
-        dataModuleStyle: const QrDataModuleStyle(
-          dataModuleShape: QrDataModuleShape.square,
-          color: Colors.black,
-        ),
+        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
       );
 
       // ✅ 用 s
@@ -45,13 +34,8 @@ class QrImageBuilder {
       canvas.drawImage(qrImage, Offset(margin, margin), Paint());
 
       final picture = recorder.endRecording();
-      final ui.Image finalImage = await picture.toImage(
-        total.toInt(),
-        total.toInt(),
-      );
-      final byteData = await finalImage.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
+      final ui.Image finalImage = await picture.toImage(total.toInt(), total.toInt());
+      final byteData = await finalImage.toByteData(format: ui.ImageByteFormat.png);
       return byteData?.buffer.asUint8List();
     } catch (e) {
       debugPrint('❌ QrImageBuilder.buildPngBytes failed: $e');

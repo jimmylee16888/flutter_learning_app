@@ -140,12 +140,9 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
       _openShowcase();
     } else {
       final left = _tapThreshold - _tapCount;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('再點 $left 下可開啟版本彩蛋！'),
-          duration: const Duration(milliseconds: 300),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('再點 $left 下可開啟版本彩蛋！'), duration: const Duration(milliseconds: 300)));
     }
   }
 
@@ -162,9 +159,7 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
         children: [
           // Header card
           Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
               child: Row(
@@ -181,21 +176,11 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l.nameWithPinyin(
-                            kDeveloperName,
-                            kDeveloperNamePinyin,
-                          ),
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          l.nameWithPinyin(kDeveloperName, kDeveloperNamePinyin),
+                          style: text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          l.developerRole,
-                          style: text.bodyMedium?.copyWith(
-                            color: color.outline,
-                          ),
-                        ),
+                        Text(l.developerRole, style: text.bodyMedium?.copyWith(color: color.outline)),
                         const SizedBox(height: 8),
                         const Wrap(
                           spacing: 8,
@@ -218,9 +203,7 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
 
           // Hello card
           Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -234,17 +217,11 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  SelectableText(
-                    l.helloDeveloperBody,
-                    textAlign: TextAlign.start,
-                  ),
+                  SelectableText(l.helloDeveloperBody, textAlign: TextAlign.start),
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      '— $kDeveloperName',
-                      style: text.bodySmall?.copyWith(color: color.outline),
-                    ),
+                    child: Text('— $kDeveloperName', style: text.bodySmall?.copyWith(color: color.outline)),
                   ),
                 ],
               ),
@@ -255,9 +232,7 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
 
           // Contact / Version（版本可點擊觸發彩蛋；長按直接進）
           Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Column(
               children: [
                 ListTile(
@@ -265,13 +240,9 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
                   title: Text(l.emailLabel),
                   subtitle: const Text(kDeveloperEmail),
                   onTap: () async {
-                    await Clipboard.setData(
-                      const ClipboardData(text: kDeveloperEmail),
-                    );
+                    await Clipboard.setData(const ClipboardData(text: kDeveloperEmail));
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Email copied')),
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email copied')));
                     }
                   },
                 ),

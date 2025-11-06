@@ -473,7 +473,12 @@
   "bullet_einvoice": "国内はクラウド請求書に対応。企業は税番号の入力可",
   "bullet_cancel_anytime": "いつでも解約可能。次回以降は課金されません",
   "bullet_terms": "利用規約・プライバシー・返金ポリシー（後日リンク追加）",
-  "bullet_abuse": "不正・違法なアップロードはアカウント停止の対象"
+  "bullet_abuse": "不正・違法なアップロードはアカウント停止の対象",
+
+  "common_ok": "OK",
+  "common_okDescription": "汎用のOKボタン",
+  "common_cancel": "キャンセル",
+  "common_cancelDescription": "汎用のキャンセルボタン"
 
 
 }

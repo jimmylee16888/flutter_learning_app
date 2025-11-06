@@ -60,9 +60,7 @@ class TipService {
     }
 
     try {
-      final resp = await http
-          .get(Uri.parse(url), headers: extraHeaders)
-          .timeout(timeout);
+      final resp = await http.get(Uri.parse(url), headers: extraHeaders).timeout(timeout);
       debugPrint('[TipService] status=${resp.statusCode}');
       debugPrint('[TipService] raw=${resp.body}');
 
@@ -72,10 +70,7 @@ class TipService {
 
       final decoded = json.decode(resp.body);
       if (decoded is List) {
-        final list = decoded
-            .whereType<Object>()
-            .map((e) => TipPrompt.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final list = decoded.whereType<Object>().map((e) => TipPrompt.fromJson(e as Map<String, dynamic>)).toList();
         debugPrint('[TipService] parsed tips(list) count=${list.length}');
         return list;
       } else if (decoded is Map<String, dynamic>) {

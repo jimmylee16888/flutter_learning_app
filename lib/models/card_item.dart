@@ -55,11 +55,8 @@ class CardItem {
     title: json['title'] as String,
     imageUrl: json['imageUrl'] as String?,
     localPath: json['localPath'] as String?,
-    birthday: json['birthday'] == null
-        ? null
-        : DateTime.parse(json['birthday']),
+    birthday: json['birthday'] == null ? null : DateTime.parse(json['birthday']),
     quote: (json['quote'] ?? '') as String,
-    categories: (json['categories'] as List<dynamic>? ?? const [])
-        .cast<String>(),
+    categories: (json['categories'] as List<dynamic>? ?? const []).cast<String>(),
   );
 }

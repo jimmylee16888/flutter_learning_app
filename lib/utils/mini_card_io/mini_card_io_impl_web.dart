@@ -46,11 +46,7 @@ ImageProvider imageProviderForLocalPath(String path) {
 
 /// Web：從相簿挑圖 → 存到 Hive（IndexedDB）→ 回傳 'hive:<id>'
 Future<String?> pickAndCopyToLocal() async {
-  final x = await ImagePicker().pickImage(
-    source: ImageSource.gallery,
-    maxWidth: 4096,
-    maxHeight: 4096,
-  );
+  final x = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 4096, maxHeight: 4096);
   if (x == null) return null;
 
   final bytes = await x.readAsBytes();
@@ -58,12 +54,7 @@ Future<String?> pickAndCopyToLocal() async {
   final id = 'img_${DateTime.now().millisecondsSinceEpoch}_${x.name.hashCode}';
 
   final box = Hive.box('blob_store');
-  await box.put(id, {
-    'bytes': bytes,
-    'mime': mime,
-    'name': x.name,
-    'ts': DateTime.now().toIso8601String(),
-  });
+  await box.put(id, {'bytes': bytes, 'mime': mime, 'name': x.name, 'ts': DateTime.now().toIso8601String()});
 
   return 'hive:$id';
 }
@@ -75,11 +66,7 @@ Future<String> downloadImageToLocal(String url, {String? preferName}) async {
 
 /// Web 分享：只能分享文字/連結（hive: 無法直接分享）
 ///（若已加 share_plus，可改成 Share.share(content)）
-Future<void> shareLocalPath(
-  String? localPath, {
-  String? text,
-  String? imageUrl,
-}) async {
+Future<void> shareLocalPath(String? localPath, {String? text, String? imageUrl}) async {
   final parts = <String>[];
   if ((text ?? '').isNotEmpty) parts.add(text!);
   if ((imageUrl ?? '').isNotEmpty) parts.add(imageUrl!);
@@ -93,21 +80,14 @@ Future<void> shareLocalPath(
 Future<String?> migrateDataUrlToHive(String? dataUrl) async {
   if (dataUrl == null || !dataUrl.startsWith('data:')) return null;
   final comma = dataUrl.indexOf(',');
-  if (comma <= 0 || !dataUrl.substring(0, comma).contains(';base64'))
-    return null;
+  if (comma <= 0 || !dataUrl.substring(0, comma).contains(';base64')) return null;
   final bytes = base64Decode(dataUrl.substring(comma + 1));
   final mime = dataUrl.substring(5, dataUrl.indexOf(';', 5));
   final id = 'img_${DateTime.now().millisecondsSinceEpoch}_${bytes.hashCode}';
   final box = Hive.box('blob_store');
-  await box.put(id, {
-    'bytes': bytes,
-    'mime': mime,
-    'name': 'migrated',
-    'ts': DateTime.now().toIso8601String(),
-  });
+  await box.put(id, {'bytes': bytes, 'mime': mime, 'name': 'migrated', 'ts': DateTime.now().toIso8601String()});
   return 'hive:$id';
 }
-
 
 // // lib/utils/mini_card_io_impl_web.dart
 // import 'dart:convert';
@@ -212,4 +192,3 @@ Future<String?> migrateDataUrlToHive(String? dataUrl) async {
 //   if (!meta.contains(';base64')) return null;
 //   return base64Decode(payload);
 // }
-

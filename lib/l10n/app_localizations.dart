@@ -2132,6 +2132,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Abusive/illegal uploads may lead to suspension'**
   String get bullet_abuse;
+
+  /// No description provided for @common_ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get common_ok;
+
+  /// No description provided for @common_okDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Generic OK/confirm button label.'**
+  String get common_okDescription;
+
+  /// No description provided for @common_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get common_cancel;
+
+  /// No description provided for @common_cancelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Generic cancel button label.'**
+  String get common_cancelDescription;
 }
 
 class _AppLocalizationsDelegate

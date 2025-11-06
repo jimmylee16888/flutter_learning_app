@@ -128,8 +128,7 @@ class AuthController extends ChangeNotifier {
     try {
       if (kIsWeb) {
         // 🔹 Web：用 Firebase 的彈出視窗，不需要 meta client_id
-        final provider = GoogleAuthProvider()
-          ..setCustomParameters({'prompt': 'select_account'});
+        final provider = GoogleAuthProvider()..setCustomParameters({'prompt': 'select_account'});
 
         final userCred = await _auth.signInWithPopup(provider);
         final u = userCred.user!;

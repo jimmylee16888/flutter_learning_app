@@ -32,23 +32,15 @@ class QrPreviewDialog {
 
         final side = math.max(
           200.0,
-          math.min(
-            300.0,
-            math.min(size.width - hPad * 2 - 40, size.height - vPad * 2 - 200),
-          ),
+          math.min(300.0, math.min(size.width - hPad * 2 - 40, size.height - vPad * 2 - 200)),
         );
 
         // 0 = QR, 1 = JSON
         int tab = 0;
 
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: hPad,
-            vertical: vPad,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: StatefulBuilder(
             builder: (ctx, setS) => SafeArea(
               child: Padding(
@@ -78,10 +70,7 @@ class QrPreviewDialog {
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '小卡分享',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Text('小卡分享', style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
 
                         // 分段切換 QR / JSON
@@ -93,14 +82,8 @@ class QrPreviewDialog {
                               groupValue: tab,
                               padding: const EdgeInsets.all(4),
                               children: const {
-                                0: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 6),
-                                  child: Text('QR code'),
-                                ),
-                                1: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 6),
-                                  child: Text('JSON'),
-                                ),
+                                0: Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('QR code')),
+                                1: Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('JSON')),
                               },
                               onValueChanged: (v) => setS(() => tab = v ?? 0),
                             ),
@@ -117,29 +100,19 @@ class QrPreviewDialog {
                                 Navigator.of(dialogContext).push(
                                   MaterialPageRoute(
                                     fullscreenDialog: true,
-                                    builder: (_) => _WebFullscreenQr(
-                                      data: jsonText,
-                                      heroTag: heroTag,
-                                    ),
+                                    builder: (_) => _WebFullscreenQr(data: jsonText, heroTag: heroTag),
                                   ),
                                 );
                               },
                               child: Hero(
                                 tag: heroTag,
                                 child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: side,
-                                    maxHeight: side,
-                                  ),
+                                  constraints: BoxConstraints(maxWidth: side, maxHeight: side),
                                   child: Padding(
                                     padding: const EdgeInsets.all(6),
                                     child: Container(
                                       color: Colors.white,
-                                      child: QrImageView(
-                                        data: jsonText,
-                                        version: QrVersions.auto,
-                                        gapless: false,
-                                      ),
+                                      child: QrImageView(data: jsonText, version: QrVersions.auto, gapless: false),
                                     ),
                                   ),
                                 ),
@@ -148,38 +121,26 @@ class QrPreviewDialog {
                           ] else ...[
                             // App / 桌面：沿用原本的 pngBytes 顯示 + 點擊全螢幕
                             if (pngBytes == null)
-                              const Padding(
-                                padding: EdgeInsets.all(20),
-                                child: CircularProgressIndicator(),
-                              )
+                              const Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())
                             else
                               GestureDetector(
                                 onTap: () {
                                   Navigator.of(dialogContext).push(
                                     MaterialPageRoute(
                                       fullscreenDialog: true,
-                                      builder: (_) => FullscreenQrViewer(
-                                        bytes: pngBytes,
-                                        heroTag: heroTag,
-                                      ),
+                                      builder: (_) => FullscreenQrViewer(bytes: pngBytes, heroTag: heroTag),
                                     ),
                                   );
                                 },
                                 child: Hero(
                                   tag: heroTag,
                                   child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: side,
-                                      maxHeight: side,
-                                    ),
+                                    constraints: BoxConstraints(maxWidth: side, maxHeight: side),
                                     child: Padding(
                                       padding: const EdgeInsets.all(6),
                                       child: FittedBox(
                                         fit: BoxFit.contain,
-                                        child: Image.memory(
-                                          pngBytes,
-                                          filterQuality: FilterQuality.none,
-                                        ),
+                                        child: Image.memory(pngBytes, filterQuality: FilterQuality.none),
                                       ),
                                     ),
                                   ),
@@ -194,9 +155,7 @@ class QrPreviewDialog {
                               controller: TextEditingController(text: jsonText),
                               maxLines: null,
                               readOnly: true,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
+                              decoration: const InputDecoration(border: OutlineInputBorder()),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -207,12 +166,8 @@ class QrPreviewDialog {
                               children: [
                                 FilledButton.icon(
                                   onPressed: () {
-                                    Clipboard.setData(
-                                      ClipboardData(text: jsonText),
-                                    );
-                                    ScaffoldMessenger.of(ctx).showSnackBar(
-                                      const SnackBar(content: Text('已複製 JSON')),
-                                    );
+                                    Clipboard.setData(ClipboardData(text: jsonText));
+                                    ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('已複製 JSON')));
                                   },
                                   icon: const Icon(Icons.copy),
                                   label: const Text('複製 JSON'),
@@ -253,11 +208,9 @@ class QrPreviewDialog {
 
 // ===== 工具函式：傳輸圖示（沿用你的判斷邏輯） =====
 
-bool _isApiTransport(String hint) =>
-    hint.contains('API') || hint.contains('後端');
+bool _isApiTransport(String hint) => hint.contains('API') || hint.contains('後端');
 
-IconData _transportIcon(String hint) =>
-    _isApiTransport(hint) ? Icons.cloud_outlined : Icons.smartphone;
+IconData _transportIcon(String hint) => _isApiTransport(hint) ? Icons.cloud_outlined : Icons.smartphone;
 
 // ===== Web 全螢幕 QR Viewer（不依賴 bytes，直接吃 data）=====
 
@@ -269,20 +222,13 @@ class _WebFullscreenQr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final side = math.min(
-      MediaQuery.of(context).size.width,
-      MediaQuery.of(context).size.height,
-    );
+    final side = math.min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('QR code'),
         actions: [
-          IconButton(
-            tooltip: '關閉',
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.close),
-          ),
+          IconButton(tooltip: '關閉', onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close)),
         ],
       ),
       body: Center(
@@ -292,15 +238,8 @@ class _WebFullscreenQr extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             color: Colors.white,
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: side - 48,
-                maxHeight: side - 48,
-              ),
-              child: QrImageView(
-                data: data,
-                version: QrVersions.auto,
-                gapless: false,
-              ),
+              constraints: BoxConstraints(maxWidth: side - 48, maxHeight: side - 48),
+              child: QrImageView(data: data, version: QrVersions.auto, gapless: false),
             ),
           ),
         ),

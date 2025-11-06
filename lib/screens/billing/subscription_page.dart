@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 
+import '../../widgets/app_popups.dart';
+
 class SubscriptionPage extends StatelessWidget {
   const SubscriptionPage({super.key});
 
@@ -18,11 +20,7 @@ class SubscriptionPage extends StatelessWidget {
         name: l.plan_basic,
         spaceGB: 1,
         priceLabel: 'NT\$30',
-        features: [
-          l.feature_external_images,
-          l.feature_small_cloud_space,
-          l.feature_multi_device_sync,
-        ],
+        features: [l.feature_external_images, l.feature_small_cloud_space, l.feature_multi_device_sync],
         // 冷色系（藍綠）
         gradient: const [Color(0xFF2A9D8F), Color(0xFF264653)],
       ),
@@ -30,11 +28,7 @@ class SubscriptionPage extends StatelessWidget {
         name: l.plan_pro,
         spaceGB: 10,
         priceLabel: 'NT\$90',
-        features: [
-          l.feature_upload_local_images,
-          l.feature_multi_device_sync,
-          l.feature_priority_support,
-        ],
+        features: [l.feature_upload_local_images, l.feature_multi_device_sync, l.feature_priority_support],
         recommended: true,
         // 藍紫
         gradient: const [Color(0xFF9B4D96), Color(0xFF5E2D79)],
@@ -43,11 +37,7 @@ class SubscriptionPage extends StatelessWidget {
         name: l.plan_plus,
         spaceGB: 50,
         priceLabel: 'NT\$200',
-        features: [
-          l.feature_large_storage,
-          l.feature_album_report,
-          l.feature_roadmap_advance,
-        ],
+        features: [l.feature_large_storage, l.feature_album_report, l.feature_roadmap_advance],
         // 紅棕
         gradient: const [Color(0xFFC95C54), Color(0xFF7B2B2B)],
       ),
@@ -69,16 +59,13 @@ class SubscriptionPage extends StatelessWidget {
                 gradientOverlay: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    cs.primary.withOpacity(.15),
-                    cs.secondary.withOpacity(.10),
-                  ],
+                  colors: [cs.primary.withOpacity(.15), cs.secondary.withOpacity(.10)],
                 ),
                 child: _HeroBanner(
                   title: l.upgrade_card_title,
                   subtitle: l.upgrade_card_desc,
                   cta: l.badge_coming_soon,
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => showComingSoon(context),
                 ),
               ),
             ),
@@ -111,11 +98,7 @@ class SubscriptionPage extends StatelessWidget {
             sliver: SliverToBoxAdapter(
               child: _GlassCard.section(
                 title: l.section_plan_notes,
-                bullets: [
-                  l.bullet_free_external,
-                  l.bullet_paid_local_upload,
-                  l.bullet_future_tiers,
-                ],
+                bullets: [l.bullet_free_external, l.bullet_paid_local_upload, l.bullet_future_tiers],
               ),
             ),
           ),
@@ -126,11 +109,7 @@ class SubscriptionPage extends StatelessWidget {
             sliver: SliverToBoxAdapter(
               child: _GlassCard.section(
                 title: l.section_payment_invoice,
-                bullets: [
-                  l.bullet_pay_cards,
-                  l.bullet_einvoice,
-                  l.bullet_cancel_anytime,
-                ],
+                bullets: [l.bullet_pay_cards, l.bullet_einvoice, l.bullet_cancel_anytime],
               ),
             ),
           ),
@@ -139,10 +118,7 @@ class SubscriptionPage extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
             sliver: SliverToBoxAdapter(
-              child: _GlassCard.section(
-                title: l.section_terms,
-                bullets: [l.bullet_terms, l.bullet_abuse],
-              ),
+              child: _GlassCard.section(title: l.section_terms, bullets: [l.bullet_terms, l.bullet_abuse]),
             ),
           ),
         ],
@@ -170,10 +146,7 @@ class _GlassCard extends StatelessWidget {
   final EdgeInsets padding;
 
   /// 快速建立「段落 + 子彈」的玻璃 section
-  factory _GlassCard.section({
-    required String title,
-    required List<String> bullets,
-  }) {
+  factory _GlassCard.section({required String title, required List<String> bullets}) {
     return _GlassCard(
       blurSigma: 14,
       backgroundOpacity: .20,
@@ -195,18 +168,9 @@ class _GlassCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: cs.surface.withOpacity(backgroundOpacity),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: cs.outlineVariant.withOpacity(borderOpacity),
-              width: 1,
-            ),
+            border: Border.all(color: cs.outlineVariant.withOpacity(borderOpacity), width: 1),
             gradient: gradientOverlay,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.08),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(.08), blurRadius: 18, offset: const Offset(0, 8))],
           ),
           padding: padding,
           child: child,
@@ -217,12 +181,7 @@ class _GlassCard extends StatelessWidget {
 }
 
 class _HeroBanner extends StatelessWidget {
-  const _HeroBanner({
-    required this.title,
-    required this.subtitle,
-    required this.cta,
-    required this.onTap,
-  });
+  const _HeroBanner({required this.title, required this.subtitle, required this.cta, required this.onTap});
 
   final String title;
   final String subtitle;
@@ -242,18 +201,9 @@ class _HeroBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 13.5, color: cs.onSurfaceVariant),
-                ),
+                Text(subtitle, style: TextStyle(fontSize: 13.5, color: cs.onSurfaceVariant)),
               ],
             ),
           ),
@@ -283,10 +233,7 @@ class _SectionCardInner extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
+        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         for (final t in bullets)
           Padding(
@@ -324,11 +271,7 @@ class _Plan {
 }
 
 class _PlanCard extends StatelessWidget {
-  const _PlanCard({
-    required this.plan,
-    required this.onPrimaryTap,
-    required this.onSecondaryTap,
-  });
+  const _PlanCard({required this.plan, required this.onPrimaryTap, required this.onSecondaryTap});
 
   final _Plan plan;
   final VoidCallback onPrimaryTap;
@@ -352,23 +295,11 @@ class _PlanCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                plan.gradient.first.withOpacity(.28),
-                plan.gradient.last.withOpacity(.28),
-              ],
+              colors: [plan.gradient.first.withOpacity(.28), plan.gradient.last.withOpacity(.28)],
             ),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: cs.outlineVariant.withOpacity(.22),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.10),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
+            border: Border.all(color: cs.outlineVariant.withOpacity(.22), width: 1),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(.10), blurRadius: 16, offset: const Offset(0, 8))],
           ),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           child: Column(
@@ -378,43 +309,24 @@ class _PlanCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    plan.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text(plan.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: cs.primary.withOpacity(.10),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: cs.primary.withOpacity(.25),
-                        width: 0.8,
-                      ),
+                      border: Border.all(color: cs.primary.withOpacity(.25), width: 0.8),
                     ),
                     child: Text(
                       '${plan.spaceGB} GB',
-                      style: TextStyle(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11.5,
-                      ),
+                      style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700, fontSize: 11.5),
                     ),
                   ),
                   const Spacer(),
                   Text(
                     l.price_per_month(plan.priceLabel),
-                    style: TextStyle(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -422,25 +334,15 @@ class _PlanCard extends StatelessWidget {
               if (plan.recommended) ...[
                 const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: cs.tertiary.withOpacity(.16),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: cs.tertiary.withOpacity(.28),
-                      width: .8,
-                    ),
+                    border: Border.all(color: cs.tertiary.withOpacity(.28), width: .8),
                   ),
                   child: Text(
                     l.plan_badge_recommended,
-                    style: TextStyle(
-                      color: cs.tertiary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: cs.tertiary, fontWeight: FontWeight.w800, fontSize: 11),
                   ),
                 ),
               ],
@@ -453,20 +355,10 @@ class _PlanCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 18,
-                        color: cs.onSurface.withOpacity(.75),
-                      ),
+                      Icon(Icons.check_circle_outline, size: 18, color: cs.onSurface.withOpacity(.75)),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          t,
-                          style: TextStyle(
-                            color: cs.onSurface.withOpacity(.86),
-                            height: 1.24,
-                          ),
-                        ),
+                        child: Text(t, style: TextStyle(color: cs.onSurface.withOpacity(.86), height: 1.24)),
                       ),
                     ],
                   ),
@@ -481,19 +373,13 @@ class _PlanCard extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       height: btnHeight,
-                      child: FilledButton.tonal(
-                        onPressed: onPrimaryTap,
-                        child: Text(l.upgrade_now),
-                      ),
+                      child: FilledButton.tonal(onPressed: onPrimaryTap, child: Text(l.upgrade_now)),
                     ),
                   ),
                   const SizedBox(width: 8),
                   SizedBox(
                     height: btnHeight,
-                    child: OutlinedButton(
-                      onPressed: onSecondaryTap,
-                      child: Text(l.manage_plan),
-                    ),
+                    child: OutlinedButton(onPressed: onSecondaryTap, child: Text(l.manage_plan)),
                   ),
                 ],
               ),
@@ -512,12 +398,7 @@ void _showComingSoon(BuildContext context) {
     builder: (ctx) => AlertDialog(
       title: Text(l.coming_soon_title),
       content: Text(l.coming_soon_body),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: Text(l.coming_soon_ok),
-        ),
-      ],
+      actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l.coming_soon_ok))],
     ),
   );
 }

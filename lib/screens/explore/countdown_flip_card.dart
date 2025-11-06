@@ -29,11 +29,7 @@ class CountdownFlipCard extends StatelessWidget {
 
     final days = d == null
         ? null
-        : (DateTime(
-            d.year,
-            d.month,
-            d.day,
-          ).difference(DateTime(now.year, now.month, now.day)).inDays);
+        : (DateTime(d.year, d.month, d.day).difference(DateTime(now.year, now.month, now.day)).inDays);
 
     final left = days;
     final isPast = (left ?? 0) < 0;
@@ -72,9 +68,7 @@ class CountdownFlipCard extends StatelessWidget {
                           end: Alignment.bottomRight,
                         ),
                 ),
-                child: isBack
-                    ? _buildBack(context, dateText, cs)
-                    : _buildFront(context, absDays, isPast, accent, cs),
+                child: isBack ? _buildBack(context, dateText, cs) : _buildFront(context, absDays, isPast, accent, cs),
               ),
             ),
           );
@@ -83,23 +77,13 @@ class CountdownFlipCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFront(
-    BuildContext context,
-    String absDays,
-    bool isPast,
-    Color accent,
-    ColorScheme cs,
-  ) {
+  Widget _buildFront(BuildContext context, String absDays, bool isPast, Color accent, ColorScheme cs) {
     return Stack(
       children: [
         Positioned(
           right: -6,
           bottom: -6,
-          child: Icon(
-            Icons.cake_rounded,
-            size: 84,
-            color: cs.onPrimaryContainer.withOpacity(0.08),
-          ),
+          child: Icon(Icons.cake_rounded, size: 84, color: cs.onPrimaryContainer.withOpacity(0.08)),
         ),
         Center(
           child: Column(
@@ -109,14 +93,8 @@ class CountdownFlipCard extends StatelessWidget {
                 alignment: Alignment.topLeft,
                 child: Container(
                   margin: const EdgeInsets.only(left: 10, top: 10),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: accent.withOpacity(0.15), borderRadius: BorderRadius.circular(999)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -124,10 +102,7 @@ class CountdownFlipCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '倒數',
-                        style: TextStyle(
-                          color: accent,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(color: accent, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -149,9 +124,9 @@ class CountdownFlipCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Text(
                     item.title!,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: cs.onPrimaryContainer.withOpacity(0.9),
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(color: cs.onPrimaryContainer.withOpacity(0.9)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -173,18 +148,14 @@ class CountdownFlipCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             dateText,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           if ((item.title ?? '').isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
               item.title!,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ],

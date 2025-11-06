@@ -5,14 +5,7 @@ class NoCorsImage extends StatelessWidget {
   final BoxFit fit;
   final double? width, height, borderRadius;
 
-  const NoCorsImage(
-    this.url, {
-    super.key,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.borderRadius,
-  });
+  const NoCorsImage(this.url, {super.key, this.fit = BoxFit.cover, this.width, this.height, this.borderRadius});
 
   @override
   Widget build(BuildContext context) {

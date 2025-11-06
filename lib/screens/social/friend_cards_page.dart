@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_learning_app/services/social/social_api.dart';
-import 'package:flutter_learning_app/services/services.dart'
-    show FriendFollowController;
+import 'package:flutter_learning_app/services/services.dart' show FriendFollowController;
 import 'package:flutter_learning_app/l10n/l10n.dart';
 import 'package:flutter_learning_app/models/social_models.dart';
 import 'friend_profile_page.dart';
@@ -64,11 +63,8 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
   /// 以追蹤集合建立顯示清單（覆蓋 > 遠端名稱 > id）
   List<FriendCard> _joinedCards(Set<String> following) {
     return following.map((id) {
-      final display = (_nameById[id]?.trim().isNotEmpty ?? false)
-          ? _nameById[id]!
-          : id;
-      return _overrides[id] ??
-          FriendCard(id: id, nickname: display, artists: const []);
+      final display = (_nameById[id]?.trim().isNotEmpty ?? false) ? _nameById[id]! : id;
+      return _overrides[id] ?? FriendCard(id: id, nickname: display, artists: const []);
     }).toList();
   }
 
@@ -93,9 +89,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     final following = context.read<FriendFollowController>().friends.toList();
     if (following.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.noFriendsYet)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.noFriendsYet)));
       return;
     }
     String targetId;
@@ -110,9 +104,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
             for (final id in following)
               SimpleDialogOption(
                 onPressed: () => Navigator.pop(context, id),
-                child: Text(
-                  _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
-                ),
+                child: Text(_nameById[id]?.isNotEmpty == true ? _nameById[id]! : id),
               ),
           ],
         ),
@@ -127,11 +119,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     // 以現有覆蓋資料或建一張預設卡做為初始值
     final initial =
         _overrides[id] ??
-        FriendCard(
-          id: id,
-          nickname: _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
-          artists: const [],
-        );
+        FriendCard(id: id, nickname: _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id, artists: const []);
 
     final res = await showDialog<FriendCard>(
       context: context,
@@ -170,9 +158,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
           IconButton(
             tooltip: l.scanQr,
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('${l.scanQr} — TODO')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.scanQr} — TODO')));
             },
             icon: const Icon(Icons.qr_code_scanner),
           ),
@@ -186,12 +172,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(
-                        '尚未加入任何好友',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                      child: Text('尚未加入任何好友', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ),
                   )
                 : ListView.separated(
@@ -203,15 +184,11 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                       if (!_nameById.containsKey(c.id)) {
                         _loadRemoteName(c.id);
                       }
-                      final isFollowing = context
-                          .watch<FriendFollowController>()
-                          .contains(c.id);
+                      final isFollowing = context.watch<FriendFollowController>().contains(c.id);
 
                       return _FriendCardTile(
                         card: c,
-                        displayName: _nameById[c.id]?.isNotEmpty == true
-                            ? _nameById[c.id]!
-                            : c.nickname,
+                        displayName: _nameById[c.id]?.isNotEmpty == true ? _nameById[c.id]! : c.nickname,
                         initialFollowing: isFollowing,
                         onEdit: () => _addOrEditCardFor(c.id),
                         // 只刪除本地覆蓋，不影響追蹤名單
@@ -219,17 +196,12 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                         onOpenProfile: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => FriendProfilePage(
-                                api: widget.api,
-                                userId: c.id,
-                              ),
+                              builder: (_) => FriendProfilePage(api: widget.api, userId: c.id),
                             ),
                           );
                         },
                         onToggleFollow: () async {
-                          await context.read<FriendFollowController>().toggle(
-                            c.id,
-                          );
+                          await context.read<FriendFollowController>().toggle(c.id);
                           _loadRemoteName(c.id);
                         },
                       );
@@ -273,10 +245,7 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
                         onPressed: () => setState(() => _query = ''),
                         tooltip: l.clear,
                       ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
-                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               ),
             ),
           ),
@@ -364,18 +333,10 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                     context: context,
                     builder: (_) => AlertDialog(
                       title: Text(l.deleteFriendCardTitle),
-                      content: Text(
-                        l.deleteFriendCardMessage(widget.displayName),
-                      ),
+                      content: Text(l.deleteFriendCardMessage(widget.displayName)),
                       actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text(l.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text(l.delete),
-                        ),
+                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
+                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.delete)),
                       ],
                     ),
                   ) ??
@@ -457,13 +418,8 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                             duration: const Duration(milliseconds: 220),
                             switchInCurve: Curves.easeOut,
                             switchOutCurve: Curves.easeIn,
-                            layoutBuilder: (current, previous) => Stack(
-                              fit: StackFit.passthrough,
-                              children: [
-                                ...previous,
-                                if (current != null) current,
-                              ],
-                            ),
+                            layoutBuilder: (current, previous) =>
+                                Stack(fit: StackFit.passthrough, children: [...previous, if (current != null) current]),
                             child: _flipped
                                 ? _BackSide(onEditTap: widget.onEdit)
                                 : _FrontSide(
@@ -502,9 +458,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
       color: color,
       elevation: 4,
       shadowColor: cs.shadow.withOpacity(0.25),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
       clipBehavior: Clip.antiAlias,
       child: child,
     );
@@ -539,9 +493,7 @@ class _FrontSide extends StatelessWidget {
             child: CircleAvatar(
               radius: 26,
               backgroundColor: cs.surfaceContainerHighest,
-              child: Text(
-                displayName.isNotEmpty ? displayName.characters.first : '?',
-              ),
+              child: Text(displayName.isNotEmpty ? displayName.characters.first : '?'),
             ),
           ),
           const SizedBox(width: 12),
@@ -551,34 +503,21 @@ class _FrontSide extends StatelessWidget {
               children: [
                 Text(
                   displayName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurface,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface),
                 ),
                 if (card.artists.isNotEmpty) ...[
                   const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: -8,
-                    children: [
-                      for (final a in card.artists) Chip(label: Text(a)),
-                    ],
-                  ),
+                  Wrap(spacing: 6, runSpacing: -8, children: [for (final a in card.artists) Chip(label: Text(a))]),
                 ],
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 10,
                   runSpacing: -8,
                   children: [
-                    if ((card.phone ?? '').isNotEmpty)
-                      _Info(icon: Icons.phone, text: card.phone!),
-                    if ((card.lineId ?? '').isNotEmpty)
-                      _Info(icon: Icons.chat_bubble, text: card.lineId!),
-                    if ((card.facebook ?? '').isNotEmpty)
-                      _Info(icon: Icons.facebook, text: card.facebook!),
-                    if ((card.instagram ?? '').isNotEmpty)
-                      _Info(icon: Icons.camera_alt, text: card.instagram!),
+                    if ((card.phone ?? '').isNotEmpty) _Info(icon: Icons.phone, text: card.phone!),
+                    if ((card.lineId ?? '').isNotEmpty) _Info(icon: Icons.chat_bubble, text: card.lineId!),
+                    if ((card.facebook ?? '').isNotEmpty) _Info(icon: Icons.facebook, text: card.facebook!),
+                    if ((card.instagram ?? '').isNotEmpty) _Info(icon: Icons.camera_alt, text: card.instagram!),
                   ],
                 ),
               ],
@@ -589,11 +528,7 @@ class _FrontSide extends StatelessWidget {
           TextButton.icon(
             onPressed: onToggleFollow,
             icon: Icon(following ? Icons.person_remove : Icons.person_add),
-            label: Text(
-              following
-                  ? context.l10n.friendAddedStatus
-                  : context.l10n.friendAddAction,
-            ),
+            label: Text(following ? context.l10n.friendAddedStatus : context.l10n.friendAddAction),
           ),
         ],
       ),
@@ -625,21 +560,13 @@ class _BackSide extends StatelessWidget {
             alignment: Alignment.center,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.qr_code_2, size: 120),
-                SizedBox(height: 8),
-                Text('點擊翻面'),
-              ],
+              children: [Icon(Icons.qr_code_2, size: 120), SizedBox(height: 8), Text('點擊翻面')],
             ),
           ),
           Positioned(
             right: 8,
             top: 8,
-            child: IconButton(
-              tooltip: l.edit,
-              onPressed: onEditTap,
-              icon: const Icon(Icons.edit_outlined),
-            ),
+            child: IconButton(tooltip: l.edit, onPressed: onEditTap, icon: const Icon(Icons.edit_outlined)),
           ),
         ],
       ),
@@ -729,9 +656,7 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
                   Expanded(
                     child: TextField(
                       controller: _artistsCtrl,
-                      decoration: const InputDecoration(
-                        labelText: '追蹤的藝人（按 Enter 加入）',
-                      ),
+                      decoration: const InputDecoration(labelText: '追蹤的藝人（按 Enter 加入）'),
                       onSubmitted: (v) {
                         final t = v.trim();
                         if (t.isEmpty) return;
@@ -760,10 +685,7 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
                   runSpacing: -8,
                   children: [
                     for (final a in _artists)
-                      InputChip(
-                        label: Text(a),
-                        onDeleted: () => setState(() => _artists.remove(a)),
-                      ),
+                      InputChip(label: Text(a), onDeleted: () => setState(() => _artists.remove(a))),
                   ],
                 ),
               ),
@@ -793,10 +715,7 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.cancel),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
         FilledButton(
           onPressed: () {
             final n = _nick.text.trim();

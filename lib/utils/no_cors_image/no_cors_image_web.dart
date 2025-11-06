@@ -10,21 +10,13 @@ class NoCorsImage extends StatelessWidget {
   final BoxFit fit;
   final double? width, height, borderRadius;
 
-  const NoCorsImage(
-    this.url, {
-    super.key,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.borderRadius,
-  });
+  const NoCorsImage(this.url, {super.key, this.fit = BoxFit.cover, this.width, this.height, this.borderRadius});
 
   static final _registered = <String>{};
 
   @override
   Widget build(BuildContext context) {
-    final viewType =
-        'nocors-img-${url.hashCode}-${borderRadius ?? 0}-${fit.name}';
+    final viewType = 'nocors-img-${url.hashCode}-${borderRadius ?? 0}-${fit.name}';
 
     if (!_registered.contains(viewType)) {
       ui.platformViewRegistry.registerViewFactory(viewType, (int _) {

@@ -128,8 +128,7 @@ class BootLoader extends StatefulWidget {
 }
 
 class _BootLoaderState extends State<BootLoader> {
-  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>?
-  _boot;
+  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>? _boot;
 
   // 如初始化過久（網路不穩等），顯示重試
   static const _kInitTimeout = Duration(seconds: 20);
@@ -140,12 +139,9 @@ class _BootLoaderState extends State<BootLoader> {
     _boot = _initAll();
   }
 
-  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>
-  _initAll() async {
+  Future<({AppSettings settings, AuthController auth, MiniCardStore store})> _initAll() async {
     // 1) Firebase
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
     // 2) 本地圖片儲存（Web 開 hive；行動/桌面不動作）
     await miniCardStorageInit();
@@ -161,10 +157,7 @@ class _BootLoaderState extends State<BootLoader> {
     final store = MiniCardStore();
     await store.hydrateFromPrefs(artists: settings.cardItems);
     try {
-      await store.autofillIdolTags(
-        artists: settings.cardItems,
-        prefer: const [],
-      );
+      await store.autofillIdolTags(artists: settings.cardItems, prefer: const []);
     } catch (e) {
       if (kDebugMode) {
         // ignore: avoid_print
@@ -180,9 +173,7 @@ class _BootLoaderState extends State<BootLoader> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<
-      ({AppSettings settings, AuthController auth, MiniCardStore store})
-    >(
+    return FutureBuilder<({AppSettings settings, AuthController auth, MiniCardStore store})>(
       future: _withTimeout(_boot!),
       builder: (context, snap) {
         // 初始化中 → 顯示 Flutter 的自製暖機畫面
@@ -216,10 +207,7 @@ class _BootLoaderState extends State<BootLoader> {
                     children: [
                       const Icon(Icons.wifi_off, size: 48),
                       const SizedBox(height: 12),
-                      Text(
-                        '初始化未完成，請檢查網路後重試',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('初始化未完成，請檢查網路後重試', style: Theme.of(context).textTheme.titleMedium),
                       if (kDebugMode && err != null) ...[
                         const SizedBox(height: 8),
                         Text('$err', textAlign: TextAlign.center),
@@ -261,9 +249,7 @@ class _BootLoaderState extends State<BootLoader> {
     return f.timeout(
       _kInitTimeout,
       onTimeout: () {
-        throw TimeoutException(
-          'BootLoader init timed out after $_kInitTimeout',
-        );
+        throw TimeoutException('BootLoader init timed out after $_kInitTimeout');
       },
     );
   }

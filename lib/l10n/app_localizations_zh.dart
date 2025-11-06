@@ -1091,6 +1091,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get bullet_abuse => '濫用上傳（如違法內容）將被停權';
+
+  @override
+  String get common_ok => '確定';
+
+  @override
+  String get common_okDescription => '通用確定按鈕';
+
+  @override
+  String get common_cancel => '取消';
+
+  @override
+  String get common_cancelDescription => '通用取消按鈕';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2180,4 +2192,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get bullet_abuse => '濫用上傳（如違法內容）將被停權';
+
+  @override
+  String get common_ok => '確定';
+
+  @override
+  String get common_okDescription => '通用確定按鈕';
+
+  @override
+  String get common_cancel => '取消';
+
+  @override
+  String get common_cancelDescription => '通用取消按鈕';
 }

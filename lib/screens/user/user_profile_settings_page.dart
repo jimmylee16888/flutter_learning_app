@@ -14,18 +14,13 @@ import '../social/friend_cards_page.dart';
 import '../social/followed_tags_page.dart';
 
 class UserProfileSettingsPage extends StatefulWidget {
-  const UserProfileSettingsPage({
-    super.key,
-    required this.settings,
-    this.forceComplete = false,
-  });
+  const UserProfileSettingsPage({super.key, required this.settings, this.forceComplete = false});
 
   final AppSettings settings;
   final bool forceComplete;
 
   @override
-  State<UserProfileSettingsPage> createState() =>
-      _UserProfileSettingsPageState();
+  State<UserProfileSettingsPage> createState() => _UserProfileSettingsPageState();
 }
 
 class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
@@ -68,14 +63,11 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
     _emailText = user?.email ?? context.l10n.accountNoInfo;
 
     final meId = (user?.email?.toLowerCase() ?? user?.uid ?? 'u_me');
-    final meName = (_nickCtrl.text.trim().isEmpty)
-        ? (user?.displayName ?? 'Me')
-        : _nickCtrl.text.trim();
+    final meName = (_nickCtrl.text.trim().isEmpty) ? (user?.displayName ?? 'Me') : _nickCtrl.text.trim();
     _api = SocialApi(
       meId: meId,
       meName: meName,
-      idTokenProvider: () async =>
-          FirebaseAuth.instance.currentUser?.getIdToken(),
+      idTokenProvider: () async => FirebaseAuth.instance.currentUser?.getIdToken(),
     );
     _bootstrap();
   }
@@ -106,8 +98,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
       bool? serverShowLINE;
 
       try {
-        final me = await _api
-            .fetchMyProfile(); // { avatarUrl, nickname, instagram, ... }
+        final me = await _api.fetchMyProfile(); // { avatarUrl, nickname, instagram, ... }
 
         serverAvatar = (me['avatarUrl'] as String?)?.trim();
         serverNickname = (me['nickname'] as String?)?.trim();
@@ -117,10 +108,8 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
         serverLINE = (me['lineId'] as String?)?.trim();
 
         // 後端若傳 null 就維持 null，讓下面用 ?? 回退到本機
-        if (me['showInstagram'] is bool)
-          serverShowIG = me['showInstagram'] as bool;
-        if (me['showFacebook'] is bool)
-          serverShowFB = me['showFacebook'] as bool;
+        if (me['showInstagram'] is bool) serverShowIG = me['showInstagram'] as bool;
+        if (me['showFacebook'] is bool) serverShowFB = me['showFacebook'] as bool;
         if (me['showLine'] is bool) serverShowLINE = me['showLine'] as bool;
 
         // 把雲端有值的項目同步寫回本機快取（加速下次開啟）
@@ -157,8 +146,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
         if (serverNickname != null && serverNickname!.isNotEmpty) {
           _nickCtrl.text = serverNickname!;
           widget.settings.setNickname(serverNickname!);
-        } else if (_nickCtrl.text.trim().isEmpty &&
-            widget.settings.nickname != null) {
+        } else if (_nickCtrl.text.trim().isEmpty && widget.settings.nickname != null) {
           _nickCtrl.text = widget.settings.nickname!;
         }
       } catch (_) {
@@ -215,19 +203,13 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
   /// 換頭像（Web 相容：用 bytes 上傳），並立即永久化（/me.avatarUrl）
   Future<void> _changeAvatar() async {
     try {
-      final picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1200,
-      );
+      final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 1200);
       if (picked == null) return;
 
       final Uint8List bytes = await picked.readAsBytes();
 
       // 1) 上傳到伺服器（後端永久存放，回傳絕對網址或可解析之相對路徑）
-      final uploadedUrl = await _api.uploadAvatarBytes(
-        bytes,
-        filename: picked.name,
-      );
+      final uploadedUrl = await _api.uploadAvatarBytes(bytes, filename: picked.name);
 
       // 2) 立刻更新 /me（雲端為單一真相）
       await _api.updateProfile(avatarUrl: uploadedUrl);
@@ -239,14 +221,10 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
       if (!mounted) return;
       setState(() => _avatarUrl = uploadedUrl);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.userProfileSaved)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.userProfileSaved)));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${context.l10n.downloadFailed}: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.l10n.downloadFailed}: $e')));
     }
   }
 
@@ -283,15 +261,11 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l.userProfileSaved)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.userProfileSaved)));
       Navigator.of(context).maybePop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${l.previewFailed}: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.previewFailed}: $e')));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -303,17 +277,13 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
     await context.read<TagFollowController>().add(t);
     if (!mounted) return;
     _tagInput.clear();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.addedFollowedTagToast)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.addedFollowedTagToast)));
   }
 
   Future<void> _removeTag(String t) async {
     await context.read<TagFollowController>().remove(t);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.removedFollowedTagToast)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.removedFollowedTagToast)));
   }
 
   @override
@@ -344,15 +314,10 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                                 CircleAvatar(
                                   radius: 36,
                                   backgroundColor: cs.surfaceVariant,
-                                  foregroundImage:
-                                      (_avatarUrl != null &&
-                                          _avatarUrl!.isNotEmpty)
+                                  foregroundImage: (_avatarUrl != null && _avatarUrl!.isNotEmpty)
                                       ? NetworkImage(_avatarUrl!)
                                       : null,
-                                  child: const Icon(
-                                    Icons.person_outline,
-                                    size: 36,
-                                  ),
+                                  child: const Icon(Icons.person_outline, size: 36),
                                 ),
                                 IconButton.filled(
                                   visualDensity: VisualDensity.compact,
@@ -366,15 +331,9 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             Expanded(
                               child: TextFormField(
                                 controller: _nickCtrl,
-                                decoration: InputDecoration(
-                                  labelText: l.nicknameLabel,
-                                  hintText: 'e.g. Jenny',
-                                ),
+                                decoration: InputDecoration(labelText: l.nicknameLabel, hintText: 'e.g. Jenny'),
                                 onChanged: (_) => setState(() {}),
-                                validator: (v) =>
-                                    (v == null || v.trim().isEmpty)
-                                    ? l.nicknameRequired
-                                    : null,
+                                validator: (v) => (v == null || v.trim().isEmpty) ? l.nicknameRequired : null,
                               ),
                             ),
                           ],
@@ -386,10 +345,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             children: [
                               const Icon(Icons.mail_outline, size: 18),
                               const SizedBox(width: 8),
-                              Text(
-                                _emailText,
-                                style: TextStyle(color: cs.onSurfaceVariant),
-                              ),
+                              Text(_emailText, style: TextStyle(color: cs.onSurfaceVariant)),
                             ],
                           ),
                         ),
@@ -410,10 +366,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                     children: [
                       Text(
                         l.socialLinksTitle,
-                        style: TextStyle(
-                          color: cs.onSurface,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
                       TextField(
@@ -480,29 +433,20 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                           const SizedBox(width: 8),
                           Text(
                             l.followedTagsCount(followedTags.length),
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
                           ),
                           const Spacer(),
                           TextButton.icon(
                             onPressed: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      ChangeNotifierProvider<
-                                        TagFollowController
-                                      >.value(
-                                        value: context
-                                            .read<TagFollowController>(),
-                                        child: FollowedTagsPage(api: _api),
-                                      ),
+                                  builder: (_) => ChangeNotifierProvider<TagFollowController>.value(
+                                    value: context.read<TagFollowController>(),
+                                    child: FollowedTagsPage(api: _api),
+                                  ),
                                 ),
                               );
-                              await context
-                                  .read<TagFollowController>()
-                                  .refresh();
+                              await context.read<TagFollowController>().refresh();
                             },
                             icon: const Icon(Icons.open_in_new),
                             label: Text(l.manageFollowedTags),
@@ -524,10 +468,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          FilledButton.tonal(
-                            onPressed: _addTag,
-                            child: Text(l.add),
-                          ),
+                          FilledButton.tonal(onPressed: _addTag, child: Text(l.add)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -535,11 +476,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                         spacing: 6,
                         runSpacing: -8,
                         children: [
-                          for (final t in followedTags)
-                            InputChip(
-                              label: Text('#$t'),
-                              onDeleted: () => _removeTag(t),
-                            ),
+                          for (final t in followedTags) InputChip(label: Text('#$t'), onDeleted: () => _removeTag(t)),
                         ],
                       ),
                     ],
@@ -561,34 +498,23 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                           const SizedBox(width: 8),
                           Text(
                             '${l.socialFriends} (${followingIds.length})',
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
                           ),
                           const Spacer(),
                           TextButton.icon(
                             onPressed: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      ChangeNotifierProvider<
-                                        FriendFollowController
-                                      >.value(
-                                        value: context
-                                            .read<FriendFollowController>(),
-                                        child: FriendCardsPage(api: _api),
-                                      ),
+                                  builder: (_) => ChangeNotifierProvider<FriendFollowController>.value(
+                                    value: context.read<FriendFollowController>(),
+                                    child: FriendCardsPage(api: _api),
+                                  ),
                                 ),
                               );
                               // 回來時若有改動，Provider 會自動反映；這裡保險再 refresh 一次
-                              await context
-                                  .read<FriendFollowController>()
-                                  .refresh();
+                              await context.read<FriendFollowController>().refresh();
                               // 預抓名稱
-                              _prefetchFriendNames(
-                                context.read<FriendFollowController>().friends,
-                              );
+                              _prefetchFriendNames(context.read<FriendFollowController>().friends);
                             },
                             icon: const Icon(Icons.open_in_new),
                             label: Text(l.manageCards),
@@ -599,18 +525,13 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                       if (followingIds.isEmpty)
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            l.noFriendsYet,
-                            style: TextStyle(color: cs.onSurfaceVariant),
-                          ),
+                          child: Text(l.noFriendsYet, style: TextStyle(color: cs.onSurfaceVariant)),
                         )
                       else
                         Column(
                           children: followingIds.map((id) {
                             if (!_nameById.containsKey(id)) _loadFriendName(id);
-                            final display = (_nameById[id]?.isNotEmpty ?? false)
-                                ? _nameById[id]!
-                                : id;
+                            final display = (_nameById[id]?.isNotEmpty ?? false) ? _nameById[id]! : id;
                             return Dismissible(
                               key: ValueKey('friend_$id'),
                               background: Container(
@@ -621,10 +542,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                                   children: [
                                     Icon(Icons.person_remove, color: cs.error),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      l.remove,
-                                      style: TextStyle(color: cs.error),
-                                    ),
+                                    Text(l.remove, style: TextStyle(color: cs.error)),
                                   ],
                                 ),
                               ),
@@ -635,36 +553,24 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      l.remove,
-                                      style: TextStyle(color: cs.error),
-                                    ),
+                                    Text(l.remove, style: TextStyle(color: cs.error)),
                                     const SizedBox(width: 8),
                                     Icon(Icons.person_remove, color: cs.error),
                                   ],
                                 ),
                               ),
                               onDismissed: (_) async {
-                                await context
-                                    .read<FriendFollowController>()
-                                    .remove(id);
+                                await context.read<FriendFollowController>().remove(id);
                               },
                               child: ListTile(
-                                leading: const CircleAvatar(
-                                  child: Icon(Icons.person),
-                                ),
+                                leading: const CircleAvatar(child: Icon(Icons.person)),
                                 title: Text(display),
-                                subtitle: Text(
-                                  l.accountNoInfo,
-                                  style: TextStyle(color: cs.onSurfaceVariant),
-                                ),
+                                subtitle: Text(l.accountNoInfo, style: TextStyle(color: cs.onSurfaceVariant)),
                                 trailing: IconButton(
                                   tooltip: l.remove,
                                   icon: const Icon(Icons.close),
                                   onPressed: () async {
-                                    await context
-                                        .read<FriendFollowController>()
-                                        .remove(id);
+                                    await context.read<FriendFollowController>().remove(id);
                                   },
                                 ),
                               ),
@@ -689,11 +595,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
               heroTag: 'save_profile_fab_top_right',
               onPressed: _canSave && !_saving ? _saveProfile : null,
               icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.save_outlined),
               label: Text(l.save),
             ),

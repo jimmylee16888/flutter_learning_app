@@ -4,8 +4,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_learning_app/models/social_models.dart';
-import 'package:flutter_learning_app/services/core/base_url.dart'
-    show kSocialBaseUrl, absUrl;
+import 'package:flutter_learning_app/services/core/base_url.dart' show kSocialBaseUrl, absUrl;
 import 'package:flutter_learning_app/models/tip_models.dart';
 
 enum FeedTabApi { friends, hot, following }
@@ -40,9 +39,7 @@ class SocialApi {
   // ================== 共用小工具 ==================
 
   Future<Map<String, String>> _authHeaders({bool json = false}) async {
-    final h = <String, String>{
-      if (json) 'Content-Type': 'application/json; charset=utf-8',
-    };
+    final h = <String, String>{if (json) 'Content-Type': 'application/json; charset=utf-8'};
 
     // 優先使用 Firebase IdToken（正式驗證）
     if (idTokenProvider != null) {
@@ -75,9 +72,8 @@ class SocialApi {
     return h;
   }
 
-  Uri _uri(String path, [Map<String, dynamic>? q]) => Uri.parse(
-    '$kSocialBaseUrl$path',
-  ).replace(queryParameters: q?.map((k, v) => MapEntry(k, '$v')));
+  Uri _uri(String path, [Map<String, dynamic>? q]) =>
+      Uri.parse('$kSocialBaseUrl$path').replace(queryParameters: q?.map((k, v) => MapEntry(k, '$v')));
 
   String _absUrl(String url) => absUrl(kSocialBaseUrl, url);
 
@@ -101,13 +97,7 @@ class SocialApi {
   Future<String?> uploadImageBytes(Uint8List bytes, {String? filename}) async {
     final req = http.MultipartRequest('POST', _uri('/upload'));
     req.headers.addAll(await _authHeaders());
-    req.files.add(
-      http.MultipartFile.fromBytes(
-        'file',
-        bytes,
-        filename: filename ?? 'upload.jpg',
-      ),
-    );
+    req.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename ?? 'upload.jpg'));
 
     final resp = await req.send().timeout(_timeout);
     final body = await resp.stream.bytesToString();
@@ -123,13 +113,7 @@ class SocialApi {
   Future<String> uploadAvatarBytes(Uint8List bytes, {String? filename}) async {
     final req = http.MultipartRequest('POST', _uri('/upload'));
     req.headers.addAll(await _authHeaders());
-    req.files.add(
-      http.MultipartFile.fromBytes(
-        'file',
-        bytes,
-        filename: filename ?? 'avatar.jpg',
-      ),
-    );
+    req.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename ?? 'avatar.jpg'));
 
     final resp = await req.send().timeout(_timeout);
     final body = await resp.stream.bytesToString();
@@ -150,9 +134,7 @@ class SocialApi {
   String _mePath() => '/me';
 
   Future<Map<String, dynamic>> fetchMyProfile() async {
-    final resp = await http
-        .get(_uri(_mePath()), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri(_mePath()), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchMyProfile ${resp.statusCode}: ${resp.body}');
     }
@@ -185,11 +167,7 @@ class SocialApi {
     };
 
     final resp = await http
-        .patch(
-          _uri(_mePath()),
-          headers: await _authHeaders(json: true),
-          body: jsonEncode(payload),
-        )
+        .patch(_uri(_mePath()), headers: await _authHeaders(json: true), body: jsonEncode(payload))
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('updateProfile ${resp.statusCode}: ${resp.body}');
@@ -199,9 +177,7 @@ class SocialApi {
   // ================== 追蹤標籤 / 好友 ==================
 
   Future<List<String>> fetchFollowedTags() async {
-    final resp = await http
-        .get(_uri('/me/tags'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/me/tags'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchFollowedTags ${resp.statusCode}: ${resp.body}');
     }
@@ -215,11 +191,7 @@ class SocialApi {
 
   Future<List<String>> addFollowedTag(String tag) async {
     final resp = await http
-        .post(
-          _uri('/me/tags'),
-          headers: await _authHeaders(json: true),
-          body: jsonEncode({'tag': tag}),
-        )
+        .post(_uri('/me/tags'), headers: await _authHeaders(json: true), body: jsonEncode({'tag': tag}))
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('addFollowedTag ${resp.statusCode}: ${resp.body}');
@@ -233,9 +205,7 @@ class SocialApi {
   }
 
   Future<List<String>> removeFollowedTag(String tag) async {
-    final resp = await http
-        .delete(_uri('/me/tags/$tag'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.delete(_uri('/me/tags/$tag'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('removeFollowedTag ${resp.statusCode}: ${resp.body}');
     }
@@ -248,9 +218,7 @@ class SocialApi {
   }
 
   Future<List<String>> fetchMyFriends() async {
-    final resp = await http
-        .get(_uri('/me/friends'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/me/friends'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchMyFriends ${resp.statusCode}: ${resp.body}');
     }
@@ -263,18 +231,14 @@ class SocialApi {
   }
 
   Future<void> followUser(String userId) async {
-    final resp = await http
-        .post(_uri('/users/$userId/follow'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.post(_uri('/users/$userId/follow'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('followUser ${resp.statusCode}: ${resp.body}');
     }
   }
 
   Future<void> unfollowUser(String userId) async {
-    final resp = await http
-        .delete(_uri('/users/$userId/follow'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.delete(_uri('/users/$userId/follow'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('unfollowUser ${resp.statusCode}: ${resp.body}');
     }
@@ -283,9 +247,7 @@ class SocialApi {
   // ================== 使用者 / 貼文讀取 ==================
 
   Future<Map<String, dynamic>> fetchUserProfile(String userId) async {
-    final resp = await http
-        .get(_uri('/users/$userId'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/users/$userId'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchUserProfile ${resp.statusCode}: ${resp.body}');
     }
@@ -298,15 +260,11 @@ class SocialApi {
   }
 
   Future<List<SocialPost>> fetchUserPosts(String userId) async {
-    final resp = await http
-        .get(_uri('/users/$userId/posts'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/users/$userId/posts'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchUserPosts ${resp.statusCode}: ${resp.body}');
     }
-    return (jsonDecode(resp.body) as List)
-        .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return (jsonDecode(resp.body) as List).map((e) => SocialPost.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   // Future<List<SocialPost>> fetchPosts({
@@ -350,13 +308,7 @@ class SocialApi {
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (clientId != null) 'clientId': clientId,
     });
-    final resp = await http
-        .post(
-          _uri('/posts'),
-          headers: await _authHeaders(json: true),
-          body: body,
-        )
-        .timeout(_timeout);
+    final resp = await http.post(_uri('/posts'), headers: await _authHeaders(json: true), body: body).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('createPost ${resp.statusCode}: ${resp.body}');
     }
@@ -381,11 +333,7 @@ class SocialApi {
       if (clientId != null) 'clientId': clientId,
     });
     final resp = await http
-        .put(
-          _uri('/posts/$id'),
-          headers: await _authHeaders(json: true),
-          body: body,
-        )
+        .put(_uri('/posts/$id'), headers: await _authHeaders(json: true), body: body)
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('updatePost ${resp.statusCode}: ${resp.body}');
@@ -394,35 +342,24 @@ class SocialApi {
   }
 
   Future<void> deletePost(String id) async {
-    final resp = await http
-        .delete(_uri('/posts/$id'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.delete(_uri('/posts/$id'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('deletePost ${resp.statusCode}: ${resp.body}');
     }
   }
 
   Future<SocialPost> toggleLike(String id) async {
-    final resp = await http
-        .post(_uri('/posts/$id/like'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.post(_uri('/posts/$id/like'), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('toggleLike ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
 
-  Future<SocialPost> addComment({
-    required String postId,
-    required String text,
-  }) async {
+  Future<SocialPost> addComment({required String postId, required String text}) async {
     final body = jsonEncode({'text': text});
     final resp = await http
-        .post(
-          _uri('/posts/$postId/comments'),
-          headers: await _authHeaders(json: true),
-          body: body,
-        )
+        .post(_uri('/posts/$postId/comments'), headers: await _authHeaders(json: true), body: body)
         .timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('addComment ${resp.statusCode}: ${resp.body}');
@@ -458,9 +395,7 @@ class SocialApi {
       if (!_ok(resp.statusCode)) {
         throw Exception('fetchPosts(query) ${resp.statusCode}: ${resp.body}');
       }
-      return (jsonDecode(resp.body) as List)
-          .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return (jsonDecode(resp.body) as List).map((e) => SocialPost.fromJson(e as Map<String, dynamic>)).toList();
     }
 
     // 否則維持舊的 GET 行為（後端用 /me/friends 決定）
@@ -472,24 +407,18 @@ class SocialApi {
       },
       if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
     };
-    final resp = await http
-        .get(_uri('/posts', q), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/posts', q), headers: await _authHeaders()).timeout(_timeout);
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchPosts ${resp.statusCode}: ${resp.body}');
     }
-    return (jsonDecode(resp.body) as List)
-        .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return (jsonDecode(resp.body) as List).map((e) => SocialPost.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   // 先在檔頭加： import 'package:flutter_learning_app/models/tip_models.dart';
 
   Future<TipPrompt?> fetchTipOfTheDay() async {
     // 後端可回傳 { id, title, body, imageUrl } 或 204/空陣列 表示今天不推播
-    final resp = await http
-        .get(_uri('/tips/today'), headers: await _authHeaders())
-        .timeout(_timeout);
+    final resp = await http.get(_uri('/tips/today'), headers: await _authHeaders()).timeout(_timeout);
 
     if (resp.statusCode == 204 || resp.body.trim().isEmpty) return null;
     if (!_ok(resp.statusCode)) {

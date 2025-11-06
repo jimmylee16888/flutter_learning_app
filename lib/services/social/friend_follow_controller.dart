@@ -4,8 +4,7 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_learning_app/services/social/social_api.dart';
-import 'package:flutter_learning_app/services/services.dart'
-    show FriendPrefs, ProfileCache;
+import 'package:flutter_learning_app/services/services.dart' show FriendPrefs, ProfileCache;
 
 class FriendFollowController extends ChangeNotifier {
   FriendFollowController({required this.api});
@@ -74,8 +73,7 @@ class FriendFollowController extends ChangeNotifier {
     unawaited(refresh());
   }
 
-  Future<void> toggle(String id) =>
-      _friends.contains(id) ? remove(id) : add(id);
+  Future<void> toggle(String id) => _friends.contains(id) ? remove(id) : add(id);
 
   // —— helpers ——
   void _apply(Set<String> ids) {

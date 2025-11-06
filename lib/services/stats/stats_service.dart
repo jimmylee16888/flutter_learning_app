@@ -37,9 +37,7 @@ class StatsService {
     required List<MiniCardData> allCards,
     String Function(MiniCardData c)? artistOf,
   }) {
-    final artistKey =
-        artistOf ??
-        (c) => (c.name ?? '').trim().isEmpty ? '未知' : c.name!.trim();
+    final artistKey = artistOf ?? (c) => (c.name ?? '').trim().isEmpty ? '未知' : c.name!.trim();
 
     // 藝人數（title 去重）
     final artistSet = <String>{};
@@ -59,8 +57,7 @@ class StatsService {
       if (hasFrontUrl) frontUrl++;
 
       // back（示範：若你要把背面也統計來源）
-      final hasBackLocal =
-          (c.backLocalPath != null && c.backLocalPath!.isNotEmpty);
+      final hasBackLocal = (c.backLocalPath != null && c.backLocalPath!.isNotEmpty);
       final hasBackUrl = (c.backImageUrl != null && c.backImageUrl!.isNotEmpty);
       if (hasBackLocal) backLocal++;
       if (hasBackUrl) backUrl++;

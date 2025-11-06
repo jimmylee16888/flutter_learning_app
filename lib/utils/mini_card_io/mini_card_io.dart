@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 平台實作（IO / Web）
-import 'mini_card_io_impl_io.dart'
-    if (dart.library.html) 'mini_card_io_impl_web.dart'
-    as impl;
+import 'mini_card_io_impl_io.dart' if (dart.library.html) 'mini_card_io_impl_web.dart' as impl;
 
 // 你的資料模型
 import '../../models/mini_card_data.dart';
@@ -14,8 +12,7 @@ import '../../models/card_item.dart';
 Future<void> miniCardStorageInit() => impl.miniCardStorageInit();
 
 /// 低階：將「本地儲存位置」轉為 ImageProvider（IO=FileImage；Web=Hive/Memory/URL）
-ImageProvider imageProviderForLocalPath(String path) =>
-    impl.imageProviderForLocalPath(path);
+ImageProvider imageProviderForLocalPath(String path) => impl.imageProviderForLocalPath(path);
 
 /// 低階：從相簿挑一張並存入「平台持久化」
 Future<String?> pickAndCopyToLocal() => impl.pickAndCopyToLocal();
@@ -63,11 +60,7 @@ Future<MiniCardData> ensureLocalCopy(MiniCardData c) async {
 Future<void> sharePhoto(MiniCardData c) async {
   final ready = await ensureLocalCopy(c);
   final note = c.note.isEmpty ? null : c.note;
-  await impl.shareLocalPath(
-    ready.localPath,
-    text: note,
-    imageUrl: ready.imageUrl,
-  );
+  await impl.shareLocalPath(ready.localPath, text: note, imageUrl: ready.imageUrl);
 }
 
 // import 'dart:io';

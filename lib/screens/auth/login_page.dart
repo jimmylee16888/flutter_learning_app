@@ -60,8 +60,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _initConnectivityWatcher() async {
-    final first = await Connectivity()
-        .checkConnectivity(); // List<ConnectivityResult>
+    final first = await Connectivity().checkConnectivity(); // List<ConnectivityResult>
     _applyConnectivity(first);
     _connSub = Connectivity().onConnectivityChanged.listen((results) {
       _applyConnectivity(results);
@@ -130,10 +129,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogCtx),
-                child: Text(l.cancel),
-              ),
+              TextButton(onPressed: () => Navigator.pop(dialogCtx), child: Text(l.cancel)),
               FilledButton(
                 onPressed: () {
                   widget.settings.setLocale(selected); // null = 跟系統
@@ -169,11 +165,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               // 背景格線
               Positioned.fill(
-                child: CustomPaint(
-                  painter: GridPaperPainter(
-                    color: cs.outlineVariant.withOpacity(0.18),
-                  ),
-                ),
+                child: CustomPaint(painter: GridPaperPainter(color: cs.outlineVariant.withOpacity(0.18))),
               ),
 
               // 內容
@@ -182,10 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     // 語言按鈕
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Row(
                         children: [
                           Material(
@@ -213,9 +202,7 @@ class _LoginPageState extends State<LoginPage> {
                         constraints: const BoxConstraints(maxWidth: 360),
                         child: Card(
                           elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                             child: Column(
@@ -225,15 +212,13 @@ class _LoginPageState extends State<LoginPage> {
                                 Text(
                                   l.welcomeTitle,
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
                                   l.welcomeSubtitle,
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: cs.onSurfaceVariant),
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 16),
 
@@ -252,18 +237,11 @@ class _LoginPageState extends State<LoginPage> {
                                               showDialog(
                                                 context: context,
                                                 builder: (_) => AlertDialog(
-                                                  title: Text(
-                                                    l.networkRequiredTitle,
-                                                  ),
-                                                  content: Text(
-                                                    l.networkRequiredBody,
-                                                  ),
+                                                  title: Text(l.networkRequiredTitle),
+                                                  content: Text(l.networkRequiredBody),
                                                   actions: [
                                                     TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                            context,
-                                                          ),
+                                                      onPressed: () => Navigator.pop(context),
                                                       child: Text(l.ok),
                                                     ),
                                                   ],
@@ -273,25 +251,15 @@ class _LoginPageState extends State<LoginPage> {
                                             }
 
                                             // 有網路才真的去做 Google 登入
-                                            final (ok, reason) = await auth
-                                                .loginWithGoogle();
+                                            final (ok, reason) = await auth.loginWithGoogle();
                                             if (!mounted) return;
 
                                             if (!ok) {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    '登入失敗：${reason ?? l.errorLoginFailed}',
-                                                  ),
-                                                ),
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text('登入失敗：${reason ?? l.errorLoginFailed}')),
                                               );
                                             } else {
-                                              await ensureProfile(
-                                                context,
-                                                widget.settings,
-                                              );
+                                              await ensureProfile(context, widget.settings);
                                               if (!mounted) return;
                                               _goHome();
                                             }
@@ -304,9 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                                   const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
+                                    child: CircularProgressIndicator(strokeWidth: 2),
                                   ),
                                 ],
 
@@ -315,20 +281,16 @@ class _LoginPageState extends State<LoginPage> {
                                   const SizedBox(height: 12),
                                   // ⚠️ 這裡用 Expanded 讓長文字可換行，避免 overflow
                                   Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Icon(Icons.wifi_off, size: 16),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           '目前離線，可先用上次帳號離線進入，恢復網路後再登入同步。',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: cs.onSurfaceVariant,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                           softWrap: true,
                                         ),
                                       ),
@@ -349,26 +311,16 @@ class _LoginPageState extends State<LoginPage> {
                                       onPressed: auth.isLoading
                                           ? null
                                           : () async {
-                                              final ok = await auth
-                                                  .continueOfflineWithLastUser();
+                                              final ok = await auth.continueOfflineWithLastUser();
                                               if (!mounted) return;
                                               if (ok) {
-                                                await ensureProfile(
-                                                  context,
-                                                  widget.settings,
-                                                );
+                                                await ensureProfile(context, widget.settings);
                                                 if (!mounted) return;
                                                 _goHome();
                                               } else {
                                                 ScaffoldMessenger.of(
                                                   context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      '沒有可用的上次登入帳號',
-                                                    ),
-                                                  ),
-                                                );
+                                                ).showSnackBar(const SnackBar(content: Text('沒有可用的上次登入帳號')));
                                               }
                                             },
                                     ),
@@ -379,20 +331,16 @@ class _LoginPageState extends State<LoginPage> {
                                 if (_isOffline && !auth.canOfflineSignIn) ...[
                                   const SizedBox(height: 12),
                                   Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Icon(Icons.info_outline, size: 16),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           '目前離線，且沒有上次登入紀錄。請連網後以 Google 登入。',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: cs.onSurfaceVariant,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                           softWrap: true,
                                         ),
                                       ),
@@ -413,9 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
                         _versionText,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ),
                   ],
@@ -429,9 +375,7 @@ class _LoginPageState extends State<LoginPage> {
                 margin: 12,
                 initialOffset: Offset(playArea.width * 0.5 - 48, 180),
                 initialVelocity: const Offset(180, 140),
-                child: const _CircleImage(
-                  'assets/images/pop_card_without_background.png',
-                ),
+                child: const _CircleImage('assets/images/pop_card_without_background.png'),
               ),
               _BouncingBall(
                 playArea: playArea,
@@ -472,18 +416,12 @@ class _LoginPageState extends State<LoginPage> {
                   opacity: _isBooting ? 1 : 0,
                   duration: const Duration(milliseconds: 300),
                   child: Container(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withOpacity(0.9),
+                    color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                     alignment: Alignment.center,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        ),
+                        const SizedBox(width: 36, height: 36, child: CircularProgressIndicator(strokeWidth: 3)),
                         const SizedBox(height: 12),
                         Text(
                           l.loading, // i18n：請在 arb 補上 "loading"
@@ -530,8 +468,7 @@ class _BouncingBall extends StatefulWidget {
   State<_BouncingBall> createState() => _BouncingBallState();
 }
 
-class _BouncingBallState extends State<_BouncingBall>
-    with SingleTickerProviderStateMixin {
+class _BouncingBallState extends State<_BouncingBall> with SingleTickerProviderStateMixin {
   late Offset _pos; // 左上角位置
   late Offset _vel; // px/s
   late final Ticker _ticker;
@@ -552,9 +489,7 @@ class _BouncingBallState extends State<_BouncingBall>
   @override
   void initState() {
     super.initState();
-    _pos =
-        widget.initialOffset ??
-        Offset(widget.playArea.width * 0.5 - widget.size / 2, 140);
+    _pos = widget.initialOffset ?? Offset(widget.playArea.width * 0.5 - widget.size / 2, 140);
     _vel = widget.initialVelocity;
 
     _ticker = createTicker((elapsed) {
@@ -610,16 +545,12 @@ class _BouncingBallState extends State<_BouncingBall>
         onPanStart: (_) => _vel = Offset.zero,
         onPanUpdate: (d) {
           var next = _pos + d.delta;
-          next = Offset(
-            next.dx.clamp(_bounds.left, _bounds.right),
-            next.dy.clamp(_bounds.top, _bounds.bottom),
-          );
+          next = Offset(next.dx.clamp(_bounds.left, _bounds.right), next.dy.clamp(_bounds.top, _bounds.bottom));
           setState(() => _pos = next);
         },
         onPanEnd: (d) {
           final v = d.velocity.pixelsPerSecond;
-          final scale = (_maxLaunchSpeed / (v.distance == 0 ? 1 : v.distance))
-              .clamp(0.0, 1.0);
+          final scale = (_maxLaunchSpeed / (v.distance == 0 ? 1 : v.distance)).clamp(0.0, 1.0);
           _vel = v * scale;
         },
         child: Material(
@@ -645,11 +576,7 @@ class _CircleIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return FittedBox(
       fit: BoxFit.contain,
-      child: Icon(
-        icon,
-        size: size,
-        color: Theme.of(context).colorScheme.primary,
-      ),
+      child: Icon(icon, size: size, color: Theme.of(context).colorScheme.primary),
     );
   }
 }

@@ -20,18 +20,14 @@ class FlipBigCard extends StatefulWidget {
   State<FlipBigCard> createState() => _FlipBigCardState();
 }
 
-class _FlipBigCardState extends State<FlipBigCard>
-    with SingleTickerProviderStateMixin {
+class _FlipBigCardState extends State<FlipBigCard> with SingleTickerProviderStateMixin {
   late bool _isFront = widget.initialFront;
   late final AnimationController _ctl = AnimationController(
     vsync: this,
     duration: widget.duration,
     value: widget.initialFront ? 0.0 : 1.0,
   );
-  late final Animation<double> _anim = CurvedAnimation(
-    parent: _ctl,
-    curve: Curves.easeInOut,
-  );
+  late final Animation<double> _anim = CurvedAnimation(parent: _ctl, curve: Curves.easeInOut);
 
   @override
   void dispose() {
@@ -56,11 +52,7 @@ class _FlipBigCardState extends State<FlipBigCard>
         final showingFront = angle <= math.pi / 2;
 
         final face = showingFront
-            ? _Face(
-                rotated: false,
-                onTap: () => _flipTo(false),
-                child: widget.front,
-              )
+            ? _Face(rotated: false, onTap: () => _flipTo(false), child: widget.front)
             : _Face(
                 rotated: true, // 背面修正 180°
                 onTap: () => _flipTo(true),
@@ -80,11 +72,7 @@ class _FlipBigCardState extends State<FlipBigCard>
 }
 
 class _Face extends StatelessWidget {
-  const _Face({
-    required this.rotated,
-    required this.onTap,
-    required this.child,
-  });
+  const _Face({required this.rotated, required this.onTap, required this.child});
 
   final bool rotated;
   final VoidCallback onTap;
@@ -103,16 +91,10 @@ class _Face extends StatelessWidget {
     );
 
     return rotated
-        ? Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..rotateY(math.pi),
-            child: content,
-          )
+        ? Transform(alignment: Alignment.center, transform: Matrix4.identity()..rotateY(math.pi), child: content)
         : content;
   }
 }
-
-
 
 // import 'dart:math' as math;
 // import 'package:flutter/gestures.dart';
@@ -251,5 +233,3 @@ class _Face extends StatelessWidget {
 //     );
 //   }
 // }
-
-

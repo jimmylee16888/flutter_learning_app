@@ -12,9 +12,7 @@ class MiniCardFront extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 判斷是否有本地檔（Web 上若是 'url:' 開頭視為不是本地）
-    final hasLocal =
-        (card.localPath ?? '').isNotEmpty &&
-        !(kIsWeb && (card.localPath?.startsWith('url:') ?? false));
+    final hasLocal = (card.localPath ?? '').isNotEmpty && !(kIsWeb && (card.localPath?.startsWith('url:') ?? false));
     final hasRemote = (card.imageUrl ?? '').isNotEmpty;
 
     Widget image;
@@ -23,10 +21,7 @@ class MiniCardFront extends StatelessWidget {
       image = NoCorsImage(card.imageUrl!, fit: BoxFit.cover);
     } else if (hasLocal) {
       // 有本地檔（跨平台），直接用 local provider（Web 也支援 'url:' 替代案）
-      image = Image(
-        image: imageProviderForLocalPath(card.localPath!),
-        fit: BoxFit.cover,
-      );
+      image = Image(image: imageProviderForLocalPath(card.localPath!), fit: BoxFit.cover);
     } else {
       // 其他情況交給通用 provider（Network / Asset / Memory …）
       image = Image(image: imageProviderOf(card), fit: BoxFit.cover);

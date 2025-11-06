@@ -67,9 +67,7 @@ class ExploreStore {
   }
 
   // ===== gzip utils =====
-  Uint8List _gzipEncode(List<int> input) =>
-      Uint8List.fromList(GZipCodec().encode(input));
+  Uint8List _gzipEncode(List<int> input) => Uint8List.fromList(GZipCodec().encode(input));
 
-  Uint8List _gzipDecode(List<int> input) =>
-      Uint8List.fromList(GZipCodec().decode(input));
+  Uint8List _gzipDecode(List<int> input) => Uint8List.fromList(GZipCodec().decode(input));
 }

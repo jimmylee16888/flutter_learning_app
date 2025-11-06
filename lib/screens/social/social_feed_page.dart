@@ -91,9 +91,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       uid = debugUid; // 之後以 Authorization: Debug <uid>
     }
 
-    final meId = (email != null && email.isNotEmpty)
-        ? email.toLowerCase()
-        : (uid ?? 'dev_unknown');
+    final meId = (email != null && email.isNotEmpty) ? email.toLowerCase() : (uid ?? 'dev_unknown');
     final meName = (widget.settings.nickname?.trim().isNotEmpty == true)
         ? widget.settings.nickname!.trim()
         : (u?.displayName?.trim().isNotEmpty == true)
@@ -105,8 +103,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
     _api = SocialApi(
       meId: _me.id,
       meName: _me.name,
-      idTokenProvider: () async =>
-          FirebaseAuth.instance.currentUser?.getIdToken(),
+      idTokenProvider: () async => FirebaseAuth.instance.currentUser?.getIdToken(),
     );
 
     if (mounted) {
@@ -130,13 +127,10 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   Future<void> _setupConnectivity() async {
     final c = Connectivity();
 
-    final initial = await c
-        .checkConnectivity(); // 可能是 ConnectivityResult 或 List<ConnectivityResult>
+    final initial = await c.checkConnectivity(); // 可能是 ConnectivityResult 或 List<ConnectivityResult>
     _applyConnectivity(initial);
 
-    _connSub = c.onConnectivityChanged.listen(
-      _applyConnectivity,
-    ); // 新版是 List<ConnectivityResult>
+    _connSub = c.onConnectivityChanged.listen(_applyConnectivity); // 新版是 List<ConnectivityResult>
   }
 
   void _applyConnectivity(dynamic value) {
@@ -147,8 +141,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
         ? <ConnectivityResult>[value]
         : const <ConnectivityResult>[];
 
-    final offline =
-        list.isEmpty || list.every((r) => r == ConnectivityResult.none);
+    final offline = list.isEmpty || list.every((r) => r == ConnectivityResult.none);
     if (!mounted || offline == _isOffline) return;
 
     setState(() => _isOffline = offline);
@@ -163,9 +156,9 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
   void _showSnack(String msg, {bool isError = false}) {
     if (!mounted) return;
     final cs = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: isError ? cs.error : null),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: isError ? cs.error : null));
   }
 
   Future<T?> _guardValue<T>(Future<T> Function() task) async {
@@ -244,9 +237,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
           break;
         case FeedTab.following:
           final tags = _tagCtl.followed;
-          list = await _guardValue(
-            () => _api.fetchPosts(tab: FeedTabApi.following, tags: tags),
-          );
+          list = await _guardValue(() => _api.fetchPosts(tab: FeedTabApi.following, tags: tags));
           break;
       }
       if (list != null) setState(() => _posts = list!);
@@ -285,11 +276,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       _showSnack('離線中，無法編輯貼文。', isError: true);
       return;
     }
-    final res = await showPostComposer(
-      context,
-      initialText: p.text,
-      initialTags: p.tags,
-    );
+    final res = await showPostComposer(context, initialText: p.text, initialTags: p.tags);
     if (res == null) return;
 
     final Uint8List? bytes = await res.image?.readAsBytes();
@@ -337,9 +324,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       _showSnack('離線中，無法留言。', isError: true);
       return null;
     }
-    final updated = await _guardValue(
-      () => _api.addComment(postId: p.id, text: text),
-    );
+    final updated = await _guardValue(() => _api.addComment(postId: p.id, text: text));
     if (updated != null) {
       setState(() {
         _posts = _posts.map((e) => e.id == updated.id ? updated : e).toList();
@@ -411,10 +396,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                 if (_isOffline)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     color: cs.errorContainer,
                     child: Row(
                       children: [
@@ -454,14 +436,10 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           onPressed: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    ChangeNotifierProvider<
-                                      TagFollowController
-                                    >.value(
-                                      value: context
-                                          .read<TagFollowController>(),
-                                      child: tags.FollowedTagsPage(api: _api),
-                                    ),
+                                builder: (_) => ChangeNotifierProvider<TagFollowController>.value(
+                                  value: context.read<TagFollowController>(),
+                                  child: tags.FollowedTagsPage(api: _api),
+                                ),
                               ),
                             );
                             await context.read<TagFollowController>().refresh();
@@ -476,14 +454,10 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           onPressed: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    ChangeNotifierProvider<
-                                      FriendFollowController
-                                    >.value(
-                                      value: context
-                                          .read<FriendFollowController>(),
-                                      child: friends.FriendCardsPage(api: _api),
-                                    ),
+                                builder: (_) => ChangeNotifierProvider<FriendFollowController>.value(
+                                  value: context.read<FriendFollowController>(),
+                                  child: friends.FriendCardsPage(api: _api),
+                                ),
                               ),
                             );
 
@@ -492,11 +466,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           icon: const Icon(Icons.badge_outlined),
                         ),
                         const SizedBox(width: 6),
-                        IconButton(
-                          tooltip: l.retry,
-                          onPressed: _refresh,
-                          icon: const Icon(Icons.refresh),
-                        ),
+                        IconButton(tooltip: l.retry, onPressed: _refresh, icon: const Icon(Icons.refresh)),
                       ],
                     ),
                   ),
@@ -535,8 +505,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                       : ListView.separated(
                           padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
                           itemCount: _posts.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (_, i) {
                             final p = _posts[i];
 
@@ -549,46 +518,28 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(
-                                  sigmaX: 10,
-                                  sigmaY: 10,
-                                ),
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: cs.surface.withOpacity(0.65),
                                     borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: cs.outlineVariant,
-                                    ),
+                                    border: Border.all(color: cs.outlineVariant),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // Header
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          12,
-                                          12,
-                                          12,
-                                          8,
-                                        ),
+                                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
                                         child: Row(
                                           children: [
                                             InkWell(
-                                              onTap: () =>
-                                                  _openProfile(p.author.id),
-                                              customBorder:
-                                                  const CircleBorder(),
+                                              onTap: () => _openProfile(p.author.id),
+                                              customBorder: const CircleBorder(),
                                               child: CircleAvatar(
                                                 child: Text(
                                                   p.author.name.isNotEmpty
-                                                      ? p
-                                                            .author
-                                                            .name
-                                                            .characters
-                                                            .first
-                                                            .toUpperCase()
+                                                      ? p.author.name.characters.first.toUpperCase()
                                                       : '?',
                                                 ),
                                               ),
@@ -596,27 +547,15 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                             const SizedBox(width: 12),
                                             Expanded(
                                               child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     p.author.name,
-                                                    style: const TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
+                                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                                                   ),
                                                   Text(
-                                                    _timeAgo(
-                                                      context,
-                                                      p.createdAt,
-                                                    ),
-                                                    style: TextStyle(
-                                                      color:
-                                                          cs.onSurfaceVariant,
-                                                      fontSize: 12,
-                                                    ),
+                                                    _timeAgo(context, p.createdAt),
+                                                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                                                   ),
                                                 ],
                                               ),
@@ -627,21 +566,11 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                                 itemBuilder: (_) => [
                                                   PopupMenuItem(
                                                     value: 'edit',
-                                                    child: Text(
-                                                      l.edit,
-                                                      style: TextStyle(
-                                                        color: cs.onSurface,
-                                                      ),
-                                                    ),
+                                                    child: Text(l.edit, style: TextStyle(color: cs.onSurface)),
                                                   ),
                                                   PopupMenuItem(
                                                     value: 'delete',
-                                                    child: Text(
-                                                      l.delete,
-                                                      style: TextStyle(
-                                                        color: cs.onSurface,
-                                                      ),
-                                                    ),
+                                                    child: Text(l.delete, style: TextStyle(color: cs.onSurface)),
                                                   ),
                                                 ],
                                                 onSelected: (v) {
@@ -650,42 +579,26 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                                   }
                                                   if (v == 'edit') _onEdit(p);
                                                 },
-                                                icon: Icon(
-                                                  Icons.more_horiz,
-                                                  color: cs.onSurface,
-                                                ),
+                                                icon: Icon(Icons.more_horiz, color: cs.onSurface),
                                               ),
                                           ],
                                         ),
                                       ),
                                       if (p.text.isNotEmpty)
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
-                                          child: Text(
-                                            p.text,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                            ),
-                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Text(p.text, style: const TextStyle(fontSize: 15)),
                                         ),
                                       if (p.tags.isNotEmpty) ...[
                                         const SizedBox(height: 6),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
                                           child: Wrap(
                                             spacing: 6,
                                             runSpacing: -8,
                                             children: [
                                               for (final t in p.tags)
-                                                ActionChip(
-                                                  label: Text('#$t'),
-                                                  onPressed: () =>
-                                                      _followTagAndShow(t),
-                                                ),
+                                                ActionChip(label: Text('#$t'), onPressed: () => _followTagAndShow(t)),
                                             ],
                                           ),
                                         ),
@@ -693,64 +606,37 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                       if (imgUrl != null) ...[
                                         const SizedBox(height: 8),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: BorderRadius.circular(12),
                                             child: Image.network(
                                               imgUrl,
                                               fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) =>
-                                                  const SizedBox.shrink(),
+                                              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                                             ),
                                           ),
                                         ),
                                       ],
                                       const SizedBox(height: 4),
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          4,
-                                          0,
-                                          4,
-                                          4,
-                                        ),
+                                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
                                         child: Row(
                                           children: [
                                             IconButton(
                                               onPressed: () => _onToggleLike(p),
                                               icon: Icon(
-                                                p.likedByMe
-                                                    ? Icons.favorite
-                                                    : Icons.favorite_border,
-                                                color: p.likedByMe
-                                                    ? cs.primary
-                                                    : cs.onSurface,
+                                                p.likedByMe ? Icons.favorite : Icons.favorite_border,
+                                                color: p.likedByMe ? cs.primary : cs.onSurface,
                                               ),
                                             ),
-                                            Text(
-                                              '${p.likeCount}',
-                                              style: TextStyle(
-                                                color: cs.onSurface,
-                                              ),
-                                            ),
+                                            Text('${p.likeCount}', style: TextStyle(color: cs.onSurface)),
                                             const SizedBox(width: 8),
                                             TextButton.icon(
-                                              onPressed: () =>
-                                                  _showCommentsSheet(p),
-                                              icon: Icon(
-                                                Icons.mode_comment_outlined,
-                                                color: cs.onSurface,
-                                              ),
+                                              onPressed: () => _showCommentsSheet(p),
+                                              icon: Icon(Icons.mode_comment_outlined, color: cs.onSurface),
                                               label: Text(
-                                                l.commentsCount(
-                                                  p.comments.length,
-                                                ),
-                                                style: TextStyle(
-                                                  color: cs.onSurface,
-                                                ),
+                                                l.commentsCount(p.comments.length),
+                                                style: TextStyle(color: cs.onSurface),
                                               ),
                                             ),
                                           ],
@@ -796,16 +682,12 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: cs.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (_) {
         return StatefulBuilder(
           builder: (ctx, setStateSB) {
             return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(ctx).viewInsets.bottom,
-              ),
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
               child: SizedBox(
                 height: MediaQuery.of(ctx).size.height * 0.65,
                 child: Column(
@@ -814,19 +696,12 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                     Container(
                       width: 40,
                       height: 4,
-                      decoration: BoxDecoration(
-                        color: cs.outlineVariant,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                      decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       l.commentsTitle,
-                      style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     Divider(color: cs.outlineVariant, height: 24),
 
@@ -834,8 +709,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: localPost.comments.length,
-                        separatorBuilder: (_, __) =>
-                            Divider(color: cs.outlineVariant),
+                        separatorBuilder: (_, __) => Divider(color: cs.outlineVariant),
                         itemBuilder: (_, i) {
                           final c = localPost.comments[i];
                           return Row(
@@ -843,10 +717,7 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                             children: [
                               CircleAvatar(
                                 child: Text(
-                                  c.author.name.isNotEmpty
-                                      ? c.author.name.characters.first
-                                            .toUpperCase()
-                                      : '?',
+                                  c.author.name.isNotEmpty ? c.author.name.characters.first.toUpperCase() : '?',
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -854,20 +725,12 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.author.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                    Text(c.author.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                                     Text(c.text),
                                     const SizedBox(height: 4),
                                     Text(
                                       _timeAgo(context, c.createdAt),
-                                      style: TextStyle(
-                                        color: cs.onSurfaceVariant,
-                                        fontSize: 12,
-                                      ),
+                                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -888,39 +751,26 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                             child: TextField(
                               controller: cCtrl,
                               enabled: !sending,
-                              decoration: InputDecoration(
-                                hintText: l.leaveACommentHint,
-                              ),
+                              decoration: InputDecoration(hintText: l.leaveACommentHint),
                             ),
                           ),
                           const SizedBox(width: 8),
                           sending
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
+                              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
                               : IconButton(
                                   icon: const Icon(Icons.send),
                                   onPressed: () async {
                                     final t = cCtrl.text.trim();
                                     if (t.isEmpty) return;
                                     setStateSB(() => sending = true);
-                                    final updated = await _onAddComment(
-                                      localPost,
-                                      t,
-                                    );
+                                    final updated = await _onAddComment(localPost, t);
                                     if (updated != null) {
                                       setStateSB(() {
                                         localPost = updated;
                                         cCtrl.clear();
                                       });
                                     }
-                                    await Future.delayed(
-                                      const Duration(milliseconds: 300),
-                                    );
+                                    await Future.delayed(const Duration(milliseconds: 300));
                                     setStateSB(() => sending = false);
                                   },
                                 ),

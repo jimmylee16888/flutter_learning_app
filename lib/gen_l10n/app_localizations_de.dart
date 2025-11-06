@@ -15,8 +15,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get continueAsGuest => 'Als Gast fortfahren';
 
   @override
-  String get noNetworkGuestTip =>
-      'Sie sind offline. Sie können als Gast fortfahren.';
+  String get noNetworkGuestTip => 'Sie sind offline. Sie können als Gast fortfahren.';
 
   @override
   String get appTitle => 'MyApp Demo';
@@ -91,8 +90,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fanMiniCards => 'Fan-Minikarten';
 
   @override
-  String get noMiniCardsHint =>
-      'Noch keine Minikarten. Tippe auf „Bearbeiten“, um welche hinzuzufügen.';
+  String get noMiniCardsHint => 'Noch keine Minikarten. Tippe auf „Bearbeiten“, um welche hinzuzufügen.';
 
   @override
   String get add => 'Hinzufügen';
@@ -131,8 +129,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountStatusSignedOut => 'Abgemeldet';
 
   @override
-  String get accountGuestSubtitle =>
-      'Im Gastmodus; Daten werden nur auf diesem Gerät gespeichert';
+  String get accountGuestSubtitle => 'Im Gastmodus; Daten werden nur auf diesem Gerät gespeichert';
 
   @override
   String get accountNoInfo => '(Keine Kontoinformationen)';
@@ -171,15 +168,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get stats_nav_subtitle =>
-      'Statistiken ansehen: Gesamtzahlen, Quellen, Top-Artists';
+  String get stats_nav_subtitle => 'Statistiken ansehen: Gesamtzahlen, Quellen, Top-Artists';
 
   @override
   String get welcomeTitle => 'Willkommen bei Mini Cards';
 
   @override
-  String get welcomeSubtitle =>
-      'Melde dich an oder erstelle ein Konto, um Einstellungen und Daten zu synchronisieren';
+  String get welcomeSubtitle => 'Melde dich an oder erstelle ein Konto, um Einstellungen und Daten zu synchronisieren';
 
   @override
   String get authSignIn => 'Anmelden';
@@ -369,8 +364,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wischen Sie nach oben, um zur Mini-Karten-Seite zu gelangen (einschließlich Scan/QR-Teilen).';
 
   @override
-  String get noMiniCardsEmptyList =>
-      'Derzeit keine Mini-Karten. Klicken Sie unten rechts auf +, um eine hinzuzufügen.';
+  String get noMiniCardsEmptyList => 'Derzeit keine Mini-Karten. Klicken Sie unten rechts auf +, um eine hinzuzufügen.';
 
   @override
   String get miniLocalImageBadge => 'Lokales Bild';
@@ -485,8 +479,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ready => 'Fertig';
 
   @override
-  String get fillNicknameAndBirthday =>
-      'Bitte Spitzname und Geburtstag ausfüllen';
+  String get fillNicknameAndBirthday => 'Bitte Spitzname und Geburtstag ausfüllen';
 
   @override
   String get navSocial => 'Sozial';
@@ -703,8 +696,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shareMultipleCards => 'Mehrere Karten teilen (Mehrfachauswahl)';
 
   @override
-  String get shareMultipleCardsSubtitle =>
-      'Karten auswählen, dann Fotos teilen oder JSON exportieren';
+  String get shareMultipleCardsSubtitle => 'Karten auswählen, dann Fotos teilen oder JSON exportieren';
 
   @override
   String get shareOneCard => 'Eine Karte zum Teilen auswählen…';
@@ -713,12 +705,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get selectCardsForJsonTitle => 'Karten zum Teilen auswählen (JSON)';
 
   @override
-  String get selectCardsForShareOrExportTitle =>
-      'Karten zum Teilen/Exportieren auswählen';
+  String get selectCardsForShareOrExportTitle => 'Karten zum Teilen/Exportieren auswählen';
 
   @override
-  String get blockedLocalImageNote =>
-      'Enthält lokale Bilder; Export nach JSON nicht möglich';
+  String get blockedLocalImageNote => 'Enthält lokale Bilder; Export nach JSON nicht möglich';
 
   @override
   String shareMultiplePhotos(int n) {
@@ -729,8 +719,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get exportJson => 'JSON exportieren';
 
   @override
-  String get exportJsonSkipLocalHint =>
-      'Karten mit ausschließlich lokalen Bildern werden übersprungen';
+  String get exportJsonSkipLocalHint => 'Karten mit ausschließlich lokalen Bildern werden übersprungen';
 
   @override
   String triedShareSummary(int total, int ok, int fail) {
@@ -741,8 +730,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shareQrCode => 'QR-Code teilen';
 
   @override
-  String get shareQrAutoBackendHint =>
-      'Bei großer Datenmenge wird automatisch in den Backend-Modus gewechselt';
+  String get shareQrAutoBackendHint => 'Bei großer Datenmenge wird automatisch in den Backend-Modus gewechselt';
 
   @override
   String get cannotShareByQr => 'Teilen per QR nicht möglich';
@@ -751,8 +739,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noImageUrl => 'Keine Bild-URL';
 
   @override
-  String get noImageUrlPhotoOnly =>
-      'Keine Bild-URL; nur direktes Teilen des Fotos möglich';
+  String get noImageUrlPhotoOnly => 'Keine Bild-URL; nur direktes Teilen des Fotos möglich';
 
   @override
   String get shareThisPhoto => 'Dieses Foto teilen';
@@ -769,8 +756,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get transportEmbeddedHint => 'Eingebettet (lokal)';
 
   @override
-  String get qrIdOnlyNotice =>
-      'Dieser QR enthält nur die Karten-ID. Der Empfänger ruft die Inhalte vom Backend ab.';
+  String get qrIdOnlyNotice => 'Dieser QR enthält nur die Karten-ID. Der Empfänger ruft die Inhalte vom Backend ab.';
 
   @override
   String get qrGenerationFailed => 'QR-Bild konnte nicht erzeugt werden';
@@ -779,8 +765,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pasteJsonTitle => 'JSON-Text einfügen';
 
   @override
-  String get pasteJsonHint =>
-      'Unterstützt mini_card_bundle_v2/v1 oder mini_card_v2/v1';
+  String get pasteJsonHint => 'Unterstützt mini_card_bundle_v2/v1 oder mini_card_v2/v1';
 
   @override
   String get import => 'Importieren';
@@ -823,8 +808,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get selectCardsToShareTitle => 'Karten zum Teilen auswählen';
 
   @override
-  String get hasImageUrlJsonOk =>
-      'Bild-URL vorhanden; Versand per JSON möglich';
+  String get hasImageUrlJsonOk => 'Bild-URL vorhanden; Versand per JSON möglich';
 
   @override
   String get exportJsonOnlyUrlHint =>

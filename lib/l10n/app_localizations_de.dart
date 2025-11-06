@@ -1125,4 +1125,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bullet_abuse =>
       'Missbräuchliche/illegale Uploads führen zur Sperrung';
+
+  @override
+  String get common_ok => 'OK';
+
+  @override
+  String get common_okDescription => 'Allgemeine OK-Schaltfläche';
+
+  @override
+  String get common_cancel => 'Abbrechen';
+
+  @override
+  String get common_cancelDescription => 'Allgemeine Abbrechen-Schaltfläche';
 }

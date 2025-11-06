@@ -105,15 +105,10 @@ class _ScanQrPageState extends State<ScanQrPage> {
       final String? owner = (map['owner'] as String?)?.trim();
 
       List<Map<String, dynamic>> rawList;
-      if ((type == 'mini_card_v2' || type == 'mini_card_v1') &&
-          map['card'] != null) {
+      if ((type == 'mini_card_v2' || type == 'mini_card_v1') && map['card'] != null) {
         rawList = [Map<String, dynamic>.from(map['card'])];
-      } else if ((type == 'mini_card_bundle_v2' ||
-              type == 'mini_card_bundle_v1') &&
-          map['cards'] is List) {
-        rawList = (map['cards'] as List)
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList();
+      } else if ((type == 'mini_card_bundle_v2' || type == 'mini_card_bundle_v1') && map['cards'] is List) {
+        rawList = (map['cards'] as List).map((e) => Map<String, dynamic>.from(e)).toList();
       } else {
         _toast(l.qrTypeUnsupported);
         return false;
@@ -130,19 +125,13 @@ class _ScanQrPageState extends State<ScanQrPage> {
         // 可選：下載圖片到本地
         if ((card.imageUrl ?? '').isNotEmpty) {
           try {
-            final p = await downloadImageToLocal(
-              card.imageUrl!,
-              preferName: card.id,
-            );
+            final p = await downloadImageToLocal(card.imageUrl!, preferName: card.id);
             card = card.copyWith(localPath: p);
           } catch (_) {}
         }
         if ((card.backImageUrl ?? '').isNotEmpty) {
           try {
-            final p2 = await downloadImageToLocal(
-              card.backImageUrl!,
-              preferName: '${card.id}_back',
-            );
+            final p2 = await downloadImageToLocal(card.backImageUrl!, preferName: '${card.id}_back');
             card = card.copyWith(backLocalPath: p2);
           } catch (_) {}
         }
@@ -335,9 +324,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
               controller: controller,
               onDetect: (cap) async {
                 if (handled) return;
-                final code = cap.barcodes.isNotEmpty
-                    ? cap.barcodes.first.rawValue
-                    : null;
+                final code = cap.barcodes.isNotEmpty ? cap.barcodes.first.rawValue : null;
                 if (code == null) return;
                 handled = true;
                 try {
@@ -357,10 +344,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
                 width: 240,
                 height: 240,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),

@@ -17,11 +17,7 @@ ImageProvider imageProviderForLocalPath(String path) {
 }
 
 Future<String?> pickAndCopyToLocal() async {
-  final x = await ImagePicker().pickImage(
-    source: ImageSource.gallery,
-    maxWidth: 4096,
-    maxHeight: 4096,
-  );
+  final x = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 4096, maxHeight: 4096);
   if (x == null) return null;
   final bytes = await x.readAsBytes();
   final ext = p.extension(x.path).isEmpty ? '.jpg' : p.extension(x.path);
@@ -50,11 +46,7 @@ Future<String> _saveBytesToLocal(Uint8List bytes, String filename) async {
 }
 
 /// 分享（行動/桌面）
-Future<void> shareLocalPath(
-  String? localPath, {
-  String? text,
-  String? imageUrl,
-}) async {
+Future<void> shareLocalPath(String? localPath, {String? text, String? imageUrl}) async {
   if (localPath != null && localPath.isNotEmpty) {
     await Share.shareXFiles([XFile(localPath)], text: text);
   } else if ((imageUrl ?? '').isNotEmpty) {

@@ -45,22 +45,16 @@ class _StatisticsViewState extends State<StatisticsView> {
     final store = context.watch<MiniCardStore>();
     final allCards = store.allCards();
 
-    final CardItem? selectedArtist = _artistPage > 0
-        ? artists[_artistPage - 1]
-        : null;
+    final CardItem? selectedArtist = _artistPage > 0 ? artists[_artistPage - 1] : null;
 
-    final List<MiniCardData> scopedCards = selectedArtist == null
-        ? allCards
-        : store.forOwner(selectedArtist.title);
+    final List<MiniCardData> scopedCards = selectedArtist == null ? allCards : store.forOwner(selectedArtist.title);
 
     final artistCount = artists.length;
     final totalCards = allCards.length;
 
     final (frontLocalCount, frontUrlCount) = _frontCounts(scopedCards);
 
-    final Map<String, int> cardsPerArtist = {
-      for (final a in artists) a.title: store.forOwner(a.title).length,
-    };
+    final Map<String, int> cardsPerArtist = {for (final a in artists) a.title: store.forOwner(a.title).length};
     final top5 = _topN(cardsPerArtist, 5);
 
     return Scaffold(
@@ -68,10 +62,7 @@ class _StatisticsViewState extends State<StatisticsView> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _Header(
-            title: l.stats_overview,
-            icon: Icons.dashboard_customize_outlined,
-          ),
+          _Header(title: l.stats_overview, icon: Icons.dashboard_customize_outlined),
           const SizedBox(height: 12),
 
           // ===== KPI Dashboard =====
@@ -86,31 +77,16 @@ class _StatisticsViewState extends State<StatisticsView> {
                 onPageChanged: (p) => setState(() => _artistPage = p),
               ),
               // 右上：小卡總數
-              _KPISimpleTile(
-                title: l.stats_card_total,
-                value: '$totalCards',
-                icon: Icons.style_outlined,
-              ),
+              _KPISimpleTile(title: l.stats_card_total, value: '$totalCards', icon: Icons.style_outlined),
               // 左下：正面來源 - 本地
-              _KPISimpleTile(
-                title: l.common_local,
-                value: '$frontLocalCount',
-                icon: Icons.sd_card,
-              ),
+              _KPISimpleTile(title: l.common_local, value: '$frontLocalCount', icon: Icons.sd_card),
               // 右下：正面來源 - 網址
-              _KPISimpleTile(
-                title: l.common_url,
-                value: '$frontUrlCount',
-                icon: Icons.link_outlined,
-              ),
+              _KPISimpleTile(title: l.common_url, value: '$frontUrlCount', icon: Icons.link_outlined),
             ],
           ),
 
           // 被滑到某位藝人時 → 顯示該藝人預覽
-          if (_artistPage > 0) ...[
-            const SizedBox(height: 8),
-            _ArtistPreviewStrip(artist: artists[_artistPage - 1]),
-          ],
+          if (_artistPage > 0) ...[const SizedBox(height: 8), _ArtistPreviewStrip(artist: artists[_artistPage - 1])],
 
           const SizedBox(height: 16),
 
@@ -126,16 +102,10 @@ class _StatisticsViewState extends State<StatisticsView> {
 
           // 各藝人前 N 長條圖
           if (cardsPerArtist.isNotEmpty) ...[
-            _Header(
-              title: l.stats_cards_per_artist_topN(5),
-              icon: Icons.leaderboard_outlined,
-            ),
+            _Header(title: l.stats_cards_per_artist_topN(5), icon: Icons.leaderboard_outlined),
             const SizedBox(height: 8),
             _BarChartCard(
-              data: {
-                for (final e in top5)
-                  (e.$1.isEmpty ? l.common_unnamed : e.$1): e.$2,
-              },
+              data: {for (final e in top5) (e.$1.isEmpty ? l.common_unnamed : e.$1): e.$2},
               unitSuffix: l.common_unit_cards,
               barHeight: 24,
               maxBars: 5,
@@ -153,25 +123,14 @@ class _StatisticsViewState extends State<StatisticsView> {
   }
 
   (int, int) _frontCounts(List<MiniCardData> list) {
-    final local = list
-        .where(
-          (c) => (c.imageUrl ?? '').isEmpty && (c.localPath ?? '').isNotEmpty,
-        )
-        .length;
+    final local = list.where((c) => (c.imageUrl ?? '').isEmpty && (c.localPath ?? '').isNotEmpty).length;
     final url = list.where((c) => (c.imageUrl ?? '').isNotEmpty).length;
     return (local, url);
   }
 
   List<Color> _nicePalette(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return [
-      cs.primary,
-      cs.tertiary,
-      cs.secondary,
-      cs.primaryContainer,
-      cs.tertiaryContainer,
-      cs.secondaryContainer,
-    ];
+    return [cs.primary, cs.tertiary, cs.secondary, cs.primaryContainer, cs.tertiaryContainer, cs.secondaryContainer];
   }
 }
 
@@ -201,11 +160,7 @@ class _KPIGridDashboard extends StatelessWidget {
 }
 
 class _KPISimpleTile extends StatelessWidget {
-  const _KPISimpleTile({
-    required this.title,
-    required this.value,
-    required this.icon,
-  });
+  const _KPISimpleTile({required this.title, required this.value, required this.icon});
 
   final String title;
   final String value;
@@ -224,18 +179,9 @@ class _KPISimpleTile extends StatelessWidget {
           children: [
             Icon(icon, size: 22, color: cs.primary),
             const Spacer(),
-            Text(
-              value,
-              style: text.displaySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                height: 0.95,
-              ),
-            ),
+            Text(value, style: text.displaySmall?.copyWith(fontWeight: FontWeight.w800, height: 0.95)),
             const SizedBox(height: 4),
-            Text(
-              title,
-              style: text.labelLarge?.copyWith(color: cs.onSurfaceVariant),
-            ),
+            Text(title, style: text.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
           ],
         ),
       ),
@@ -262,17 +208,9 @@ class _KPIArtistPagerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      _KpiCenter(
-        title: title,
-        value: '${artists.length}',
-        icon: Icons.people_alt_outlined,
-      ),
+      _KpiCenter(title: title, value: '${artists.length}', icon: Icons.people_alt_outlined),
       for (final a in artists)
-        _KpiCenter(
-          title: a.title,
-          value: '${store.forOwner(a.title).length}',
-          icon: Icons.person_outline,
-        ),
+        _KpiCenter(title: a.title, value: '${store.forOwner(a.title).length}', icon: Icons.person_outline),
     ];
 
     final cs = Theme.of(context).colorScheme;
@@ -284,18 +222,12 @@ class _KPIArtistPagerTile extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: cs.surfaceVariant.withOpacity(0.35),
-            ),
+            decoration: BoxDecoration(color: cs.surfaceVariant.withOpacity(0.35)),
             child: LayoutBuilder(
               builder: (_, c) => SizedBox(
                 width: c.maxWidth,
                 height: c.maxHeight,
-                child: PageView(
-                  controller: pager,
-                  onPageChanged: onPageChanged,
-                  children: pages,
-                ),
+                child: PageView(controller: pager, onPageChanged: onPageChanged, children: pages),
               ),
             ),
           ),
@@ -306,11 +238,7 @@ class _KPIArtistPagerTile extends StatelessWidget {
 }
 
 class _KpiCenter extends StatelessWidget {
-  const _KpiCenter({
-    required this.title,
-    required this.value,
-    required this.icon,
-  });
+  const _KpiCenter({required this.title, required this.value, required this.icon});
 
   final String title;
   final String value;
@@ -328,13 +256,7 @@ class _KpiCenter extends StatelessWidget {
           children: [
             Icon(icon, size: 22, color: cs.primary),
             const SizedBox(height: 8),
-            Text(
-              value,
-              style: text.displaySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                height: 0.95,
-              ),
-            ),
+            Text(value, style: text.displaySmall?.copyWith(fontWeight: FontWeight.w800, height: 0.95)),
             const SizedBox(height: 4),
             Text(
               title,
@@ -363,13 +285,7 @@ class _ArtistPreviewStrip extends StatelessWidget {
 
     if (kIsWeb && url.isNotEmpty) {
       // ✅ Web：即使被 CORS 擋，也不會出長錯誤字串
-      avatar = NoCorsImage(
-        url,
-        width: 64,
-        height: 64,
-        borderRadius: 10,
-        fit: BoxFit.cover,
-      );
+      avatar = NoCorsImage(url, width: 64, height: 64, borderRadius: 10, fit: BoxFit.cover);
     } else if (url.isNotEmpty) {
       // ✅ 手機/桌機 App：可用原生 NetworkImage
       avatar = ClipRRect(
@@ -402,11 +318,7 @@ class _ArtistPreviewStrip extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
-              Icons.swipe_left_alt_outlined,
-              size: 20,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.swipe_left_alt_outlined, size: 20, color: Colors.grey),
           ],
         ),
       ),
@@ -416,10 +328,7 @@ class _ArtistPreviewStrip extends StatelessWidget {
   Widget _fallbackBox(ColorScheme cs) => Container(
     width: 64,
     height: 64,
-    decoration: BoxDecoration(
-      color: cs.surfaceVariant,
-      borderRadius: BorderRadius.circular(10),
-    ),
+    decoration: BoxDecoration(color: cs.surfaceVariant, borderRadius: BorderRadius.circular(10)),
     alignment: Alignment.center,
     child: const Icon(Icons.person_outline),
   );
@@ -507,10 +416,7 @@ class _HBar extends StatelessWidget {
             Container(
               height: 12,
               width: w,
-              decoration: BoxDecoration(
-                color: color.surfaceVariant,
-                borderRadius: BorderRadius.circular(999),
-              ),
+              decoration: BoxDecoration(color: color.surfaceVariant, borderRadius: BorderRadius.circular(999)),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AnimatedContainer(
@@ -518,10 +424,7 @@ class _HBar extends StatelessWidget {
                   curve: Curves.easeOut,
                   height: 12,
                   width: w * frac,
-                  decoration: BoxDecoration(
-                    color: color.primary,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                  decoration: BoxDecoration(color: color.primary, borderRadius: BorderRadius.circular(999)),
                 ),
               ),
             ),
@@ -558,9 +461,7 @@ class _BarChartCard extends StatelessWidget {
       );
     }
     final entries = data.entries.toList();
-    final maxVal =
-        (entries.map((e) => e.value).fold<int>(0, (a, b) => a > b ? a : b))
-            .clamp(1, 1 << 30);
+    final maxVal = (entries.map((e) => e.value).fold<int>(0, (a, b) => a > b ? a : b)).clamp(1, 1 << 30);
     final palette = (colorPalette == null || colorPalette!.isEmpty)
         ? [Theme.of(context).colorScheme.primary]
         : colorPalette!;
@@ -621,9 +522,7 @@ class _BarRow extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(label, style: labelStyle ?? text.bodyMedium),
-                ),
+                Expanded(child: Text(label, style: labelStyle ?? text.bodyMedium)),
                 const SizedBox(width: 8),
                 Text('$value $unitSuffix', style: text.labelMedium),
               ],
@@ -644,10 +543,7 @@ class _BarRow extends StatelessWidget {
                   curve: Curves.easeOut,
                   height: barHeight,
                   width: w * frac,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
                 ),
               ],
             ),
