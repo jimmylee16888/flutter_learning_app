@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
+import 'package:flutter/foundation.dart';
+
+@immutable
 class MiniCardData {
   final String id;
   final String? imageUrl;
@@ -8,7 +11,7 @@ class MiniCardData {
   final String? backImageUrl;
   final String? backLocalPath;
 
-  // ⬅️ 新增：偶像（= 所屬 Card 的 title）
+  // 仍沿用 idol（之後建議改 cardId）
   final String? idol;
 
   final String? name;
@@ -17,8 +20,8 @@ class MiniCardData {
   final String? album;
   final String? cardType;
   final String note;
-  final List<String> tags;
-  final DateTime createdAt;
+  final List<String> tags; // → 不可變
+  final DateTime createdAt; // 建議 UTC
 
   const MiniCardData({
     required this.id,
@@ -26,16 +29,17 @@ class MiniCardData {
     this.localPath,
     this.backImageUrl,
     this.backLocalPath,
-    this.idol, // ⬅️ 新增
+    this.idol,
     this.name,
     this.serial,
     this.language,
     this.album,
     this.cardType,
     this.note = '',
-    this.tags = const [],
-    required this.createdAt,
-  });
+    List<String> tags = const [],
+    required DateTime createdAt,
+  }) : tags = tags,
+       createdAt = createdAt;
 
   MiniCardData copyWith({
     String? id,
@@ -43,7 +47,7 @@ class MiniCardData {
     String? localPath,
     String? backImageUrl,
     String? backLocalPath,
-    String? idol, // ⬅️ 新增
+    String? idol,
     String? name,
     String? serial,
     String? language,
@@ -58,33 +62,42 @@ class MiniCardData {
     localPath: localPath ?? this.localPath,
     backImageUrl: backImageUrl ?? this.backImageUrl,
     backLocalPath: backLocalPath ?? this.backLocalPath,
-    idol: idol ?? this.idol, // ⬅️ 新增
+    idol: idol ?? this.idol,
     name: name ?? this.name,
     serial: serial ?? this.serial,
     language: language ?? this.language,
     album: album ?? this.album,
     cardType: cardType ?? this.cardType,
     note: note ?? this.note,
-    tags: tags ?? this.tags,
+    tags: tags == null ? this.tags : List.unmodifiable(tags),
     createdAt: createdAt ?? this.createdAt,
   );
 
-  factory MiniCardData.fromJson(Map<String, dynamic> json) => MiniCardData(
-    id: json['id'] as String,
-    imageUrl: json['imageUrl'] as String?,
-    localPath: json['localPath'] as String?,
-    backImageUrl: json['backImageUrl'] as String?,
-    backLocalPath: json['backLocalPath'] as String?,
-    idol: json['idol'] as String?, // ⬅️ 新增
-    name: json['name'] as String?,
-    serial: json['serial'] as String?,
-    language: json['language'] as String?,
-    album: json['album'] as String?,
-    cardType: json['cardType'] as String?,
-    note: (json['note'] as String?) ?? '',
-    tags: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? const [],
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-  );
+  factory MiniCardData.fromJson(Map<String, dynamic> json) {
+    final parsed = DateTime.tryParse(json['createdAt'] as String? ?? '');
+    if (parsed == null) {
+      // 若你想寬鬆，可改回 DateTime.now().toUtc()
+      throw FormatException('MiniCardData.createdAt missing/invalid');
+    }
+    return MiniCardData(
+      id: json['id'] as String,
+      imageUrl: json['imageUrl'] as String?,
+      localPath: json['localPath'] as String?,
+      backImageUrl: json['backImageUrl'] as String?,
+      backLocalPath: json['backLocalPath'] as String?,
+      idol: json['idol'] as String?,
+      name: json['name'] as String?,
+      serial: json['serial'] as String?,
+      language: json['language'] as String?,
+      album: json['album'] as String?,
+      cardType: json['cardType'] as String?,
+      note: (json['note'] as String?) ?? '',
+      tags: ((json['tags'] as List?) ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+      createdAt: parsed.toUtc(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -92,7 +105,7 @@ class MiniCardData {
     'localPath': localPath,
     'backImageUrl': backImageUrl,
     'backLocalPath': backLocalPath,
-    'idol': idol, // ⬅️ 新增
+    'idol': idol,
     'name': name,
     'serial': serial,
     'language': language,
@@ -100,116 +113,6 @@ class MiniCardData {
     'cardType': cardType,
     'note': note,
     'tags': tags,
-    'createdAt': createdAt.toIso8601String(),
+    'createdAt': createdAt.toUtc().toIso8601String(),
   };
 }
-
-// import 'package:flutter/foundation.dart';
-
-// @immutable
-// class MiniCardData {
-//   final String id;
-
-//   // 既有欄位：視為「正面」
-//   final String? imageUrl; // front
-//   final String? localPath; // front
-
-//   // 新增：背面
-//   final String? backImageUrl;
-//   final String? backLocalPath;
-
-//   // 新增：可在ⓘ面板編輯的資訊
-//   final String? name; // 名稱
-//   final String? serial; // 序號
-//   final String? language; // 語言
-//   final String? album; // 專輯
-//   final String? cardType; // 卡種
-
-//   // 既有：備註 -> 仍保留
-//   final String note;
-
-//   // 新增：標籤（用於篩選 / 卡背顯示為 badge）
-//   final List<String> tags;
-
-//   final DateTime createdAt;
-
-//   const MiniCardData({
-//     required this.id,
-//     this.imageUrl,
-//     this.localPath,
-//     this.backImageUrl,
-//     this.backLocalPath,
-//     this.name,
-//     this.serial,
-//     this.language,
-//     this.album,
-//     this.cardType,
-//     this.note = '',
-//     this.tags = const [],
-//     required this.createdAt,
-//   });
-
-//   MiniCardData copyWith({
-//     String? id,
-//     String? imageUrl,
-//     String? localPath,
-//     String? backImageUrl,
-//     String? backLocalPath,
-//     String? name,
-//     String? serial,
-//     String? language,
-//     String? album,
-//     String? cardType,
-//     String? note,
-//     List<String>? tags,
-//     DateTime? createdAt,
-//   }) => MiniCardData(
-//     id: id ?? this.id,
-//     imageUrl: imageUrl ?? this.imageUrl,
-//     localPath: localPath ?? this.localPath,
-//     backImageUrl: backImageUrl ?? this.backImageUrl,
-//     backLocalPath: backLocalPath ?? this.backLocalPath,
-//     name: name ?? this.name,
-//     serial: serial ?? this.serial,
-//     language: language ?? this.language,
-//     album: album ?? this.album,
-//     cardType: cardType ?? this.cardType,
-//     note: note ?? this.note,
-//     tags: tags ?? this.tags,
-//     createdAt: createdAt ?? this.createdAt,
-//   );
-
-//   factory MiniCardData.fromJson(Map<String, dynamic> json) => MiniCardData(
-//     id: json['id'] as String,
-//     imageUrl: json['imageUrl'] as String?, // 既有：正面網址
-//     localPath: json['localPath'] as String?, // 既有：正面本地
-//     backImageUrl: json['backImageUrl'] as String?, // 新：背面網址
-//     backLocalPath: json['backLocalPath'] as String?, // 新：背面本地
-//     name: json['name'] as String?,
-//     serial: json['serial'] as String?,
-//     language: json['language'] as String?,
-//     album: json['album'] as String?,
-//     cardType: json['cardType'] as String?,
-//     note: (json['note'] as String?) ?? '',
-//     tags:
-//         (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? const [],
-//     createdAt:
-//         DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-//   );
-
-//   Map<String, dynamic> toJson() => {
-//     'id': id,
-//     'imageUrl': imageUrl,
-//     'localPath': localPath,
-//     'backImageUrl': backImageUrl,
-//     'backLocalPath': backLocalPath,
-//     'name': name,
-//     'serial': serial,
-//     'language': language,
-//     'album': album,
-//     'cardType': cardType,
-//     'note': note,
-//     'tags': tags,
-//     'createdAt': createdAt.toIso8601String(),
-//   };
-// }

@@ -18,7 +18,10 @@ import 'ad_provider.dart';
 import 'dart:io' as io show File;
 import 'dart:convert' show base64Encode;
 
-import '../../l10n/l10n.dart'; // ← 加這個
+import '../../l10n/l10n.dart';
+
+// 匯入訂閱服務
+import 'package:flutter_learning_app/services/subscription_service.dart';
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -26,7 +29,8 @@ class ExploreView extends StatefulWidget {
   State<ExploreView> createState() => _ExploreViewState();
 }
 
-class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStateMixin {
+class _ExploreViewState extends State<ExploreView>
+    with SingleTickerProviderStateMixin {
   final List<ExploreItem> _items = [];
   final _canvasKey = GlobalKey();
 
@@ -42,15 +46,22 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
   DateTime _lastSave = DateTime.fromMillisecondsSinceEpoch(0);
   bool _saveScheduled = false;
 
+  // 廣告是否顯示
+  VoidCallback? _entitlementListener;
+  bool get _isPaid => SubscriptionService.I.isPaid;
+
   @override
   void initState() {
     super.initState();
     _ticker = createTicker(_onTick)..start();
 
-    AdProvider.I.initialize().then((_) {
-      if (!mounted) return;
-      setState(() => _adInfo = AdProvider.I.renderInfo);
-    });
+    // 只有 free 才需要預先載入廣告資源
+    if (!_isPaid) {
+      AdProvider.I.initialize().then((_) {
+        if (!mounted) return;
+        setState(() => _adInfo = AdProvider.I.renderInfo);
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final loaded = await ExploreStore.I.load();
@@ -58,32 +69,35 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
         _items
           ..clear()
           ..addAll(loaded);
-        // 補廣告
-        if (!_items.any((e) => e.kind == ExploreKind.ad)) {
-          _items.add(
-            ExploreItem(
-              kind: ExploreKind.ad,
-              pos: const Offset(24, 120),
-              w: 324, // 180*1.8
-              h: 162, // 180*0.9
-              deletable: false,
-            ),
-          );
-          _persistNow();
-        }
       });
+      _syncAds(); // ← 依 entitlement 立刻加/移除廣告
     });
+
+    // 監聽 entitlement 改變（升級/降級即時同步）
+    _entitlementListener = () {
+      if (!mounted) return;
+      setState(_syncAds);
+    };
+    SubscriptionService.I.effective.addListener(_entitlementListener!);
   }
 
   @override
   void dispose() {
+    if (_entitlementListener != null) {
+      SubscriptionService.I.effective.removeListener(_entitlementListener!);
+    }
     _ticker.dispose();
     super.dispose();
   }
 
   List<Color> get _softPalette {
     final c = Theme.of(context).colorScheme;
-    return [c.primaryContainer, c.secondaryContainer, c.tertiaryContainer, c.surfaceVariant];
+    return [
+      c.primaryContainer,
+      c.secondaryContainer,
+      c.tertiaryContainer,
+      c.surfaceVariant,
+    ];
   }
 
   @override
@@ -99,8 +113,11 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
 
           return GestureDetector(
             onLongPressStart: (details) {
-              final box = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
-              final local = box?.globalToLocal(details.globalPosition) ?? details.localPosition;
+              final box =
+                  _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+              final local =
+                  box?.globalToLocal(details.globalPosition) ??
+                  details.localPosition;
               _spawnHearts(local);
             },
             child: Stack(
@@ -108,86 +125,107 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
               children: [
                 // 背景格線
                 Positioned.fill(
-                  child: CustomPaint(painter: GridPaperPainter(color: cs.outlineVariant.withOpacity(0.18))),
+                  child: CustomPaint(
+                    painter: GridPaperPainter(
+                      color: cs.outlineVariant.withOpacity(0.18),
+                    ),
+                  ),
                 ),
 
                 // 卡片 / 小球
-                ..._items.asMap().entries.map((entry) {
-                  final i = entry.key;
-                  final it = entry.value;
+                ..._items
+                    .asMap()
+                    .entries
+                    .where((entry) {
+                      // 付費時，不讓廣告進 UI 階段
+                      if (_isPaid && entry.value.kind == ExploreKind.ad)
+                        return false;
+                      return true;
+                    })
+                    .map((entry) {
+                      final i = entry.key;
+                      final it = entry.value;
 
-                  if (it.kind == ExploreKind.ball) {
-                    // 小球
-                    final d = it.ballDiameter;
-                    final clamped = _clamp(it.pos, Size(d, d), _canvasSize);
-                    if (clamped != it.pos) it.pos = clamped;
+                      if (it.kind == ExploreKind.ball) {
+                        // 小球
+                        final d = it.ballDiameter;
+                        final clamped = _clamp(it.pos, Size(d, d), _canvasSize);
+                        if (clamped != it.pos) it.pos = clamped;
 
-                    return Positioned(
-                      left: it.pos.dx,
-                      top: it.pos.dy,
-                      width: d,
-                      height: d,
-                      child: _BallBubble(
-                        item: it,
-                        canvasSize: _canvasSize,
-                        deletable: it.deletable,
-                        onDelete: () {
-                          setState(() => _items.removeAt(i));
-                          _persistSoon();
-                        },
-                        onChanged: () {
-                          _persistSoon();
-                          setState(() {});
-                        },
-                      ),
-                    );
-                  }
-
-                  // 其它種類：方卡/廣告
-                  final isAd = it.kind == ExploreKind.ad;
-                  final Size cardSize = Size(it.w, it.h);
-
-                  it.pos = _clamp(it.pos, cardSize, _canvasSize);
-
-                  return Positioned(
-                    left: it.pos.dx,
-                    top: it.pos.dy,
-                    width: cardSize.width,
-                    height: cardSize.height,
-                    child: DraggableCard(
-                      deletable: it.deletable,
-                      onDelete: it.deletable
-                          ? () {
+                        return Positioned(
+                          left: it.pos.dx,
+                          top: it.pos.dy,
+                          width: d,
+                          height: d,
+                          child: _BallBubble(
+                            item: it,
+                            canvasSize: _canvasSize,
+                            deletable: it.deletable,
+                            onDelete: () {
                               setState(() => _items.removeAt(i));
                               _persistSoon();
-                            }
-                          : null,
-                      onDragUpdate: (delta) {
-                        setState(() {
-                          it.pos = _clamp(it.pos + delta, cardSize, _canvasSize);
-                        });
-                        _persistSoon();
-                      },
-                      onResize: isAd
-                          ? null
-                          : (delta) {
-                              setState(() {
-                                const min = 100.0;
-                                final maxW = _canvasSize.width - it.pos.dx - 8;
-                                final maxH = _canvasSize.height - it.pos.dy - 8;
-                                it.w = (it.w + delta.dx).clamp(min, maxW);
-                                it.h = (it.h + delta.dy).clamp(min, maxH);
-                              });
-                              _persistSoon();
                             },
-                      child: _buildCard(it, cs),
-                    ),
-                  );
-                }),
+                            onChanged: () {
+                              _persistSoon();
+                              setState(() {});
+                            },
+                          ),
+                        );
+                      }
+
+                      // 其它種類：方卡/廣告
+                      final isAd = it.kind == ExploreKind.ad;
+                      final Size cardSize = Size(it.w, it.h);
+
+                      it.pos = _clamp(it.pos, cardSize, _canvasSize);
+
+                      return Positioned(
+                        left: it.pos.dx,
+                        top: it.pos.dy,
+                        width: cardSize.width,
+                        height: cardSize.height,
+                        child: DraggableCard(
+                          deletable: it.deletable,
+                          onDelete: it.deletable
+                              ? () {
+                                  setState(() => _items.removeAt(i));
+                                  _persistSoon();
+                                }
+                              : null,
+                          onDragUpdate: (delta) {
+                            setState(() {
+                              it.pos = _clamp(
+                                it.pos + delta,
+                                cardSize,
+                                _canvasSize,
+                              );
+                            });
+                            _persistSoon();
+                          },
+                          onResize: isAd
+                              ? null
+                              : (delta) {
+                                  setState(() {
+                                    const min = 100.0;
+                                    final maxW =
+                                        _canvasSize.width - it.pos.dx - 8;
+                                    final maxH =
+                                        _canvasSize.height - it.pos.dy - 8;
+                                    it.w = (it.w + delta.dx).clamp(min, maxW);
+                                    it.h = (it.h + delta.dy).clamp(min, maxH);
+                                  });
+                                  _persistSoon();
+                                },
+                          child: _buildCard(it, cs),
+                        ),
+                      );
+                    }),
 
                 // hearts 動畫層
                 Positioned.fill(
-                  child: IgnorePointer(child: CustomPaint(painter: HeartsPainter(_hearts))),
+                  child: IgnorePointer(
+                    child: CustomPaint(painter: HeartsPainter(_hearts)),
+                  ),
                 ),
 
                 // 右上：元件歸位
@@ -226,6 +264,7 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
   /// ===== UI =====
 
   Widget _buildCard(ExploreItem it, ColorScheme cs) {
+    final l = context.l10n; // ← 新增
     final bg = _softPalette[it.hashCode % _softPalette.length];
     const radius = 20.0;
 
@@ -236,7 +275,9 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
           borderRadius: BorderRadius.circular(radius),
           child: DecoratedBox(
             decoration: BoxDecoration(color: bg),
-            child: img == null ? _EmptyCenter(icon: Icons.photo, hint: '未選擇照片') : Image(image: img, fit: BoxFit.cover),
+            child: img == null
+                ? _EmptyCenter(icon: Icons.photo, hint: l.exploreNoPhoto)
+                : Image(image: img, fit: BoxFit.cover),
           ),
         );
 
@@ -248,10 +289,11 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
             alignment: Alignment.center,
             padding: const EdgeInsets.all(14),
             child: Text(
-              it.quote ?? 'Tap 以編輯引言',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontStyle: FontStyle.italic, color: cs.onPrimaryContainer),
+              it.quote ?? l.exploreTapToEditQuote,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: cs.onPrimaryContainer,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -269,6 +311,7 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
         );
 
       case ExploreKind.ad:
+        if (_isPaid) return const SizedBox.shrink(); // 雙保險
         final info = _adInfo;
         return ClipRRect(
           borderRadius: BorderRadius.circular(radius),
@@ -294,12 +337,18 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
                   right: 10,
                   top: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.25),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text('AD', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'AD',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -315,8 +364,12 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
   /// ===== helpers =====
 
   Offset _clamp(Offset off, Size size, Size canvas) {
-    final dx = off.dx.clamp(8.0, math.max(8.0, canvas.width - 8.0 - size.width)).toDouble();
-    final dy = off.dy.clamp(8.0, math.max(8.0, canvas.height - 8.0 - size.height)).toDouble();
+    final dx = off.dx
+        .clamp(8.0, math.max(8.0, canvas.width - 8.0 - size.width))
+        .toDouble();
+    final dy = off.dy
+        .clamp(8.0, math.max(8.0, canvas.height - 8.0 - size.height))
+        .toDouble();
     return Offset(dx, dy);
   }
 
@@ -340,29 +393,49 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
 
   Future<void> _showAddSheet() async {
     final cs = Theme.of(context).colorScheme;
+    final l = context.l10n; // ← 新增
     final kind = await showModalBottomSheet<ExploreKind>(
       context: context,
       showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: Wrap(
             runSpacing: 8,
             children: [
-              _AddTile(icon: Icons.photo, label: '照片卡', onTap: () => Navigator.pop(context, ExploreKind.photo)),
-              _AddTile(icon: Icons.format_quote, label: '引言卡', onTap: () => Navigator.pop(context, ExploreKind.quote)),
-              _AddTile(icon: Icons.event, label: '生日倒數', onTap: () => Navigator.pop(context, ExploreKind.countdown)),
+              _AddTile(
+                icon: Icons.photo,
+                label: l.exploreAddPhoto, // ← "照片卡"
+                onTap: () => Navigator.pop(context, ExploreKind.photo),
+              ),
+              _AddTile(
+                icon: Icons.format_quote,
+                label: l.exploreAddQuote, // ← "引言卡"
+                onTap: () => Navigator.pop(context, ExploreKind.quote),
+              ),
+              _AddTile(
+                icon: Icons.event,
+                label: l.exploreAddBirthday, // ← "生日倒數"
+                onTap: () => Navigator.pop(context, ExploreKind.countdown),
+              ),
               _AddTile(
                 icon: Icons.sports_baseball,
-                label: '新增小球',
+                label: l.exploreAddBall, // ← "新增小球"
                 onTap: () => Navigator.pop(context, ExploreKind.ball),
               ),
-              Divider(color: cs.outlineVariant),
-              ListTile(
-                title: Text('廣告已內建', style: TextStyle(color: cs.outline)),
-              ),
+              if (!_isPaid) ...[
+                Divider(color: cs.outlineVariant),
+                ListTile(
+                  title: Text(
+                    l.exploreAdBuiltIn, // ← "廣告已內建"
+                    style: TextStyle(color: cs.outline),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -398,12 +471,12 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
 
         break;
       case ExploreKind.quote:
-        final text = await _promptText('輸入一句話');
+        final text = await _promptText(context.l10n.exploreEnterAQuote);
         if (text == null) return;
         item.quote = text;
         break;
       case ExploreKind.countdown:
-        final t = await _promptText('偶像/事件名稱（例如：Sakura 生日）');
+        final t = await _promptText(context.l10n.exploreCountdownTitleHint);
         if (t == null) return;
         final d = await showDatePicker(
           context: context,
@@ -451,8 +524,14 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
         title: Text(title),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('確定')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, c.text.trim()),
+            child: const Text('確定'),
+          ),
         ],
       ),
     );
@@ -460,6 +539,7 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
 
   // 建立小球設定（emoji 或相片 + 大小）
   Future<_BallConfig?> _promptBall() async {
+    final l = context.l10n;
     final emojiCtl = TextEditingController(text: '🎈');
     double diameter = 80;
     String? imagePath;
@@ -474,14 +554,21 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
             children: [
               TextField(
                 controller: emojiCtl,
-                decoration: const InputDecoration(labelText: 'Emoji（留空則使用相片）'),
+                decoration: InputDecoration(
+                  labelText: l.exploreBallEmojiHint,
+                ), // ← 改
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Text('大小'),
+                  Text(l.exploreSize), // ← 改
                   Expanded(
-                    child: Slider(min: 48, max: 160, value: diameter, onChanged: (v) => setState(() => diameter = v)),
+                    child: Slider(
+                      min: 48,
+                      max: 160,
+                      value: diameter,
+                      onChanged: (v) => setState(() => diameter = v),
+                    ),
                   ),
                   Text(diameter.toInt().toString()),
                 ],
@@ -489,12 +576,15 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () async {
-                  final x = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  final x = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                  );
                   if (x != null) {
                     if (kIsWeb) {
                       final bytes = await x.readAsBytes();
                       final mime = x.mimeType ?? 'image/png';
-                      imagePath = 'data:$mime;base64,${base64Encode(bytes)}'; // Web 用 data URI
+                      imagePath =
+                          'data:$mime;base64,${base64Encode(bytes)}'; // Web 用 data URI
                     } else {
                       imagePath = x.path;
                     }
@@ -502,18 +592,30 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
                   }
                 },
                 icon: const Icon(Icons.photo),
-                label: Text(imagePath == null ? '選擇相片…' : '已選擇相片'),
+                label: Text(
+                  imagePath == null ? l.explorePickPhoto : l.explorePickedPhoto,
+                ),
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.commonCancel),
+            ),
             FilledButton(
               onPressed: () {
                 final e = emojiCtl.text.trim();
-                Navigator.pop(ctx, _BallConfig(emoji: e.isEmpty ? null : e, imagePath: imagePath, diameter: diameter));
+                Navigator.pop(
+                  ctx,
+                  _BallConfig(
+                    emoji: e.isEmpty ? null : e,
+                    imagePath: imagePath,
+                    diameter: diameter,
+                  ),
+                );
               },
-              child: const Text('確定'),
+              child: Text(l.commonOk),
             ),
           ],
         ),
@@ -536,7 +638,9 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
       for (final it in _items) {
         if (it.kind == ExploreKind.ad || it.kind == ExploreKind.ball) continue;
         final szW = it.w, szH = it.h;
-        final cardX = (x1 + (colW - szW) * 0.5).clamp(8.0, width - 8.0 - szW).toDouble();
+        final cardX = (x1 + (colW - szW) * 0.5)
+            .clamp(8.0, width - 8.0 - szW)
+            .toDouble();
         it.pos = Offset(cardX, y);
         if (x1 == padding) {
           x1 = x2;
@@ -546,11 +650,14 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
         }
       }
 
-      final ad = _items.firstWhere((e) => e.kind == ExploreKind.ad);
-      final adSize = Size(ad.w, ad.h);
-      final adX = (_canvasSize.width - adSize.width) / 2;
-      final adY = (_canvasSize.height - adSize.height - padding);
-      ad.pos = _clamp(Offset(adX, adY), adSize, _canvasSize);
+      final adIndex = _items.indexWhere((e) => e.kind == ExploreKind.ad);
+      if (!_isPaid && adIndex != -1) {
+        final ad = _items[adIndex];
+        final adSize = Size(ad.w, ad.h);
+        final adX = (_canvasSize.width - adSize.width) / 2;
+        final adY = (_canvasSize.height - adSize.height - padding);
+        ad.pos = _clamp(Offset(adX, adY), adSize, _canvasSize);
+      }
     });
   }
 
@@ -576,7 +683,9 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
   }
 
   void _onTick(Duration elapsed) {
-    final dt = (_lastTick == Duration.zero) ? 0.0 : (elapsed - _lastTick).inMilliseconds / 1000.0;
+    final dt = (_lastTick == Duration.zero)
+        ? 0.0
+        : (elapsed - _lastTick).inMilliseconds / 1000.0;
     _lastTick = elapsed;
     if (dt == 0.0) return;
 
@@ -663,10 +772,48 @@ class _ExploreViewState extends State<ExploreView> with SingleTickerProviderStat
     _lastSave = DateTime.now();
     ExploreStore.I.save(_items);
   }
+
+  /// 依 entitlement 同步是否存在廣告 & 釋放/初始化資源
+  void _syncAds() {
+    final hasAd = _items.any((e) => e.kind == ExploreKind.ad);
+
+    if (_isPaid) {
+      // 付費：資料層移除廣告，並釋放 banner 資源
+      if (hasAd) {
+        _items.removeWhere((e) => e.kind == ExploreKind.ad);
+        _persistSoon();
+      }
+      _adInfo = null;
+    } else {
+      // free：需要一張廣告卡 & 準備資源
+      if (!hasAd) {
+        _items.add(
+          ExploreItem(
+            kind: ExploreKind.ad,
+            pos: const Offset(24, 120),
+            w: 324,
+            h: 162,
+            deletable: false,
+          ),
+        );
+        _persistSoon();
+      }
+      if (_adInfo == null) {
+        AdProvider.I.initialize().then((_) {
+          if (!mounted) return;
+          setState(() => _adInfo = AdProvider.I.renderInfo);
+        });
+      }
+    }
+  }
 }
 
 class _AddTile extends StatelessWidget {
-  const _AddTile({required this.icon, required this.label, required this.onTap});
+  const _AddTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -744,8 +891,14 @@ class _BallBubbleState extends State<_BallBubble> {
       },
       onPanUpdate: (details) {
         final next = Offset(
-          (it.pos.dx + details.delta.dx).clamp(8.0, widget.canvasSize.width - 8.0 - d),
-          (it.pos.dy + details.delta.dy).clamp(8.0, widget.canvasSize.height - 8.0 - d),
+          (it.pos.dx + details.delta.dx).clamp(
+            8.0,
+            widget.canvasSize.width - 8.0 - d,
+          ),
+          (it.pos.dy + details.delta.dy).clamp(
+            8.0,
+            widget.canvasSize.height - 8.0 - d,
+          ),
         );
         setState(() => it.pos = next);
         widget.onChanged();
@@ -782,7 +935,11 @@ class _BallBubbleState extends State<_BallBubble> {
                   onTap: widget.onDelete,
                   child: const Padding(
                     padding: EdgeInsets.all(6),
-                    child: Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

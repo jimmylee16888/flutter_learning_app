@@ -452,10 +452,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorFrontLocalRequired => '앞면 로컬 사진을 선택하거나 URL로 다시 전환하세요.';
 
   @override
-  String get userProfileTitle => '사용자 설정';
+  String get userProfileTitle => '사용자';
 
   @override
-  String get userProfileTile => '사용자 설정';
+  String get userProfileTile => '사용자';
 
   @override
   String get nicknameLabel => '닉네임';
@@ -1026,28 +1026,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get badge_coming_soon => '곧 제공';
 
   @override
-  String get feature_external_images => '외부 이미지(URL)';
+  String get feature_external_images => '클라우드 공간 5GB (멀티 디바이스 동기화)';
 
   @override
-  String get feature_small_cloud_space => '소용량 클라우드';
+  String get feature_small_cloud_space => '카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보';
 
   @override
-  String get feature_multi_device_sync => '다중 기기 동기화';
+  String get feature_multi_device_sync => '멀티 디바이스 동기화';
 
   @override
-  String get feature_upload_local_images => '로컬 이미지 업로드';
+  String get feature_upload_local_images => '클라우드 공간 10GB (멀티 디바이스 동기화)';
 
   @override
-  String get feature_priority_support => '우선 지원';
+  String get feature_priority_support => '카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보';
 
   @override
-  String get feature_large_storage => '대용량 클라우드';
+  String get feature_large_storage => '클라우드 공간 50GB (멀티 디바이스 동기화)';
 
   @override
-  String get feature_album_report => '앨범 리포트(예고)';
+  String get feature_album_report => '카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보';
 
   @override
-  String get feature_roadmap_advance => '고급 기능(예고)';
+  String get feature_roadmap_advance => '고급 기능 (예고)';
 
   @override
   String get plan_badge_recommended => '추천';
@@ -1108,4 +1108,205 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get common_cancelDescription => '일반 취소 버튼';
+
+  @override
+  String get tutorial_title => '사용 가이드';
+
+  @override
+  String get tutorial_tab_cards => '카드';
+
+  @override
+  String get tutorial_tab_social => '소셜';
+
+  @override
+  String get tutorial_tab_explore => '탐색';
+
+  @override
+  String get tutorial_tab_more => '더보기';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => '아티스트 카드 추가';
+
+  @override
+  String get tutorial_cards_tags_addMini => '미니 카드 추가';
+
+  @override
+  String get tutorial_cards_tags_editDelete => '편집 / 삭제';
+
+  @override
+  String get tutorial_cards_tags_info => '미니 카드 정보';
+
+  @override
+  String get tutorial_cards_addArtist_title => '“아티스트 카드” 추가';
+
+  @override
+  String get tutorial_cards_addArtist_s1 => '카드 화면 오른쪽 하단의 “＋”를 탭하세요.';
+
+  @override
+  String get tutorial_cards_addArtist_s2 => '로컬 이미지를 선택하거나 이미지 URL을 붙여넣기.';
+
+  @override
+  String get tutorial_cards_addArtist_s3 => '오른쪽 스와이프: 정보 편집, 왼쪽 스와이프: 카드 삭제.';
+
+  @override
+  String get tutorial_cards_addMini_title => '“미니 카드” 추가';
+
+  @override
+  String get tutorial_cards_addMini_s1 => '아무 “아티스트 카드”나 탭해 상세로 이동.';
+
+  @override
+  String get tutorial_cards_addMini_s2 => '하단 미니 카드 영역을 탭/위로 스와이프 → 뷰어 진입.';
+
+  @override
+  String get tutorial_cards_addMini_s3 => '맨 왼쪽/오른쪽 페이지에서 QR 스캔 또는 편집 열기.';
+
+  @override
+  String get tutorial_cards_addMini_s4 =>
+      '편집 화면 오른쪽 하단 “＋”로 추가, 같은 화면에서 삭제 가능.';
+
+  @override
+  String get tutorial_cards_info_title => '“미니 카드 정보” 관리';
+
+  @override
+  String get tutorial_cards_info_s1 => '추가 후 뷰어에 표시, 탭하면 뒤집기.';
+
+  @override
+  String get tutorial_cards_info_s2 => '뒤면 오른쪽 상단 “정보”에서 이름/번호/앨범/종류/메모/태그 편집.';
+
+  @override
+  String get tutorial_cards_info_s3 => '태그로 빠른 필터링 및 더 정확한 검색 가능.';
+
+  @override
+  String get tutorial_cards_note_json => '팁: 오른쪽 상단에서 JSON 다운로드와 일괄 가져오기 지원.';
+
+  @override
+  String get tutorial_social_tags_primary => '친구 / 인기 / 팔로잉';
+
+  @override
+  String get tutorial_social_tags_postComment => '게시 & 댓글';
+
+  @override
+  String get tutorial_social_tags_lists => '리스트 관리';
+
+  @override
+  String get tutorial_social_browse_title => '게시물 보기';
+
+  @override
+  String get tutorial_social_browse_s1 => '상단 탭에서 “친구”, “인기”, “팔로잉” 전환.';
+
+  @override
+  String get tutorial_social_browse_s2 => '각 탭에서 보기/좋아요/댓글 가능.';
+
+  @override
+  String get tutorial_social_post_title => '게시 & 댓글';
+
+  @override
+  String get tutorial_social_post_s1 => '오른쪽 하단 “연필” 버튼으로 게시.';
+
+  @override
+  String get tutorial_social_post_s2 => '게시물은 “인기”와 “친구”에 표시(친구가 상호작용).';
+
+  @override
+  String get tutorial_social_list_title => '리스트 관리';
+
+  @override
+  String get tutorial_social_list_s1 => '오른쪽 상단 “#”: 친구 리스트 편집.';
+
+  @override
+  String get tutorial_social_list_s2 => '오른쪽 상단 “명함”: 팔로잉 리스트 편집.';
+
+  @override
+  String get tutorial_explore_wall_title => '아이돌 배경 자유 제작';
+
+  @override
+  String get tutorial_explore_wall_s1 => '사진/슬로건/스티커로 개성 있게 꾸미기.';
+
+  @override
+  String get tutorial_explore_wall_s2 => '“생일 디데이” 위젯 추가 가능.';
+
+  @override
+  String get tutorial_more_settings_title => '설정 & 사용자';
+
+  @override
+  String get tutorial_more_settings_s1 => '“설정”: 테마, 언어, 알림 등.';
+
+  @override
+  String get tutorial_more_settings_s2 => '“사용자 설정”: 닉네임, 아바타, 로그인 방식.';
+
+  @override
+  String get tutorial_more_stats_title => '통계';
+
+  @override
+  String get tutorial_more_stats_s1 => '아티스트 수, 미니 카드 수, 출처(로컬/온라인) 확인.';
+
+  @override
+  String get tutorial_more_stats_s2 => '랭크/업적을 통해 수집 여정을 기록.';
+
+  @override
+  String get tutorial_more_dex_title => '도감';
+
+  @override
+  String get tutorial_more_dex_s1 => '모든 카드를 한눈에, 검색/필터 지원.';
+
+  @override
+  String get tutorial_faq_q1 => '미니 카드를 빠르게 여러 장 추가하려면?';
+
+  @override
+  String get tutorial_faq_a1 =>
+      '미니 카드 보기 페이지 오른쪽 상단에는 두 개의 버튼이 있습니다. 왼쪽 버튼은 JSON 파일의 일괄 추가를 지원하며, 오른쪽 버튼은 해당 아티스트의 카드 JSON 파일을 다운로드할 수 있습니다.';
+
+  @override
+  String get tutorial_faq_q2 => 'QR / JSON 가져오기는 어디에 있나요?';
+
+  @override
+  String get tutorial_faq_a2 => '뷰어의 맨 왼쪽/오른쪽, 또는 “더보기” 메뉴의 “가져오기”.';
+
+  @override
+  String get tutorial_faq_q3 => '태그는 무엇에 쓰나요?';
+
+  @override
+  String get tutorial_faq_a3 => '뷰어에서 빠른 필터, 더 정확한 검색에 도움.';
+
+  @override
+  String get tutorial_faq_q4 => '언어와 테마 변경은?';
+
+  @override
+  String get tutorial_faq_a4 => '“더보기 → 설정”에서 앱 언어와 라이트/다크 전환.';
+
+  @override
+  String get tutorial_faq_q5 => '소셜 게시물은 어디에 표시되나요?';
+
+  @override
+  String get tutorial_faq_a5 => '“인기”와 “친구”에 표시되며, 친구가 상호작용할 수 있습니다.';
+
+  @override
+  String get postHintShareSomething => '무엇을 공유하시겠어요?';
+
+  @override
+  String get postAlbum => '앨범';
+
+  @override
+  String get postPublish => '게시';
+
+  @override
+  String get postTags => '태그';
+
+  @override
+  String get postAddTagHint => '태그를 추가하고 Enter 키를 누르세요';
+
+  @override
+  String get postAdd => '추가';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return '태그는 최대 $max개';
+  }
 }

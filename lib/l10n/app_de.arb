@@ -173,8 +173,8 @@
   "errorFrontImageUrlRequired": "Bitte geben Sie eine URL für das Bild der Vorderseite ein oder wechseln Sie zu lokal.",
   "errorFrontLocalRequired": "Bitte wählen Sie ein lokales Foto der Vorderseite aus oder wechseln Sie zurück zur URL.",
 
-  "userProfileTitle": "Benutzereinstellungen",
-  "userProfileTile": "Benutzereinstellungen",
+  "userProfileTitle": "Benutzer",
+  "userProfileTile": "Benutzer",
   "nicknameLabel": "Spitzname",
   "nicknameRequired": "Spitzname ist erforderlich",
   "notSet": "Nicht festgelegt",
@@ -449,13 +449,13 @@
   "upgrade_card_desc": "Mit den Bezahlplänen kommen lokale Uploads, mehr Speicher und Geräte-Sync.",
   "badge_coming_soon": "Bald verfügbar",
 
-  "feature_external_images": "Externe Bilder (URL)",
-  "feature_small_cloud_space": "Kleiner Cloud-Speicher",
-  "feature_multi_device_sync": "Mehrgeräte-Sync",
-  "feature_upload_local_images": "Lokale Bilder hochladen",
-  "feature_priority_support": "Priorisierter Support",
-  "feature_large_storage": "Großer Cloud-Speicher",
-  "feature_album_report": "Album-Reports (Vorschau)",
+  "feature_external_images": "5 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
+  "feature_small_cloud_space": "Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details",
+  "feature_multi_device_sync": "Geräteübergreifende Synchronisierung",
+  "feature_upload_local_images": "10 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
+  "feature_priority_support": "Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details",
+  "feature_large_storage": "50 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
+  "feature_album_report": "Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details",
   "feature_roadmap_advance": "Erweiterte Funktionen (Vorschau)",
 
   "plan_badge_recommended": "Empfohlen",
@@ -480,6 +480,100 @@
   "common_ok": "OK",
   "common_okDescription": "Allgemeine OK-Schaltfläche",
   "common_cancel": "Abbrechen",
-  "common_cancelDescription": "Allgemeine Abbrechen-Schaltfläche"
+  "common_cancelDescription": "Allgemeine Abbrechen-Schaltfläche",
+
+  "tutorial_title": "Anleitung",
+  "tutorial_tab_cards": "Karten",
+  "tutorial_tab_social": "Social",
+  "tutorial_tab_explore": "Entdecken",
+  "tutorial_tab_more": "Mehr",
+  "tutorial_tab_faq": "FAQ",
+
+  "tutorial_cards_tags_addArtist": "Artist-Karte hinzufügen",
+  "tutorial_cards_tags_addMini": "Mini-Karte hinzufügen",
+  "tutorial_cards_tags_editDelete": "Bearbeiten / Löschen",
+  "tutorial_cards_tags_info": "Mini-Karteninfos",
+
+  "tutorial_cards_addArtist_title": "„Artist-Karte“ hinzufügen",
+  "tutorial_cards_addArtist_s1": "Tippe rechts unten auf „＋ Artist-Karte hinzufügen“.",
+  "tutorial_cards_addArtist_s2": "Wähle ein lokales Bild oder füge eine Bild-URL ein.",
+  "tutorial_cards_addArtist_s3": "Wische rechts zum Bearbeiten, links zum Löschen der Karte.",
+
+  "tutorial_cards_addMini_title": "„Mini-Karte“ hinzufügen",
+  "tutorial_cards_addMini_s1": "Tippe eine beliebige „Artist-Karte“, um Details zu öffnen.",
+  "tutorial_cards_addMini_s2": "Tippe den Mini-Kartenbereich oder wische nach oben → Viewer.",
+  "tutorial_cards_addMini_s3": "Ganz links/rechts: QR scannen oder Editor zum Hinzufügen öffnen.",
+  "tutorial_cards_addMini_s4": "„＋“ unten rechts im Editor zum Hinzufügen; Löschen auf derselben Seite.",
+
+  "tutorial_cards_info_title": "„Mini-Karteninfos“ verwalten",
+  "tutorial_cards_info_s1": "Nach dem Hinzufügen erscheint die Karte im Viewer; tippe zum Umdrehen.",
+  "tutorial_cards_info_s2": "Oben rechts „Info“: Name, Nummer, Album, Typ, Notiz, Tags bearbeiten.",
+  "tutorial_cards_info_s3": "Mit Tags filterst du schneller und suchst präziser.",
+
+  "tutorial_cards_note_json": "Tipp: Rechts oben kannst du JSON herunterladen und Stapelimport nutzen.",
+
+  "tutorial_social_tags_primary": "Freunde / Trends / Folgen",
+  "tutorial_social_tags_postComment": "Posten & kommentieren",
+  "tutorial_social_tags_lists": "Listen verwalten",
+
+  "tutorial_social_browse_title": "Beiträge ansehen",
+  "tutorial_social_browse_s1": "Oben zwischen „Freunde“, „Trends“, „Folgen“ wechseln.",
+  "tutorial_social_browse_s2": "In allen Tabs kannst du ansehen, liken und kommentieren.",
+
+  "tutorial_social_post_title": "Posten & kommentieren",
+  "tutorial_social_post_s1": "Rechts unten mit dem „Stift“ posten.",
+  "tutorial_social_post_s2": "Dein Beitrag erscheint in „Trends“ und „Freunde“ (Freunde können interagieren).",
+
+  "tutorial_social_list_title": "Listen verwalten",
+  "tutorial_social_list_s1": "Oben rechts „#“: Freundesliste bearbeiten.",
+  "tutorial_social_list_s2": "Oben rechts „Karte“: Following-Liste bearbeiten.",
+
+  "tutorial_explore_wall_title": "Idol-Wallpaper gestalten",
+  "tutorial_explore_wall_s1": "Fotos, Slogans, Sticker – ganz nach deinem Stil.",
+  "tutorial_explore_wall_s2": "„Geburtstags-Countdown“-Widget hinzufügen.",
+
+  "tutorial_more_settings_title": "Einstellungen & Benutzer",
+  "tutorial_more_settings_s1": "„Einstellungen“: Thema, Sprache, Benachrichtigungen.",
+  "tutorial_more_settings_s2": "„Benutzereinstellungen“: Spitzname, Avatar, Login-Methoden.",
+
+  "tutorial_more_stats_title": "Statistik",
+  "tutorial_more_stats_s1": "Künstler, Mini-Kartenzahl, Quelle (lokal/online) ansehen.",
+  "tutorial_more_stats_s2": "Ranglisten & Achievements zeichnen deine Sammlung nach.",
+
+  "tutorial_more_dex_title": "Dex",
+  "tutorial_more_dex_s1": "Alle Karten im Überblick; Suche & Filter verfügbar.",
+
+  "tutorial_faq_q1": "Wie füge ich schnell viele Mini-Karten hinzu?",
+  "tutorial_faq_a1": "Auf der Mini-Karten-Ansichtsseite befinden sich oben rechts zwei Schaltflächen. Die linke Schaltfläche unterstützt das Batch-Importieren von JSON-Dateien, und über die rechte Schaltfläche kannst du die JSON-Datei der Karten dieses Künstlers herunterladen.",
+  "tutorial_faq_q2": "Wo importiere ich QR / JSON?",
+  "tutorial_faq_a2": "Ganz links/rechts im Viewer oder im „Mehr“-Menü unter „Importieren“.",
+  "tutorial_faq_q3": "Wofür sind Tags?",
+  "tutorial_faq_a3": "Zum schnellen Filtern und präziseren Suchen im Viewer.",
+  "tutorial_faq_q4": "Wie ändere ich Sprache & Thema?",
+  "tutorial_faq_a4": "Über „Mehr → Einstellungen“ Sprache und Hell/Dunkel wechseln.",
+  "tutorial_faq_q5": "Wo erscheinen Social-Beiträge?",
+  "tutorial_faq_a5": "In „Trends“ und „Freunde“; Freunde können interagieren.",
+
+  "postHintShareSomething": "Teile etwas …",
+  "postAlbum": "Album",
+  "postPublish": "Veröffentlichen",
+  "postTags": "Tags",
+  "postAddTagHint": "Tag hinzufügen und Enter drücken",
+  "postAdd": "Hinzufügen",
+
+  "postTagsCount": "{count}/{max}",
+  "@postTagsCount": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+
+  "postTagLimit": "Max. {max} Tags",
+  "@postTagLimit": {
+    "placeholders": {
+      "max": { "type": "int" }
+    }
+  }
 
 }

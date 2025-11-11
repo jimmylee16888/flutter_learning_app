@@ -452,31 +452,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorFrontLocalRequired => '表面のローカル写真を選択するか、URLに戻してください。';
 
   @override
-  String get userProfileTitle => '使用者設定';
+  String get userProfileTitle => 'ユーザー';
 
   @override
-  String get userProfileTile => '使用者設定';
+  String get userProfileTile => 'ユーザー';
 
   @override
-  String get nicknameLabel => '暱稱';
+  String get nicknameLabel => 'ニックネーム';
 
   @override
-  String get nicknameRequired => '暱稱不可空白';
+  String get nicknameRequired => 'ニックネームを入力してください';
 
   @override
   String get notSet => '未設定';
 
   @override
-  String get clearBirthday => '清除生日';
+  String get clearBirthday => '誕生日をクリア';
 
   @override
-  String get userProfileSaved => '已儲存使用者設定';
+  String get userProfileSaved => 'ユーザー設定を保存しました';
 
   @override
-  String get ready => '已完成';
+  String get ready => '完了';
 
   @override
-  String get fillNicknameAndBirthday => '請填寫暱稱與生日';
+  String get fillNicknameAndBirthday => 'ニックネームと誕生日を入力してください';
 
   @override
   String get navSocial => 'ソーシャル';
@@ -1026,28 +1026,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get badge_coming_soon => '近日公開';
 
   @override
-  String get feature_external_images => '外部画像（URL）';
+  String get feature_external_images => 'クラウド容量 5GB（デバイス間同期）';
 
   @override
-  String get feature_small_cloud_space => '少量クラウド容量';
+  String get feature_small_cloud_space => 'カード分類、カード裏面情報、ミニカード詳細';
 
   @override
-  String get feature_multi_device_sync => '複数端末同期';
+  String get feature_multi_device_sync => 'デバイス間同期';
 
   @override
-  String get feature_upload_local_images => 'ローカル画像アップロード';
+  String get feature_upload_local_images => 'クラウド容量 10GB（デバイス間同期）';
 
   @override
-  String get feature_priority_support => '優先サポート';
+  String get feature_priority_support => 'カード分類、カード裏面情報、ミニカード詳細';
 
   @override
-  String get feature_large_storage => '大容量クラウド';
+  String get feature_large_storage => 'クラウド容量 50GB（デバイス間同期）';
 
   @override
-  String get feature_album_report => 'アルバムレポート（予告）';
+  String get feature_album_report => 'カード分類、カード裏面情報、ミニカード詳細';
 
   @override
-  String get feature_roadmap_advance => '高度機能（予告）';
+  String get feature_roadmap_advance => '上級機能（予告）';
 
   @override
   String get plan_badge_recommended => 'おすすめ';
@@ -1108,4 +1108,204 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get common_cancelDescription => '汎用のキャンセルボタン';
+
+  @override
+  String get tutorial_title => '使い方ガイド';
+
+  @override
+  String get tutorial_tab_cards => 'カード';
+
+  @override
+  String get tutorial_tab_social => 'ソーシャル';
+
+  @override
+  String get tutorial_tab_explore => 'エクスプロア';
+
+  @override
+  String get tutorial_tab_more => 'その他';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => 'アーティストカードを追加';
+
+  @override
+  String get tutorial_cards_tags_addMini => 'ミニカードを追加';
+
+  @override
+  String get tutorial_cards_tags_editDelete => '編集 / 削除';
+
+  @override
+  String get tutorial_cards_tags_info => 'ミニカード情報';
+
+  @override
+  String get tutorial_cards_addArtist_title => '「アーティストカード」を追加';
+
+  @override
+  String get tutorial_cards_addArtist_s1 => 'カード画面右下の「＋」をタップ。';
+
+  @override
+  String get tutorial_cards_addArtist_s2 => 'ローカル画像を選ぶか、画像URLを貼り付けます。';
+
+  @override
+  String get tutorial_cards_addArtist_s3 => '右スワイプ：情報編集、左スワイプ：カード削除。';
+
+  @override
+  String get tutorial_cards_addMini_title => '「ミニカード」を追加';
+
+  @override
+  String get tutorial_cards_addMini_s1 => '任意の「アーティストカード」をタップして詳細へ。';
+
+  @override
+  String get tutorial_cards_addMini_s2 => '下部のミニカード領域をタップ／上スワイプ → ビューアへ。';
+
+  @override
+  String get tutorial_cards_addMini_s3 => '最左／最右ページでQR読み取りや編集を開けます。';
+
+  @override
+  String get tutorial_cards_addMini_s4 => '編集画面右下の「＋」で追加。同画面で削除も可能。';
+
+  @override
+  String get tutorial_cards_info_title => '「ミニカード情報」を管理';
+
+  @override
+  String get tutorial_cards_info_s1 => '追加後はビューアに表示。タップで裏返し。';
+
+  @override
+  String get tutorial_cards_info_s2 => '裏面右上の「情報」で、名前／番号／アルバム／種類／メモ／タグを編集。';
+
+  @override
+  String get tutorial_cards_info_s3 => 'タグで素早く絞り込み、検索精度も向上。';
+
+  @override
+  String get tutorial_cards_note_json => 'ヒント：右上からJSONダウンロードと一括インポートに対応。';
+
+  @override
+  String get tutorial_social_tags_primary => '友達 / 注目 / フォロー';
+
+  @override
+  String get tutorial_social_tags_postComment => '投稿とコメント';
+
+  @override
+  String get tutorial_social_tags_lists => 'リスト管理';
+
+  @override
+  String get tutorial_social_browse_title => '投稿を閲覧';
+
+  @override
+  String get tutorial_social_browse_s1 => '上部タブで「友達」「注目」「フォロー」を切替。';
+
+  @override
+  String get tutorial_social_browse_s2 => '各タブで閲覧・いいね・コメントが可能。';
+
+  @override
+  String get tutorial_social_post_title => '投稿とコメント';
+
+  @override
+  String get tutorial_social_post_s1 => '右下の「えんぴつ」ボタンで投稿。';
+
+  @override
+  String get tutorial_social_post_s2 => '投稿は「注目」と「友達」に表示（友達は交流可能）。';
+
+  @override
+  String get tutorial_social_list_title => 'リスト管理';
+
+  @override
+  String get tutorial_social_list_s1 => '右上の「#」：友達リストを編集。';
+
+  @override
+  String get tutorial_social_list_s2 => '右上の「名刺」：フォローリストを編集。';
+
+  @override
+  String get tutorial_explore_wall_title => '推し壁紙を自由に作成';
+
+  @override
+  String get tutorial_explore_wall_s1 => '写真・スローガン・ステッカーで自分好みに。';
+
+  @override
+  String get tutorial_explore_wall_s2 => '「誕生日カウントダウン」ウィジェットも追加可能。';
+
+  @override
+  String get tutorial_more_settings_title => '設定とユーザー';
+
+  @override
+  String get tutorial_more_settings_s1 => '「設定」：テーマ・言語・通知など。';
+
+  @override
+  String get tutorial_more_settings_s2 => '「ユーザー設定」：ニックネーム・アイコン・ログイン方法。';
+
+  @override
+  String get tutorial_more_stats_title => '統計';
+
+  @override
+  String get tutorial_more_stats_s1 => 'アーティスト数、ミニカード数、出所（ローカル／オンライン）を確認。';
+
+  @override
+  String get tutorial_more_stats_s2 => 'ランキングや実績でコレクションの軌跡を記録。';
+
+  @override
+  String get tutorial_more_dex_title => '図鑑';
+
+  @override
+  String get tutorial_more_dex_s1 => 'すべてのカードを一覧。検索やフィルタに対応。';
+
+  @override
+  String get tutorial_faq_q1 => 'ミニカードを一気に追加する方法は？';
+
+  @override
+  String get tutorial_faq_a1 =>
+      'ミニカード閲覧ページの右上には2つのボタンがあります。左側のボタンはJSONファイルの一括追加に対応し、右側のボタンではそのアーティストのカードJSONファイルをダウンロードできます。';
+
+  @override
+  String get tutorial_faq_q2 => 'QR / JSON のインポート場所は？';
+
+  @override
+  String get tutorial_faq_a2 => 'ビューアの最左／最右ページ、または「その他」→「インポート」。';
+
+  @override
+  String get tutorial_faq_q3 => 'タグの役割は？';
+
+  @override
+  String get tutorial_faq_a3 => 'タグで素早く絞り込み、検索もより正確に。';
+
+  @override
+  String get tutorial_faq_q4 => '言語とテーマの変更方法は？';
+
+  @override
+  String get tutorial_faq_a4 => '「その他 → 設定」でアプリ言語とライト／ダークを切替。';
+
+  @override
+  String get tutorial_faq_q5 => '投稿はどこに表示されますか？';
+
+  @override
+  String get tutorial_faq_a5 => '「注目」と「友達」に表示。友達が閲覧・交流できます。';
+
+  @override
+  String get postHintShareSomething => '何かをシェアしましょう…';
+
+  @override
+  String get postAlbum => 'アルバム';
+
+  @override
+  String get postPublish => '投稿';
+
+  @override
+  String get postTags => 'タグ';
+
+  @override
+  String get postAddTagHint => 'タグを追加して Enter を押す';
+
+  @override
+  String get postAdd => '追加';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return 'タグは最大 $max 個';
+  }
 }

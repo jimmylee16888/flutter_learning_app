@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/screens/settings/dev_settings_page.dart';
+import 'package:flutter_learning_app/screens/settings/tutorial_page.dart';
 import 'package:flutter_learning_app/services/auth/auth_controller.dart';
+import 'package:flutter_learning_app/services/dev_mode.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -37,7 +40,9 @@ class SettingsView extends StatelessWidget {
     final email = auth.account ?? user?.email ?? l.accountNoInfo;
 
     final rawNick = settings.nickname?.trim();
-    final nicknameText = (rawNick == null || rawNick.isEmpty) ? l.notSet : rawNick;
+    final nicknameText = (rawNick == null || rawNick.isEmpty)
+        ? l.notSet
+        : rawNick;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -55,10 +60,16 @@ class SettingsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       l.theme,
-                      style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
-                    Text(_themeModeLabel(context, settings.themeMode), style: TextStyle(color: cs.onSurfaceVariant)),
+                    Text(
+                      _themeModeLabel(context, settings.themeMode),
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -90,10 +101,16 @@ class SettingsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       l.language,
-                      style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
-                    Text(_localeLabel(context, settings.locale), style: TextStyle(color: cs.onSurfaceVariant)),
+                    Text(
+                      _localeLabel(context, settings.locale),
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -102,12 +119,30 @@ class SettingsView extends StatelessWidget {
                   child: DropdownButton<Locale?>(
                     value: settings.locale, // null = follow system
                     items: [
-                      DropdownMenuItem(value: null, child: Text(l.languageSystem)),
-                      const DropdownMenuItem(value: Locale('en'), child: Text('English')),
-                      const DropdownMenuItem(value: Locale('zh'), child: Text('中文（繁體）')),
-                      const DropdownMenuItem(value: Locale('ja'), child: Text('日本語')),
-                      const DropdownMenuItem(value: Locale('ko'), child: Text('한국어')),
-                      const DropdownMenuItem(value: Locale('de'), child: Text('Deutsch')),
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(l.languageSystem),
+                      ),
+                      const DropdownMenuItem(
+                        value: Locale('en'),
+                        child: Text('English'),
+                      ),
+                      const DropdownMenuItem(
+                        value: Locale('zh'),
+                        child: Text('中文（繁體）'),
+                      ),
+                      const DropdownMenuItem(
+                        value: Locale('ja'),
+                        child: Text('日本語'),
+                      ),
+                      const DropdownMenuItem(
+                        value: Locale('ko'),
+                        child: Text('한국어'),
+                      ),
+                      const DropdownMenuItem(
+                        value: Locale('de'),
+                        child: Text('Deutsch'),
+                      ),
                     ],
                     onChanged: (v) => settings.setLocale(v),
                   ),
@@ -127,9 +162,11 @@ class SettingsView extends StatelessWidget {
               if (onOpenUserProfile != null) {
                 onOpenUserProfile!();
               } else {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => UserProfileSettingsPage(settings: settings)));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => UserProfileSettingsPage(settings: settings),
+                  ),
+                );
               }
             },
             child: Padding(
@@ -139,7 +176,10 @@ class SettingsView extends StatelessWidget {
                 children: [
                   Text(
                     l.userProfileTile,
-                    style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -147,7 +187,10 @@ class SettingsView extends StatelessWidget {
                       CircleAvatar(
                         radius: 24,
                         backgroundColor: cs.surfaceVariant,
-                        foregroundImage: (photoUrl != null && photoUrl.isNotEmpty) ? NetworkImage(photoUrl) : null,
+                        foregroundImage:
+                            (photoUrl != null && photoUrl.isNotEmpty)
+                            ? NetworkImage(photoUrl)
+                            : null,
                         child: const Icon(Icons.person_outline),
                       ),
                       const SizedBox(width: 12),
@@ -155,7 +198,10 @@ class SettingsView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(nicknameText, style: Theme.of(context).textTheme.titleMedium),
+                            Text(
+                              nicknameText,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               email,
@@ -167,7 +213,9 @@ class SettingsView extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       TextButton(
-                        child: Text(isSignedIn ? l.signOut : l.authSignInWithGoogle),
+                        child: Text(
+                          isSignedIn ? l.signOut : l.authSignInWithGoogle,
+                        ),
                         onPressed: () async {
                           if (isSignedIn) {
                             await auth.signOut();
@@ -175,9 +223,13 @@ class SettingsView extends StatelessWidget {
                             final (ok, reason) = await auth.loginWithGoogle();
                             if (!context.mounted) return;
                             if (!ok) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text('登入失敗：${reason ?? l.errorLoginFailed}')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '登入失敗：${reason ?? l.errorLoginFailed}',
+                                  ),
+                                ),
+                              );
                             }
                           }
                         },
@@ -191,6 +243,22 @@ class SettingsView extends StatelessWidget {
         ),
 
         const SizedBox(height: 12),
+        // ===== 使用教學 =====
+        Card(
+          child: ListTile(
+            contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            leading: const Icon(Icons.menu_book_outlined),
+            title: Text(l.tutorial_title),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const TutorialPage()));
+            },
+          ),
+        ),
+
+        const SizedBox(height: 12),
 
         // ===== 關於開發者 =====
         Card(
@@ -200,9 +268,37 @@ class SettingsView extends StatelessWidget {
             title: Text(l.aboutDeveloper),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AboutDeveloperPage()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AboutDeveloperPage()),
+              );
             },
           ),
+        ),
+        FutureBuilder<bool>(
+          future: DevMode.isEnabled(),
+          builder: (context, snap) {
+            if (snap.data != true) return const SizedBox.shrink();
+            return Column(
+              children: [
+                const SizedBox(height: 12),
+                Card(
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    leading: const Icon(Icons.developer_mode_outlined),
+                    title: const Text('開發者設定'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DevSettingsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ],
     );

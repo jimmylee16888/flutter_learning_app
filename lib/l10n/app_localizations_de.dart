@@ -461,10 +461,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bitte wählen Sie ein lokales Foto der Vorderseite aus oder wechseln Sie zurück zur URL.';
 
   @override
-  String get userProfileTitle => 'Benutzereinstellungen';
+  String get userProfileTitle => 'Benutzer';
 
   @override
-  String get userProfileTile => 'Benutzereinstellungen';
+  String get userProfileTile => 'Benutzer';
 
   @override
   String get nicknameLabel => 'Spitzname';
@@ -1049,25 +1049,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get badge_coming_soon => 'Bald verfügbar';
 
   @override
-  String get feature_external_images => 'Externe Bilder (URL)';
+  String get feature_external_images =>
+      '5 GB Cloud-Speicher (geräteübergreifende Synchronisierung)';
 
   @override
-  String get feature_small_cloud_space => 'Kleiner Cloud-Speicher';
+  String get feature_small_cloud_space =>
+      'Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details';
 
   @override
-  String get feature_multi_device_sync => 'Mehrgeräte-Sync';
+  String get feature_multi_device_sync =>
+      'Geräteübergreifende Synchronisierung';
 
   @override
-  String get feature_upload_local_images => 'Lokale Bilder hochladen';
+  String get feature_upload_local_images =>
+      '10 GB Cloud-Speicher (geräteübergreifende Synchronisierung)';
 
   @override
-  String get feature_priority_support => 'Priorisierter Support';
+  String get feature_priority_support =>
+      'Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details';
 
   @override
-  String get feature_large_storage => 'Großer Cloud-Speicher';
+  String get feature_large_storage =>
+      '50 GB Cloud-Speicher (geräteübergreifende Synchronisierung)';
 
   @override
-  String get feature_album_report => 'Album-Reports (Vorschau)';
+  String get feature_album_report =>
+      'Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details';
 
   @override
   String get feature_roadmap_advance => 'Erweiterte Funktionen (Vorschau)';
@@ -1137,4 +1144,231 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get common_cancelDescription => 'Allgemeine Abbrechen-Schaltfläche';
+
+  @override
+  String get tutorial_title => 'Anleitung';
+
+  @override
+  String get tutorial_tab_cards => 'Karten';
+
+  @override
+  String get tutorial_tab_social => 'Social';
+
+  @override
+  String get tutorial_tab_explore => 'Entdecken';
+
+  @override
+  String get tutorial_tab_more => 'Mehr';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => 'Artist-Karte hinzufügen';
+
+  @override
+  String get tutorial_cards_tags_addMini => 'Mini-Karte hinzufügen';
+
+  @override
+  String get tutorial_cards_tags_editDelete => 'Bearbeiten / Löschen';
+
+  @override
+  String get tutorial_cards_tags_info => 'Mini-Karteninfos';
+
+  @override
+  String get tutorial_cards_addArtist_title => '„Artist-Karte“ hinzufügen';
+
+  @override
+  String get tutorial_cards_addArtist_s1 =>
+      'Tippe rechts unten auf „＋ Artist-Karte hinzufügen“.';
+
+  @override
+  String get tutorial_cards_addArtist_s2 =>
+      'Wähle ein lokales Bild oder füge eine Bild-URL ein.';
+
+  @override
+  String get tutorial_cards_addArtist_s3 =>
+      'Wische rechts zum Bearbeiten, links zum Löschen der Karte.';
+
+  @override
+  String get tutorial_cards_addMini_title => '„Mini-Karte“ hinzufügen';
+
+  @override
+  String get tutorial_cards_addMini_s1 =>
+      'Tippe eine beliebige „Artist-Karte“, um Details zu öffnen.';
+
+  @override
+  String get tutorial_cards_addMini_s2 =>
+      'Tippe den Mini-Kartenbereich oder wische nach oben → Viewer.';
+
+  @override
+  String get tutorial_cards_addMini_s3 =>
+      'Ganz links/rechts: QR scannen oder Editor zum Hinzufügen öffnen.';
+
+  @override
+  String get tutorial_cards_addMini_s4 =>
+      '„＋“ unten rechts im Editor zum Hinzufügen; Löschen auf derselben Seite.';
+
+  @override
+  String get tutorial_cards_info_title => '„Mini-Karteninfos“ verwalten';
+
+  @override
+  String get tutorial_cards_info_s1 =>
+      'Nach dem Hinzufügen erscheint die Karte im Viewer; tippe zum Umdrehen.';
+
+  @override
+  String get tutorial_cards_info_s2 =>
+      'Oben rechts „Info“: Name, Nummer, Album, Typ, Notiz, Tags bearbeiten.';
+
+  @override
+  String get tutorial_cards_info_s3 =>
+      'Mit Tags filterst du schneller und suchst präziser.';
+
+  @override
+  String get tutorial_cards_note_json =>
+      'Tipp: Rechts oben kannst du JSON herunterladen und Stapelimport nutzen.';
+
+  @override
+  String get tutorial_social_tags_primary => 'Freunde / Trends / Folgen';
+
+  @override
+  String get tutorial_social_tags_postComment => 'Posten & kommentieren';
+
+  @override
+  String get tutorial_social_tags_lists => 'Listen verwalten';
+
+  @override
+  String get tutorial_social_browse_title => 'Beiträge ansehen';
+
+  @override
+  String get tutorial_social_browse_s1 =>
+      'Oben zwischen „Freunde“, „Trends“, „Folgen“ wechseln.';
+
+  @override
+  String get tutorial_social_browse_s2 =>
+      'In allen Tabs kannst du ansehen, liken und kommentieren.';
+
+  @override
+  String get tutorial_social_post_title => 'Posten & kommentieren';
+
+  @override
+  String get tutorial_social_post_s1 => 'Rechts unten mit dem „Stift“ posten.';
+
+  @override
+  String get tutorial_social_post_s2 =>
+      'Dein Beitrag erscheint in „Trends“ und „Freunde“ (Freunde können interagieren).';
+
+  @override
+  String get tutorial_social_list_title => 'Listen verwalten';
+
+  @override
+  String get tutorial_social_list_s1 =>
+      'Oben rechts „#“: Freundesliste bearbeiten.';
+
+  @override
+  String get tutorial_social_list_s2 =>
+      'Oben rechts „Karte“: Following-Liste bearbeiten.';
+
+  @override
+  String get tutorial_explore_wall_title => 'Idol-Wallpaper gestalten';
+
+  @override
+  String get tutorial_explore_wall_s1 =>
+      'Fotos, Slogans, Sticker – ganz nach deinem Stil.';
+
+  @override
+  String get tutorial_explore_wall_s2 =>
+      '„Geburtstags-Countdown“-Widget hinzufügen.';
+
+  @override
+  String get tutorial_more_settings_title => 'Einstellungen & Benutzer';
+
+  @override
+  String get tutorial_more_settings_s1 =>
+      '„Einstellungen“: Thema, Sprache, Benachrichtigungen.';
+
+  @override
+  String get tutorial_more_settings_s2 =>
+      '„Benutzereinstellungen“: Spitzname, Avatar, Login-Methoden.';
+
+  @override
+  String get tutorial_more_stats_title => 'Statistik';
+
+  @override
+  String get tutorial_more_stats_s1 =>
+      'Künstler, Mini-Kartenzahl, Quelle (lokal/online) ansehen.';
+
+  @override
+  String get tutorial_more_stats_s2 =>
+      'Ranglisten & Achievements zeichnen deine Sammlung nach.';
+
+  @override
+  String get tutorial_more_dex_title => 'Dex';
+
+  @override
+  String get tutorial_more_dex_s1 =>
+      'Alle Karten im Überblick; Suche & Filter verfügbar.';
+
+  @override
+  String get tutorial_faq_q1 => 'Wie füge ich schnell viele Mini-Karten hinzu?';
+
+  @override
+  String get tutorial_faq_a1 =>
+      'Auf der Mini-Karten-Ansichtsseite befinden sich oben rechts zwei Schaltflächen. Die linke Schaltfläche unterstützt das Batch-Importieren von JSON-Dateien, und über die rechte Schaltfläche kannst du die JSON-Datei der Karten dieses Künstlers herunterladen.';
+
+  @override
+  String get tutorial_faq_q2 => 'Wo importiere ich QR / JSON?';
+
+  @override
+  String get tutorial_faq_a2 =>
+      'Ganz links/rechts im Viewer oder im „Mehr“-Menü unter „Importieren“.';
+
+  @override
+  String get tutorial_faq_q3 => 'Wofür sind Tags?';
+
+  @override
+  String get tutorial_faq_a3 =>
+      'Zum schnellen Filtern und präziseren Suchen im Viewer.';
+
+  @override
+  String get tutorial_faq_q4 => 'Wie ändere ich Sprache & Thema?';
+
+  @override
+  String get tutorial_faq_a4 =>
+      'Über „Mehr → Einstellungen“ Sprache und Hell/Dunkel wechseln.';
+
+  @override
+  String get tutorial_faq_q5 => 'Wo erscheinen Social-Beiträge?';
+
+  @override
+  String get tutorial_faq_a5 =>
+      'In „Trends“ und „Freunde“; Freunde können interagieren.';
+
+  @override
+  String get postHintShareSomething => 'Teile etwas …';
+
+  @override
+  String get postAlbum => 'Album';
+
+  @override
+  String get postPublish => 'Veröffentlichen';
+
+  @override
+  String get postTags => 'Tags';
+
+  @override
+  String get postAddTagHint => 'Tag hinzufügen und Enter drücken';
+
+  @override
+  String get postAdd => 'Hinzufügen';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return 'Max. $max Tags';
+  }
 }

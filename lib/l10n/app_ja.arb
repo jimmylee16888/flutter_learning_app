@@ -171,15 +171,15 @@
   "errorFrontImageUrlRequired": "表面画像のURLを入力するか、ローカルに切り替えてください。",
   "errorFrontLocalRequired": "表面のローカル写真を選択するか、URLに戻してください。",
 
-  "userProfileTitle": "使用者設定",
-  "userProfileTile": "使用者設定",
-  "nicknameLabel": "暱稱",
-  "nicknameRequired": "暱稱不可空白",
+  "userProfileTitle": "ユーザー",
+  "userProfileTile": "ユーザー",
+  "nicknameLabel": "ニックネーム",
+  "nicknameRequired": "ニックネームを入力してください",
   "notSet": "未設定",
-  "clearBirthday": "清除生日",
-  "userProfileSaved": "已儲存使用者設定",
-  "ready": "已完成",
-  "fillNicknameAndBirthday": "請填寫暱稱與生日",
+  "clearBirthday": "誕生日をクリア",
+  "userProfileSaved": "ユーザー設定を保存しました",
+  "ready": "完了",
+  "fillNicknameAndBirthday": "ニックネームと誕生日を入力してください",
 
   "navSocial": "ソーシャル",
 
@@ -447,14 +447,14 @@
   "upgrade_card_desc": "有料プランでローカル画像のアップロード・大容量・複数端末同期が解放されます。",
   "badge_coming_soon": "近日公開",
 
-  "feature_external_images": "外部画像（URL）",
-  "feature_small_cloud_space": "少量クラウド容量",
-  "feature_multi_device_sync": "複数端末同期",
-  "feature_upload_local_images": "ローカル画像アップロード",
-  "feature_priority_support": "優先サポート",
-  "feature_large_storage": "大容量クラウド",
-  "feature_album_report": "アルバムレポート（予告）",
-  "feature_roadmap_advance": "高度機能（予告）",
+  "feature_external_images": "クラウド容量 5GB（デバイス間同期）",
+  "feature_small_cloud_space": "カード分類、カード裏面情報、ミニカード詳細",
+  "feature_multi_device_sync": "デバイス間同期",
+  "feature_upload_local_images": "クラウド容量 10GB（デバイス間同期）",
+  "feature_priority_support": "カード分類、カード裏面情報、ミニカード詳細",
+  "feature_large_storage": "クラウド容量 50GB（デバイス間同期）",
+  "feature_album_report": "カード分類、カード裏面情報、ミニカード詳細",
+  "feature_roadmap_advance": "上級機能（予告）",
 
   "plan_badge_recommended": "おすすめ",
   "price_per_month": "{price}/月",
@@ -478,7 +478,101 @@
   "common_ok": "OK",
   "common_okDescription": "汎用のOKボタン",
   "common_cancel": "キャンセル",
-  "common_cancelDescription": "汎用のキャンセルボタン"
+  "common_cancelDescription": "汎用のキャンセルボタン",
+
+  "tutorial_title": "使い方ガイド",
+  "tutorial_tab_cards": "カード",
+  "tutorial_tab_social": "ソーシャル",
+  "tutorial_tab_explore": "エクスプロア",
+  "tutorial_tab_more": "その他",
+  "tutorial_tab_faq": "FAQ",
+
+  "tutorial_cards_tags_addArtist": "アーティストカードを追加",
+  "tutorial_cards_tags_addMini": "ミニカードを追加",
+  "tutorial_cards_tags_editDelete": "編集 / 削除",
+  "tutorial_cards_tags_info": "ミニカード情報",
+
+  "tutorial_cards_addArtist_title": "「アーティストカード」を追加",
+  "tutorial_cards_addArtist_s1": "カード画面右下の「＋」をタップ。",
+  "tutorial_cards_addArtist_s2": "ローカル画像を選ぶか、画像URLを貼り付けます。",
+  "tutorial_cards_addArtist_s3": "右スワイプ：情報編集、左スワイプ：カード削除。",
+
+  "tutorial_cards_addMini_title": "「ミニカード」を追加",
+  "tutorial_cards_addMini_s1": "任意の「アーティストカード」をタップして詳細へ。",
+  "tutorial_cards_addMini_s2": "下部のミニカード領域をタップ／上スワイプ → ビューアへ。",
+  "tutorial_cards_addMini_s3": "最左／最右ページでQR読み取りや編集を開けます。",
+  "tutorial_cards_addMini_s4": "編集画面右下の「＋」で追加。同画面で削除も可能。",
+
+  "tutorial_cards_info_title": "「ミニカード情報」を管理",
+  "tutorial_cards_info_s1": "追加後はビューアに表示。タップで裏返し。",
+  "tutorial_cards_info_s2": "裏面右上の「情報」で、名前／番号／アルバム／種類／メモ／タグを編集。",
+  "tutorial_cards_info_s3": "タグで素早く絞り込み、検索精度も向上。",
+
+  "tutorial_cards_note_json": "ヒント：右上からJSONダウンロードと一括インポートに対応。",
+
+  "tutorial_social_tags_primary": "友達 / 注目 / フォロー",
+  "tutorial_social_tags_postComment": "投稿とコメント",
+  "tutorial_social_tags_lists": "リスト管理",
+
+  "tutorial_social_browse_title": "投稿を閲覧",
+  "tutorial_social_browse_s1": "上部タブで「友達」「注目」「フォロー」を切替。",
+  "tutorial_social_browse_s2": "各タブで閲覧・いいね・コメントが可能。",
+
+  "tutorial_social_post_title": "投稿とコメント",
+  "tutorial_social_post_s1": "右下の「えんぴつ」ボタンで投稿。",
+  "tutorial_social_post_s2": "投稿は「注目」と「友達」に表示（友達は交流可能）。",
+
+  "tutorial_social_list_title": "リスト管理",
+  "tutorial_social_list_s1": "右上の「#」：友達リストを編集。",
+  "tutorial_social_list_s2": "右上の「名刺」：フォローリストを編集。",
+
+  "tutorial_explore_wall_title": "推し壁紙を自由に作成",
+  "tutorial_explore_wall_s1": "写真・スローガン・ステッカーで自分好みに。",
+  "tutorial_explore_wall_s2": "「誕生日カウントダウン」ウィジェットも追加可能。",
+
+  "tutorial_more_settings_title": "設定とユーザー",
+  "tutorial_more_settings_s1": "「設定」：テーマ・言語・通知など。",
+  "tutorial_more_settings_s2": "「ユーザー設定」：ニックネーム・アイコン・ログイン方法。",
+
+  "tutorial_more_stats_title": "統計",
+  "tutorial_more_stats_s1": "アーティスト数、ミニカード数、出所（ローカル／オンライン）を確認。",
+  "tutorial_more_stats_s2": "ランキングや実績でコレクションの軌跡を記録。",
+
+  "tutorial_more_dex_title": "図鑑",
+  "tutorial_more_dex_s1": "すべてのカードを一覧。検索やフィルタに対応。",
+
+  "tutorial_faq_q1": "ミニカードを一気に追加する方法は？",
+  "tutorial_faq_a1": "ミニカード閲覧ページの右上には2つのボタンがあります。左側のボタンはJSONファイルの一括追加に対応し、右側のボタンではそのアーティストのカードJSONファイルをダウンロードできます。",
+  "tutorial_faq_q2": "QR / JSON のインポート場所は？",
+  "tutorial_faq_a2": "ビューアの最左／最右ページ、または「その他」→「インポート」。",
+  "tutorial_faq_q3": "タグの役割は？",
+  "tutorial_faq_a3": "タグで素早く絞り込み、検索もより正確に。",
+  "tutorial_faq_q4": "言語とテーマの変更方法は？",
+  "tutorial_faq_a4": "「その他 → 設定」でアプリ言語とライト／ダークを切替。",
+  "tutorial_faq_q5": "投稿はどこに表示されますか？",
+  "tutorial_faq_a5": "「注目」と「友達」に表示。友達が閲覧・交流できます。",
+
+  "postHintShareSomething": "何かをシェアしましょう…",
+  "postAlbum": "アルバム",
+  "postPublish": "投稿",
+  "postTags": "タグ",
+  "postAddTagHint": "タグを追加して Enter を押す",
+  "postAdd": "追加",
+
+  "postTagsCount": "{count}/{max}",
+  "@postTagsCount": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+
+  "postTagLimit": "タグは最大 {max} 個",
+  "@postTagLimit": {
+    "placeholders": {
+      "max": { "type": "int" }
+    }
+  }
 
 
 }

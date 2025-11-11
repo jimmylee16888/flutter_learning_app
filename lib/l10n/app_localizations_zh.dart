@@ -451,10 +451,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
 
   @override
-  String get userProfileTitle => '使用者設定';
+  String get userProfileTitle => '使用者';
 
   @override
-  String get userProfileTile => '使用者設定';
+  String get userProfileTile => '使用者';
 
   @override
   String get nicknameLabel => '暱稱';
@@ -992,10 +992,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get plan_basic => '基本';
 
   @override
-  String get plan_pro => '進階';
+  String get plan_pro => '專業';
 
   @override
-  String get plan_plus => 'Plus';
+  String get plan_plus => '進階';
 
   @override
   String billing_current_plan(String plan) {
@@ -1021,31 +1021,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get badge_coming_soon => '即將上線';
 
   @override
-  String get feature_external_images => '外部圖片（網址）';
+  String get feature_external_images => '雲端空間 5 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_small_cloud_space => '少量雲端空間';
+  String get feature_small_cloud_space => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_multi_device_sync => '跨裝置同步';
+  String get feature_multi_device_sync => '';
 
   @override
-  String get feature_upload_local_images => '可上傳本地圖片';
+  String get feature_upload_local_images => '雲端空間 10 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_priority_support => '優先客服';
+  String get feature_priority_support => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_large_storage => '大容量雲端空間';
+  String get feature_large_storage => '雲端空間 50 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_album_report => '圖鑑報表（預告）';
+  String get feature_album_report => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
   String get feature_roadmap_advance => '進階功能（預告）';
 
   @override
-  String get plan_badge_recommended => 'おすすめ';
+  String get plan_badge_recommended => '推薦';
 
   @override
   String price_per_month(Object price) {
@@ -1103,6 +1103,205 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get common_cancelDescription => '通用取消按鈕';
+
+  @override
+  String get tutorial_title => '使用教學';
+
+  @override
+  String get tutorial_tab_cards => '卡片';
+
+  @override
+  String get tutorial_tab_social => '社群';
+
+  @override
+  String get tutorial_tab_explore => '探索';
+
+  @override
+  String get tutorial_tab_more => '更多';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => '新增藝人卡';
+
+  @override
+  String get tutorial_cards_tags_addMini => '新增小卡';
+
+  @override
+  String get tutorial_cards_tags_editDelete => '編輯 / 刪除';
+
+  @override
+  String get tutorial_cards_tags_info => '小卡資訊';
+
+  @override
+  String get tutorial_cards_addArtist_title => '新增「藝人卡」';
+
+  @override
+  String get tutorial_cards_addArtist_s1 => '在卡片頁右下角點「＋ 新增藝人卡」。';
+
+  @override
+  String get tutorial_cards_addArtist_s2 => '可選本機圖片或貼上網路圖片網址。';
+
+  @override
+  String get tutorial_cards_addArtist_s3 => '向右滑：編輯藝人資訊；向左滑：刪除藝人卡。';
+
+  @override
+  String get tutorial_cards_addMini_title => '新增「小卡」';
+
+  @override
+  String get tutorial_cards_addMini_s1 => '點任一「藝人卡」進入內容。';
+
+  @override
+  String get tutorial_cards_addMini_s2 => '點下方小卡區域或上滑 → 進入小卡檢視頁。';
+
+  @override
+  String get tutorial_cards_addMini_s3 => '最左 / 最右頁可掃描 QR 或開啟小卡編輯新增。';
+
+  @override
+  String get tutorial_cards_addMini_s4 => '編輯頁右下角「＋」新增；同頁可刪除。';
+
+  @override
+  String get tutorial_cards_info_title => '管理「小卡資訊」';
+
+  @override
+  String get tutorial_cards_info_s1 => '小卡新增後出現在小卡檢視頁，點擊可翻面。';
+
+  @override
+  String get tutorial_cards_info_s2 => '背面右上「資訊」可編輯：名稱、序號、專輯、卡種、備註、標籤。';
+
+  @override
+  String get tutorial_cards_info_s3 => '加上標籤後，在檢視頁可快速分類、搜尋更精準。';
+
+  @override
+  String get tutorial_cards_note_json => '提示：小卡檢視頁右上支援 JSON 下載與批次匯入。';
+
+  @override
+  String get tutorial_social_tags_primary => '好友 / 熱門 / 追蹤';
+
+  @override
+  String get tutorial_social_tags_postComment => '發文與評論';
+
+  @override
+  String get tutorial_social_tags_lists => '名單管理';
+
+  @override
+  String get tutorial_social_browse_title => '瀏覽貼文';
+
+  @override
+  String get tutorial_social_browse_s1 => '上方分頁切換到「好友」、「熱門」、「追蹤」。';
+
+  @override
+  String get tutorial_social_browse_s2 => '各分頁皆可瀏覽、按讚與留言互動。';
+
+  @override
+  String get tutorial_social_post_title => '發文與評論';
+
+  @override
+  String get tutorial_social_post_s1 => '右下角「鉛筆」按鈕發文。';
+
+  @override
+  String get tutorial_social_post_s2 => '你的文章會出現在「熱門」與「好友」分頁（好友可互動）。';
+
+  @override
+  String get tutorial_social_list_title => '名單管理';
+
+  @override
+  String get tutorial_social_list_s1 => '右上「#」：編輯好友名單。';
+
+  @override
+  String get tutorial_social_list_s2 => '右上「名片」：編輯追蹤名單。';
+
+  @override
+  String get tutorial_explore_wall_title => '自由打造偶像桌布';
+
+  @override
+  String get tutorial_explore_wall_s1 => '放上照片與標語、貼紙，建立個人化風格。';
+
+  @override
+  String get tutorial_explore_wall_s2 => '可加入「生日倒數」小工具，做應援佈置。';
+
+  @override
+  String get tutorial_more_settings_title => '設定與使用者';
+
+  @override
+  String get tutorial_more_settings_s1 => '「設定」：主題、語言、通知等偏好。';
+
+  @override
+  String get tutorial_more_settings_s2 => '「使用者設定」：暱稱、頭像、登入方式等。';
+
+  @override
+  String get tutorial_more_stats_title => '統計';
+
+  @override
+  String get tutorial_more_stats_s1 => '查看蒐集的藝人、小卡張數、來源（本地 / 線上）。';
+
+  @override
+  String get tutorial_more_stats_s2 => '排行榜與成就，記錄你的收藏歷程。';
+
+  @override
+  String get tutorial_more_dex_title => '圖鑑';
+
+  @override
+  String get tutorial_more_dex_s1 => '快速總覽所有卡片；支援搜尋與篩選。';
+
+  @override
+  String get tutorial_faq_q1 => '如何快速新增多張小卡？';
+
+  @override
+  String get tutorial_faq_a1 => '在小卡檢視頁右下角按「＋」可連續新增，完成後回到檢視頁批次管理。';
+
+  @override
+  String get tutorial_faq_q2 => '匯入 QR / JSON 在哪裡？';
+
+  @override
+  String get tutorial_faq_a2 => '小卡檢視頁最左或最右的入口；或在更多選單找到「匯入」。';
+
+  @override
+  String get tutorial_faq_q3 => '標籤有什麼用？';
+
+  @override
+  String get tutorial_faq_a3 => '標籤可在小卡檢視頁做快速篩選，搜尋也更精準。';
+
+  @override
+  String get tutorial_faq_q4 => '如何變更語言與主題？';
+
+  @override
+  String get tutorial_faq_a4 => '前往「更多 → 設定」切換 App 語言與深 / 淺色主題。';
+
+  @override
+  String get tutorial_faq_q5 => '社群貼文在哪出現？';
+
+  @override
+  String get tutorial_faq_a5 => '你的貼文會出現在「熱門」與「好友」分頁；好友可看到並互動。';
+
+  @override
+  String get postHintShareSomething => '分享點什麼…';
+
+  @override
+  String get postAlbum => '相簿';
+
+  @override
+  String get postPublish => '發佈';
+
+  @override
+  String get postTags => '標籤';
+
+  @override
+  String get postAddTagHint => '新增標籤，按 Enter';
+
+  @override
+  String get postAdd => '加入';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return '標籤最多 $max 個';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1552,10 +1751,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get errorFrontLocalRequired => '請選擇正面本地照片或切回網址。';
 
   @override
-  String get userProfileTitle => '使用者設定';
+  String get userProfileTitle => '使用者';
 
   @override
-  String get userProfileTile => '使用者設定';
+  String get userProfileTile => '使用者';
 
   @override
   String get nicknameLabel => '暱稱';
@@ -2093,10 +2292,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get plan_basic => '基本';
 
   @override
-  String get plan_pro => '進階';
+  String get plan_pro => '專業';
 
   @override
-  String get plan_plus => 'Plus';
+  String get plan_plus => '進階';
 
   @override
   String billing_current_plan(String plan) {
@@ -2122,31 +2321,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get badge_coming_soon => '即將上線';
 
   @override
-  String get feature_external_images => '外部圖片（網址）';
+  String get feature_external_images => '雲端空間 5 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_small_cloud_space => '少量雲端空間';
+  String get feature_small_cloud_space => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_multi_device_sync => '跨裝置同步';
+  String get feature_multi_device_sync => '';
 
   @override
-  String get feature_upload_local_images => '可上傳本地圖片';
+  String get feature_upload_local_images => '雲端空間 10 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_priority_support => '優先客服';
+  String get feature_priority_support => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_large_storage => '大容量雲端空間';
+  String get feature_large_storage => '雲端空間 50 GB ( 跨裝置同步 )';
 
   @override
-  String get feature_album_report => '圖鑑報表（預告）';
+  String get feature_album_report => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
   String get feature_roadmap_advance => '進階功能（預告）';
 
   @override
-  String get plan_badge_recommended => 'おすすめ';
+  String get plan_badge_recommended => '推薦';
 
   @override
   String price_per_month(Object price) {
@@ -2204,4 +2403,204 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get common_cancelDescription => '通用取消按鈕';
+
+  @override
+  String get tutorial_title => '使用教學';
+
+  @override
+  String get tutorial_tab_cards => '卡片';
+
+  @override
+  String get tutorial_tab_social => '社群';
+
+  @override
+  String get tutorial_tab_explore => '探索';
+
+  @override
+  String get tutorial_tab_more => '更多';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => '新增藝人卡';
+
+  @override
+  String get tutorial_cards_tags_addMini => '新增小卡';
+
+  @override
+  String get tutorial_cards_tags_editDelete => '編輯 / 刪除';
+
+  @override
+  String get tutorial_cards_tags_info => '小卡資訊';
+
+  @override
+  String get tutorial_cards_addArtist_title => '新增「藝人卡」';
+
+  @override
+  String get tutorial_cards_addArtist_s1 => '在卡片頁右下角點「＋ 新增藝人卡」。';
+
+  @override
+  String get tutorial_cards_addArtist_s2 => '可選本機圖片或貼上網路圖片網址。';
+
+  @override
+  String get tutorial_cards_addArtist_s3 => '向右滑：編輯藝人資訊；向左滑：刪除藝人卡。';
+
+  @override
+  String get tutorial_cards_addMini_title => '新增「小卡」';
+
+  @override
+  String get tutorial_cards_addMini_s1 => '點任一「藝人卡」進入內容。';
+
+  @override
+  String get tutorial_cards_addMini_s2 => '點下方小卡區域或上滑 → 進入小卡檢視頁。';
+
+  @override
+  String get tutorial_cards_addMini_s3 => '最左 / 最右頁可掃描 QR 或開啟小卡編輯新增。';
+
+  @override
+  String get tutorial_cards_addMini_s4 => '編輯頁右下角「＋」新增；同頁可刪除。';
+
+  @override
+  String get tutorial_cards_info_title => '管理「小卡資訊」';
+
+  @override
+  String get tutorial_cards_info_s1 => '小卡新增後出現在小卡檢視頁，點擊可翻面。';
+
+  @override
+  String get tutorial_cards_info_s2 => '背面右上「資訊」可編輯：名稱、序號、專輯、卡種、備註、標籤。';
+
+  @override
+  String get tutorial_cards_info_s3 => '加上標籤後，在檢視頁可快速分類、搜尋更精準。';
+
+  @override
+  String get tutorial_cards_note_json => '提示：小卡檢視頁右上支援 JSON 下載與批次匯入。';
+
+  @override
+  String get tutorial_social_tags_primary => '好友 / 熱門 / 追蹤';
+
+  @override
+  String get tutorial_social_tags_postComment => '發文與評論';
+
+  @override
+  String get tutorial_social_tags_lists => '名單管理';
+
+  @override
+  String get tutorial_social_browse_title => '瀏覽貼文';
+
+  @override
+  String get tutorial_social_browse_s1 => '上方分頁切換到「好友」、「熱門」、「追蹤」。';
+
+  @override
+  String get tutorial_social_browse_s2 => '各分頁皆可瀏覽、按讚與留言互動。';
+
+  @override
+  String get tutorial_social_post_title => '發文與評論';
+
+  @override
+  String get tutorial_social_post_s1 => '右下角「鉛筆」按鈕發文。';
+
+  @override
+  String get tutorial_social_post_s2 => '你的文章會出現在「熱門」與「好友」分頁（好友可互動）。';
+
+  @override
+  String get tutorial_social_list_title => '名單管理';
+
+  @override
+  String get tutorial_social_list_s1 => '右上「#」：編輯好友名單。';
+
+  @override
+  String get tutorial_social_list_s2 => '右上「名片」：編輯追蹤名單。';
+
+  @override
+  String get tutorial_explore_wall_title => '自由打造偶像桌布';
+
+  @override
+  String get tutorial_explore_wall_s1 => '放上照片與標語、貼紙，建立個人化風格。';
+
+  @override
+  String get tutorial_explore_wall_s2 => '可加入「生日倒數」小工具，做應援佈置。';
+
+  @override
+  String get tutorial_more_settings_title => '設定與使用者';
+
+  @override
+  String get tutorial_more_settings_s1 => '「設定」：主題、語言、通知等偏好。';
+
+  @override
+  String get tutorial_more_settings_s2 => '「使用者設定」：暱稱、頭像、登入方式等。';
+
+  @override
+  String get tutorial_more_stats_title => '統計';
+
+  @override
+  String get tutorial_more_stats_s1 => '查看蒐集的藝人、小卡張數、來源（本地 / 線上）。';
+
+  @override
+  String get tutorial_more_stats_s2 => '排行榜與成就，記錄你的收藏歷程。';
+
+  @override
+  String get tutorial_more_dex_title => '圖鑑';
+
+  @override
+  String get tutorial_more_dex_s1 => '快速總覽所有卡片；支援搜尋與篩選。';
+
+  @override
+  String get tutorial_faq_q1 => '如何快速新增多張小卡？';
+
+  @override
+  String get tutorial_faq_a1 =>
+      '在小卡檢視頁右上角有兩個按鈕，左方按鈕支援JSON檔案的批次新增，右側按鈕可下載該藝人的卡片JSON檔案。';
+
+  @override
+  String get tutorial_faq_q2 => '匯入 QR / JSON 在哪裡？';
+
+  @override
+  String get tutorial_faq_a2 => '小卡檢視頁最左或最右的入口；或在更多選單找到「匯入」。';
+
+  @override
+  String get tutorial_faq_q3 => '標籤有什麼用？';
+
+  @override
+  String get tutorial_faq_a3 => '標籤可在小卡檢視頁做快速篩選，搜尋也更精準。';
+
+  @override
+  String get tutorial_faq_q4 => '如何變更語言與主題？';
+
+  @override
+  String get tutorial_faq_a4 => '前往「更多 → 設定」切換 App 語言與深 / 淺色主題。';
+
+  @override
+  String get tutorial_faq_q5 => '社群貼文在哪出現？';
+
+  @override
+  String get tutorial_faq_a5 => '你的貼文會出現在「熱門」與「好友」分頁；好友可看到並互動。';
+
+  @override
+  String get postHintShareSomething => '分享點什麼…';
+
+  @override
+  String get postAlbum => '相簿';
+
+  @override
+  String get postPublish => '發佈';
+
+  @override
+  String get postTags => '標籤';
+
+  @override
+  String get postAddTagHint => '新增標籤，按 Enter';
+
+  @override
+  String get postAdd => '加入';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return '標籤最多 $max 個';
+  }
 }

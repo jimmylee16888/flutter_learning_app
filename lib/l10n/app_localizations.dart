@@ -1998,13 +1998,13 @@ abstract class AppLocalizations {
   /// No description provided for @feature_external_images.
   ///
   /// In en, this message translates to:
-  /// **'External images (URL)'**
+  /// **'5 GB cloud storage (multi-device sync)'**
   String get feature_external_images;
 
   /// No description provided for @feature_small_cloud_space.
   ///
   /// In en, this message translates to:
-  /// **'Small cloud storage'**
+  /// **'Card categorization, card back info, mini-card details'**
   String get feature_small_cloud_space;
 
   /// No description provided for @feature_multi_device_sync.
@@ -2016,31 +2016,31 @@ abstract class AppLocalizations {
   /// No description provided for @feature_upload_local_images.
   ///
   /// In en, this message translates to:
-  /// **'Upload local images'**
+  /// **'10 GB cloud storage (multi-device sync)'**
   String get feature_upload_local_images;
 
   /// No description provided for @feature_priority_support.
   ///
   /// In en, this message translates to:
-  /// **'Priority support'**
+  /// **'Card categorization, card back info, mini-card details'**
   String get feature_priority_support;
 
   /// No description provided for @feature_large_storage.
   ///
   /// In en, this message translates to:
-  /// **'Large cloud storage'**
+  /// **'50 GB cloud storage (multi-device sync)'**
   String get feature_large_storage;
 
   /// No description provided for @feature_album_report.
   ///
   /// In en, this message translates to:
-  /// **'Album report (preview)'**
+  /// **'Card categorization, card back info, mini-card details'**
   String get feature_album_report;
 
   /// No description provided for @feature_roadmap_advance.
   ///
   /// In en, this message translates to:
-  /// **'Advanced features (preview)'**
+  /// **'Advanced features (coming soon)'**
   String get feature_roadmap_advance;
 
   /// No description provided for @plan_badge_recommended.
@@ -2156,6 +2156,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generic cancel button label.'**
   String get common_cancelDescription;
+
+  /// No description provided for @tutorial_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorial'**
+  String get tutorial_title;
+
+  /// No description provided for @tutorial_tab_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get tutorial_tab_cards;
+
+  /// No description provided for @tutorial_tab_social.
+  ///
+  /// In en, this message translates to:
+  /// **'Social'**
+  String get tutorial_tab_social;
+
+  /// No description provided for @tutorial_tab_explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get tutorial_tab_explore;
+
+  /// No description provided for @tutorial_tab_more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get tutorial_tab_more;
+
+  /// No description provided for @tutorial_tab_faq.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get tutorial_tab_faq;
+
+  /// No description provided for @tutorial_cards_tags_addArtist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add artist card'**
+  String get tutorial_cards_tags_addArtist;
+
+  /// No description provided for @tutorial_cards_tags_addMini.
+  ///
+  /// In en, this message translates to:
+  /// **'Add mini card'**
+  String get tutorial_cards_tags_addMini;
+
+  /// No description provided for @tutorial_cards_tags_editDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit / Delete'**
+  String get tutorial_cards_tags_editDelete;
+
+  /// No description provided for @tutorial_cards_tags_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Mini card info'**
+  String get tutorial_cards_tags_info;
+
+  /// No description provided for @tutorial_cards_addArtist_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “Artist Card”'**
+  String get tutorial_cards_addArtist_title;
+
+  /// No description provided for @tutorial_cards_addArtist_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “＋ Add artist card” at the bottom-right of the Cards page.'**
+  String get tutorial_cards_addArtist_s1;
+
+  /// No description provided for @tutorial_cards_addArtist_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a local image or paste an online image URL.'**
+  String get tutorial_cards_addArtist_s2;
+
+  /// No description provided for @tutorial_cards_addArtist_s3.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe right to edit artist info; swipe left to delete the artist card.'**
+  String get tutorial_cards_addArtist_s3;
+
+  /// No description provided for @tutorial_cards_addMini_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “Mini Card”'**
+  String get tutorial_cards_addMini_title;
+
+  /// No description provided for @tutorial_cards_addMini_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any “artist card” to enter its detail.'**
+  String get tutorial_cards_addMini_s1;
+
+  /// No description provided for @tutorial_cards_addMini_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the mini-card area or swipe up → enter mini-card viewer.'**
+  String get tutorial_cards_addMini_s2;
+
+  /// No description provided for @tutorial_cards_addMini_s3.
+  ///
+  /// In en, this message translates to:
+  /// **'The leftmost/rightmost pages let you scan QR or open editor to add.'**
+  String get tutorial_cards_addMini_s3;
+
+  /// No description provided for @tutorial_cards_addMini_s4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the “＋” on the editor to add; the same page supports delete.'**
+  String get tutorial_cards_addMini_s4;
+
+  /// No description provided for @tutorial_cards_info_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage “Mini Card Info”'**
+  String get tutorial_cards_info_title;
+
+  /// No description provided for @tutorial_cards_info_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'After adding, the mini card appears in the viewer; tap to flip.'**
+  String get tutorial_cards_info_s1;
+
+  /// No description provided for @tutorial_cards_info_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'On the back → “Info” to edit: name, serial, album, type, notes, tags.'**
+  String get tutorial_cards_info_s2;
+
+  /// No description provided for @tutorial_cards_info_s3.
+  ///
+  /// In en, this message translates to:
+  /// **'With tags, you can filter faster and search more precisely.'**
+  String get tutorial_cards_info_s3;
+
+  /// No description provided for @tutorial_cards_note_json.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: The mini-card viewer (top-right) supports JSON download and batch import.'**
+  String get tutorial_cards_note_json;
+
+  /// No description provided for @tutorial_social_tags_primary.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends / Hot / Following'**
+  String get tutorial_social_tags_primary;
+
+  /// No description provided for @tutorial_social_tags_postComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Post & comment'**
+  String get tutorial_social_tags_postComment;
+
+  /// No description provided for @tutorial_social_tags_lists.
+  ///
+  /// In en, this message translates to:
+  /// **'List management'**
+  String get tutorial_social_tags_lists;
+
+  /// No description provided for @tutorial_social_browse_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse posts'**
+  String get tutorial_social_browse_title;
+
+  /// No description provided for @tutorial_social_browse_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch tabs on top: “Friends”, “Hot”, “Following”.'**
+  String get tutorial_social_browse_s1;
+
+  /// No description provided for @tutorial_social_browse_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'All tabs support browsing, liking, and commenting.'**
+  String get tutorial_social_browse_s2;
+
+  /// No description provided for @tutorial_social_post_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Post & comment'**
+  String get tutorial_social_post_title;
+
+  /// No description provided for @tutorial_social_post_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the bottom-right “pencil” to post.'**
+  String get tutorial_social_post_s1;
+
+  /// No description provided for @tutorial_social_post_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your post appears in “Hot” and “Friends” (friends can interact).'**
+  String get tutorial_social_post_s2;
+
+  /// No description provided for @tutorial_social_list_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage lists'**
+  String get tutorial_social_list_title;
+
+  /// No description provided for @tutorial_social_list_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-right “#”: edit friends list.'**
+  String get tutorial_social_list_s1;
+
+  /// No description provided for @tutorial_social_list_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-right “card”: edit following list.'**
+  String get tutorial_social_list_s2;
+
+  /// No description provided for @tutorial_explore_wall_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create idol wallpapers'**
+  String get tutorial_explore_wall_title;
+
+  /// No description provided for @tutorial_explore_wall_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Place photos, slogans, stickers to craft your style.'**
+  String get tutorial_explore_wall_s1;
+
+  /// No description provided for @tutorial_explore_wall_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a “Birthday countdown” widget for support projects.'**
+  String get tutorial_explore_wall_s2;
+
+  /// No description provided for @tutorial_more_settings_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings & User'**
+  String get tutorial_more_settings_title;
+
+  /// No description provided for @tutorial_more_settings_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'“Settings”: theme, language, notification preferences.'**
+  String get tutorial_more_settings_s1;
+
+  /// No description provided for @tutorial_more_settings_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'“User settings”: nickname, avatar, sign-in methods.'**
+  String get tutorial_more_settings_s2;
+
+  /// No description provided for @tutorial_more_stats_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get tutorial_more_stats_title;
+
+  /// No description provided for @tutorial_more_stats_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'See collected artists, mini-card count, and source (local / online).'**
+  String get tutorial_more_stats_s1;
+
+  /// No description provided for @tutorial_more_stats_s2.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboards and achievements record your collection journey.'**
+  String get tutorial_more_stats_s2;
+
+  /// No description provided for @tutorial_more_dex_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dex'**
+  String get tutorial_more_dex_title;
+
+  /// No description provided for @tutorial_more_dex_s1.
+  ///
+  /// In en, this message translates to:
+  /// **'Quickly overview all cards; supports search and filters.'**
+  String get tutorial_more_dex_s1;
+
+  /// No description provided for @tutorial_faq_q1.
+  ///
+  /// In en, this message translates to:
+  /// **'How to quickly add many mini cards?'**
+  String get tutorial_faq_q1;
+
+  /// No description provided for @tutorial_faq_a1.
+  ///
+  /// In en, this message translates to:
+  /// **'In the mini card view page, there are two buttons at the top right. The left button supports batch importing JSON files, and the right button allows you to download the JSON file for this artist’s cards.'**
+  String get tutorial_faq_a1;
+
+  /// No description provided for @tutorial_faq_q2.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to import QR / JSON?'**
+  String get tutorial_faq_q2;
+
+  /// No description provided for @tutorial_faq_a2.
+  ///
+  /// In en, this message translates to:
+  /// **'The leftmost/rightmost entry in the mini-card viewer, or “More” menu → “Import”.'**
+  String get tutorial_faq_a2;
+
+  /// No description provided for @tutorial_faq_q3.
+  ///
+  /// In en, this message translates to:
+  /// **'What are tags for?'**
+  String get tutorial_faq_q3;
+
+  /// No description provided for @tutorial_faq_a3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags help quick filtering in the mini-card viewer; search becomes more precise.'**
+  String get tutorial_faq_a3;
+
+  /// No description provided for @tutorial_faq_q4.
+  ///
+  /// In en, this message translates to:
+  /// **'How to change language & theme?'**
+  String get tutorial_faq_q4;
+
+  /// No description provided for @tutorial_faq_a4.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to “More → Settings” to switch app language and light/dark theme.'**
+  String get tutorial_faq_a4;
+
+  /// No description provided for @tutorial_faq_q5.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do social posts appear?'**
+  String get tutorial_faq_q5;
+
+  /// No description provided for @tutorial_faq_a5.
+  ///
+  /// In en, this message translates to:
+  /// **'Your posts appear in “Hot” and “Friends”; friends can see and interact.'**
+  String get tutorial_faq_a5;
+
+  /// No description provided for @postHintShareSomething.
+  ///
+  /// In en, this message translates to:
+  /// **'Share something…'**
+  String get postHintShareSomething;
+
+  /// No description provided for @postAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Album'**
+  String get postAlbum;
+
+  /// No description provided for @postPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postPublish;
+
+  /// No description provided for @postTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get postTags;
+
+  /// No description provided for @postAddTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag and press Enter'**
+  String get postAddTagHint;
+
+  /// No description provided for @postAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get postAdd;
+
+  /// No description provided for @postTagsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{max}'**
+  String postTagsCount(int count, int max);
+
+  /// No description provided for @postTagLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag limit {max}'**
+  String postTagLimit(int max);
 }
 
 class _AppLocalizationsDelegate

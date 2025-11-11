@@ -1044,28 +1044,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badge_coming_soon => 'Coming soon';
 
   @override
-  String get feature_external_images => 'External images (URL)';
+  String get feature_external_images =>
+      '5 GB cloud storage (multi-device sync)';
 
   @override
-  String get feature_small_cloud_space => 'Small cloud storage';
+  String get feature_small_cloud_space =>
+      'Card categorization, card back info, mini-card details';
 
   @override
   String get feature_multi_device_sync => 'Multi-device sync';
 
   @override
-  String get feature_upload_local_images => 'Upload local images';
+  String get feature_upload_local_images =>
+      '10 GB cloud storage (multi-device sync)';
 
   @override
-  String get feature_priority_support => 'Priority support';
+  String get feature_priority_support =>
+      'Card categorization, card back info, mini-card details';
 
   @override
-  String get feature_large_storage => 'Large cloud storage';
+  String get feature_large_storage => '50 GB cloud storage (multi-device sync)';
 
   @override
-  String get feature_album_report => 'Album report (preview)';
+  String get feature_album_report =>
+      'Card categorization, card back info, mini-card details';
 
   @override
-  String get feature_roadmap_advance => 'Advanced features (preview)';
+  String get feature_roadmap_advance => 'Advanced features (coming soon)';
 
   @override
   String get plan_badge_recommended => 'Recommended';
@@ -1131,4 +1136,231 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_cancelDescription => 'Generic cancel button label.';
+
+  @override
+  String get tutorial_title => 'Tutorial';
+
+  @override
+  String get tutorial_tab_cards => 'Cards';
+
+  @override
+  String get tutorial_tab_social => 'Social';
+
+  @override
+  String get tutorial_tab_explore => 'Explore';
+
+  @override
+  String get tutorial_tab_more => 'More';
+
+  @override
+  String get tutorial_tab_faq => 'FAQ';
+
+  @override
+  String get tutorial_cards_tags_addArtist => 'Add artist card';
+
+  @override
+  String get tutorial_cards_tags_addMini => 'Add mini card';
+
+  @override
+  String get tutorial_cards_tags_editDelete => 'Edit / Delete';
+
+  @override
+  String get tutorial_cards_tags_info => 'Mini card info';
+
+  @override
+  String get tutorial_cards_addArtist_title => 'Add “Artist Card”';
+
+  @override
+  String get tutorial_cards_addArtist_s1 =>
+      'Tap “＋ Add artist card” at the bottom-right of the Cards page.';
+
+  @override
+  String get tutorial_cards_addArtist_s2 =>
+      'Choose a local image or paste an online image URL.';
+
+  @override
+  String get tutorial_cards_addArtist_s3 =>
+      'Swipe right to edit artist info; swipe left to delete the artist card.';
+
+  @override
+  String get tutorial_cards_addMini_title => 'Add “Mini Card”';
+
+  @override
+  String get tutorial_cards_addMini_s1 =>
+      'Tap any “artist card” to enter its detail.';
+
+  @override
+  String get tutorial_cards_addMini_s2 =>
+      'Tap the mini-card area or swipe up → enter mini-card viewer.';
+
+  @override
+  String get tutorial_cards_addMini_s3 =>
+      'The leftmost/rightmost pages let you scan QR or open editor to add.';
+
+  @override
+  String get tutorial_cards_addMini_s4 =>
+      'Tap the “＋” on the editor to add; the same page supports delete.';
+
+  @override
+  String get tutorial_cards_info_title => 'Manage “Mini Card Info”';
+
+  @override
+  String get tutorial_cards_info_s1 =>
+      'After adding, the mini card appears in the viewer; tap to flip.';
+
+  @override
+  String get tutorial_cards_info_s2 =>
+      'On the back → “Info” to edit: name, serial, album, type, notes, tags.';
+
+  @override
+  String get tutorial_cards_info_s3 =>
+      'With tags, you can filter faster and search more precisely.';
+
+  @override
+  String get tutorial_cards_note_json =>
+      'Tip: The mini-card viewer (top-right) supports JSON download and batch import.';
+
+  @override
+  String get tutorial_social_tags_primary => 'Friends / Hot / Following';
+
+  @override
+  String get tutorial_social_tags_postComment => 'Post & comment';
+
+  @override
+  String get tutorial_social_tags_lists => 'List management';
+
+  @override
+  String get tutorial_social_browse_title => 'Browse posts';
+
+  @override
+  String get tutorial_social_browse_s1 =>
+      'Switch tabs on top: “Friends”, “Hot”, “Following”.';
+
+  @override
+  String get tutorial_social_browse_s2 =>
+      'All tabs support browsing, liking, and commenting.';
+
+  @override
+  String get tutorial_social_post_title => 'Post & comment';
+
+  @override
+  String get tutorial_social_post_s1 =>
+      'Use the bottom-right “pencil” to post.';
+
+  @override
+  String get tutorial_social_post_s2 =>
+      'Your post appears in “Hot” and “Friends” (friends can interact).';
+
+  @override
+  String get tutorial_social_list_title => 'Manage lists';
+
+  @override
+  String get tutorial_social_list_s1 => 'Top-right “#”: edit friends list.';
+
+  @override
+  String get tutorial_social_list_s2 =>
+      'Top-right “card”: edit following list.';
+
+  @override
+  String get tutorial_explore_wall_title => 'Create idol wallpapers';
+
+  @override
+  String get tutorial_explore_wall_s1 =>
+      'Place photos, slogans, stickers to craft your style.';
+
+  @override
+  String get tutorial_explore_wall_s2 =>
+      'Add a “Birthday countdown” widget for support projects.';
+
+  @override
+  String get tutorial_more_settings_title => 'Settings & User';
+
+  @override
+  String get tutorial_more_settings_s1 =>
+      '“Settings”: theme, language, notification preferences.';
+
+  @override
+  String get tutorial_more_settings_s2 =>
+      '“User settings”: nickname, avatar, sign-in methods.';
+
+  @override
+  String get tutorial_more_stats_title => 'Statistics';
+
+  @override
+  String get tutorial_more_stats_s1 =>
+      'See collected artists, mini-card count, and source (local / online).';
+
+  @override
+  String get tutorial_more_stats_s2 =>
+      'Leaderboards and achievements record your collection journey.';
+
+  @override
+  String get tutorial_more_dex_title => 'Dex';
+
+  @override
+  String get tutorial_more_dex_s1 =>
+      'Quickly overview all cards; supports search and filters.';
+
+  @override
+  String get tutorial_faq_q1 => 'How to quickly add many mini cards?';
+
+  @override
+  String get tutorial_faq_a1 =>
+      'In the mini card view page, there are two buttons at the top right. The left button supports batch importing JSON files, and the right button allows you to download the JSON file for this artist’s cards.';
+
+  @override
+  String get tutorial_faq_q2 => 'Where to import QR / JSON?';
+
+  @override
+  String get tutorial_faq_a2 =>
+      'The leftmost/rightmost entry in the mini-card viewer, or “More” menu → “Import”.';
+
+  @override
+  String get tutorial_faq_q3 => 'What are tags for?';
+
+  @override
+  String get tutorial_faq_a3 =>
+      'Tags help quick filtering in the mini-card viewer; search becomes more precise.';
+
+  @override
+  String get tutorial_faq_q4 => 'How to change language & theme?';
+
+  @override
+  String get tutorial_faq_a4 =>
+      'Go to “More → Settings” to switch app language and light/dark theme.';
+
+  @override
+  String get tutorial_faq_q5 => 'Where do social posts appear?';
+
+  @override
+  String get tutorial_faq_a5 =>
+      'Your posts appear in “Hot” and “Friends”; friends can see and interact.';
+
+  @override
+  String get postHintShareSomething => 'Share something…';
+
+  @override
+  String get postAlbum => 'Album';
+
+  @override
+  String get postPublish => 'Post';
+
+  @override
+  String get postTags => 'Tags';
+
+  @override
+  String get postAddTagHint => 'Add a tag and press Enter';
+
+  @override
+  String get postAdd => 'Add';
+
+  @override
+  String postTagsCount(int count, int max) {
+    return '$count/$max';
+  }
+
+  @override
+  String postTagLimit(int max) {
+    return 'Tag limit $max';
+  }
 }

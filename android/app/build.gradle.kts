@@ -53,9 +53,10 @@ android {
             // ★ 變更：由 debug → release 簽章
             signingConfig = signingConfigs.getByName("release")
 
-            // 可開啟以縮小包體（若遇到混淆問題可先關閉）
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // ✅ 先關掉，讓 Play 100% 掃到 Billing
+            isMinifyEnabled = false
+            isShrinkResources = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

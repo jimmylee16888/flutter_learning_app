@@ -2,7 +2,7 @@ name: flutter_learning_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 1.2.0+15
+version: 1.2.2+17
 
 environment:
   sdk: ^3.9.0
@@ -58,6 +58,10 @@ dependencies:
   # 手機重力水平面傾斜
   sensors_plus: ^6.0.1
   audioplayers: ^6.5.1
+
+  # App 內部購買
+  in_app_purchase: ^3.0.9
+  in_app_purchase_android: ^0.3.0
 
 dev_dependencies:
   flutter_test:
