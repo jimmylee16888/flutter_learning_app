@@ -103,30 +103,28 @@ class SubscriptionService {
     await _loadRealFromPrefs();
     await _loadDevOverrideFromPrefs();
 
-    // 先把 effective 推上目前的（覆寫優先）
     _recomputeEffective();
-
-    // 同步監聽 real state 的變化（例如 server 回寫、購買流）
     state.addListener(_recomputeEffective);
 
     _sub = _iap.purchaseStream.listen(
       _onPurchases,
       onError: (e, st) {
         if (kDebugMode) {
-          // ignore: avoid_print
           print('[SubscriptionService] purchaseStream error: $e');
         }
       },
     );
 
-    try {
-      await _iap.restorePurchases();
-    } catch (e) {
-      if (kDebugMode) {
-        // ignore: avoid_print
-        print('[SubscriptionService] restorePurchases failed: $e');
+    // 只在 Release 自動恢復；開發時用 UI 的按鈕（或頁面 init）呼叫 restore
+    if (kReleaseMode) {
+      // NEW
+      try {
+        await _iap.restorePurchases();
+      } catch (e) {
+        if (kDebugMode)
+          print('[SubscriptionService] restorePurchases failed: $e');
       }
-    }
+    } // NEW
   }
 
   Future<void> dispose() async {
@@ -159,33 +157,35 @@ class SubscriptionService {
       switch (p.status) {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
+          // 在 _onPurchases(...) 迴圈裡
           final mapped = kProductToPlan[p.productID];
           if (mapped != null) {
-            if (highest == null || mapped.index > highest.index) {
-              highest = mapped;
-            }
+            final prev = highest?.index ?? -1; // ← 允許 highest 為 null
+            if (mapped.index > prev) highest = mapped;
           }
+
+          // 這裡不要直接 active=true；交給 UI 或後端驗證再生效  // CHANGED
+
           break;
         case PurchaseStatus.canceled:
         case PurchaseStatus.error:
         case PurchaseStatus.pending:
-          // 不主動降級；待伺服器驗證
           break;
       }
+
       if (p.pendingCompletePurchase) {
         try {
           await _iap.completePurchase(p);
         } catch (e) {
-          if (kDebugMode) {
-            // ignore: avoid_print
+          if (kDebugMode)
             print('[SubscriptionService] completePurchase error: $e');
-          }
         }
       }
     }
 
     if (highest != null) {
-      next = next.copyWith(plan: highest, isActive: true);
+      // 只記錄「疑似方案」，但先保持 inactive                         // CHANGED
+      next = next.copyWith(plan: highest, isActive: false, lastVerified: null);
       await _setRealAndCache(next);
     }
   }
@@ -298,6 +298,79 @@ class SubscriptionService {
       effective.value = _devState!;
     } else {
       effective.value = state.value;
+    }
+  }
+
+  Future<void> manualRestore() async {
+    // NEW
+    try {
+      final ok = await _iap.isAvailable();
+      if (!ok) return;
+      await _iap.restorePurchases();
+    } catch (_) {}
+  }
+
+  /// 由 UI 端宣告：偵測到某商品為有效訂閱（僅做客戶端 Demo/暫行） // NEW
+  Future<void> applyClientDetectedActive(String productId) async {
+    final plan = kProductToPlan[productId];
+    if (plan == null) return;
+    await applyServerEntitlement(
+      // 重用既有方法，寫入快取 + 推播 effective
+      plan: plan,
+      isActive: true,
+      verifiedAt: DateTime.now(),
+    );
+  }
+
+  /// 從商店還原一次，並嘗試「偵測」最高等級的有效訂閱：
+  /// - 有買/有還原 → 直接視為 isActive=true（客戶端暫行；正式應改後端驗證）
+  /// - 無 → 清成 free
+  Future<void> refreshFromStoreAndDetect() async {
+    try {
+      final ok = await _iap.isAvailable();
+      if (!ok) return;
+
+      SubscriptionPlan? highest;
+      bool sawActive = false;
+
+      // 暫時監聽 purchaseStream 接住 restore 資料
+      final sub = _iap.purchaseStream.listen((ps) {
+        for (final p in ps) {
+          if (p.status == PurchaseStatus.purchased ||
+              p.status == PurchaseStatus.restored) {
+            sawActive = true;
+            final mapped = kProductToPlan[p.productID];
+            if (mapped != null) {
+              final prev = highest?.index ?? -1;
+              if (mapped.index > prev) highest = mapped;
+            }
+          }
+        }
+      });
+
+      try {
+        await _iap.restorePurchases();
+        // 給 stream 一點時間回傳（視需要可調整）
+        await Future.delayed(const Duration(seconds: 2));
+      } finally {
+        await sub.cancel();
+      }
+
+      if (sawActive && highest != null) {
+        await applyServerEntitlement(
+          plan: highest!, // ← 這裡已經判空，! 安全
+          isActive: true,
+          verifiedAt: DateTime.now(),
+        );
+      } else {
+        await clearToFree();
+      }
+    } catch (e) {
+      // 出錯就不要動目前狀態，避免誤清
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('[SubscriptionService] refreshFromStoreAndDetect error: $e');
+      }
     }
   }
 }

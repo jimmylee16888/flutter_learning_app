@@ -441,7 +441,7 @@
   },
 
   "section_plan_notes": "方案說明",
-  "section_payment_invoice": "付款與發票（示意）",
+  "section_payment_invoice": "付款與發票（由 Google Play 提供）",
   "section_terms": "條款（示意）",
 
   "upgrade_card_title": "升級空間，收藏無負擔",
@@ -470,8 +470,8 @@
   "bullet_free_external": "免費方案：僅允許使用「外部圖片（網址）」",
   "bullet_paid_local_upload": "付費方案：可上傳本地圖片到雲端，提供更大容量",
   "bullet_future_tiers": "未來將提供更多容量級距",
-  "bullet_pay_cards": "目前支援信用卡（VISA／Master／JCB）",
-  "bullet_einvoice": "國內開立雲端發票；企業可填統編",
+  "bullet_pay_cards": "目前僅支援 Google Play 內建訂閱與付款",
+  "bullet_einvoice": "收據／發票由 Google Play 開立；企業統編不適用",
   "bullet_cancel_anytime": "可隨時取消，下期不續扣",
   "bullet_terms": "服務條款、隱私權政策、退款政策（之後補連結）",
   "bullet_abuse": "濫用上傳（如違法內容）將被停權",
@@ -573,6 +573,8 @@
     "placeholders": {
       "max": { "type": "int" }
     }
-  }
+  },
+
+  "currentPlan": "目前方案"
 
 }

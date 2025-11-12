@@ -1968,7 +1968,7 @@ abstract class AppLocalizations {
   /// No description provided for @section_payment_invoice.
   ///
   /// In en, this message translates to:
-  /// **'Payment & invoice (demo)'**
+  /// **'Payment and receipts (via Google Play)'**
   String get section_payment_invoice;
 
   /// No description provided for @section_terms.
@@ -2106,13 +2106,13 @@ abstract class AppLocalizations {
   /// No description provided for @bullet_pay_cards.
   ///
   /// In en, this message translates to:
-  /// **'Currently supports credit cards (VISA / Master / JCB)'**
+  /// **'Only Google Play Billing subscriptions are supported'**
   String get bullet_pay_cards;
 
   /// No description provided for @bullet_einvoice.
   ///
   /// In en, this message translates to:
-  /// **'Domestic e-invoice; business users can enter tax ID'**
+  /// **'Receipts/invoices are issued by Google Play; corporate tax IDs are not supported'**
   String get bullet_einvoice;
 
   /// No description provided for @bullet_cancel_anytime.
@@ -2546,6 +2546,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tag limit {max}'**
   String postTagLimit(int max);
+
+  /// No description provided for @currentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get currentPlan;
 }
 
 class _AppLocalizationsDelegate

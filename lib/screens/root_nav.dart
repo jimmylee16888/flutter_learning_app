@@ -63,9 +63,12 @@ class RootNav extends StatefulWidget {
 // More 容器顯示哪個子頁
 enum MoreMode { settings, user, stats, dex }
 
-class _RootNavState extends State<RootNav> {
+class _RootNavState extends State<RootNav> with WidgetsBindingObserver {
   // 頁籤索引：0 Cards、1 Social、2 Explore、3 More
   static const int _kMoreHostIndex = 3;
+
+  DateTime? _lastSubRefreshAt;
+  bool _isRefreshingSub = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   PersistentBottomSheetController? _moreSheetCtrl;
@@ -147,6 +150,8 @@ class _RootNavState extends State<RootNav> {
                 return;
               }
               if (i == 3) {
+                // 先同步一次（行動端/桌面），再打開 More
+                await _refreshSubsOnMoreOpen();
                 await _openMoreMenu(context);
                 return;
               }
@@ -214,11 +219,9 @@ class _RootNavState extends State<RootNav> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  ValueListenableBuilder(
-                    // ✅ 改：讀 effective，而不是 state
+                  ValueListenableBuilder<SubscriptionState>(
                     valueListenable: SubscriptionService.I.effective,
-                    builder: (context, sub, _) {
-                      final s = sub as SubscriptionState;
+                    builder: (context, s, _) {
                       final plan = s.isActive ? s.plan : SubscriptionPlan.free;
                       return SubscriptionFishbowlTile(
                         plan: plan,
@@ -234,6 +237,7 @@ class _RootNavState extends State<RootNav> {
                       );
                     },
                   ),
+
                   // Settings
                   ListTile(
                     leading: const Icon(Icons.settings_outlined),
@@ -318,6 +322,28 @@ class _RootNavState extends State<RootNav> {
     if (m == MoreMode.user) {
       final p = _profileKey.currentState as dynamic;
       await p?.refreshOnEnter();
+    }
+  }
+
+  Future<void> _refreshSubsOnMoreOpen() async {
+    if (kIsWeb) return; // Web 無 IAP，不需要
+    if (_isRefreshingSub) return; // 正在刷新就略過
+    final now = DateTime.now();
+    if (_lastSubRefreshAt != null &&
+        now.difference(_lastSubRefreshAt!) < const Duration(seconds: 20)) {
+      return; // 20 秒內剛刷新過，避免連點狂打
+    }
+
+    _isRefreshingSub = true;
+    try {
+      await SubscriptionService.I.refreshFromStoreAndDetect().timeout(
+        const Duration(seconds: 12),
+      );
+      _lastSubRefreshAt = DateTime.now();
+    } catch (_) {
+      // 可加 debugPrint，但不要讓 UI 中斷
+    } finally {
+      if (mounted) setState(() => _isRefreshingSub = false);
     }
   }
 }

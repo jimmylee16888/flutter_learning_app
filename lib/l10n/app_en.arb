@@ -466,7 +466,7 @@
   },
 
   "section_plan_notes": "Plan notes",
-  "section_payment_invoice": "Payment & invoice (demo)",
+  "section_payment_invoice": "Payment and receipts (via Google Play)",
   "section_terms": "Terms (demo)",
 
   "upgrade_card_title": "Upgrade storage, collect freely",
@@ -495,8 +495,8 @@
   "bullet_free_external": "Free plan: external images (URLs) only",
   "bullet_paid_local_upload": "Paid plans: upload local images to cloud with larger storage",
   "bullet_future_tiers": "More storage tiers will be available later",
-  "bullet_pay_cards": "Currently supports credit cards (VISA / Master / JCB)",
-  "bullet_einvoice": "Domestic e-invoice; business users can enter tax ID",
+  "bullet_pay_cards": "Only Google Play Billing subscriptions are supported",
+  "bullet_einvoice": "Receipts/invoices are issued by Google Play; corporate tax IDs are not supported",
   "bullet_cancel_anytime": "Cancel anytime; no renewal next cycle",
   "bullet_terms": "Terms of Service, Privacy Policy, Refund Policy (links to be added)",
   "bullet_abuse": "Abusive/illegal uploads may lead to suspension",
@@ -598,6 +598,8 @@
     "placeholders": {
       "max": { "type": "int" }
     }
-  }
+  },
+
+  "currentPlan": "Current Plan"
 
 }

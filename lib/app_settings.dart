@@ -85,7 +85,9 @@ class AppSettings extends ChangeNotifier {
     final loc = _prefs!.getString(_kLocale);
     if (loc != null && loc.isNotEmpty) {
       final parts = loc.split('_');
-      _locale = parts.length == 2 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
+      _locale = parts.length == 2
+          ? Locale(parts[0], parts[1])
+          : Locale(parts[0]);
     }
 
     // Collections
@@ -94,7 +96,9 @@ class AppSettings extends ChangeNotifier {
     _categories = cats == null ? [] : (jsonDecode(cats) as List).cast<String>();
     _cardItems = cards == null
         ? []
-        : (jsonDecode(cards) as List).map((e) => CardItem.fromJson(e as Map<String, dynamic>)).toList();
+        : (jsonDecode(cards) as List)
+              .map((e) => CardItem.fromJson(e as Map<String, dynamic>))
+              .toList();
 
     // 使用者資訊
     _nickname = _prefs!.getString(_kNickname);
@@ -222,7 +226,10 @@ class AppSettings extends ChangeNotifier {
 
   Future<void> _saveCollections() async {
     await _prefs?.setString(_kCategories, jsonEncode(_categories));
-    await _prefs?.setString(_kCardItems, jsonEncode(_cardItems.map((e) => e.toJson()).toList()));
+    await _prefs?.setString(
+      _kCardItems,
+      jsonEncode(_cardItems.map((e) => e.toJson()).toList()),
+    );
   }
 
   // ====== 分類操作 ======
@@ -237,7 +244,13 @@ class AppSettings extends ChangeNotifier {
 
   void removeCategory(String name) {
     _categories = _categories.where((c) => c != name).toList();
-    _cardItems = _cardItems.map((c) => c.copyWith(categories: c.categories.where((x) => x != name).toList())).toList();
+    _cardItems = _cardItems
+        .map(
+          (c) => c.copyWith(
+            categories: c.categories.where((x) => x != name).toList(),
+          ),
+        )
+        .toList();
     _saveCollections();
     notifyListeners();
   }
@@ -257,7 +270,8 @@ class AppSettings extends ChangeNotifier {
   void setCardCategories(String cardId, List<String> cats) {
     final idx = _cardItems.indexWhere((c) => c.id == cardId);
     if (idx < 0) return;
-    _cardItems = List.of(_cardItems)..[idx] = _cardItems[idx].copyWith(categories: cats);
+    _cardItems = List.of(_cardItems)
+      ..[idx] = _cardItems[idx].copyWith(categories: cats);
     _saveCollections();
     notifyListeners();
   }

@@ -1006,7 +1006,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get section_plan_notes => '方案說明';
 
   @override
-  String get section_payment_invoice => '付款與發票（示意）';
+  String get section_payment_invoice => '付款與發票（由 Google Play 提供）';
 
   @override
   String get section_terms => '條款（示意）';
@@ -1078,10 +1078,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bullet_future_tiers => '未來將提供更多容量級距';
 
   @override
-  String get bullet_pay_cards => '目前支援信用卡（VISA／Master／JCB）';
+  String get bullet_pay_cards => '目前僅支援 Google Play 內建訂閱與付款';
 
   @override
-  String get bullet_einvoice => '國內開立雲端發票；企業可填統編';
+  String get bullet_einvoice => '收據／發票由 Google Play 開立；企業統編不適用';
 
   @override
   String get bullet_cancel_anytime => '可隨時取消，下期不續扣';
@@ -1302,6 +1302,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String postTagLimit(int max) {
     return '標籤最多 $max 個';
   }
+
+  @override
+  String get currentPlan => '目前方案';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2306,7 +2309,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get section_plan_notes => '方案說明';
 
   @override
-  String get section_payment_invoice => '付款與發票（示意）';
+  String get section_payment_invoice => '付款與發票（由 Google Play 提供）';
 
   @override
   String get section_terms => '條款（示意）';
@@ -2378,10 +2381,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get bullet_future_tiers => '未來將提供更多容量級距';
 
   @override
-  String get bullet_pay_cards => '目前支援信用卡（VISA／Master／JCB）';
+  String get bullet_pay_cards => '目前僅支援 Google Play 內建訂閱與付款';
 
   @override
-  String get bullet_einvoice => '國內開立雲端發票；企業可填統編';
+  String get bullet_einvoice => '收據／發票由 Google Play 開立；企業統編不適用';
 
   @override
   String get bullet_cancel_anytime => '可隨時取消，下期不續扣';
@@ -2603,4 +2606,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String postTagLimit(int max) {
     return '標籤最多 $max 個';
   }
+
+  @override
+  String get currentPlan => '目前方案';
 }

@@ -1011,7 +1011,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get section_plan_notes => '플랜 안내';
 
   @override
-  String get section_payment_invoice => '결제 및 세금계산서(데모)';
+  String get section_payment_invoice => '결제 및 영수증 (Google Play를 통해 제공)';
 
   @override
   String get section_terms => '약관(데모)';
@@ -1083,10 +1083,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bullet_future_tiers => '추후 더 다양한 용량 구간을 제공';
 
   @override
-  String get bullet_pay_cards => '지원 결제수단: 신용카드(VISA／Master／JCB)';
+  String get bullet_pay_cards => '현재는 Google Play 결제 구독만 지원합니다';
 
   @override
-  String get bullet_einvoice => '국내 전자세금계산서 발행, 기업 고객은 사업자번호 입력 가능';
+  String get bullet_einvoice =>
+      '영수증/세금계산서는 Google Play에서 발급되며, 사업자 등록번호 입력은 지원되지 않습니다';
 
   @override
   String get bullet_cancel_anytime => '언제든 해지 가능, 다음 달부터 청구 중단';
@@ -1309,4 +1310,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String postTagLimit(int max) {
     return '태그는 최대 $max개';
   }
+
+  @override
+  String get currentPlan => '현재 플랜';
 }

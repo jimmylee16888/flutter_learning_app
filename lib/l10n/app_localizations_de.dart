@@ -1033,7 +1033,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get section_plan_notes => 'Hinweise zu den Plänen';
 
   @override
-  String get section_payment_invoice => 'Zahlung & Rechnung (Demo)';
+  String get section_payment_invoice => 'Zahlung und Belege (über Google Play)';
 
   @override
   String get section_terms => 'Bedingungen (Demo)';
@@ -1115,11 +1115,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bullet_future_tiers => 'Weitere Speicherstufen folgen';
 
   @override
-  String get bullet_pay_cards => 'Unterstützt: Kreditkarte (VISA/Master/JCB)';
+  String get bullet_pay_cards =>
+      'Es werden nur Abonnements über Google Play Billing unterstützt';
 
   @override
   String get bullet_einvoice =>
-      'Inländische E-Rechnung; Unternehmens-Steuernummer möglich';
+      'Quittungen/Rechnungen werden von Google Play ausgestellt; Unternehmens-Steuernummern werden nicht unterstützt';
 
   @override
   String get bullet_cancel_anytime =>
@@ -1371,4 +1372,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String postTagLimit(int max) {
     return 'Max. $max Tags';
   }
+
+  @override
+  String get currentPlan => 'Aktueller Plan';
 }

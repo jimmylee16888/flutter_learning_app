@@ -442,7 +442,7 @@
   },
 
   "section_plan_notes": "Hinweise zu den Plänen",
-  "section_payment_invoice": "Zahlung & Rechnung (Demo)",
+  "section_payment_invoice": "Zahlung und Belege (über Google Play)",
   "section_terms": "Bedingungen (Demo)",
 
   "upgrade_card_title": "Speicher erweitern, entspannt sammeln",
@@ -471,8 +471,8 @@
   "bullet_free_external": "Gratis-Plan: Nur externe Bilder (URL) erlaubt",
   "bullet_paid_local_upload": "Bezahlplan: Lokale Uploads in die Cloud mit mehr Speicher",
   "bullet_future_tiers": "Weitere Speicherstufen folgen",
-  "bullet_pay_cards": "Unterstützt: Kreditkarte (VISA/Master/JCB)",
-  "bullet_einvoice": "Inländische E-Rechnung; Unternehmens-Steuernummer möglich",
+  "bullet_pay_cards": "Es werden nur Abonnements über Google Play Billing unterstützt",
+  "bullet_einvoice": "Quittungen/Rechnungen werden von Google Play ausgestellt; Unternehmens-Steuernummern werden nicht unterstützt",
   "bullet_cancel_anytime": "Jederzeit kündbar – keine Verlängerung im nächsten Monat",
   "bullet_terms": "Nutzungsbedingungen, Datenschutz, Rückerstattungen (Links folgen)",
   "bullet_abuse": "Missbräuchliche/illegale Uploads führen zur Sperrung",
@@ -574,6 +574,10 @@
     "placeholders": {
       "max": { "type": "int" }
     }
-  }
+  },
+
+  "currentPlan": "Aktueller Plan"
+
+  
 
 }

@@ -1011,7 +1011,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get section_plan_notes => 'プランの説明';
 
   @override
-  String get section_payment_invoice => '支払いと請求（デモ）';
+  String get section_payment_invoice => 'お支払いと領収書（Google Play により提供）';
 
   @override
   String get section_terms => '利用規約（デモ）';
@@ -1083,10 +1083,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bullet_future_tiers => '今後、容量の段階を拡充予定';
 
   @override
-  String get bullet_pay_cards => '対応：クレジットカード（VISA／Master／JCB）';
+  String get bullet_pay_cards => '現在は Google Play の定期購入（アプリ内課金）のみ対応しています';
 
   @override
-  String get bullet_einvoice => '国内はクラウド請求書に対応。企業は税番号の入力可';
+  String get bullet_einvoice =>
+      '領収書／請求書は Google Play により発行されます。法人向けの請求情報（法人番号等）には対応していません';
 
   @override
   String get bullet_cancel_anytime => 'いつでも解約可能。次回以降は課金されません';
@@ -1308,4 +1309,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String postTagLimit(int max) {
     return 'タグは最大 $max 個';
   }
+
+  @override
+  String get currentPlan => '現在のプラン';
 }

@@ -1028,7 +1028,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get section_plan_notes => 'Plan notes';
 
   @override
-  String get section_payment_invoice => 'Payment & invoice (demo)';
+  String get section_payment_invoice =>
+      'Payment and receipts (via Google Play)';
 
   @override
   String get section_terms => 'Terms (demo)';
@@ -1109,11 +1110,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bullet_pay_cards =>
-      'Currently supports credit cards (VISA / Master / JCB)';
+      'Only Google Play Billing subscriptions are supported';
 
   @override
   String get bullet_einvoice =>
-      'Domestic e-invoice; business users can enter tax ID';
+      'Receipts/invoices are issued by Google Play; corporate tax IDs are not supported';
 
   @override
   String get bullet_cancel_anytime => 'Cancel anytime; no renewal next cycle';
@@ -1363,4 +1364,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String postTagLimit(int max) {
     return 'Tag limit $max';
   }
+
+  @override
+  String get currentPlan => 'Current Plan';
 }

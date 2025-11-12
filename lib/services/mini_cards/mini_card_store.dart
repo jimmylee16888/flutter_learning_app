@@ -14,10 +14,12 @@ class MiniCardStore extends ChangeNotifier {
   // ===== 讀取 =====
 
   /// 讀取某位 owner（唯讀）
-  List<MiniCardData> forOwner(String owner) => List.unmodifiable(_byOwner[owner] ?? const []);
+  List<MiniCardData> forOwner(String owner) =>
+      List.unmodifiable(_byOwner[owner] ?? const []);
 
   /// 讀取所有小卡（唯讀）
-  List<MiniCardData> allCards() => _byOwner.values.expand((e) => e).toList(growable: false);
+  List<MiniCardData> allCards() =>
+      _byOwner.values.expand((e) => e).toList(growable: false);
 
   /// 提供給圖鑑的總清單別名
   List<MiniCardData> get cards => allCards();
@@ -42,8 +44,15 @@ class MiniCardStore extends ChangeNotifier {
   }
 
   /// 新增單張 MiniCard 到指定 Card 底下（idol 只在為空時回填 owner）
-  Future<void> addMiniCard({required CardItem card, required MiniCardData mini}) async {
-    final fixed = mini.copyWith(idol: (mini.idol == null || mini.idol!.trim().isEmpty) ? card.title : mini.idol);
+  Future<void> addMiniCard({
+    required CardItem card,
+    required MiniCardData mini,
+  }) async {
+    final fixed = mini.copyWith(
+      idol: (mini.idol == null || mini.idol!.trim().isEmpty)
+          ? card.title
+          : mini.idol,
+    );
     final list = _byOwner.putIfAbsent(card.title, () => <MiniCardData>[]);
     list.add(fixed);
     await _persistOwner(card.title);
@@ -51,11 +60,22 @@ class MiniCardStore extends ChangeNotifier {
   }
 
   /// 一次新增多張（idol 只在為空時回填 owner）
-  Future<void> addMiniCards({required CardItem card, required List<MiniCardData> minis}) async {
+  Future<void> addMiniCards({
+    required CardItem card,
+    required List<MiniCardData> minis,
+  }) async {
     final list = _byOwner.putIfAbsent(card.title, () => <MiniCardData>[]);
     final beforeLen = list.length;
 
-    list.addAll(minis.map((m) => m.copyWith(idol: (m.idol == null || m.idol!.trim().isEmpty) ? card.title : m.idol)));
+    list.addAll(
+      minis.map(
+        (m) => m.copyWith(
+          idol: (m.idol == null || m.idol!.trim().isEmpty)
+              ? card.title
+              : m.idol,
+        ),
+      ),
+    );
 
     if (list.length != beforeLen) {
       await _persistOwner(card.title);
@@ -64,11 +84,18 @@ class MiniCardStore extends ChangeNotifier {
   }
 
   /// 更新 mini 卡內容（idol 只在為空時回填 owner）
-  Future<void> updateMini({required CardItem card, required MiniCardData mini}) async {
+  Future<void> updateMini({
+    required CardItem card,
+    required MiniCardData mini,
+  }) async {
     final list = _byOwner.putIfAbsent(card.title, () => <MiniCardData>[]);
     final idx = list.indexWhere((x) => x.id == mini.id);
 
-    final next = mini.copyWith(idol: (mini.idol == null || mini.idol!.trim().isEmpty) ? card.title : mini.idol);
+    final next = mini.copyWith(
+      idol: (mini.idol == null || mini.idol!.trim().isEmpty)
+          ? card.title
+          : mini.idol,
+    );
 
     bool changed = false;
     if (idx >= 0) {
@@ -85,7 +112,11 @@ class MiniCardStore extends ChangeNotifier {
   }
 
   /// 將 mini 卡從 A 卡搬到 B 卡（會同步更新 idol = toCard.title）
-  Future<void> moveMini({required CardItem fromCard, required CardItem toCard, required String miniId}) async {
+  Future<void> moveMini({
+    required CardItem fromCard,
+    required CardItem toCard,
+    required String miniId,
+  }) async {
     final from = _byOwner[fromCard.title];
     if (from == null) return;
     final i = from.indexWhere((m) => m.id == miniId);
@@ -111,7 +142,11 @@ class MiniCardStore extends ChangeNotifier {
     final list = _byOwner.putIfAbsent(owner, () => <MiniCardData>[]);
 
     final idx = list.indexWhere((c) => c.id == next.id);
-    final fixed = next.copyWith(idol: (next.idol == null || next.idol!.trim().isEmpty) ? owner : next.idol);
+    final fixed = next.copyWith(
+      idol: (next.idol == null || next.idol!.trim().isEmpty)
+          ? owner
+          : next.idol,
+    );
 
     bool changed = false;
     if (idx >= 0) {
@@ -142,7 +177,11 @@ class MiniCardStore extends ChangeNotifier {
         final id = list[i].id;
         final next = byId[id];
         if (next != null) {
-          final fixed = next.copyWith(idol: (next.idol == null || next.idol!.trim().isEmpty) ? owner : next.idol);
+          final fixed = next.copyWith(
+            idol: (next.idol == null || next.idol!.trim().isEmpty)
+                ? owner
+                : next.idol,
+          );
           if (_replaceIfChanged(list, i, fixed)) touched = true;
         }
       }
@@ -156,7 +195,13 @@ class MiniCardStore extends ChangeNotifier {
       final list = _byOwner.putIfAbsent(kUncategorized, () => <MiniCardData>[]);
       final before = list.length;
       list.addAll(
-        newcomers.map((m) => m.copyWith(idol: (m.idol == null || m.idol!.trim().isEmpty) ? kUncategorized : m.idol)),
+        newcomers.map(
+          (m) => m.copyWith(
+            idol: (m.idol == null || m.idol!.trim().isEmpty)
+                ? kUncategorized
+                : m.idol,
+          ),
+        ),
       );
       if (list.length != before) dirtyOwners.add(kUncategorized);
     }
@@ -173,7 +218,10 @@ class MiniCardStore extends ChangeNotifier {
   /// 2) 確保每張卡的 idol 欄位 = idol
   /// 3) 以 id 去重
   /// 4) 寫回 SharedPreferences 並 notify
-  Future<int> replaceCardsForIdol({required String idol, required List<MiniCardData> next}) async {
+  Future<int> replaceCardsForIdol({
+    required String idol,
+    required List<MiniCardData> next,
+  }) async {
     final key = idol.trim().isEmpty ? kUncategorized : idol.trim();
 
     // 先正規化：補 idol、去重 by id
@@ -289,7 +337,10 @@ class MiniCardStore extends ChangeNotifier {
   /// 兼容舊版：自動回填 idol（僅把 idol 為空的資料補成 owner 名稱）
   /// - 參數 artists / prefer 會被忽略（保留簽名以相容舊呼叫）
   /// - 回傳實際被回填的卡片數量
-  Future<int> autofillIdolTags({required List<CardItem> artists, List<String> prefer = const []}) async {
+  Future<int> autofillIdolTags({
+    required List<CardItem> artists,
+    List<String> prefer = const [],
+  }) async {
     int filled = 0;
     for (final entry in _byOwner.entries) {
       final ownerTitle = entry.key;
@@ -333,81 +384,3 @@ class MiniCardStore extends ChangeNotifier {
     return true;
   }
 }
-
-// // lib/services/mini_card_store.dart
-// import 'dart:convert';
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter_learning_app/models/card_item.dart';
-// import 'package:flutter_learning_app/models/mini_card_data.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// class MiniCardStore extends ChangeNotifier {
-//   // owner(通常用藝人名或 card detail 的 title) -> 小卡清單
-//   final Map<String, List<MiniCardData>> _byOwner = {};
-
-//   List<MiniCardData> forOwner(String owner) =>
-//       List.unmodifiable(_byOwner[owner] ?? const []);
-
-//   List<MiniCardData> allCards() =>
-//       _byOwner.values.expand((e) => e).toList(growable: false);
-
-//   void setForOwner(String owner, List<MiniCardData> cards) {
-//     _byOwner[owner] = List.of(cards);
-//     notifyListeners();
-//   }
-
-//   /// 讓統計在 app 啟動就有資料：
-//   /// 1) 先從 `settings.cardItems` 拿到全部 owner 名稱（藝人）
-//   /// 2) 再掃 SharedPreferences 的 key，把所有 `miniCards:*` 的 owner 也載入（包含可能的孤兒/舊資料）
-//   Future<void> hydrateFromPrefs({required List<CardItem> artists}) async {
-//     final sp = await SharedPreferences.getInstance();
-
-//     // 先清空，避免重複疊加
-//     _byOwner.clear();
-
-//     // A) 以藝人清單為主
-//     for (final a in artists) {
-//       final key = 'miniCards:${a.title}';
-//       final raw = sp.getString(key);
-//       if (raw == null || raw.isEmpty) {
-//         _byOwner[a.title] = <MiniCardData>[];
-//         continue;
-//       }
-//       try {
-//         final list = (jsonDecode(raw) as List)
-//             .cast<Map<String, dynamic>>()
-//             .map(MiniCardData.fromJson)
-//             .toList();
-//         _byOwner[a.title] = list;
-//       } catch (_) {
-//         _byOwner[a.title] = <MiniCardData>[];
-//       }
-//     }
-
-//     // B) 補抓所有以 miniCards: 開頭的 key（可能不是在藝人清單中的 owner）
-//     for (final k in sp.getKeys()) {
-//       if (!k.startsWith('miniCards:')) continue;
-//       final owner = k.substring('miniCards:'.length);
-//       if (_byOwner.containsKey(owner)) continue; // 已在 A 載過
-//       final raw = sp.getString(k);
-//       if (raw == null || raw.isEmpty) {
-//         _byOwner[owner] = <MiniCardData>[];
-//         continue;
-//       }
-//       try {
-//         final list = (jsonDecode(raw) as List)
-//             .cast<Map<String, dynamic>>()
-//             .map(MiniCardData.fromJson)
-//             .toList();
-//         _byOwner[owner] = list;
-//       } catch (_) {
-//         _byOwner[owner] = <MiniCardData>[];
-//       }
-//     }
-
-//     notifyListeners();
-//   }
-
-//   /// （可選）公開目前 owner 清單，之後統計頁若要迭代可用
-//   Iterable<String> owners() => _byOwner.keys;
-// }
