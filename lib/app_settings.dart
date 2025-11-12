@@ -1,68 +1,57 @@
+// lib/app_settings.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'models/card_item.dart';
-
+/// App 全域偏好設定（不含卡片/分類邏輯）。
+///
+/// 職責：
+/// - 主題（ThemeMode）
+/// - 語系（Locale）
+/// - 使用者資訊（暱稱、生日）
+/// - 舊版追蹤標籤快取（Deprecated：請改用 TagFollowController）
+///
+/// ✅ 已移除：categories / card_items 的讀寫與 CRUD，避免與 CardItemStore 衝突。
 class AppSettings extends ChangeNotifier {
-  // ====== Storage keys ======
+  // ───────────── Storage Keys ─────────────
   static const _kThemeMode = 'app_theme_mode';
   static const _kLocale = 'app_locale';
-  static const _kCategories = 'categories';
-  static const _kCardItems = 'card_items';
 
   // 使用者資訊
   static const _kNickname = 'user_nickname';
   static const _kBirthdayISO = 'user_birthday_iso'; // yyyy-MM-dd
 
   // ★ 追蹤標籤（歷史相容；新版本請改用 TagFollowController）
-  static const _kFollowedTags = 'followed_tags'; // 目標格式：json array<string>
+  static const _kFollowedTags = 'followed_tags'; // JSON array<string>
   static const int followedTagsMax = 30;
 
   SharedPreferences? _prefs;
 
-  // ====== Theme / Locale ======
+  // ───────────── Theme / Locale ─────────────
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
 
   Locale? _locale;
   Locale? get locale => _locale;
 
-  // ====== 分類 + 卡片 ======
-  List<String> _categories = [];
-  List<CardItem> _cardItems = [];
-
-  List<String> get categories => List.unmodifiable(_categories);
-  List<CardItem> get cardItems => List.unmodifiable(_cardItems);
-
-  // 使用者資訊
+  // ───────────── 使用者資訊 ─────────────
   String? _nickname;
   DateTime? _birthday;
 
   String? get nickname => _nickname;
   DateTime? get birthday => _birthday;
 
-  // ★ 追蹤標籤（僅作為歷史/快取，實際邏輯請用 TagFollowController）
-  List<String> _followedTags = [];
+  // ───────────── 追蹤標籤（舊邏輯） ─────────────
+  List<String> _followedTags = const [];
   List<String> get followedTags => List.unmodifiable(_followedTags);
 
   AppSettings._();
 
+  /// 初始化載入所有偏好設定。
   static Future<AppSettings> load() async {
     final s = AppSettings._();
     await s._init();
     return s;
-  }
-
-  // 將原始清單正規化（去空白→小寫→去重→限制數量）
-  List<String> _normalizeTags(Iterable<String> source) {
-    final normSet = <String>{};
-    for (final raw in source) {
-      if (normSet.length >= followedTagsMax) break;
-      final t = raw.trim().toLowerCase();
-      if (t.isNotEmpty) normSet.add(t);
-    }
-    return normSet.toList();
   }
 
   Future<void> _init() async {
@@ -88,20 +77,13 @@ class AppSettings extends ChangeNotifier {
       _locale = parts.length == 2
           ? Locale(parts[0], parts[1])
           : Locale(parts[0]);
+    } else {
+      _locale = null;
     }
-
-    // Collections
-    final cats = _prefs!.getString(_kCategories);
-    final cards = _prefs!.getString(_kCardItems);
-    _categories = cats == null ? [] : (jsonDecode(cats) as List).cast<String>();
-    _cardItems = cards == null
-        ? []
-        : (jsonDecode(cards) as List)
-              .map((e) => CardItem.fromJson(e as Map<String, dynamic>))
-              .toList();
 
     // 使用者資訊
     _nickname = _prefs!.getString(_kNickname);
+
     final bIso = _prefs!.getString(_kBirthdayISO);
     if (bIso != null && bIso.isNotEmpty) {
       try {
@@ -110,6 +92,8 @@ class AppSettings extends ChangeNotifier {
       } catch (_) {
         _birthday = null;
       }
+    } else {
+      _birthday = null;
     }
 
     // ★ 追蹤標籤：相容讀取與遷移
@@ -120,22 +104,21 @@ class AppSettings extends ChangeNotifier {
       final norm = _normalizeTags(raw);
       _followedTags = norm;
       await _prefs!.setString(_kFollowedTags, jsonEncode(norm));
-      // 後續一律用 getString 讀
     } else if (raw is String) {
       // 新資料：JSON 字串
       try {
         final arr = (jsonDecode(raw) as List).map((e) => '$e');
         _followedTags = _normalizeTags(arr);
       } catch (_) {
-        _followedTags = [];
+        _followedTags = const [];
       }
     } else {
-      // 沒資料或未知型別
-      _followedTags = [];
+      _followedTags = const [];
     }
   }
 
-  // ====== Theme / Locale setters ======
+  // ───────────── Setters ─────────────
+
   void setThemeMode(ThemeMode mode) {
     if (_themeMode == mode) return;
     _themeMode = mode;
@@ -160,7 +143,6 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ====== 使用者資訊 ======
   void setNickname(String? name) {
     _nickname = (name ?? '').trim().isEmpty ? null : name!.trim();
     if (_nickname == null) {
@@ -185,10 +167,10 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ====== 追蹤標籤（歷史相容：請改用 TagFollowController） ======
+  // ───────────── 追蹤標籤（Deprecated：僅維持相容） ─────────────
 
   /// 以**本機**為準覆蓋標籤快取。
-  /// 新邏輯應使用 TagFollowController 來處理標籤（含後端同步）。
+  /// 新邏輯請改用 TagFollowController。
   @Deprecated('Use TagFollowController instead')
   void setFollowedTags(List<String> tags) {
     _followedTags = _normalizeTags(tags);
@@ -218,67 +200,16 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ====== 分類與卡片：載入 / 儲存 ======
-  Future<void> loadCollections() async {
-    await _init();
-    notifyListeners();
-  }
+  // ───────────── Helpers ─────────────
 
-  Future<void> _saveCollections() async {
-    await _prefs?.setString(_kCategories, jsonEncode(_categories));
-    await _prefs?.setString(
-      _kCardItems,
-      jsonEncode(_cardItems.map((e) => e.toJson()).toList()),
-    );
-  }
-
-  // ====== 分類操作 ======
-  void addCategory(String name) {
-    final n = name.trim();
-    if (n.isEmpty) return;
-    if (_categories.contains(n)) return;
-    _categories = [..._categories, n];
-    _saveCollections();
-    notifyListeners();
-  }
-
-  void removeCategory(String name) {
-    _categories = _categories.where((c) => c != name).toList();
-    _cardItems = _cardItems
-        .map(
-          (c) => c.copyWith(
-            categories: c.categories.where((x) => x != name).toList(),
-          ),
-        )
-        .toList();
-    _saveCollections();
-    notifyListeners();
-  }
-
-  // ====== 卡片操作 ======
-  void upsertCard(CardItem item) {
-    final idx = _cardItems.indexWhere((c) => c.id == item.id);
-    if (idx >= 0) {
-      _cardItems = List.of(_cardItems)..[idx] = item;
-    } else {
-      _cardItems = [..._cardItems, item];
+  /// 將原始清單正規化（去空白 → 小寫 → 去重 → 限制數量）
+  List<String> _normalizeTags(Iterable<String> source) {
+    final normSet = <String>{};
+    for (final raw in source) {
+      if (normSet.length >= followedTagsMax) break;
+      final t = raw.trim().toLowerCase();
+      if (t.isNotEmpty) normSet.add(t);
     }
-    _saveCollections();
-    notifyListeners();
-  }
-
-  void setCardCategories(String cardId, List<String> cats) {
-    final idx = _cardItems.indexWhere((c) => c.id == cardId);
-    if (idx < 0) return;
-    _cardItems = List.of(_cardItems)
-      ..[idx] = _cardItems[idx].copyWith(categories: cats);
-    _saveCollections();
-    notifyListeners();
-  }
-
-  void removeCard(String cardId) {
-    _cardItems = _cardItems.where((c) => c.id != cardId).toList();
-    _saveCollections();
-    notifyListeners();
+    return normSet.toList();
   }
 }

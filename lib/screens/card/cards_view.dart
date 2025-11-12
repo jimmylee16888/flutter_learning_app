@@ -3,19 +3,20 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart'; // kIsWeb / debugPrint
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../app_settings.dart';
+import 'package:provider/provider.dart';
+
 import '../../models/card_item.dart';
 import '../../widgets/photo_quote_card.dart';
 import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
 import 'package:flutter_learning_app/utils/no_cors_image/no_cors_image.dart'; // Web CORS 避開元件
 import '../../l10n/l10n.dart'; // ← i18n
-
-// popup（統一）
 import '../../widgets/app_popups.dart';
 
+// ⬇️ 改成從 CardItemStore 取資料
+import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
+
 class CardsView extends StatefulWidget {
-  const CardsView({super.key, required this.settings});
-  final AppSettings settings;
+  const CardsView({super.key});
 
   @override
   State<CardsView> createState() => _CardsViewState();
@@ -34,7 +35,8 @@ class _CardsViewState extends State<CardsView> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final items = _filtered(widget.settings.cardItems);
+    final store = context.watch<CardItemStore>(); // 取得 CardItemStore
+    final items = _filtered(store.cardItems);
 
     return Scaffold(
       body: Column(
@@ -53,7 +55,7 @@ class _CardsViewState extends State<CardsView> {
                   onSelected: (_) => setState(() => _selectedCat = null),
                 ),
                 const SizedBox(width: 8),
-                ...widget.settings.categories.map(
+                ...store.categories.map(
                   (cat) => Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: GestureDetector(
@@ -66,18 +68,23 @@ class _CardsViewState extends State<CardsView> {
                           cancelLabel: l.cancel,
                         );
                         if (ok) {
-                          widget.settings.removeCategory(cat);
+                          store.removeCategory(cat);
                           if (_selectedCat == cat) _selectedCat = null;
                           if (mounted) setState(() {});
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(cat))));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l.deletedCategoryToast(cat)),
+                            ),
+                          );
                         }
                       },
                       child: ChoiceChip(
                         label: Text(cat),
                         selected: _selectedCat == cat,
-                        onSelected: (_) => setState(() => _selectedCat = (_selectedCat == cat) ? null : cat),
+                        onSelected: (_) => setState(
+                          () =>
+                              _selectedCat = (_selectedCat == cat) ? null : cat,
+                        ),
                       ),
                     ),
                   ),
@@ -124,7 +131,10 @@ class _CardsViewState extends State<CardsView> {
                         onPressed: () => setState(() => _keyword = ''),
                         tooltip: l.clear,
                       ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
               ),
             ),
           ),
@@ -139,16 +149,24 @@ class _CardsViewState extends State<CardsView> {
     final n = items.length;
     if (n == 0) return Center(child: Text(l.noCards));
     if (n == 1) {
-      return Center(child: SizedBox(width: 350, height: 500, child: _buildTile(items[0])));
+      return Center(
+        child: SizedBox(width: 350, height: 500, child: _buildTile(items[0])),
+      );
     }
     if (n == 2) {
       return Column(
         children: [
           Expanded(
-            child: Padding(padding: const EdgeInsets.all(6), child: _buildTile(items[0])),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: _buildTile(items[0]),
+            ),
           ),
           Expanded(
-            child: Padding(padding: const EdgeInsets.all(6), child: _buildTile(items[1])),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: _buildTile(items[1]),
+            ),
           ),
         ],
       );
@@ -166,23 +184,24 @@ class _CardsViewState extends State<CardsView> {
   // ====== 上層照片可滑（位移限制 < 下層寬度），下層編輯/刪除；圓角無縫 ======
   Widget _buildTile(CardItem it) {
     final l = context.l10n;
+    final store = context.read<CardItemStore>();
     final theme = Theme.of(context);
     final errorColor = theme.colorScheme.error;
     final primary = theme.colorScheme.primary;
 
     final BorderRadius outerR = BorderRadius.circular(_tileRadius); // 外層統一裁切
-    final BorderRadius innerR = BorderRadius.circular(_tileRadius + 0.8); // 內層略大，避免細縫
+    final BorderRadius innerR = BorderRadius.circular(
+      _tileRadius + 0.8,
+    ); // 內層略大，避免細縫
 
     const double bgRatio = 0.40; // 下層區塊寬度 = 卡片寬 * 0.40
-    const double minBg = 120.0; // 下層最小寬
-    const double maxBg = 220.0; // 下層最大寬
     const double dragInset = 12.0; // 上層最大拖動距離 = 下層寬 - 這個像素
     const double triggerRatio = 0.66; // 觸發門檻（相對 dragLimit）
 
     final bool isLiked = _liked.contains(it.id);
 
     return Padding(
-      key: ValueKey('tile-${it.id}'), // ★ 新增：讓整個 tile 的 state 綁定到卡片 id
+      key: ValueKey('tile-${it.id}'),
       padding: const EdgeInsets.all(6),
       child: LayoutBuilder(
         builder: (context, c) {
@@ -200,12 +219,11 @@ class _CardsViewState extends State<CardsView> {
           double actionW = rawAction.clamp(minAction, maxAction);
           actionW = actionW.clamp(0, halfGuard);
 
-          // 保底：確保不是負數或 NaN/Infinity
           if (actionW.isNaN || actionW.isInfinite || actionW < 0) {
             actionW = 0;
           }
 
-          // 拖動距離也做保護，至少為 0
+          // 拖動距離也做保護
           final double dragLimit = (actionW - dragInset).clamp(0.0, actionW);
 
           double dx = 0; // 左負右正（限制在 ±dragLimit）
@@ -228,10 +246,12 @@ class _CardsViewState extends State<CardsView> {
                 cancelLabel: l.cancel,
               );
               if (ok) {
-                widget.settings.removeCard(it.id);
+                store.removeCard(it.id);
                 if (mounted) {
                   setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.deletedCardToast(it.title))));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.deletedCardToast(it.title))),
+                  );
                 }
               } else {
                 await _animateBack(setStateSB);
@@ -241,24 +261,24 @@ class _CardsViewState extends State<CardsView> {
             }
           }
 
-          // ─────────────────────────────────────────────
           // Web 假本地('url:...') 判斷：遇到就用 NoCorsImage
           final String localPath = it.localPath ?? '';
           final bool hasRemote = (it.imageUrl?.isNotEmpty ?? false);
 
           final bool isWeb = kIsWeb;
-          final bool isFakeLocalUrlOnWeb = isWeb && localPath.startsWith('url:');
+          final bool isFakeLocalUrlOnWeb =
+              isWeb && localPath.startsWith('url:');
 
           // 只有真正的本地檔案（或 data:）才算本地
-          final bool hasRealLocal = localPath.isNotEmpty && !isFakeLocalUrlOnWeb;
+          final bool hasRealLocal =
+              localPath.isNotEmpty && !isFakeLocalUrlOnWeb;
 
           final bool useImageProvider = (!isWeb || hasRealLocal);
           final bool useNoCors = (isWeb && !hasRealLocal && hasRemote);
-          // ─────────────────────────────────────────────
 
           return ClipRRect(
             borderRadius: outerR,
-            clipBehavior: Clip.antiAlias, // 外層統一裁切（背景＋前景），無縫
+            clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
                 // 下層：編輯 / 刪除背景
@@ -281,7 +301,11 @@ class _CardsViewState extends State<CardsView> {
                           color: errorColor.withOpacity(0.15),
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 18),
-                          child: Icon(Icons.delete, color: errorColor, size: 22),
+                          child: Icon(
+                            Icons.delete,
+                            color: errorColor,
+                            size: 22,
+                          ),
                         ),
                       ),
                     ],
@@ -308,17 +332,22 @@ class _CardsViewState extends State<CardsView> {
                           borderRadius: innerR,
                           clipBehavior: Clip.antiAlias,
                           child: PhotoQuoteCard(
-                            key: ValueKey('card-${it.id}'), // ★ 新增：卡片自身 state 也跟 id 綁定
-                            image: useImageProvider ? imageProviderOfCardItem(it) : null,
+                            key: ValueKey('card-${it.id}'),
+                            image: useImageProvider
+                                ? imageProviderOfCardItem(it)
+                                : null,
                             imageWidget: useNoCors
-                                ? NoCorsImage(it.imageUrl!, fit: BoxFit.cover, borderRadius: _tileRadius + 0.8)
+                                ? NoCorsImage(
+                                    it.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    borderRadius: _tileRadius + 0.8,
+                                  )
                                 : null,
                             title: it.title,
                             birthday: it.birthday,
                             quote: it.quote,
-                            initiallyLiked: _liked.contains(it.id), // 你已經有
+                            initiallyLiked: isLiked,
                             onLikeChanged: (liked) {
-                              // 你已經有
                               setState(() {
                                 if (liked) {
                                   _liked.add(it.id);
@@ -346,11 +375,13 @@ class _CardsViewState extends State<CardsView> {
   List<CardItem> _filtered(List<CardItem> src) {
     // 先做類別/關鍵字過濾
     final filtered = src.where((c) {
-      final okCat = (_selectedCat == null) || c.categories.contains(_selectedCat);
+      final okCat =
+          (_selectedCat == null) || c.categories.contains(_selectedCat);
       if (!okCat) return false;
       if (_keyword.trim().isEmpty) return true;
       final k = _keyword.toLowerCase();
-      return c.title.toLowerCase().contains(k) || c.quote.toLowerCase().contains(k);
+      return c.title.toLowerCase().contains(k) ||
+          c.quote.toLowerCase().contains(k);
     }).toList();
 
     // 再依「最近按愛心時間」排序：有 likedAt 的排前面，越新越前
@@ -358,8 +389,8 @@ class _CardsViewState extends State<CardsView> {
       final ta = _likedAt[a.id];
       final tb = _likedAt[b.id];
       if (ta == null && tb == null) return 0;
-      if (ta == null) return 1; // a 沒讚，往後
-      if (tb == null) return -1; // b 沒讚，a 往前
+      if (ta == null) return 1;
+      if (tb == null) return -1;
       return tb.compareTo(ta); // 新 → 舊
     });
 
@@ -369,10 +400,10 @@ class _CardsViewState extends State<CardsView> {
   Future<void> _addCardFlow() async {
     final created = await showDialog<CardItem>(
       context: context,
-      builder: (_) => _EditCardDialog(settings: widget.settings),
+      builder: (_) => const _EditCardDialog(),
     );
     if (created != null) {
-      widget.settings.upsertCard(created);
+      context.read<CardItemStore>().upsertCard(created);
       setState(() {});
     }
   }
@@ -380,17 +411,21 @@ class _CardsViewState extends State<CardsView> {
   Future<void> _editCardFlow(CardItem item) async {
     final edited = await showDialog<CardItem>(
       context: context,
-      builder: (_) => _EditCardDialog(settings: widget.settings, initial: item),
+      builder: (_) => _EditCardDialog(initial: item),
     );
     if (edited != null) {
-      widget.settings.upsertCard(edited);
+      context.read<CardItemStore>().upsertCard(edited);
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.updatedCardToast)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.updatedCardToast)));
     }
   }
 
   Future<void> _showCardActions(CardItem item) async {
     final l = context.l10n;
+    final store = context.read<CardItemStore>();
+
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -437,7 +472,7 @@ class _CardsViewState extends State<CardsView> {
         cancelLabel: l.cancel,
       );
       if (ok) {
-        widget.settings.removeCard(item.id);
+        store.removeCard(item.id);
         setState(() {});
       }
       return;
@@ -447,18 +482,17 @@ class _CardsViewState extends State<CardsView> {
       final picked = await showDialog<List<String>>(
         context: context,
         builder: (_) => _CategoryPickerDialog(
-          settings: widget.settings,
-          all: widget.settings.categories.toList(),
+          all: store.categories.toList(),
           selected: item.categories,
         ),
       );
       if (picked != null) {
         for (final c in picked) {
-          if (!widget.settings.categories.contains(c)) {
-            widget.settings.addCategory(c);
+          if (!store.categories.contains(c)) {
+            store.addCategory(c);
           }
         }
-        widget.settings.setCardCategories(item.id, picked);
+        store.setCardCategories(item.id, picked);
         setState(() {});
       }
     }
@@ -467,8 +501,7 @@ class _CardsViewState extends State<CardsView> {
 
 // ====== 建立/編輯卡片 Dialog ======
 class _EditCardDialog extends StatefulWidget {
-  const _EditCardDialog({required this.settings, this.initial});
-  final AppSettings settings;
+  const _EditCardDialog({this.initial});
   final CardItem? initial;
 
   @override
@@ -509,6 +542,8 @@ class _EditCardDialogState extends State<_EditCardDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final store = context.watch<CardItemStore>();
+
     return AppAlertDialog(
       title: Text(widget.initial == null ? l.newCardTitle : l.editCardTitle),
       content: SingleChildScrollView(
@@ -519,7 +554,10 @@ class _EditCardDialogState extends State<_EditCardDialog> {
             children: [
               TextField(
                 controller: _title,
-                decoration: InputDecoration(labelText: l.nameRequiredLabel, isDense: true),
+                decoration: InputDecoration(
+                  labelText: l.nameRequiredLabel,
+                  isDense: true,
+                ),
               ),
               const SizedBox(height: 8),
 
@@ -540,7 +578,8 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                         child: Text(l.imageByLocal),
                       ),
                     },
-                    onValueChanged: (v) => setState(() => _mode = v ?? _ImageMode.byUrl),
+                    onValueChanged: (v) =>
+                        setState(() => _mode = v ?? _ImageMode.byUrl),
                   ),
                 ),
               ),
@@ -549,7 +588,11 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               if (_mode == _ImageMode.byUrl) ...[
                 TextField(
                   controller: _url,
-                  decoration: InputDecoration(labelText: l.imageUrl, isDense: true, prefixIcon: const Icon(Icons.link)),
+                  decoration: InputDecoration(
+                    labelText: l.imageUrl,
+                    isDense: true,
+                    prefixIcon: const Icon(Icons.link),
+                  ),
                   keyboardType: TextInputType.url,
                   onChanged: (_) => setState(() {}),
                 ),
@@ -558,12 +601,18 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: kIsWeb
-                        ? NoCorsImage(_url.text, height: 120, fit: BoxFit.cover, borderRadius: 8)
+                        ? NoCorsImage(
+                            _url.text,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            borderRadius: 8,
+                          )
                         : Image.network(
                             _url.text,
                             height: 120,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _fallbackPreview(context),
+                            errorBuilder: (_, __, ___) =>
+                                _fallbackPreview(context),
                           ),
                   ),
               ] else ...[
@@ -591,7 +640,10 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: _quote,
-                decoration: InputDecoration(labelText: l.quoteOptionalLabel, isDense: true),
+                decoration: InputDecoration(
+                  labelText: l.quoteOptionalLabel,
+                  isDense: true,
+                ),
               ),
               const SizedBox(height: 8),
 
@@ -627,7 +679,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                   spacing: 8,
                   runSpacing: -8,
                   children: [
-                    for (final c in widget.settings.categories)
+                    for (final c in store.categories)
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onLongPress: () async {
@@ -639,19 +691,23 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                             cancelLabel: l.cancel,
                           );
                           if (ok) {
-                            widget.settings.removeCategory(c);
+                            store.removeCategory(c);
                             setState(() => _cats.remove(c));
                             if (context.mounted) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(c))));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l.deletedCategoryToast(c)),
+                                ),
+                              );
                             }
                           }
                         },
                         child: FilterChip(
                           label: Text(c),
                           selected: _cats.contains(c),
-                          onSelected: (v) => setState(() => v ? _cats.add(c) : _cats.remove(c)),
+                          onSelected: (v) => setState(
+                            () => v ? _cats.add(c) : _cats.remove(c),
+                          ),
                         ),
                       ),
                     ActionChip(
@@ -667,8 +723,8 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                         );
                         if (name != null && name.trim().isNotEmpty) {
                           final n = name.trim();
-                          if (!widget.settings.categories.contains(n)) {
-                            widget.settings.addCategory(n);
+                          if (!store.categories.contains(n)) {
+                            store.addCategory(n);
                           }
                           setState(() => _cats.add(n));
                         }
@@ -682,20 +738,27 @@ class _EditCardDialogState extends State<_EditCardDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.cancel),
+        ),
         FilledButton(
           onPressed: () async {
             final t = _title.text.trim();
             if (t.isEmpty) return;
 
-            final id = widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+            final id =
+                widget.initial?.id ??
+                DateTime.now().millisecondsSinceEpoch.toString();
             String? imageUrl;
             String? localPath;
 
             if (_mode == _ImageMode.byUrl) {
               final url = _url.text.trim();
               if (url.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.inputImageUrl)));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l.inputImageUrl)));
                 return;
               }
 
@@ -706,11 +769,15 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               } catch (e) {
                 debugPrint('downloadImageToLocal failed: $e');
                 localPath = null;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
               }
             } else {
               if (_pickedLocalPath == null) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.pickLocalPhoto)));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l.pickLocalPhoto)));
                 return;
               }
               localPath = _pickedLocalPath!;
@@ -745,8 +812,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
 }
 
 class _CategoryPickerDialog extends StatefulWidget {
-  const _CategoryPickerDialog({required this.settings, required this.all, required this.selected});
-  final AppSettings settings;
+  const _CategoryPickerDialog({required this.all, required this.selected});
   final List<String> all;
   final List<String> selected;
 
@@ -767,6 +833,8 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final store = context.read<CardItemStore>();
+
     return AppAlertDialog(
       title: Text(l.assignCategoryTitle),
       content: SizedBox(
@@ -783,7 +851,9 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                       contentPadding: EdgeInsets.zero,
                       leading: Checkbox(
                         value: _sel.contains(cat),
-                        onChanged: (v) => setState(() => v == true ? _sel.add(cat) : _sel.remove(cat)),
+                        onChanged: (v) => setState(
+                          () => v == true ? _sel.add(cat) : _sel.remove(cat),
+                        ),
                       ),
                       title: Text(cat),
                       trailing: IconButton(
@@ -798,14 +868,16 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                             cancelLabel: l.cancel,
                           );
                           if (ok) {
-                            widget.settings.removeCategory(cat);
+                            store.removeCategory(cat);
                             setState(() {
                               _sel.remove(cat);
                               widget.all.remove(cat);
                             });
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(cat))));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l.deletedCategoryToast(cat)),
+                              ),
+                            );
                           }
                         },
                       ),
@@ -819,7 +891,10 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                 Expanded(
                   child: TextField(
                     controller: _ctrl,
-                    decoration: InputDecoration(hintText: l.newCategoryNameHint, isDense: true),
+                    decoration: InputDecoration(
+                      hintText: l.newCategoryNameHint,
+                      isDense: true,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -828,7 +903,7 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
                     final name = _ctrl.text.trim();
                     if (name.isEmpty) return;
                     if (!widget.all.contains(name)) {
-                      widget.settings.addCategory(name);
+                      store.addCategory(name);
                       setState(() => widget.all.add(name));
                     }
                     setState(() => _sel.add(name));
@@ -841,8 +916,14 @@ class _CategoryPickerDialogState extends State<_CategoryPickerDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
-        TextButton(onPressed: () => Navigator.pop(context, _sel.toList()), child: Text(l.confirm)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _sel.toList()),
+          child: Text(l.confirm),
+        ),
       ],
     );
   }

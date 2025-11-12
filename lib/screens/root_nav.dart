@@ -116,7 +116,7 @@ class _RootNavState extends State<RootNav> with WidgetsBindingObserver {
           child: IndexedStack(
             index: _index,
             children: [
-              cv.CardsView(settings: widget.settings), // 0
+              const cv.CardsView(), // 0
               SocialFeedPage(key: _socialKey, settings: widget.settings), // 1
               const ExploreView(), // 2
               _MoreHost(

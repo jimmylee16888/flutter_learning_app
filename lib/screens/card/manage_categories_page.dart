@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../../app_settings.dart';
 import '../../models/card_item.dart';
 import '../../l10n/l10n.dart'; // ← i18n
+import 'package:provider/provider.dart';
+import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 
 class ManageCategoriesPage extends StatefulWidget {
-  const ManageCategoriesPage({super.key, required this.settings});
-  final AppSettings settings;
+  const ManageCategoriesPage({super.key});
 
   @override
   State<ManageCategoriesPage> createState() => _ManageCategoriesPageState();
@@ -23,7 +24,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final cats = widget.settings.categories;
+    final cats = context.watch<CardItemStore>().categories;
 
     return Scaffold(
       appBar: AppBar(title: Text(l.manageCategoriesTitle)),
@@ -46,7 +47,11 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                FilledButton.icon(icon: const Icon(Icons.add), label: Text(l.add), onPressed: _addCategory),
+                FilledButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: Text(l.add),
+                  onPressed: _addCategory,
+                ),
               ],
             );
           }
@@ -68,12 +73,15 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     final l = context.l10n;
     final name = _ctrl.text.trim();
     if (name.isEmpty) return;
-    if (!widget.settings.categories.contains(name)) {
-      widget.settings.addCategory(name);
+    final store = context.read<CardItemStore>();
+    if (!store.categories.contains(name)) {
+      store.addCategory(name);
     }
     setState(() {});
     _ctrl.clear();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.addedCategoryToast(name))));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.addedCategoryToast(name))));
   }
 
   Future<void> _confirmDelete(String name) async {
@@ -84,26 +92,24 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
         title: Text(l.deleteCategoryTitle),
         content: Text(l.confirmDeleteCategoryMessage(name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.delete)),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.delete),
+          ),
         ],
       ),
     );
     if (ok != true) return;
 
-    final updated = <CardItem>[];
-    for (final c in widget.settings.cardItems) {
-      if (c.categories.contains(name)) {
-        final newCats = c.categories.where((x) => x != name).toList();
-        updated.add(c.copyWith(categories: newCats));
-      }
-    }
-    for (final u in updated) {
-      widget.settings.upsertCard(u);
-    }
-    widget.settings.removeCategory(name);
+    context.read<CardItemStore>().removeCategory(name);
 
     setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(name))));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.deletedCategoryToast(name))));
   }
 }

@@ -11,7 +11,7 @@ import '../../l10n/l10n.dart';
 import 'settings_view.dart'; // kDeveloperName... kDeveloperEmail...
 import 'easter_egg/version_showcase_page.dart';
 import '../../models/card_item.dart';
-import '../../app_settings.dart'; // ← 有 cardItems 的地方
+import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 
 // dev mode 相關
 import '../../services/dev_mode.dart'; // ← 新增
@@ -166,7 +166,8 @@ class _AboutDeveloperPageState extends State<AboutDeveloperPage> {
     // 2) 若沒取到，再退回 AppSettings（舊的藝人卡）
     if (cards.isEmpty) {
       try {
-        cards = List<CardItem>.from(context.read<AppSettings>().cardItems);
+        final cs = context.read<CardItemStore>();
+        cards = List<CardItem>.from(cs.cardItems);
       } catch (_) {}
     }
 

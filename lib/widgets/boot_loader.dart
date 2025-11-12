@@ -11,12 +11,15 @@ import 'package:flutter_learning_app/app_settings.dart';
 import 'package:flutter_learning_app/app_root.dart';
 
 // 你現有的服務 / 儲存
-import 'package:flutter_learning_app/services/services.dart';
+import 'package:flutter_learning_app/services/services.dart'; // AuthController, MiniCardStore 等
 import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
+
+// ⬇️ 新增：CardItemStore（CardItem / Categories 的本機快取）
+import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 
 // 訂閱服務
 import 'package:flutter_learning_app/services/subscription_service.dart';
-import 'package:flutter_learning_app/services/dev_mode.dart'; // ← 新增
+import 'package:flutter_learning_app/services/dev_mode.dart';
 
 class BootLoader extends StatefulWidget {
   const BootLoader({super.key});
@@ -26,7 +29,14 @@ class BootLoader extends StatefulWidget {
 }
 
 class _BootLoaderState extends State<BootLoader> {
-  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>?
+  Future<
+    ({
+      AppSettings settings,
+      AuthController auth,
+      MiniCardStore miniStore,
+      CardItemStore cardStore,
+    })
+  >?
   _boot;
 
   // 如初始化過久（網路不穩等），顯示重試
@@ -45,7 +55,14 @@ class _BootLoaderState extends State<BootLoader> {
     super.dispose();
   }
 
-  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>
+  Future<
+    ({
+      AppSettings settings,
+      AuthController auth,
+      MiniCardStore miniStore,
+      CardItemStore cardStore,
+    })
+  >
   _initAll() async {
     // 1) Firebase（Web 需要 options；失敗時不中斷、走離線）
     try {
@@ -85,34 +102,48 @@ class _BootLoaderState extends State<BootLoader> {
       } else {
         // 行動端／桌面：初始化 + 啟動時跑一次恢復&偵測
         await SubscriptionService.I.init().timeout(const Duration(seconds: 8));
-
-        // 若你不想在 Debug 模式每次都打商店，可改成 kReleaseMode 判斷
         await SubscriptionService.I.refreshFromStoreAndDetect().timeout(
           const Duration(seconds: 12),
         );
       }
     } catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('[BootLoader] Subscription init/refresh failed: $e');
+      }
     }
 
-    // 6) MiniCard 本地資料（autofill 可能打網路，包 try/catch）
-    final store = MiniCardStore();
-    await store.hydrateFromPrefs(artists: settings.cardItems);
+    // 6) ⬇️ 先載入 CardItemStore（取代原本 settings.cardItems）
+    final cardStore = await CardItemStore.load();
+
+    // 7) MiniCard 本地資料（autofill 可能打網路，包 try/catch）
+    final miniStore = MiniCardStore();
+    await miniStore.hydrateFromPrefs(artists: cardStore.cardItems);
     try {
-      await store
-          .autofillIdolTags(artists: settings.cardItems, prefer: const [])
+      await miniStore
+          .autofillIdolTags(artists: cardStore.cardItems, prefer: const [])
           .timeout(const Duration(seconds: 6));
     } catch (e) {
       if (kDebugMode) print('[BootLoader] autofillIdolTags error: $e');
     }
 
     await Future.delayed(const Duration(milliseconds: 400));
-    return (settings: settings, auth: auth, store: store);
+    return (
+      settings: settings,
+      auth: auth,
+      miniStore: miniStore,
+      cardStore: cardStore,
+    );
   }
 
   /// 極簡離線初始化：完全不打網路，讀本機可得的東西，直接進 App
-  Future<({AppSettings settings, AuthController auth, MiniCardStore store})>
+  Future<
+    ({
+      AppSettings settings,
+      AuthController auth,
+      MiniCardStore miniStore,
+      CardItemStore cardStore,
+    })
+  >
   _initAllOfflineFallback() async {
     // 不打任何網路，只做本機可完成的初始化
     await miniCardStorageInit();
@@ -121,9 +152,6 @@ class _BootLoaderState extends State<BootLoader> {
     // 初始化 AuthController（會把上次使用者從 SharedPreferences 還原進來）
     final auth = AuthController();
     await auth.init();
-
-    // 嘗試用「上次登入使用者」離線進入（不拿 token）
-    // 若沒有上次使用者，會回傳 false；不阻擋進入 App（保持未登入狀態即可）
     await auth.continueOfflineWithLastUser();
 
     // 訂閱：讀本機快取即可；restorePurchases 失敗也不致命
@@ -133,16 +161,29 @@ class _BootLoaderState extends State<BootLoader> {
       // 忽略
     }
 
-    final store = MiniCardStore();
-    await store.hydrateFromPrefs(artists: settings.cardItems);
+    // ⬇️ 同步離線也要從 CardItemStore 拿 artists
+    final cardStore = await CardItemStore.load();
 
-    return (settings: settings, auth: auth, store: store);
+    final miniStore = MiniCardStore();
+    await miniStore.hydrateFromPrefs(artists: cardStore.cardItems);
+
+    return (
+      settings: settings,
+      auth: auth,
+      miniStore: miniStore,
+      cardStore: cardStore,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<
-      ({AppSettings settings, AuthController auth, MiniCardStore store})
+      ({
+        AppSettings settings,
+        AuthController auth,
+        MiniCardStore miniStore,
+        CardItemStore cardStore,
+      })
     >(
       future: _withTimeout(_boot!),
       builder: (context, snap) {
@@ -223,7 +264,9 @@ class _BootLoaderState extends State<BootLoader> {
         final data = snap.data!;
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: data.store),
+            // 提供 MiniCardStore / CardItemStore / AuthController
+            ChangeNotifierProvider.value(value: data.miniStore),
+            ChangeNotifierProvider.value(value: data.cardStore),
             ChangeNotifierProvider.value(value: data.auth),
           ],
           child: AppRoot(settings: data.settings, auth: data.auth),
