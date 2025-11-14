@@ -19,7 +19,10 @@ import 'widgets/tip_gate.dart';
 // PWA chrome 動態同步
 import 'utils/pwa_chrome.dart';
 
-import 'package:flutter/services.dart' show Clipboard, ClipboardData, SystemUiOverlayStyle;
+import 'navigation.dart';
+
+import 'package:flutter/services.dart'
+    show Clipboard, ClipboardData, SystemUiOverlayStyle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -50,6 +53,7 @@ class AppRoot extends StatelessWidget {
           builder: (__, ___) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
+              navigatorKey: rootNavigatorKey,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               locale: settings.locale,
@@ -60,7 +64,10 @@ class AppRoot extends StatelessWidget {
               scrollBehavior: const AppScrollBehavior(),
               builder: (ctx, child) {
                 final theme = Theme.of(ctx);
-                updatePwaChrome(surface: theme.colorScheme.surface, dark: theme.brightness == Brightness.dark);
+                updatePwaChrome(
+                  surface: theme.colorScheme.surface,
+                  dark: theme.brightness == Brightness.dark,
+                );
                 return child!;
               },
               home: auth.isAuthenticated
@@ -76,7 +83,11 @@ class AppRoot extends StatelessWidget {
 
 /// 建立主題：讓 AppBar/NavigationBar 使用 surface，同時關閉 M3 疊色
 ThemeData _buildTheme(Brightness brightness) {
-  final base = ThemeData(useMaterial3: true, brightness: brightness, colorSchemeSeed: const Color(0xFF4F9CFB));
+  final base = ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    colorSchemeSeed: const Color(0xFF4F9CFB),
+  );
 
   final cs = base.colorScheme;
 
@@ -87,7 +98,9 @@ ThemeData _buildTheme(Brightness brightness) {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      systemOverlayStyle: brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      systemOverlayStyle: brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: cs.surface,
@@ -95,13 +108,16 @@ ThemeData _buildTheme(Brightness brightness) {
       indicatorColor: cs.secondaryContainer.withOpacity(0.24),
     ),
     cardTheme: const CardThemeData(surfaceTintColor: Colors.transparent),
-    bottomSheetTheme: const BottomSheetThemeData(surfaceTintColor: Colors.transparent),
+    bottomSheetTheme: const BottomSheetThemeData(
+      surfaceTintColor: Colors.transparent,
+    ),
   );
 }
 
 /// ===== 本機裝置身分 / 暱稱儲存 =====
 const _kClientIdKey = 'client_id'; // 本機裝置固定 ID
-String _aliasKey(String accountId, String clientId) => 'alias.$accountId.$clientId';
+String _aliasKey(String accountId, String clientId) =>
+    'alias.$accountId.$clientId';
 
 Future<String> _ensureClientId() async {
   final sp = await SharedPreferences.getInstance();
@@ -111,12 +127,19 @@ Future<String> _ensureClientId() async {
   return id;
 }
 
-Future<String?> loadLocalAlias({required String accountId, required String clientId}) async {
+Future<String?> loadLocalAlias({
+  required String accountId,
+  required String clientId,
+}) async {
   final sp = await SharedPreferences.getInstance();
   return sp.getString(_aliasKey(accountId, clientId));
 }
 
-Future<void> saveLocalAlias({required String accountId, required String clientId, required String alias}) async {
+Future<void> saveLocalAlias({
+  required String accountId,
+  required String clientId,
+  required String alias,
+}) async {
   final sp = await SharedPreferences.getInstance();
   await sp.setString(_aliasKey(accountId, clientId), alias);
 }
@@ -183,7 +206,9 @@ class _AuthenticatedHome extends StatelessWidget {
         final clientId = await _ensureClientId();
         final meId = baseMeId == 'u_me' ? clientId : baseMeId;
         final alias = await loadLocalAlias(accountId: meId, clientId: clientId);
-        final meNameLocal = (alias?.trim().isNotEmpty ?? false) ? alias!.trim() : baseName;
+        final meNameLocal = (alias?.trim().isNotEmpty ?? false)
+            ? alias!.trim()
+            : baseName;
         return (clientId, meId, meNameLocal);
       }(),
       builder: (context, snap) {
@@ -203,13 +228,17 @@ class _AuthenticatedHome extends StatelessWidget {
                   children: [
                     const Icon(Icons.error_outline, size: 40),
                     const SizedBox(height: 12),
-                    Text('初始化失敗，請稍後重試', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+                    Text(
+                      '初始化失敗，請稍後重試',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       '${snap.error}',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -220,7 +249,9 @@ class _AuthenticatedHome extends StatelessWidget {
         }
 
         if (!snap.hasData) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final (clientId, meId, meNameLocal) = snap.data!;
 
@@ -252,7 +283,10 @@ class _AuthenticatedHome extends StatelessWidget {
                     meName: meNameLocal,
                     idTokenProvider: idTokenProvider,
                     clientId: clientId,
-                    clientAliasProvider: () async => await loadLocalAlias(accountId: meId, clientId: clientId),
+                    clientAliasProvider: () async => await loadLocalAlias(
+                      accountId: meId,
+                      clientId: clientId,
+                    ),
                   ),
                 );
                 // 非阻塞地啟動；離線或錯誤不往外拋
@@ -275,7 +309,10 @@ class _AuthenticatedHome extends StatelessWidget {
                     meName: meNameLocal,
                     idTokenProvider: idTokenProvider,
                     clientId: clientId,
-                    clientAliasProvider: () async => await loadLocalAlias(accountId: meId, clientId: clientId),
+                    clientAliasProvider: () async => await loadLocalAlias(
+                      accountId: meId,
+                      clientId: clientId,
+                    ),
                   ),
                 );
                 Future.microtask(() async {

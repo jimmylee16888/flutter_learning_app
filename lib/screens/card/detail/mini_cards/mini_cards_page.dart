@@ -27,7 +27,12 @@ import 'package:flutter_learning_app/services/utils/qr/qr_codec.dart' as codec;
 import 'package:flutter_learning_app/services/utils/qr/qr_image_builder.dart';
 
 class MiniCardsPage extends StatefulWidget {
-  const MiniCardsPage({super.key, required this.title, required this.cards, this.initialIndex = 0});
+  const MiniCardsPage({
+    super.key,
+    required this.title,
+    required this.cards,
+    this.initialIndex = 0,
+  });
   final String title;
   final List<MiniCardData> cards;
   final int initialIndex;
@@ -54,15 +59,20 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   }
 
   MiniCardData _ensureOwner(MiniCardData c) =>
-      (c.idol == null || c.idol!.trim().isEmpty) ? c.copyWith(idol: widget.title) : c;
+      (c.idol == null || c.idol!.trim().isEmpty)
+      ? c.copyWith(idol: widget.title)
+      : c;
 
-  late List<MiniCardData> _cards = widget.cards.map(_ensureOwner).toList(growable: true);
+  late List<MiniCardData> _cards = widget.cards
+      .map(_ensureOwner)
+      .toList(growable: true);
 
   final Set<String> _activeTags = {};
 
   static const int _kQrSafeLimit = 500;
 
-  bool _exists(String? p) => p != null && p.isNotEmpty && io.File(p).existsSync();
+  bool _exists(String? p) =>
+      p != null && p.isNotEmpty && io.File(p).existsSync();
   bool _canShareQr(MiniCardData c) => (c.imageUrl ?? '').isNotEmpty;
 
   int get _pageCount => _cards.length + 2;
@@ -72,9 +82,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     return want.clamp(1, _pageCount - 2);
   }
 
-  late final PageController _pc = PageController(initialPage: _computeInitialPage(), viewportFraction: 0.78);
+  late final PageController _pc = PageController(
+    initialPage: _computeInitialPage(),
+    viewportFraction: 0.78,
+  );
   double _page = 1.0;
-  int _currentPageRound() => (_pc.hasClients && _pc.page != null) ? _pc.page!.round() : _pc.initialPage;
+  int _currentPageRound() => (_pc.hasClients && _pc.page != null)
+      ? _pc.page!.round()
+      : _pc.initialPage;
 
   @override
   void initState() {
@@ -106,13 +121,31 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   }
 
   /// 清單/挑選/預覽通用縮圖：Web + 無本地 → NoCorsImage；其餘 ImageProvider
-  Widget _miniThumb(MiniCardData c, {double w = 48, double h = 48, double r = 6}) {
-    final hasLocal = (c.localPath ?? '').isNotEmpty && !(kIsWeb && (c.localPath?.startsWith('url:') ?? false));
+  Widget _miniThumb(
+    MiniCardData c, {
+    double w = 48,
+    double h = 48,
+    double r = 6,
+  }) {
+    final hasLocal =
+        (c.localPath ?? '').isNotEmpty &&
+        !(kIsWeb && (c.localPath?.startsWith('url:') ?? false));
     final hasRemote = (c.imageUrl ?? '').isNotEmpty;
 
     final Widget child = (kIsWeb && !hasLocal && hasRemote)
-        ? NoCorsImage(c.imageUrl!, fit: BoxFit.cover, width: w, height: h, borderRadius: r)
-        : Image(image: imageProviderOf(c), fit: BoxFit.cover, width: w, height: h);
+        ? NoCorsImage(
+            c.imageUrl!,
+            fit: BoxFit.cover,
+            width: w,
+            height: h,
+            borderRadius: r,
+          )
+        : Image(
+            image: imageProviderOf(c),
+            fit: BoxFit.cover,
+            width: w,
+            height: h,
+          );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(r),
@@ -131,7 +164,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text(l.miniCardsOf(widget.title)),
-            leading: BackButton(onPressed: () => Navigator.pop(context, _cards)),
+            leading: BackButton(
+              onPressed: () => Navigator.pop(context, _cards),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.upload_file),
@@ -154,7 +189,8 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
               // tag filter row
               Builder(
                 builder: (_) {
-                  final allTags = _cards.expand((c) => c.tags).toSet().toList()..sort();
+                  final allTags = _cards.expand((c) => c.tags).toSet().toList()
+                    ..sort();
                   if (allTags.isEmpty) return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
@@ -188,7 +224,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                       itemCount: pageCount,
                       allowImplicitScrolling: true,
                       itemBuilder: (context, i) {
-                        final scale = (1 - ((_page - i).abs() * 0.12)).clamp(0.86, 1.0);
+                        final scale = (1 - ((_page - i).abs() * 0.12)).clamp(
+                          0.86,
+                          1.0,
+                        );
 
                         // 左右工具卡
                         if (i == 0 || i == pageCount - 1) {
@@ -200,12 +239,21 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                               child: ToolCard(
                                 onScan: _scanAndImport,
                                 onEdit: () async {
-                                  final updated = await Navigator.push<List<MiniCardData>>(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => EditMiniCardsPage(initial: _cards)),
-                                  );
+                                  final updated =
+                                      await Navigator.push<List<MiniCardData>>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EditMiniCardsPage(
+                                            initial: _cards,
+                                          ),
+                                        ),
+                                      );
                                   if (updated != null && mounted) {
-                                    setState(() => _cards = updated.map(_ensureOwner).toList());
+                                    setState(
+                                      () => _cards = updated
+                                          .map(_ensureOwner)
+                                          .toList(),
+                                    );
                                   }
                                 },
                               ),
@@ -234,7 +282,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                 back: MiniCardBack(
                                   card: card,
                                   onChanged: (updated) {
-                                    final idx = _cards.indexWhere((x) => x.id == updated.id);
+                                    final idx = _cards.indexWhere(
+                                      (x) => x.id == updated.id,
+                                    );
                                     if (idx >= 0) {
                                       setState(() => _cards[idx] = updated);
                                     }
@@ -276,19 +326,27 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                     await _shareOptionsForCard(context, visibleCards[idx]);
                   }
                 },
-                icon: Icon(isAtLeftTool ? Icons.qr_code_scanner : Icons.ios_share),
-                label: Text(isAtLeftTool ? l.scan : (isAtRightTool ? l.share : l.shareThisCard)),
+                icon: Icon(
+                  isAtLeftTool ? Icons.qr_code_scanner : Icons.ios_share,
+                ),
+                label: Text(
+                  isAtLeftTool
+                      ? l.scan
+                      : (isAtRightTool ? l.share : l.shareThisCard),
+                ),
               );
             },
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
         ),
       ),
     );
   }
 
-  List<MiniCardData> _currentVisibleCards() =>
-      _activeTags.isEmpty ? _cards : _cards.where((c) => c.tags.any(_activeTags.contains)).toList();
+  List<MiniCardData> _currentVisibleCards() => _activeTags.isEmpty
+      ? _cards
+      : _cards.where((c) => c.tags.any(_activeTags.contains)).toList();
 
   // ===== scan / share =====
   Future<void> _scanAndImport() async {
@@ -302,7 +360,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     int added = 0;
     for (final r in results) {
       final exists = _cards.any((c) => c.id == r.id);
-      final base = exists ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString()) : r;
+      final base = exists
+          ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString())
+          : r;
 
       // ⬇️ 關鍵：不論來自哪裡，統一把 idol 設成此頁的 owner (= widget.title)
       final toInsert = base.copyWith(idol: widget.title);
@@ -383,7 +443,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
               final c = _cards[i];
               return ListTile(
                 leading: _miniThumb(c, w: 56, h: 56, r: 8),
-                title: Text(c.note.isEmpty ? l.common_unnamed : c.note, maxLines: 1, overflow: TextOverflow.ellipsis),
+                title: Text(
+                  c.note.isEmpty ? l.common_unnamed : c.note,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 onTap: () => Navigator.pop(context, c),
               );
             },
@@ -416,11 +480,23 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                   child: Row(
                     children: [
-                      Expanded(child: Text(jsonOnly ? l.selectCardsForJsonTitle : l.selectCardsForShareOrExportTitle)),
-                      TextButton(onPressed: () => Navigator.pop(modalCtx, <MiniCardData>[]), child: Text(l.cancel)),
+                      Expanded(
+                        child: Text(
+                          jsonOnly
+                              ? l.selectCardsForJsonTitle
+                              : l.selectCardsForShareOrExportTitle,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pop(modalCtx, <MiniCardData>[]),
+                        child: Text(l.cancel),
+                      ),
                       FilledButton(
                         onPressed: () {
-                          final picked = source.where((c) => sel.contains(c.id)).toList();
+                          final picked = source
+                              .where((c) => sel.contains(c.id))
+                              .toList();
                           Navigator.pop(modalCtx, picked);
                         },
                         child: Text(l.confirm),
@@ -454,7 +530,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: allowed ? null : Text(l.blockedLocalImageNote),
+                        subtitle: allowed
+                            ? null
+                            : Text(l.blockedLocalImageNote),
                         secondary: _miniThumb(c),
                       );
                     },
@@ -563,7 +641,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
               subtitle: Text(l.shareMultipleCardsSubtitle),
               onTap: () async {
                 Navigator.pop(ctx);
-                await _pickAndShareOrExport(_currentVisibleCards(), preselect: {c.id});
+                await _pickAndShareOrExport(
+                  _currentVisibleCards(),
+                  preselect: {c.id},
+                );
               },
             ),
           ],
@@ -572,7 +653,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  Future<void> _showQrForCard(BuildContext context, String owner, MiniCardData card) async {
+  Future<void> _showQrForCard(
+    BuildContext context,
+    String owner,
+    MiniCardData card,
+  ) async {
     final l = context.l10n;
 
     if ((card.imageUrl ?? '').isEmpty) {
@@ -624,7 +709,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       data = card.id;
     }
 
-    final Uint8List? pngBytes = await QrImageBuilder.buildPngBytes(data, 220, quietZone: 24);
+    final Uint8List? pngBytes = await QrImageBuilder.buildPngBytes(
+      data,
+      220,
+      quietZone: 24,
+    );
 
     if (pngBytes == null) {
       if (!mounted) return;
@@ -635,7 +724,12 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
     final hint = backendMode ? l.transportBackendHint : l.transportEmbeddedHint;
 
-    await qr.QrPreviewDialog.show(context, pngBytes, transportHint: hint, jsonText: jsonForDialog);
+    await qr.QrPreviewDialog.show(
+      context,
+      pngBytes,
+      transportHint: hint,
+      jsonText: jsonForDialog,
+    );
 
     if (backendMode) {
       _snack(l.qrIdOnlyNotice, seconds: 4);
@@ -650,7 +744,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       // 'card': _cardToQrJson(card),
       'card': _cardToQrJson(card, ownerFallback: owner), // ⭐
     });
-    final resp = await http.post(uri, headers: {'Content-Type': 'application/json'}, body: body);
+    final resp = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
       throw Exception('response ${resp.statusCode}: ${resp.body}');
     }
@@ -674,11 +772,20 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         content: TextField(
           controller: controller,
           maxLines: 12,
-          decoration: InputDecoration(hintText: l.pasteJsonHint, border: const OutlineInputBorder()),
+          decoration: InputDecoration(
+            hintText: l.pasteJsonHint,
+            border: const OutlineInputBorder(),
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dCtx), child: Text(l.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(dCtx, controller.text.trim()), child: Text(l.import)),
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dCtx, controller.text.trim()),
+            child: Text(l.import),
+          ),
         ],
       ),
     );
@@ -689,7 +796,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       int added = 0;
       for (final r in list) {
         final exists = _cards.any((c) => c.id == r.id);
-        final toInsert = exists ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString()) : r;
+        final toInsert = exists
+            ? r.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString())
+            : r;
         _cards.add(toInsert);
         added++;
       }
@@ -715,7 +824,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       'owner': widget.title,
       'count': allowed.length,
       // 'cards': allowed.map(_cardToQrJson).toList(),
-      'cards': allowed.map((c) => _cardToQrJson(c, ownerFallback: widget.title)).toList(),
+      'cards': allowed
+          .map((c) => _cardToQrJson(c, ownerFallback: widget.title))
+          .toList(),
     };
 
     final s = const JsonEncoder.withIndent('  ').convert(bundle);
@@ -735,7 +846,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(l.skippedLocalImagesCount(skipped), style: Theme.of(context).textTheme.bodySmall),
+                    child: Text(
+                      l.skippedLocalImagesCount(skipped),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
                 ),
               ConstrainedBox(
@@ -744,14 +858,19 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   controller: TextEditingController(text: s),
                   readOnly: true,
                   maxLines: null,
-                  decoration: const InputDecoration(border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.close)),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l.close),
+          ),
           FilledButton.icon(
             icon: const Icon(Icons.copy),
             label: Text(l.copy),
@@ -815,19 +934,27 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
     if ((card.imageUrl ?? '').isNotEmpty) {
       try {
-        final p = await downloadImageToLocal(card.imageUrl!, preferName: card.id);
+        final p = await downloadImageToLocal(
+          card.imageUrl!,
+          preferName: card.id,
+        );
         card = card.copyWith(localPath: p);
       } catch (_) {}
     }
     if ((card.backImageUrl ?? '').isNotEmpty) {
       try {
-        final p2 = await downloadImageToLocal(card.backImageUrl!, preferName: '${card.id}_back');
+        final p2 = await downloadImageToLocal(
+          card.backImageUrl!,
+          preferName: '${card.id}_back',
+        );
         card = card.copyWith(backLocalPath: p2);
       } catch (_) {}
     }
 
     // ⬇️ 關鍵：此頁的 owner（標題）就是 idol
-    return (card.idol == null || card.idol!.isEmpty) ? card.copyWith(idol: widget.title) : card;
+    return (card.idol == null || card.idol!.isEmpty)
+        ? card.copyWith(idol: widget.title)
+        : card;
   }
 
   // Future<MiniCardData> _inflateOneFromMap(Map<String, dynamic> map) async {
@@ -856,24 +983,26 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
   bool _cardJsonAllowed(MiniCardData c) {
     final frontOk = (c.imageUrl ?? '').isNotEmpty;
-    final backLocalOnly = (c.backLocalPath ?? '').isNotEmpty && (c.backImageUrl ?? '').isEmpty;
+    final backLocalOnly =
+        (c.backLocalPath ?? '').isNotEmpty && (c.backImageUrl ?? '').isEmpty;
     return frontOk && !backLocalOnly;
   }
 
-  Map<String, dynamic> _cardToQrJson(MiniCardData c, {String? ownerFallback}) => {
-    'id': c.id,
-    'imageUrl': c.imageUrl,
-    'backImageUrl': c.backImageUrl,
-    'note': c.note,
-    'name': c.name,
-    'serial': c.serial,
-    'language': c.language,
-    'album': c.album,
-    'cardType': c.cardType,
-    'tags': c.tags,
-    'createdAt': c.createdAt.toIso8601String(),
-    'idol': (c.idol != null && c.idol!.isNotEmpty) ? c.idol : ownerFallback,
-  };
+  Map<String, dynamic> _cardToQrJson(MiniCardData c, {String? ownerFallback}) =>
+      {
+        'id': c.id,
+        'imageUrl': c.imageUrl,
+        'backImageUrl': c.backImageUrl,
+        'note': c.note,
+        'name': c.name,
+        'serial': c.serial,
+        'language': c.language,
+        'album': c.album,
+        'cardType': c.cardType,
+        'tags': c.tags,
+        'createdAt': c.createdAt.toIso8601String(),
+        'idol': (c.idol != null && c.idol!.isNotEmpty) ? c.idol : ownerFallback,
+      };
 
   // Map<String, dynamic> _cardToQrJson(MiniCardData c) => {
   //   'id': c.id,
@@ -889,7 +1018,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   //   'createdAt': c.createdAt.toIso8601String(),
   // };
 
-  Map<String, dynamic> _cardToSlimQrJson(MiniCardData c, {String? ownerFallback}) => {
+  Map<String, dynamic> _cardToSlimQrJson(
+    MiniCardData c, {
+    String? ownerFallback,
+  }) => {
     'id': c.id,
     'imageUrl': c.imageUrl,
     'note': c.note,
@@ -897,10 +1029,15 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   };
 
   bool _hasLocal(MiniCardData c) =>
-      ((c.localPath?.isNotEmpty ?? false) && (c.imageUrl?.isNotEmpty ?? false)) ||
-      ((c.backLocalPath?.isNotEmpty ?? false) && (c.backImageUrl?.isNotEmpty ?? false));
+      ((c.localPath?.isNotEmpty ?? false) &&
+          (c.imageUrl?.isNotEmpty ?? false)) ||
+      ((c.backLocalPath?.isNotEmpty ?? false) &&
+          (c.backImageUrl?.isNotEmpty ?? false));
 
-  Future<void> _pickAndShareOrExport(List<MiniCardData> source, {Set<String>? preselect}) async {
+  Future<void> _pickAndShareOrExport(
+    List<MiniCardData> source, {
+    Set<String>? preselect,
+  }) async {
     final l = context.l10n;
     final sel = <String>{...(preselect ?? const <String>{})};
 
@@ -920,7 +1057,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   child: Row(
                     children: [
                       Expanded(child: Text(l.selectCardsToShareTitle)),
-                      TextButton(onPressed: () => Navigator.pop(modalCtx), child: Text(l.close)),
+                      TextButton(
+                        onPressed: () => Navigator.pop(modalCtx),
+                        child: Text(l.close),
+                      ),
                     ],
                   ),
                 ),
@@ -950,7 +1090,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: _hasLocal(c) ? Text(l.hasImageUrlJsonOk) : null,
+                        subtitle: _hasLocal(c)
+                            ? Text(l.hasImageUrlJsonOk)
+                            : null,
                       );
                     },
                   ),
@@ -961,7 +1103,10 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(l.exportJsonOnlyUrlHint, style: Theme.of(context).textTheme.bodySmall),
+                    child: Text(
+                      l.exportJsonOnlyUrlHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
                 ),
 
@@ -977,7 +1122,9 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           onPressed: sel.isEmpty
                               ? null
                               : () async {
-                                  final picked = source.where((c) => sel.contains(c.id)).toList();
+                                  final picked = source
+                                      .where((c) => sel.contains(c.id))
+                                      .toList();
                                   Navigator.pop(modalCtx);
                                   await _shareMultiplePhotos(picked);
                                 },
@@ -991,9 +1138,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                           onPressed: sel.isEmpty
                               ? null
                               : () async {
-                                  final picked = source.where((c) => sel.contains(c.id)).toList();
-                                  final allowed = picked.where(_cardJsonAllowed).toList();
-                                  final blocked = picked.length - allowed.length;
+                                  final picked = source
+                                      .where((c) => sel.contains(c.id))
+                                      .toList();
+                                  final allowed = picked
+                                      .where(_cardJsonAllowed)
+                                      .toList();
+                                  final blocked =
+                                      picked.length - allowed.length;
 
                                   Future<void> doExport() async {
                                     Navigator.pop(modalCtx);
@@ -1009,14 +1161,21 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                                       context: context,
                                       builder: (_) => AlertDialog(
                                         title: Text(l.containsLocalImages),
-                                        content: Text(l.containsLocalImagesDetail(blocked, allowed.length)),
+                                        content: Text(
+                                          l.containsLocalImagesDetail(
+                                            blocked,
+                                            allowed.length,
+                                          ),
+                                        ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context, false),
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
                                             child: Text(l.cancel),
                                           ),
                                           FilledButton(
-                                            onPressed: () => Navigator.pop(context, true),
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
                                             child: Text(l.onlyExportUsable),
                                           ),
                                         ],

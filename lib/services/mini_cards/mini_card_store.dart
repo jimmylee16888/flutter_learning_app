@@ -368,13 +368,20 @@ class MiniCardStore extends ChangeNotifier {
   // ===== 私有小工具 =====
 
   bool _miniEquals(MiniCardData a, MiniCardData b) {
-    // 依你的資料結構挑重要欄位，至少包含 idol / id 及常用欄位
     return a.id == b.id &&
         a.idol == b.idol &&
         a.name == b.name &&
         a.serial == b.serial &&
         a.imageUrl == b.imageUrl &&
-        a.localPath == b.localPath;
+        a.localPath == b.localPath &&
+        a.backImageUrl == b.backImageUrl &&
+        a.backLocalPath == b.backLocalPath &&
+        a.language == b.language &&
+        a.album == b.album &&
+        a.cardType == b.cardType &&
+        a.note == b.note &&
+        listEquals(a.tags, b.tags) &&
+        a.createdAt == b.createdAt;
   }
 
   /// 若資料真的有變動才替換，回傳是否變動

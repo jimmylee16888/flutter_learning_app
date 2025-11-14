@@ -9,6 +9,12 @@ import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 import 'package:flutter_learning_app/models/card_item.dart';
 import 'package:flutter_learning_app/models/mini_card_data.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
+
+// 控制tip_promoter是否限制一天一次
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_learning_app/utils/tip_prompter.dart';
 
 class DevSettingsPage extends StatefulWidget {
   const DevSettingsPage({super.key});
@@ -21,6 +27,10 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   SubscriptionPlan _simPlan = SubscriptionPlan.free;
   bool _simActive = false;
 
+  // 👉 Tip 彈窗相關 Dev 設定
+  bool _tipAlwaysShow = false; // 對應 TipPrompter.alwaysShowOverride
+  bool _tipDailyGate = true; // 對應 TipPrompter.enableDailyGate
+
   // 預覽狀態
   String _previewJson = '';
   String _metaLine = '';
@@ -30,6 +40,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   MiniCardStore? _miniStore;
 
   @override
+  @override
   void initState() {
     super.initState();
     final s = SubscriptionService.I;
@@ -37,6 +48,19 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     final st = s.devOverrideState ?? s.state.value;
     _simPlan = st.plan;
     _simActive = st.isActive;
+
+    // 🔧 載入 TipPrompter 的 Dev 設定（只給開發者用）
+    Future.microtask(() async {
+      final sp = await SharedPreferences.getInstance();
+      setState(() {
+        _tipAlwaysShow = sp.getBool('dev_tip_always_show') ?? false;
+        _tipDailyGate = sp.getBool('dev_tip_daily_gate') ?? true;
+      });
+
+      // 同步到 TipPrompter 的 static
+      TipPrompter.alwaysShowOverride = _tipAlwaysShow;
+      TipPrompter.enableDailyGate = _tipDailyGate;
+    });
   }
 
   @override
@@ -64,34 +88,55 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   }
 
   Future<void> _apply() async {
+    // 1) 套用訂閱模擬
     await SubscriptionService.I.setDevOverride(
       enabled: _overrideEnabled,
       plan: _simPlan,
       isActive: _simActive,
     );
+
+    // 2) 套用 Tip 彈窗 Dev 設定（只影響這台 / 這個使用者）
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool('dev_tip_always_show', _tipAlwaysShow);
+    await sp.setBool('dev_tip_daily_gate', _tipDailyGate);
+
+    // 寫回 TipPrompter 的 static
+    TipPrompter.alwaysShowOverride = _tipAlwaysShow;
+    TipPrompter.enableDailyGate = _tipDailyGate;
+
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('已套用開發者模擬訂閱狀態')));
+    ).showSnackBar(const SnackBar(content: Text('已套用開發者設定')));
     setState(() {});
   }
 
-  // ===== 組合目前資料（CardItem + MiniCard）為單一 JSON =====
+  // ===== 組合目前資料（CardItem + MiniCard）為單一 JSON（跨裝置用）=====
   Map<String, dynamic> _buildPayload() {
     final cardStore = context.read<CardItemStore>();
     final miniStore = context.read<MiniCardStore>();
 
+    // 1) CardItem：匯出時移除本機路徑（localPath）
     final cardsJson = {
       'categories': cardStore.categories,
-      'items': cardStore.cardItems.map((e) => e.toJson()).toList(),
+      'items': cardStore.cardItems.map((e) {
+        final j = e.toJson();
+        // ❗ 這裡依照你的 CardItem.toJson() 實際 key 名稱調整
+        j.remove('localPath'); // 不帶出本機路徑，拿去別裝置才不會壞掉
+        return j;
+      }).toList(),
     };
 
+    // 2) MiniCard：如果 MiniCardData 也有本機路徑欄位，一樣在這裡拿掉
     final byOwner = <String, List<Map<String, dynamic>>>{};
     for (final owner in miniStore.owners()) {
-      byOwner[owner] = miniStore
-          .forOwner(owner)
-          .map((m) => m.toJson())
-          .toList();
+      byOwner[owner] = miniStore.forOwner(owner).map((m) {
+        final j = m.toJson();
+        // 如果 MiniCardData 有本機路徑欄位就取消註解
+        // j.remove('localPath');
+        // j.remove('localImagePath');
+        return j;
+      }).toList();
     }
     final minisJson = {
       'by_owner': byOwner,
@@ -143,10 +188,32 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
       final categories = (cardsJson['categories'] as List? ?? const [])
           .map((e) => '$e')
           .toList();
-      final items = (cardsJson['items'] as List? ?? const [])
-          .cast<Map<String, dynamic>>()
-          .map<CardItem>(CardItem.fromJson)
-          .toList();
+      final rawItems = (cardsJson['items'] as List? ?? const []);
+      final List<CardItem> items = [];
+
+      for (final raw in rawItems) {
+        final m = (raw as Map).cast<String, dynamic>();
+        final c = CardItem.fromJson(m);
+
+        final url = c.imageUrl ?? '';
+        CardItem next = c;
+
+        if (url.isNotEmpty) {
+          try {
+            // 根據 id 建檔名，會存到目前裝置的 mini_cards 資料夾
+            final lp = await downloadImageToLocal(url, preferName: c.id);
+            next = next.copyWith(localPath: lp);
+          } catch (e) {
+            debugPrint('CardItem image download failed for ${c.id}: $e');
+            next = next.copyWith(localPath: null);
+          }
+        } else {
+          // 沒有 URL 就不要沿用舊 localPath，直接清空
+          next = next.copyWith(localPath: null);
+        }
+
+        items.add(next);
+      }
 
       context.read<CardItemStore>().replaceAll(
         categories: categories,
@@ -161,15 +228,55 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
       int total = 0;
       for (final entry in byOwner.entries) {
         final ownerTitle = entry.key;
-        final list = (entry.value as List? ?? const [])
-            .cast<Map<String, dynamic>>()
-            .map<MiniCardData>(MiniCardData.fromJson)
-            .map(
-              (m) => (m.idol == null || m.idol!.trim().isEmpty)
-                  ? m.copyWith(idol: ownerTitle)
-                  : m,
-            )
-            .toList();
+        final rawList = (entry.value as List? ?? const []);
+
+        final List<MiniCardData> list = [];
+
+        for (final raw in rawList) {
+          final m = MiniCardData.fromJson((raw as Map).cast<String, dynamic>());
+
+          // 若原本 idol 為空，用 owner key 補上
+          MiniCardData cur = (m.idol == null || m.idol!.trim().isEmpty)
+              ? m.copyWith(idol: ownerTitle)
+              : m;
+
+          // 1) 正面圖片：依 imageUrl 重新下載
+          final frontUrl = cur.imageUrl ?? '';
+          if (frontUrl.isNotEmpty) {
+            try {
+              final lp = await downloadImageToLocal(
+                frontUrl,
+                preferName: '${cur.id}_front',
+              );
+              cur = cur.copyWith(localPath: lp);
+            } catch (e) {
+              debugPrint('MiniCard front download failed for ${cur.id}: $e');
+              cur = cur.copyWith(localPath: null);
+            }
+          } else {
+            cur = cur.copyWith(localPath: null);
+          }
+
+          // 2) 背面圖片：依 backImageUrl 重新下載
+          final backUrl = cur.backImageUrl ?? '';
+          if (backUrl.isNotEmpty) {
+            try {
+              final lp = await downloadImageToLocal(
+                backUrl,
+                preferName: '${cur.id}_back',
+              );
+              cur = cur.copyWith(backLocalPath: lp);
+            } catch (e) {
+              debugPrint('MiniCard back download failed for ${cur.id}: $e');
+              cur = cur.copyWith(backLocalPath: null);
+            }
+          } else {
+            cur = cur.copyWith(backLocalPath: null);
+          }
+
+          list.add(cur);
+        }
+
         total += list.length;
         await miniStore.replaceCardsForIdol(idol: ownerTitle, next: list);
       }
@@ -204,8 +311,8 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
       Theme.of(context).colorScheme.onSurfaceVariant;
   Color _codeBg(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // M3 建議：優先用 containerHighest，其次 surfaceVariant
-    return (cs.surfaceContainerHighest ?? cs.surfaceVariant).withOpacity(.55);
+    // 相容舊版：直接用 surfaceVariant
+    return cs.surfaceVariant.withOpacity(.55);
   }
 
   @override
@@ -275,6 +382,26 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // 💡 Tip 彈窗 Dev 設定
+          Card(
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('Tip 每次都顯示（開發者測試用）'),
+                  subtitle: const Text('開啟後會忽略「一天一次」與已讀紀錄'),
+                  value: _tipAlwaysShow,
+                  onChanged: (v) => setState(() => _tipAlwaysShow = v),
+                ),
+                SwitchListTile(
+                  title: const Text('啟用「一天只顯示一次」機制'),
+                  subtitle: const Text('一般使用者建議保持開啟'),
+                  value: _tipDailyGate,
+                  onChanged: (v) => setState(() => _tipDailyGate = v),
+                ),
+              ],
             ),
           ),
 
@@ -355,7 +482,8 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                     '說明：\n'
                     '• 此預覽為即時組合的單一 JSON：包含所有藝人(CardItem)與小卡(MiniCard)，by_owner 以 title 關聯。\n'
                     '• 匯入為覆蓋式，請先確認內容正確再操作。\n'
-                    '• 若日後更改藝人 title，舊檔匯入時 by_owner 對不上將不會合併。',
+                    '• 若日後更改藝人 title，舊檔匯入時 by_owner 對不上將不會合併。\n'
+                    '• 匯出內容不包含本機圖片路徑（localPath），在其他裝置匯入後，如需使用本機圖片，請重新指定。',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: _muted(context),
                       height: 1.25,

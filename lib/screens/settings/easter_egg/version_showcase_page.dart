@@ -29,7 +29,8 @@ class VersionShowcasePage extends StatefulWidget {
   State<VersionShowcasePage> createState() => _VersionShowcasePageState();
 }
 
-class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTickerProviderStateMixin {
+class _VersionShowcasePageState extends State<VersionShowcasePage>
+    with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   final _player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
 
@@ -98,7 +99,8 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
     return const AssetImage(kFallbackLogo);
   }
 
-  double _clamp(double v, double lo, double hi) => v < lo ? lo : (v > hi ? hi : v);
+  double _clamp(double v, double lo, double hi) =>
+      v < lo ? lo : (v > hi ? hi : v);
 
   void _ensureSpawned() {
     if (_arena == Size.zero || _items.isNotEmpty) return;
@@ -114,11 +116,15 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
       final title = widget.cards[i].title;
 
       final isBuoyant = rnd.nextBool();
-      final size = isBuoyant ? (rnd.nextDouble() * 26 + 74) : (rnd.nextDouble() * 18 + 62);
+      final size = isBuoyant
+          ? (rnd.nextDouble() * 26 + 74)
+          : (rnd.nextDouble() * 18 + 62);
 
       final x = rnd.nextDouble() * w * 0.9 + w * 0.05;
       final waterY = _sea.surfaceY(x, 0.0, h);
-      final y = isBuoyant ? waterY - size * (0.35 + rnd.nextDouble() * 0.25) : (h * (0.82 + rnd.nextDouble() * 0.12));
+      final y = isBuoyant
+          ? waterY - size * (0.35 + rnd.nextDouble() * 0.25)
+          : (h * (0.82 + rnd.nextDouble() * 0.12));
 
       final vx = (rnd.nextDouble() * 10 + 4) * (rnd.nextBool() ? 1 : -1);
       final vy = (rnd.nextDouble() * 12 - 6);
@@ -142,7 +148,10 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
     _items.add(
       _FloatItem.imageBall(
         pos: Offset(lx, ly),
-        vel: Offset((rnd.nextDouble() * 20 + 10) * (rnd.nextBool() ? 1 : -1), 0),
+        vel: Offset(
+          (rnd.nextDouble() * 20 + 10) * (rnd.nextBool() ? 1 : -1),
+          0,
+        ),
         size: logoSize,
         isBuoyant: true,
         image: const AssetImage(kLogoBallAsset),
@@ -205,7 +214,9 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
   void _tick(Duration now) {
     if (_arena == Size.zero) return;
 
-    final dt = (_lastTick == Duration.zero) ? 0.016 : (now - _lastTick).inMicroseconds / 1e6;
+    final dt = (_lastTick == Duration.zero)
+        ? 0.016
+        : (now - _lastTick).inMicroseconds / 1e6;
     _lastTick = now;
 
     final w = _arena.width;
@@ -234,7 +245,8 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
       double ay = 0.0;
       final ySurface = _sea.surfaceY(b.pos.dx, t, h);
       if (b.isBuoyant) {
-        final target = ySurface - (b.size * (b.kind == _Kind.beachBall ? 0.48 : 0.42));
+        final target =
+            ySurface - (b.size * (b.kind == _Kind.beachBall ? 0.48 : 0.42));
         ay += (target - b.pos.dy) * springFloat;
         ay += math.sin((t * 2.2) + b.hash) * 12.0;
       } else {
@@ -245,7 +257,10 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
         ay += gravity;
       }
 
-      b.vel = Offset((b.vel.dx + vxPush) * damping, (b.vel.dy + ay * dt) * damping);
+      b.vel = Offset(
+        (b.vel.dx + vxPush) * damping,
+        (b.vel.dy + ay * dt) * damping,
+      );
       var newX = b.pos.dx + b.vel.dx * dt;
       var newY = b.pos.dy + b.vel.dy * dt;
 
@@ -277,7 +292,9 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
 
-    final nowT = (_lastTick == Duration.zero) ? 0.0 : _lastTick.inMicroseconds / 1e6;
+    final nowT = (_lastTick == Duration.zero)
+        ? 0.0
+        : _lastTick.inMicroseconds / 1e6;
 
     return Scaffold(
       appBar: AppBar(
@@ -288,12 +305,17 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
           tooltip: 'Back',
         ),
       ),
-      backgroundColor: isDark ? const Color(0xFF0B1020) : const Color(0xFFF6FAFF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1020)
+          : const Color(0xFFF6FAFF),
       body: SizedBox.expand(
         // ✅ 確保拿到有內容的 constraints（不是 0）
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final size = Size(constraints.maxWidth, constraints.maxHeight); // ✅ 不要再扣 kToolbarHeight
+            final size = Size(
+              constraints.maxWidth,
+              constraints.maxHeight,
+            ); // ✅ 不要再扣 kToolbarHeight
 
             if (size != _arena) {
               _arena = size;
@@ -328,7 +350,9 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
                         color: isDark ? Colors.white : const Color(0xFF12203A),
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(isDark ? 0.40 : 0.18),
+                            color: Colors.black.withOpacity(
+                              isDark ? 0.40 : 0.18,
+                            ),
                             blurRadius: isDark ? 22 : 14,
                             offset: const Offset(0, 4),
                           ),
@@ -341,23 +365,44 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
                 // 漂浮物件（可戳破）
                 // 漂浮物件（可戳破）—— 用 expand 攤平成外層 Stack 的孩子
                 ..._items.expand((b) {
-                  final under = b.pos.dy > _sea.surfaceY(b.pos.dx, nowT, _arena.height);
+                  final under =
+                      b.pos.dy > _sea.surfaceY(b.pos.dx, nowT, _arena.height);
                   final depth = under
-                      ? _clamp((b.pos.dy - _sea.surfaceY(b.pos.dx, nowT, _arena.height)) / (_arena.height * 0.4), 0, 1)
+                      ? _clamp(
+                          (b.pos.dy -
+                                  _sea.surfaceY(
+                                    b.pos.dx,
+                                    nowT,
+                                    _arena.height,
+                                  )) /
+                              (_arena.height * 0.4),
+                          0,
+                          1,
+                        )
                       : 0.0;
 
                   final popping = b.popProgress > 0 && b.popProgress < 1.0;
                   final p = popping ? b.popProgress : 0.0;
-                  final scale = popping ? (1.0 + 0.2 * math.sin(p * math.pi)) * (1 - p) : 1.0;
+                  final scale = popping
+                      ? (1.0 + 0.2 * math.sin(p * math.pi)) * (1 - p)
+                      : 1.0;
                   final opacity = popping ? (1.0 - p) : 1.0;
 
                   Widget child;
                   switch (b.kind) {
                     case _Kind.imageBall:
-                      child = _AvatarTile(image: b.image!, tooltip: b.title, depth: depth);
+                      child = _AvatarTile(
+                        image: b.image!,
+                        tooltip: b.title,
+                        depth: depth,
+                      );
                       break;
                     case _Kind.emoji:
-                      child = _EmojiTile(emoji: b.emoji!, size: b.size, depth: depth);
+                      child = _EmojiTile(
+                        emoji: b.emoji!,
+                        size: b.size,
+                        depth: depth,
+                      );
                       break;
                     case _Kind.beachBall:
                       child = _BeachBallTile(size: b.size, depth: depth);
@@ -412,14 +457,14 @@ class _VersionShowcasePageState extends State<VersionShowcasePage> with SingleTi
                     ),
                   ),
                 ),
-                Positioned(
-                  right: 8,
-                  bottom: 8 + MediaQuery.of(context).padding.bottom,
-                  child: Text(
-                    'arena=${_arena.width.toStringAsFixed(0)}x${_arena.height.toStringAsFixed(0)}  items=${_items.length}',
-                    style: const TextStyle(fontSize: 12, color: Colors.white70),
-                  ),
-                ),
+                // Positioned(
+                //   right: 8,
+                //   bottom: 8 + MediaQuery.of(context).padding.bottom,
+                //   child: Text(
+                //     'arena=${_arena.width.toStringAsFixed(0)}x${_arena.height.toStringAsFixed(0)}  items=${_items.length}',
+                //     style: const TextStyle(fontSize: 12, color: Colors.white70),
+                //   ),
+                // ),
               ],
             );
           },
@@ -469,8 +514,15 @@ class _FloatItem {
     required Offset vel,
     required double size,
     required bool isBuoyant,
-  }) =>
-      _FloatItem._(kind: _Kind.emoji, pos: pos, vel: vel, size: size, isBuoyant: isBuoyant, title: title, emoji: emoji);
+  }) => _FloatItem._(
+    kind: _Kind.emoji,
+    pos: pos,
+    vel: vel,
+    size: size,
+    isBuoyant: isBuoyant,
+    title: title,
+    emoji: emoji,
+  );
 
   factory _FloatItem.beachBall({
     required String title,
@@ -478,7 +530,14 @@ class _FloatItem {
     required Offset vel,
     required double size,
     required bool isBuoyant,
-  }) => _FloatItem._(kind: _Kind.beachBall, pos: pos, vel: vel, size: size, isBuoyant: isBuoyant, title: title);
+  }) => _FloatItem._(
+    kind: _Kind.beachBall,
+    pos: pos,
+    vel: vel,
+    size: size,
+    isBuoyant: isBuoyant,
+    title: title,
+  );
 
   final _Kind kind;
   Offset pos;
@@ -522,15 +581,27 @@ class _Sea {
     final y =
         base +
         a1 * math.sin((x / lambda1) * 2 * math.pi + t * speed1 * 2 * math.pi) +
-        a2 * math.sin((x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2) +
-        a3 * math.sin((x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4);
+        a2 *
+            math.sin(
+              (x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2,
+            ) +
+        a3 *
+            math.sin(
+              (x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4,
+            );
     return y;
   }
 
   double currentX(double x, double t) {
-    final d1 = (2 * math.pi / lambda1) * math.cos((x / lambda1) * 2 * math.pi + t * speed1 * 2 * math.pi);
-    final d2 = (2 * math.pi / lambda2) * math.cos((x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2);
-    final d3 = (2 * math.pi / lambda3) * math.cos((x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4);
+    final d1 =
+        (2 * math.pi / lambda1) *
+        math.cos((x / lambda1) * 2 * math.pi + t * speed1 * 2 * math.pi);
+    final d2 =
+        (2 * math.pi / lambda2) *
+        math.cos((x / lambda2) * 2 * math.pi + t * speed2 * 2 * math.pi + 1.2);
+    final d3 =
+        (2 * math.pi / lambda3) *
+        math.cos((x / lambda3) * 2 * math.pi + t * speed3 * 2 * math.pi + 2.4);
     return 38.0 * (d1 * a1 + d2 * a2 + d3 * a3);
   }
 }
@@ -561,7 +632,10 @@ class _SeaPainter extends CustomPainter {
       end: Alignment.bottomCenter,
       colors: [seaTop, seaBot],
     ).createShader(Rect.fromLTWH(0, 0, w, h));
-    canvas.drawRect(Offset(0, h * sea.waterLine) & Size(w, h * (1 - sea.waterLine)), Paint()..shader = seaShader);
+    canvas.drawRect(
+      Offset(0, h * sea.waterLine) & Size(w, h * (1 - sea.waterLine)),
+      Paint()..shader = seaShader,
+    );
 
     void drawWave({
       required double amp,
@@ -576,7 +650,9 @@ class _SeaPainter extends CustomPainter {
       path.lineTo(0, y0);
       for (double x = 0; x <= w; x++) {
         final y =
-            sea.surfaceY(x, t + phase, h) + yOffset + amp * math.sin((x / lambda) * 2 * math.pi + t * 1.2 + phase);
+            sea.surfaceY(x, t + phase, h) +
+            yOffset +
+            amp * math.sin((x / lambda) * 2 * math.pi + t * 1.2 + phase);
         path.lineTo(x, y);
       }
       path.lineTo(w, h);
@@ -584,28 +660,48 @@ class _SeaPainter extends CustomPainter {
       canvas.drawPath(path, Paint()..color = color);
     }
 
-    drawWave(amp: 4, lambda: 180, phase: 0.0, yOffset: -2, color: Colors.white.withOpacity(dark ? 0.07 : 0.10));
+    drawWave(
+      amp: 4,
+      lambda: 180,
+      phase: 0.0,
+      yOffset: -2,
+      color: Colors.white.withOpacity(dark ? 0.07 : 0.10),
+    );
     drawWave(
       amp: 8,
       lambda: 240,
       phase: 0.35,
       yOffset: 4,
-      color: (dark ? Colors.white : Colors.black).withOpacity(dark ? 0.05 : 0.04),
+      color: (dark ? Colors.white : Colors.black).withOpacity(
+        dark ? 0.05 : 0.04,
+      ),
     );
-    drawWave(amp: 14, lambda: 320, phase: 0.7, yOffset: 10, color: Colors.black.withOpacity(dark ? 0.16 : 0.08));
+    drawWave(
+      amp: 14,
+      lambda: 320,
+      phase: 0.7,
+      yOffset: 10,
+      color: Colors.black.withOpacity(dark ? 0.16 : 0.08),
+    );
 
     final rnd = math.Random(7);
-    final bubblePaint = Paint()..color = Colors.white.withOpacity(dark ? 0.08 : 0.10);
+    final bubblePaint = Paint()
+      ..color = Colors.white.withOpacity(dark ? 0.08 : 0.10);
     for (int i = 0; i < 36; i++) {
       final bx = rnd.nextDouble() * w;
       final by = sea.surfaceY(bx, t, h) + 12 + rnd.nextDouble() * (h * 0.36);
       final r = 1 + (i % 3);
-      canvas.drawCircle(Offset(bx, by + math.sin((t + i) * 0.6) * 3), r.toDouble(), bubblePaint);
+      canvas.drawCircle(
+        Offset(bx, by + math.sin((t + i) * 0.6) * 3),
+        r.toDouble(),
+        bubblePaint,
+      );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _SeaPainter old) => old.t != t || old.dark != dark;
+  bool shouldRepaint(covariant _SeaPainter old) =>
+      old.t != t || old.dark != dark;
 }
 
 /* ─────────────── 漂浮物件繪製 ─────────────── */
@@ -623,8 +719,17 @@ class _AvatarTile extends StatelessWidget {
     final avatar = Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: color.outlineVariant.withOpacity(0.55), width: 1.1),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.18), blurRadius: 10, offset: const Offset(0, 5))],
+        border: Border.all(
+          color: color.outlineVariant.withOpacity(0.55),
+          width: 1.1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.18),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -634,9 +739,13 @@ class _AvatarTile extends StatelessWidget {
             image: image,
             fit: BoxFit.cover,
             gaplessPlayback: true,
-            errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black12),
+            errorBuilder: (_, __, ___) =>
+                const ColoredBox(color: Colors.black12),
           ),
-          if (depth > 0) Container(color: const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32)),
+          if (depth > 0)
+            Container(
+              color: const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+            ),
         ],
       ),
     );
@@ -656,7 +765,10 @@ class _EmojiTile extends StatelessWidget {
     if (depth <= 0) return Center(child: child);
     return Center(
       child: ColorFiltered(
-        colorFilter: ColorFilter.mode(const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32), BlendMode.srcATop),
+        colorFilter: ColorFilter.mode(
+          const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+          BlendMode.srcATop,
+        ),
         child: child,
       ),
     );
@@ -670,10 +782,16 @@ class _BeachBallTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ball = CustomPaint(size: Size.square(size), painter: _BeachBallPainter());
+    final ball = CustomPaint(
+      size: Size.square(size),
+      painter: _BeachBallPainter(),
+    );
     if (depth <= 0) return ball;
     return ColorFiltered(
-      colorFilter: ColorFilter.mode(const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32), BlendMode.srcATop),
+      colorFilter: ColorFilter.mode(
+        const Color(0xFF1273DE).withOpacity(0.18 + depth * 0.32),
+        BlendMode.srcATop,
+      ),
       child: ball,
     );
   }
@@ -700,7 +818,13 @@ class _BeachBallPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
     for (int i = 0; i < 4; i++) {
       paint.color = slices[i];
-      canvas.drawArc(Rect.fromCircle(center: center, radius: r * .9), i * (math.pi / 2), math.pi / 2, true, paint);
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: r * .9),
+        i * (math.pi / 2),
+        math.pi / 2,
+        true,
+        paint,
+      );
     }
 
     final hl = Paint()..color = Colors.white.withOpacity(.85);
