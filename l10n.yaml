@@ -1,11 +1,14 @@
 ﻿arb-dir: lib/l10n
 template-arb-file: app_en.arb
+
+# 改這裡：產出的 .dart 放在 lib/l10n
+output-dir: lib/l10n
+
 output-class: AppLocalizations
 output-localization-file: app_localizations.dart
 
 use-deferred-loading: false
 
-# （可選）明確列出支援語系；也可以省略，工具會依檔名自動偵測
 preferred-supported-locales:
   - en
   - zh_TW

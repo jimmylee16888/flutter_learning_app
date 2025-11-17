@@ -346,6 +346,13 @@ class _CardsViewState extends State<CardsView> {
                             title: it.title,
                             birthday: it.birthday,
                             quote: it.quote,
+
+                            // ✅ 新增：把 CardItem 的欄位往下傳
+                            stageName: it.stageName,
+                            group: it.group,
+                            origin: it.origin,
+                            note: it.note,
+
                             initiallyLiked: isLiked,
                             onLikeChanged: (liked) {
                               setState(() {
@@ -516,6 +523,12 @@ class _EditCardDialogState extends State<_EditCardDialog> {
   final Set<String> _cats = {};
   DateTime? _birthday;
 
+  // ✅ 新增欄位
+  final _stageName = TextEditingController();
+  final _group = TextEditingController();
+  final _origin = TextEditingController();
+  final _note = TextEditingController();
+
   _ImageMode _mode = _ImageMode.byUrl;
   final _url = TextEditingController();
   String? _pickedLocalPath;
@@ -530,6 +543,13 @@ class _EditCardDialogState extends State<_EditCardDialog> {
       _birthday = i.birthday;
       _cats.addAll(i.categories);
       _url.text = i.imageUrl ?? '';
+
+      // ✅ 帶入新欄位
+      _stageName.text = i.stageName ?? '';
+      _group.text = i.group ?? '';
+      _origin.text = i.origin ?? '';
+      _note.text = i.note ?? '';
+
       if ((i.localPath ?? '').isNotEmpty) {
         _mode = _ImageMode.byLocal;
         _pickedLocalPath = i.localPath;
@@ -672,7 +692,133 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 ],
               ),
 
-              const Divider(height: 16),
+              const SizedBox(height: 12),
+
+              // ✅ 其他資訊區塊（暱稱／團體／來源／備註）
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l.extraInfoSectionTitle, // 例如「其他資訊」
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _stageName,
+                      decoration: InputDecoration(
+                        labelText: l.fieldStageNameLabel, // 暱稱 / 藝名
+                        isDense: true,
+                        prefixIcon: const Icon(Icons.tag_faces_outlined),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _group,
+                      decoration: InputDecoration(
+                        labelText: l.fieldGroupLabel, // 團體 / 系列
+                        isDense: true,
+                        prefixIcon: const Icon(Icons.group_outlined),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              TextField(
+                controller: _origin,
+                decoration: InputDecoration(
+                  labelText: l.fieldOriginLabel, // 卡片來源
+                  isDense: true,
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              TextField(
+                controller: _note,
+                minLines: 2,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: l.fieldNoteLabel, // 備註
+                  isDense: true,
+                  alignLabelWithHint: true,
+                  prefixIcon: const Icon(Icons.edit_note_outlined),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+              // const Divider(height: 16),
+
+              // // 分類區塊（原本的 Wrap）
+              // Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: Wrap(
+              //     spacing: 8,
+              //     runSpacing: -8,
+              //     children: [
+              //       for (final c in store.categories)
+              //         GestureDetector(
+              //           behavior: HitTestBehavior.opaque,
+              //           onLongPress: () async {
+              //             final ok = await showConfirm(
+              //               context,
+              //               title: l.deleteCategoryTitle,
+              //               message: l.deleteCategoryMessage(c),
+              //               okLabel: l.delete,
+              //               cancelLabel: l.cancel,
+              //             );
+              //             if (ok) {
+              //               store.removeCategory(c);
+              //               setState(() => _cats.remove(c));
+              //               if (context.mounted) {
+              //                 ScaffoldMessenger.of(context).showSnackBar(
+              //                   SnackBar(
+              //                     content: Text(l.deletedCategoryToast(c)),
+              //                   ),
+              //                 );
+              //               }
+              //             }
+              //           },
+              //           child: FilterChip(
+              //             label: Text(c),
+              //             selected: _cats.contains(c),
+              //             onSelected: (v) => setState(
+              //               () => v ? _cats.add(c) : _cats.remove(c),
+              //             ),
+              //           ),
+              //         ),
+              //       ActionChip(
+              //         avatar: const Icon(Icons.add, size: 18),
+              //         label: Text(l.addCategory),
+              //         onPressed: () async {
+              //           final name = await showPrompt(
+              //             context,
+              //             title: l.addCategory,
+              //             hintText: l.newCategoryNameHint,
+              //             okLabel: l.add,
+              //             cancelLabel: l.cancel,
+              //           );
+              //           if (name != null && name.trim().isNotEmpty) {
+              //             final n = name.trim();
+              //             if (!store.categories.contains(n)) {
+              //               store.addCategory(n);
+              //             }
+              //             setState(() => _cats.add(n));
+              //           }
+              //         },
+              //       ),
+              //     ],
+              //   ),
+              // ),
+
+              // const Divider(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Wrap(
@@ -794,6 +940,16 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 quote: _quote.text.trim(),
                 birthday: _birthday,
                 categories: _cats.toList(),
+
+                // ✅ 新欄位
+                stageName: _stageName.text.trim().isEmpty
+                    ? null
+                    : _stageName.text.trim(),
+                group: _group.text.trim().isEmpty ? null : _group.text.trim(),
+                origin: _origin.text.trim().isEmpty
+                    ? null
+                    : _origin.text.trim(),
+                note: _note.text.trim().isEmpty ? null : _note.text.trim(),
               ),
             );
           },

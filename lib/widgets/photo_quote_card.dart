@@ -9,10 +9,17 @@ class PhotoQuoteCard extends StatefulWidget {
     required this.title,
     required this.quote,
     this.birthday,
+    this.stageName, // ✅ 新增
+    this.group, // ✅ 新增
+    this.origin, // ✅ 新增
+    this.note, // ✅ 新增
     this.initiallyLiked = false,
     this.borderRadius = 16,
     this.onLikeChanged, // ← 新增
-  }) : assert(image != null || imageWidget != null, 'PhotoQuoteCard 需要提供 image 或 imageWidget 其中之一');
+  }) : assert(
+         image != null || imageWidget != null,
+         'PhotoQuoteCard 需要提供 image 或 imageWidget 其中之一',
+       );
 
   /// 圖片（行動/桌面通常走 ImageProvider）
   final ImageProvider? image;
@@ -23,6 +30,12 @@ class PhotoQuoteCard extends StatefulWidget {
   final String title;
   final String quote;
   final DateTime? birthday;
+
+  // ✅ 新增的資訊欄位
+  final String? stageName;
+  final String? group;
+  final String? origin;
+  final String? note;
   final bool initiallyLiked;
 
   /// 卡片圓角（外部也可再包 ClipRRect 做一致裁切）
@@ -40,7 +53,9 @@ class PhotoQuoteCard extends StatefulWidget {
     bool initiallyLiked = false,
     double borderRadius = 16,
   }) {
-    final url = (imageUrl.isEmpty) ? 'https://picsum.photos/seed/placeholder/600/900' : imageUrl;
+    final url = (imageUrl.isEmpty)
+        ? 'https://picsum.photos/seed/placeholder/600/900'
+        : imageUrl;
     return PhotoQuoteCard(
       key: key,
       image: NetworkImage(url),
@@ -78,6 +93,12 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
           birthday: widget.birthday,
           quote: widget.quote,
           initiallyLiked: _liked,
+
+          // ✅ 把 4 個欄位往下傳
+          stageName: widget.stageName,
+          group: widget.group,
+          origin: widget.origin,
+          note: widget.note,
         ),
       ),
     );
@@ -97,8 +118,13 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
         : Image(
             image: widget.image!,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) =>
-                const Center(child: Icon(Icons.image_not_supported_outlined, size: 48, color: Colors.grey)),
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                size: 48,
+                color: Colors.grey,
+              ),
+            ),
           );
 
     return Card(
@@ -139,7 +165,13 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    shadows: [Shadow(blurRadius: 2, color: Colors.black45, offset: Offset(0, 1))],
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2,
+                        color: Colors.black45,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -158,10 +190,19 @@ class _PhotoQuoteCardState extends State<PhotoQuoteCard> {
                 onPressed: _toggleLike,
                 icon: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 180),
-                  transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+                  transitionBuilder: (c, a) =>
+                      ScaleTransition(scale: a, child: c),
                   child: _liked
-                      ? const Icon(Icons.favorite, key: ValueKey('fav-on'), color: Colors.pinkAccent)
-                      : const Icon(Icons.favorite_border, key: ValueKey('fav-off'), color: Colors.white),
+                      ? const Icon(
+                          Icons.favorite,
+                          key: ValueKey('fav-on'),
+                          color: Colors.pinkAccent,
+                        )
+                      : const Icon(
+                          Icons.favorite_border,
+                          key: ValueKey('fav-off'),
+                          color: Colors.white,
+                        ),
                 ),
                 tooltip: _liked ? '已收藏' : '加入收藏',
               ),

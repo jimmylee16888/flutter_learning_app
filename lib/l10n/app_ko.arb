@@ -580,6 +580,21 @@
     }
   },
 
-  "currentPlan": "현재 플랜"
+  "currentPlan": "현재 플랜",
+
+  "filter": "필터",
+
+  "filterPanelTitle": "카드 필터",
+  "filterClear": "초기화",
+  "filterSearchHint": "이름·메모·시리얼 번호 검색…",
+
+  "extraInfoSectionTitle": "추가 정보",
+  "fieldStageNameLabel": "활동명 / 별명",
+  "fieldGroupLabel": "그룹 / 시리즈",
+  "fieldOriginLabel": "카드 출처",
+  "fieldNoteLabel": "메모",
+  "profileSectionTitle": "기본 정보",
+  "noQuotePlaceholder": "아직 문구가 없습니다"
+
 
 }

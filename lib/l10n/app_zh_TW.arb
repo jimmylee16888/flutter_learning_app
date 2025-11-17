@@ -575,6 +575,20 @@
     }
   },
 
-  "currentPlan": "目前方案"
+  "currentPlan": "目前方案",
+
+  "filter": "篩選",
+
+  "filterPanelTitle": "篩選卡片",
+  "filterClear": "清除",
+  "filterSearchHint": "搜尋名稱、備註、序號…",
+
+  "extraInfoSectionTitle": "其他資訊",
+  "fieldStageNameLabel": "暱稱／藝名",
+  "fieldGroupLabel": "團體／系列",
+  "fieldOriginLabel": "卡片來源",
+  "fieldNoteLabel": "備註",
+  "profileSectionTitle": "基本資訊",
+  "noQuotePlaceholder": "尚未寫下句子"
 
 }

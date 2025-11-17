@@ -574,7 +574,21 @@
     }
   },
 
-  "currentPlan": "現在のプラン"
+  "currentPlan": "現在のプラン",
+  "filter": "絞り込み",
+
+  "filterPanelTitle": "カードを絞り込む",
+  "filterClear": "クリア",
+  "filterSearchHint": "名前・メモ・シリアル番号で検索…",
+
+  "extraInfoSectionTitle": "その他の情報",
+  "fieldStageNameLabel": "芸名・ニックネーム",
+  "fieldGroupLabel": "グループ・シリーズ",
+  "fieldOriginLabel": "カードの入手元",
+  "fieldNoteLabel": "メモ",
+  "profileSectionTitle": "基本プロフィール",
+  "noQuotePlaceholder": "まだ一言メッセージがありません"
+
 
 
 }

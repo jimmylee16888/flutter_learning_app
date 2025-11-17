@@ -1375,4 +1375,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get currentPlan => 'Aktueller Plan';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get filterPanelTitle => 'Karten filtern';
+
+  @override
+  String get filterClear => 'Zurücksetzen';
+
+  @override
+  String get filterSearchHint => 'Nach Name, Notiz oder Seriennummer suchen…';
+
+  @override
+  String get extraInfoSectionTitle => 'Weitere Details';
+
+  @override
+  String get fieldStageNameLabel => 'Künstlername / Spitzname';
+
+  @override
+  String get fieldGroupLabel => 'Gruppe / Serie';
+
+  @override
+  String get fieldOriginLabel => 'Kartenquelle';
+
+  @override
+  String get fieldNoteLabel => 'Notizen';
+
+  @override
+  String get profileSectionTitle => 'Grunddaten';
+
+  @override
+  String get noQuotePlaceholder => 'Noch kein Zitat eingetragen';
 }

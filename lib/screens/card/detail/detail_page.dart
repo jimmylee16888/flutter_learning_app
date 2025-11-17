@@ -1,6 +1,7 @@
-// lib/screens/card/detail/card_detail_page.dart  (檔名依你的專案調整)
+// lib/screens/card/detail/card_detail_page.dart
 
 import 'dart:convert';
+import 'dart:ui' show ImageFilter; // 👈 磨砂玻璃用
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -23,6 +24,12 @@ class CardDetailPage extends StatefulWidget {
     this.birthday,
     required this.quote,
     this.initiallyLiked = false,
+
+    // 新欄位
+    this.stageName,
+    this.group,
+    this.origin,
+    this.note,
   }) : assert(image != null || imageWidget != null);
 
   final ImageProvider? image;
@@ -31,6 +38,11 @@ class CardDetailPage extends StatefulWidget {
   final DateTime? birthday;
   final String quote;
   final bool initiallyLiked;
+
+  final String? stageName;
+  final String? group;
+  final String? origin;
+  final String? note;
 
   @override
   State<CardDetailPage> createState() => _CardDetailPageState();
@@ -102,11 +114,14 @@ class _CardDetailPageState extends State<CardDetailPage> {
     }
   }
 
-  static const double _kPreviewHeight = 250;
+  static const double _kPreviewHeight = 300;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     final b = widget.birthday;
     final bdayText = b == null
         ? l.birthdayNotChosen
@@ -127,6 +142,76 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ),
     );
 
+    // 只在有值時顯示一行 ListTile
+    Widget? buildInfoTile({
+      required IconData icon,
+      required String label,
+      String? value,
+    }) {
+      final v = value?.trim();
+      if (v == null || v.isEmpty) return null;
+      return ListTile(
+        dense: true,
+        leading: Icon(icon, size: 20),
+        title: Text(label),
+        subtitle: Text(v),
+      );
+    }
+
+    final infoTiles = <Widget>[
+      // 生日一定顯示
+      ListTile(
+        dense: true,
+        leading: const Icon(Icons.cake_outlined, size: 20),
+        title: Text(l.birthday),
+        subtitle: Text(bdayText),
+      ),
+      if (buildInfoTile(
+            icon: Icons.tag_faces_outlined,
+            label: l.fieldStageNameLabel,
+            value: widget.stageName,
+          ) !=
+          null)
+        buildInfoTile(
+          icon: Icons.tag_faces_outlined,
+          label: l.fieldStageNameLabel,
+          value: widget.stageName,
+        )!,
+      if (buildInfoTile(
+            icon: Icons.group_outlined,
+            label: l.fieldGroupLabel,
+            value: widget.group,
+          ) !=
+          null)
+        buildInfoTile(
+          icon: Icons.group_outlined,
+          label: l.fieldGroupLabel,
+          value: widget.group,
+        )!,
+      if (buildInfoTile(
+            icon: Icons.location_on_outlined,
+            label: l.fieldOriginLabel,
+            value: widget.origin,
+          ) !=
+          null)
+        buildInfoTile(
+          icon: Icons.location_on_outlined,
+          label: l.fieldOriginLabel,
+          value: widget.origin,
+        )!,
+      if (buildInfoTile(
+            icon: Icons.edit_note_outlined,
+            label: l.fieldNoteLabel,
+            value: widget.note,
+          ) !=
+          null)
+        buildInfoTile(
+          icon: Icons.edit_note_outlined,
+          label: l.fieldNoteLabel,
+          value: widget.note,
+        )!,
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -142,54 +227,115 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ],
       ),
 
-      // ✅ 用「一般版面」避免與可捲動內容疊在同一個 Stack（解決 Web 灰底）
+      // 主內容：大圖 + 資訊卡 + quote
       body: ListView(
-        padding: const EdgeInsets.only(bottom: _kPreviewHeight + 36), // 預留位置
+        padding: const EdgeInsets.only(bottom: _kPreviewHeight + 36),
         children: [
           topImage,
-          ListTile(
-            leading: const Icon(Icons.cake_outlined),
-            title: Text(l.birthday),
-            subtitle: Text(bdayText),
-          ),
-          const Divider(height: 0),
+          const SizedBox(height: 12),
+          // 👉 這張就是你說的「基本資訊」卡片：
+          //    永遠四個角都是圓角，不再跟捲動狀態有關
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              l.quoteTitle,
-              style: Theme.of(context).textTheme.titleMedium,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: cs.surface,
+                borderRadius: BorderRadius.circular(18), // 永遠圓角
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+                border: Border.all(
+                  color: cs.outlineVariant.withOpacity(0.4),
+                  width: 0.6,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 頂部小標題
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_outline, size: 18, color: cs.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          l.profileSectionTitle, // 例如「基本資訊」
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: cs.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Divider(height: 1),
+
+                  // 各個資訊欄位
+                  ...infoTiles,
+
+                  const SizedBox(height: 4),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Quote 區
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 4),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.format_quote_rounded,
+                  size: 24,
+                  color: cs.primary.withOpacity(0.7),
+                ),
+                const SizedBox(width: 6),
+                Text(l.quoteTitle, style: theme.textTheme.titleMedium),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
             child: Text(
-              '“${widget.quote}”',
-              style: Theme.of(context).textTheme.bodyLarge,
+              widget.quote.trim().isEmpty
+                  ? l
+                        .noQuotePlaceholder // 沒填 quote 的話顯示簡單提示
+                  : '“${widget.quote.trim()}”',
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
             ),
           ),
         ],
       ),
 
-      // ✅ 把底部預覽移到 bottomNavigationBar，並加上 RepaintBoundary
+      // 底部 mini-cards preview
       bottomNavigationBar: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onVerticalDragStart: (_) => _dragDyAccum = 0,
         onVerticalDragUpdate: (details) => _dragDyAccum += details.delta.dy,
         onVerticalDragEnd: (details) {
           final v = details.primaryVelocity ?? 0;
-          // 上滑：距離或速度達門檻就進入
           if (_dragDyAccum <= -_kSwipeDistance || v <= -_kSwipeVelocity) {
             _openMiniCardsPage();
           }
           _dragDyAccum = 0;
         },
-        onTap: _openMiniCardsPage, // 仍支援點擊
+        onTap: _openMiniCardsPage,
         child: SafeArea(
           top: false,
           child: RepaintBoundary(
             child: Material(
               color: Colors.transparent,
-              // PointerInterceptor 放「內層」，讓外層 GestureDetector 能收到手勢
               child: kIsWeb
                   ? PointerInterceptor(
                       child: _BottomPreviewBody(
@@ -226,38 +372,66 @@ class _BottomPreviewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: previewHeight,
-            child: miniCards.isEmpty
-                ? Center(
-                    child: Text(
-                      context.l10n.noMiniCardsPreviewHint,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  )
-                : _BottomMiniCarousel(
-                    cards: miniCards,
-                    height: previewHeight,
-                    borderRadius: 14,
-                    onTapCenter: ({int initialIndex = 0}) =>
-                        onOpenMiniCards(initialIndex: initialIndex),
-                  ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            context.l10n.detailSwipeHint,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).hintColor,
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    // 「磨砂玻璃＋漸層」的小卡區
+    // 👉 依你的需求：這裡 *不需要圓角*，所以 BorderRadius.zero
+    return ClipRRect(
+      borderRadius: BorderRadius.zero,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                cs.surface.withOpacity(0.0),
+                cs.surface.withOpacity(0.30),
+                cs.surface.withOpacity(0.80),
+              ],
+              stops: const [0.0, 0.35, 1.0],
+            ),
+            border: Border(
+              top: BorderSide(
+                color: cs.outlineVariant.withOpacity(0.35),
+                width: 0.6,
+              ),
             ),
           ),
-          const SizedBox(height: 10),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: previewHeight,
+                child: miniCards.isEmpty
+                    ? Center(
+                        child: Text(
+                          context.l10n.noMiniCardsPreviewHint,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      )
+                    : _BottomMiniCarousel(
+                        cards: miniCards,
+                        height: previewHeight,
+                        borderRadius: 14,
+                        onTapCenter: ({int initialIndex = 0}) =>
+                            onOpenMiniCards(initialIndex: initialIndex),
+                      ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                context.l10n.detailSwipeHint,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.hintColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -312,7 +486,9 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
           final curr = _pc!.hasClients
               ? (_pc!.page ?? _pc!.initialPage.toDouble())
               : _pc!.initialPage.toDouble();
-          _pc!..dispose();
+
+          _pc!.dispose();
+
           _pc = PageController(
             initialPage: curr.round().clamp(
               0,
@@ -361,14 +537,14 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
                 );
               }
 
-              // 強制 9:16 & cover（不論來源是什麼 widget 都一致處理）
+              // 強制 9:16 & cover
               thumb = _CoverBox(
                 aspectRatio: 9 / 16,
                 borderRadius: widget.borderRadius,
                 child: thumb,
               );
 
-              // Web 上仍包 PointerInterceptor（避免 HtmlElementView 搶事件）
+              // Web 上避免 HtmlElementView 搶事件
               if (kIsWeb) {
                 thumb = PointerInterceptor(child: thumb);
               }
@@ -408,7 +584,7 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
   }
 }
 
-// ------- 通用：把任何 child 都「強制成 cover」並裁 9:16 -------
+// ------- 通用：把任何 child 都「強制成 cover」並裁固定比例 -------
 
 class _CoverBox extends StatelessWidget {
   const _CoverBox({
@@ -427,7 +603,7 @@ class _CoverBox extends StatelessWidget {
       borderRadius: BorderRadius.circular(borderRadius),
       child: LayoutBuilder(
         builder: (_, c) {
-          // 讓所有來源（Image、NoCorsImage、任意 Widget）都被 FittedBox cover
+          // 讓所有來源都被 FittedBox cover
           return SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.cover,

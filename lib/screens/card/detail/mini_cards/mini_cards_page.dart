@@ -67,7 +67,12 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       .map(_ensureOwner)
       .toList(growable: true);
 
-  final Set<String> _activeTags = {};
+  // --- 漂浮篩選列用的狀態 ---
+  final TextEditingController _filterSearchCtrl = TextEditingController();
+  String? _languageFilter; // 語言
+  String? _cardTypeFilter; // 卡種
+  final Set<String> _tagFilter = {}; // 標籤多選
+  bool _filterExpanded = false; // 展開 / 收合
 
   static const int _kQrSafeLimit = 500;
 
@@ -91,6 +96,232 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       ? _pc.page!.round()
       : _pc.initialPage;
 
+  bool get _hasActiveFilters =>
+      _filterSearchCtrl.text.trim().isNotEmpty ||
+      (_languageFilter != null && _languageFilter!.isNotEmpty) ||
+      (_cardTypeFilter != null && _cardTypeFilter!.isNotEmpty) ||
+      _tagFilter.isNotEmpty;
+
+  void _resetPageToLeftTool() {
+    if (_pc.hasClients) {
+      _pc.jumpToPage(0);
+    }
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _filterSearchCtrl.clear();
+      _languageFilter = null;
+      _cardTypeFilter = null;
+      _tagFilter.clear();
+      _resetPageToLeftTool();
+    });
+  }
+
+  Widget _buildFloatingFilterBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = context.l10n;
+
+    // 從目前卡片收集可選條件
+    final Set<String> allLanguages = {
+      for (final c in _cards)
+        if ((c.language ?? '').isNotEmpty) c.language!,
+    };
+    final Set<String> allCardTypes = {
+      for (final c in _cards)
+        if ((c.cardType ?? '').isNotEmpty) c.cardType!,
+    };
+    final Set<String> allTags = {for (final c in _cards) ...c.tags};
+
+    // ===== 收合狀態：右上角小膠囊 =====
+    if (!_filterExpanded) {
+      return Align(
+        alignment: Alignment.topRight,
+        child: GestureDetector(
+          onTap: () => setState(() => _filterExpanded = true),
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(999),
+            color: theme.colorScheme.surface.withOpacity(0.95),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.filter_alt_outlined, size: 18),
+                  const SizedBox(width: 6),
+                  Text(l.filter, style: theme.textTheme.bodyMedium),
+                  if (_hasActiveFilters) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '●',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ===== 展開狀態：中上方卡片 =====
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Material(
+          elevation: 8,
+          borderRadius: BorderRadius.circular(16),
+          color: theme.colorScheme.surface.withOpacity(0.98),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 標題列
+                Row(
+                  children: [
+                    const Icon(Icons.filter_alt_outlined, size: 20),
+                    const SizedBox(width: 6),
+                    Text(l.filterPanelTitle, style: theme.textTheme.titleSmall),
+                    const Spacer(),
+                    if (_hasActiveFilters)
+                      TextButton(
+                        onPressed: _clearFilters,
+                        child: Text(l.filterClear),
+                      ),
+                    IconButton(
+                      tooltip: l.close,
+                      icon: const Icon(Icons.close),
+                      onPressed: () => setState(() => _filterExpanded = false),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+
+                // 關鍵字搜尋
+                TextField(
+                  controller: _filterSearchCtrl,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: l.filterSearchHint,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: (_) {
+                    setState(_resetPageToLeftTool);
+                  },
+                ),
+                const SizedBox(height: 6),
+
+                // 語言 + 卡種
+                Row(
+                  children: [
+                    if (allLanguages.isNotEmpty)
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          isDense: true,
+                          value: _languageFilter,
+                          decoration: InputDecoration(
+                            labelText: l.language,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          items: allLanguages
+                              .map(
+                                (x) => DropdownMenuItem<String>(
+                                  value: x,
+                                  child: Text(x),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) => setState(() {
+                            _languageFilter = v;
+                            _resetPageToLeftTool();
+                          }),
+                        ),
+                      )
+                    else
+                      const Spacer(),
+                    if (allLanguages.isNotEmpty && allCardTypes.isNotEmpty)
+                      const SizedBox(width: 8),
+                    if (allCardTypes.isNotEmpty)
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          isDense: true,
+                          value: _cardTypeFilter,
+                          decoration: InputDecoration(
+                            labelText: l.cardType,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          items: allCardTypes
+                              .map(
+                                (x) => DropdownMenuItem<String>(
+                                  value: x,
+                                  child: Text(x),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) => setState(() {
+                            _cardTypeFilter = v;
+                            _resetPageToLeftTool();
+                          }),
+                        ),
+                      ),
+                  ],
+                ),
+
+                // 標籤（橫向捲動 FilterChip）
+                if (allTags.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 36,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: allTags.map((t) {
+                        final selected = _tagFilter.contains(t);
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: FilterChip(
+                            label: Text(t),
+                            selected: selected,
+                            onSelected: (v) => setState(() {
+                              if (v) {
+                                _tagFilter.add(t);
+                              } else {
+                                _tagFilter.remove(t);
+                              }
+                              _resetPageToLeftTool();
+                            }),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +343,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   @override
   void dispose() {
     _pc.dispose();
+    _filterSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -154,6 +386,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final l = context.l10n;
 
@@ -186,123 +419,112 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
           body: Column(
             children: [
               const SizedBox(height: 0),
-              // tag filter row
-              Builder(
-                builder: (_) {
-                  final allTags = _cards.expand((c) => c.tags).toSet().toList()
-                    ..sort();
-                  if (allTags.isEmpty) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: allTags
-                          .map(
-                            (t) => FilterChip(
-                              label: Text(t),
-                              selected: _activeTags.contains(t),
-                              onSelected: (v) => setState(() {
-                                v ? _activeTags.add(t) : _activeTags.remove(t);
-                                if (_pc.hasClients) _pc.jumpToPage(0);
-                              }),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  );
-                },
-              ),
-              Builder(
-                builder: (_) {
-                  final visibleCards = _currentVisibleCards();
-                  final pageCount = visibleCards.length + 2;
 
-                  return Expanded(
-                    child: PageView.builder(
-                      controller: _pc,
-                      itemCount: pageCount,
-                      allowImplicitScrolling: true,
-                      itemBuilder: (context, i) {
-                        final scale = (1 - ((_page - i).abs() * 0.12)).clamp(
-                          0.86,
-                          1.0,
-                        );
+              // 🔥 PageView + 浮動篩選列 疊在一起
+              Expanded(
+                child: Stack(
+                  children: [
+                    // 底層：卡片 PageView
+                    Builder(
+                      builder: (_) {
+                        final visibleCards = _currentVisibleCards();
+                        final pageCount = visibleCards.length + 2;
 
-                        // 左右工具卡
-                        if (i == 0 || i == pageCount - 1) {
-                          return Align(
-                            alignment: const Alignment(0, -0.3),
-                            child: AnimatedScale(
-                              scale: scale,
-                              duration: const Duration(milliseconds: 200),
-                              child: ToolCard(
-                                onScan: _scanAndImport,
-                                onEdit: () async {
-                                  final updated =
-                                      await Navigator.push<List<MiniCardData>>(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => EditMiniCardsPage(
-                                            initial: _cards,
-                                          ),
-                                        ),
-                                      );
-                                  if (updated != null && mounted) {
-                                    setState(
-                                      () => _cards = updated
-                                          .map(_ensureOwner)
-                                          .toList(),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          );
-                        }
+                        return PageView.builder(
+                          controller: _pc,
+                          itemCount: pageCount,
+                          allowImplicitScrolling: true,
+                          itemBuilder: (context, i) {
+                            final scale = (1 - ((_page - i).abs() * 0.12))
+                                .clamp(0.86, 1.0);
 
-                        // 一般卡片
-                        final card = visibleCards[i - 1];
-
-                        // 自適應尺寸（Web 顯示更清楚）
-                        final maxW = MediaQuery.of(context).size.width * 0.9;
-                        final cardW = maxW.clamp(320.0, 520.0);
-                        final cardH = cardW * 3 / 2; // 接近 320x480
-
-                        return Align(
-                          alignment: const Alignment(0, -0.3),
-                          child: AnimatedScale(
-                            scale: scale,
-                            duration: const Duration(milliseconds: 200),
-                            child: SizedBox(
-                              width: cardW,
-                              height: cardH,
-                              child: FlipBigCard(
-                                front: MiniCardFront(card: card),
-                                back: MiniCardBack(
-                                  card: card,
-                                  onChanged: (updated) {
-                                    final idx = _cards.indexWhere(
-                                      (x) => x.id == updated.id,
-                                    );
-                                    if (idx >= 0) {
-                                      setState(() => _cards[idx] = updated);
-                                    }
-                                  },
+                            // 左右工具卡
+                            if (i == 0 || i == pageCount - 1) {
+                              return Align(
+                                alignment: const Alignment(0, -0.4),
+                                child: AnimatedScale(
+                                  scale: scale,
+                                  duration: const Duration(milliseconds: 200),
+                                  child: ToolCard(
+                                    onScan: _scanAndImport,
+                                    onEdit: () async {
+                                      final updated =
+                                          await Navigator.push<
+                                            List<MiniCardData>
+                                          >(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => EditMiniCardsPage(
+                                                initial: _cards,
+                                              ),
+                                            ),
+                                          );
+                                      if (updated != null && mounted) {
+                                        setState(
+                                          () => _cards = updated
+                                              .map(_ensureOwner)
+                                              .toList(),
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
-                                // ✅ 單擊正面 → 顯示背面（由 FlipBigCard 內部處理）
-                                // 回到正面：水平滑動往右
+                              );
+                            }
+
+                            // 一般卡片
+                            final card = visibleCards[i - 1];
+
+                            // 自適應尺寸（Web 顯示更清楚）
+                            final maxW =
+                                MediaQuery.of(context).size.width * 0.9;
+                            final cardW = maxW.clamp(320.0, 520.0);
+                            final cardH = cardW * 3 / 2; // 接近 320x480
+
+                            return Align(
+                              alignment: const Alignment(0, -0.4),
+                              child: AnimatedScale(
+                                scale: scale,
+                                duration: const Duration(milliseconds: 200),
+                                child: SizedBox(
+                                  width: cardW,
+                                  height: cardH,
+                                  child: FlipBigCard(
+                                    front: MiniCardFront(card: card),
+                                    back: MiniCardBack(
+                                      card: card,
+                                      onChanged: (updated) {
+                                        final idx = _cards.indexWhere(
+                                          (x) => x.id == updated.id,
+                                        );
+                                        if (idx >= 0) {
+                                          setState(() => _cards[idx] = updated);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         );
                       },
                     ),
-                  );
-                },
+
+                    // 上層：浮動篩選列（小膠囊／展開卡片）
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                      child: _buildFloatingFilterBar(context),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
+
+          // 👇 這一段完全照你原本的 FAB，不改內容，只是擺回 Scaffold 上
           floatingActionButton: Builder(
             builder: (ctx) {
               final l = ctx.l10n;
@@ -344,9 +566,39 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     );
   }
 
-  List<MiniCardData> _currentVisibleCards() => _activeTags.isEmpty
-      ? _cards
-      : _cards.where((c) => c.tags.any(_activeTags.contains)).toList();
+  List<MiniCardData> _currentVisibleCards() {
+    var list = List<MiniCardData>.from(_cards);
+
+    // 文字搜尋：名稱 / 備註 / 序號 / 專輯 / 偶像
+    final q = _filterSearchCtrl.text.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      bool match(String? s) => (s ?? '').toLowerCase().contains(q);
+      list = list.where((c) {
+        return match(c.name) ||
+            match(c.note) ||
+            match(c.serial) ||
+            match(c.album) ||
+            match(c.idol);
+      }).toList();
+    }
+
+    // 語言
+    if (_languageFilter != null && _languageFilter!.isNotEmpty) {
+      list = list.where((c) => (c.language ?? '') == _languageFilter).toList();
+    }
+
+    // 卡種
+    if (_cardTypeFilter != null && _cardTypeFilter!.isNotEmpty) {
+      list = list.where((c) => (c.cardType ?? '') == _cardTypeFilter).toList();
+    }
+
+    // 標籤（有任一個符合就保留）
+    if (_tagFilter.isNotEmpty) {
+      list = list.where((c) => c.tags.any(_tagFilter.contains)).toList();
+    }
+
+    return list;
+  }
 
   // ===== scan / share =====
   Future<void> _scanAndImport() async {

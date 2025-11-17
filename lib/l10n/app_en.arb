@@ -600,6 +600,20 @@
     }
   },
 
-  "currentPlan": "Current Plan"
+  "currentPlan": "Current Plan",
+
+  "filter": "Filter",
+
+  "filterPanelTitle": "Filter cards",
+  "filterClear": "Clear",
+  "filterSearchHint": "Search name, note, serial…",
+
+  "extraInfoSectionTitle": "More details",
+  "fieldStageNameLabel": "Stage name / nickname",
+  "fieldGroupLabel": "Group / series",
+  "fieldOriginLabel": "Card source",
+  "fieldNoteLabel": "Notes",
+  "profileSectionTitle": "Profile",
+  "noQuotePlaceholder": "No quote yet"
 
 }

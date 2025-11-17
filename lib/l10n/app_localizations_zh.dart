@@ -1305,6 +1305,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get currentPlan => '目前方案';
+
+  @override
+  String get filter => '篩選';
+
+  @override
+  String get filterPanelTitle => '篩選卡片';
+
+  @override
+  String get filterClear => '清除';
+
+  @override
+  String get filterSearchHint => '搜尋名稱、備註、序號…';
+
+  @override
+  String get extraInfoSectionTitle => '其他資訊';
+
+  @override
+  String get fieldStageNameLabel => '暱稱／藝名';
+
+  @override
+  String get fieldGroupLabel => '團體／系列';
+
+  @override
+  String get fieldOriginLabel => '卡片來源';
+
+  @override
+  String get fieldNoteLabel => '備註';
+
+  @override
+  String get profileSectionTitle => '基本資訊';
+
+  @override
+  String get noQuotePlaceholder => '尚未寫下句子';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2609,4 +2642,37 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get currentPlan => '目前方案';
+
+  @override
+  String get filter => '篩選';
+
+  @override
+  String get filterPanelTitle => '篩選卡片';
+
+  @override
+  String get filterClear => '清除';
+
+  @override
+  String get filterSearchHint => '搜尋名稱、備註、序號…';
+
+  @override
+  String get extraInfoSectionTitle => '其他資訊';
+
+  @override
+  String get fieldStageNameLabel => '暱稱／藝名';
+
+  @override
+  String get fieldGroupLabel => '團體／系列';
+
+  @override
+  String get fieldOriginLabel => '卡片來源';
+
+  @override
+  String get fieldNoteLabel => '備註';
+
+  @override
+  String get profileSectionTitle => '基本資訊';
+
+  @override
+  String get noQuotePlaceholder => '尚未寫下句子';
 }

@@ -1367,4 +1367,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currentPlan => 'Current Plan';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get filterPanelTitle => 'Filter cards';
+
+  @override
+  String get filterClear => 'Clear';
+
+  @override
+  String get filterSearchHint => 'Search name, note, serial…';
+
+  @override
+  String get extraInfoSectionTitle => 'More details';
+
+  @override
+  String get fieldStageNameLabel => 'Stage name / nickname';
+
+  @override
+  String get fieldGroupLabel => 'Group / series';
+
+  @override
+  String get fieldOriginLabel => 'Card source';
+
+  @override
+  String get fieldNoteLabel => 'Notes';
+
+  @override
+  String get profileSectionTitle => 'Profile';
+
+  @override
+  String get noQuotePlaceholder => 'No quote yet';
 }

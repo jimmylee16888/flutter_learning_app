@@ -576,8 +576,20 @@
     }
   },
 
-  "currentPlan": "Aktueller Plan"
+  "currentPlan": "Aktueller Plan",
 
-  
+  "filter": "Filter",
+
+  "filterPanelTitle": "Karten filtern",
+  "filterClear": "Zurücksetzen",
+  "filterSearchHint": "Nach Name, Notiz oder Seriennummer suchen…",
+
+  "extraInfoSectionTitle": "Weitere Details",
+  "fieldStageNameLabel": "Künstlername / Spitzname",
+  "fieldGroupLabel": "Gruppe / Serie",
+  "fieldOriginLabel": "Kartenquelle",
+  "fieldNoteLabel": "Notizen",
+  "profileSectionTitle": "Grunddaten",
+  "noQuotePlaceholder": "Noch kein Zitat eingetragen"
 
 }

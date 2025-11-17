@@ -2552,6 +2552,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current Plan'**
   String get currentPlan;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @filterPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter cards'**
+  String get filterPanelTitle;
+
+  /// No description provided for @filterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get filterClear;
+
+  /// No description provided for @filterSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name, note, serial…'**
+  String get filterSearchHint;
+
+  /// No description provided for @extraInfoSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get extraInfoSectionTitle;
+
+  /// No description provided for @fieldStageNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage name / nickname'**
+  String get fieldStageNameLabel;
+
+  /// No description provided for @fieldGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Group / series'**
+  String get fieldGroupLabel;
+
+  /// No description provided for @fieldOriginLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Card source'**
+  String get fieldOriginLabel;
+
+  /// No description provided for @fieldNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get fieldNoteLabel;
+
+  /// No description provided for @profileSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileSectionTitle;
+
+  /// No description provided for @noQuotePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'No quote yet'**
+  String get noQuotePlaceholder;
 }
 
 class _AppLocalizationsDelegate

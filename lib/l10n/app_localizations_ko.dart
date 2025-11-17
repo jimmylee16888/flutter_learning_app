@@ -1313,4 +1313,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get currentPlan => '현재 플랜';
+
+  @override
+  String get filter => '필터';
+
+  @override
+  String get filterPanelTitle => '카드 필터';
+
+  @override
+  String get filterClear => '초기화';
+
+  @override
+  String get filterSearchHint => '이름·메모·시리얼 번호 검색…';
+
+  @override
+  String get extraInfoSectionTitle => '추가 정보';
+
+  @override
+  String get fieldStageNameLabel => '활동명 / 별명';
+
+  @override
+  String get fieldGroupLabel => '그룹 / 시리즈';
+
+  @override
+  String get fieldOriginLabel => '카드 출처';
+
+  @override
+  String get fieldNoteLabel => '메모';
+
+  @override
+  String get profileSectionTitle => '기본 정보';
+
+  @override
+  String get noQuotePlaceholder => '아직 문구가 없습니다';
 }

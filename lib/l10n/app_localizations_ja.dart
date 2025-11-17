@@ -1312,4 +1312,37 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get currentPlan => '現在のプラン';
+
+  @override
+  String get filter => '絞り込み';
+
+  @override
+  String get filterPanelTitle => 'カードを絞り込む';
+
+  @override
+  String get filterClear => 'クリア';
+
+  @override
+  String get filterSearchHint => '名前・メモ・シリアル番号で検索…';
+
+  @override
+  String get extraInfoSectionTitle => 'その他の情報';
+
+  @override
+  String get fieldStageNameLabel => '芸名・ニックネーム';
+
+  @override
+  String get fieldGroupLabel => 'グループ・シリーズ';
+
+  @override
+  String get fieldOriginLabel => 'カードの入手元';
+
+  @override
+  String get fieldNoteLabel => 'メモ';
+
+  @override
+  String get profileSectionTitle => '基本プロフィール';
+
+  @override
+  String get noQuotePlaceholder => 'まだ一言メッセージがありません';
 }
