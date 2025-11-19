@@ -832,16 +832,14 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
 
   Future<void> _shareMultiplePhotos(List<MiniCardData> list) async {
     final l = context.l10n;
-    int ok = 0, fail = 0;
-    for (final c in list) {
-      try {
-        await sharePhoto(c);
-        ok++;
-      } catch (_) {
-        fail++;
-      }
+    try {
+      await sharePhotos(list); // 👈 用新的多張版本
+
+      // 這裡當作都成功（如果需要也可以再細分成功/失敗數）
+      _snack(l.triedShareSummary(list.length, list.length, 0), seconds: 4);
+    } catch (e) {
+      _snack(l.shareFailed('$e'));
     }
-    _snack(l.triedShareSummary(list.length, ok, fail), seconds: 4);
   }
 
   Future<void> _shareOptionsForCard(BuildContext ctx, MiniCardData c) async {

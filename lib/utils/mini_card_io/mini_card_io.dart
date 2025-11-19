@@ -10,6 +10,9 @@ import 'mini_card_io_impl_io.dart'
 import '../../models/mini_card_data.dart';
 import '../../models/card_item.dart';
 
+import 'package:flutter/foundation.dart' show kIsWeb; // 👈 新增
+import 'package:share_plus/share_plus.dart'; // 👈 新增
+
 const String _kPlaceholderAsset = 'assets/images/mini_card_placeholder.png';
 
 /// 啟動時呼叫：Web 會初始化 Hive/開 box；行動/桌面是 no-op
@@ -70,4 +73,43 @@ Future<void> sharePhoto(MiniCardData c) async {
     text: note,
     imageUrl: ready.imageUrl,
   );
+}
+
+/// 分享多張圖片：
+/// - 行動/桌面：一次丟多個檔案給系統分享（Share.shareXFiles）
+/// - Web：退回舊邏輯（逐張呼叫 sharePhoto）
+Future<void> sharePhotos(List<MiniCardData> cards) async {
+  // Web 版：現在就沿用原本一張一張 share 的行為，避免 localPath 格式不相容
+  if (kIsWeb) {
+    for (final c in cards) {
+      await sharePhoto(c);
+    }
+    return;
+  }
+
+  // 行動/桌面：真正多張分享
+  final files = <XFile>[];
+  final buffer = StringBuffer();
+
+  for (final c in cards) {
+    final ready = await ensureLocalCopy(c);
+    final path = ready.localPath;
+
+    if (path == null || path.isEmpty) {
+      continue;
+    }
+
+    files.add(XFile(path));
+
+    if (ready.note.isNotEmpty) {
+      buffer.writeln(ready.note);
+    }
+  }
+
+  if (files.isEmpty) {
+    throw Exception('no images to share');
+  }
+
+  final text = buffer.toString().trim();
+  await Share.shareXFiles(files, text: text.isEmpty ? null : text);
 }

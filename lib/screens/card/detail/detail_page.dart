@@ -1,7 +1,6 @@
-// lib/screens/card/detail/card_detail_page.dart
-
 import 'dart:convert';
-import 'dart:ui' show ImageFilter; // 👈 磨砂玻璃用
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -55,6 +54,8 @@ class _CardDetailPageState extends State<CardDetailPage> {
   static const _kSwipeDistance = 40.0;
   static const _kSwipeVelocity = 600.0;
   double _dragDyAccum = 0;
+
+  static const double _kPreviewHeight = 300;
 
   String get _cardsKey => 'miniCards:${widget.title}';
   String get _likedKey => 'liked:${widget.title}';
@@ -114,8 +115,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
     }
   }
 
-  static const double _kPreviewHeight = 300;
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -128,7 +127,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
         : '${b.year}-${b.month.toString().padLeft(2, '0')}-${b.day.toString().padLeft(2, '0')}';
 
     // 置頂大圖（固定 4:3，統一 cover）
-    final topImage = _CoverBox(
+    final baseImage = _CoverBox(
       aspectRatio: 4 / 3,
       child:
           widget.imageWidget ??
@@ -142,75 +141,39 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ),
     );
 
-    // 只在有值時顯示一行 ListTile
-    Widget? buildInfoTile({
-      required IconData icon,
-      required String label,
-      String? value,
-    }) {
-      final v = value?.trim();
-      if (v == null || v.isEmpty) return null;
-      return ListTile(
-        dense: true,
-        leading: Icon(icon, size: 20),
-        title: Text(label),
-        subtitle: Text(v),
-      );
-    }
-
-    final infoTiles = <Widget>[
-      // 生日一定顯示
-      ListTile(
-        dense: true,
-        leading: const Icon(Icons.cake_outlined, size: 20),
-        title: Text(l.birthday),
-        subtitle: Text(bdayText),
-      ),
-      if (buildInfoTile(
-            icon: Icons.tag_faces_outlined,
-            label: l.fieldStageNameLabel,
-            value: widget.stageName,
-          ) !=
-          null)
-        buildInfoTile(
+    // 整理「基本資訊」變成 badge 用的 item
+    final infoItems = <_InfoItem>[
+      _InfoItem(icon: Icons.cake_outlined, label: l.birthday, value: bdayText),
+      if ((widget.stageName ?? '').trim().isNotEmpty)
+        _InfoItem(
           icon: Icons.tag_faces_outlined,
           label: l.fieldStageNameLabel,
-          value: widget.stageName,
-        )!,
-      if (buildInfoTile(
-            icon: Icons.group_outlined,
-            label: l.fieldGroupLabel,
-            value: widget.group,
-          ) !=
-          null)
-        buildInfoTile(
+          value: widget.stageName!.trim(),
+        ),
+      if ((widget.group ?? '').trim().isNotEmpty)
+        _InfoItem(
           icon: Icons.group_outlined,
           label: l.fieldGroupLabel,
-          value: widget.group,
-        )!,
-      if (buildInfoTile(
-            icon: Icons.location_on_outlined,
-            label: l.fieldOriginLabel,
-            value: widget.origin,
-          ) !=
-          null)
-        buildInfoTile(
+          value: widget.group!.trim(),
+        ),
+      if ((widget.origin ?? '').trim().isNotEmpty)
+        _InfoItem(
           icon: Icons.location_on_outlined,
           label: l.fieldOriginLabel,
-          value: widget.origin,
-        )!,
-      if (buildInfoTile(
-            icon: Icons.edit_note_outlined,
-            label: l.fieldNoteLabel,
-            value: widget.note,
-          ) !=
-          null)
-        buildInfoTile(
+          value: widget.origin!.trim(),
+        ),
+      if ((widget.note ?? '').trim().isNotEmpty)
+        _InfoItem(
           icon: Icons.edit_note_outlined,
           label: l.fieldNoteLabel,
-          value: widget.note,
-        )!,
+          value: widget.note!.trim(),
+        ),
     ];
+
+    // Quote 區域
+    final quoteText = widget.quote.trim().isEmpty
+        ? l.noQuotePlaceholder
+        : '“${widget.quote.trim()}”';
 
     return Scaffold(
       appBar: AppBar(
@@ -227,98 +190,58 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ],
       ),
 
-      // 主內容：大圖 + 資訊卡 + quote
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: _kPreviewHeight + 36),
+      // 上方區域：固定結構，不整頁滑動
+      body: Column(
         children: [
-          topImage,
-          const SizedBox(height: 12),
-          // 👉 這張就是你說的「基本資訊」卡片：
-          //    永遠四個角都是圓角，不再跟捲動狀態有關
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cs.surface,
-                borderRadius: BorderRadius.circular(18), // 永遠圓角
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-                border: Border.all(
-                  color: cs.outlineVariant.withOpacity(0.4),
-                  width: 0.6,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 頂部小標題
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 12,
-                      left: 16,
-                      right: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.person_outline, size: 18, color: cs.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          l.profileSectionTitle, // 例如「基本資訊」
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: cs.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Divider(height: 1),
-
-                  // 各個資訊欄位
-                  ...infoTiles,
-
-                  const SizedBox(height: 4),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Quote 區
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 4),
-            child: Row(
+          // 大圖 + 漂浮 badge
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                Icon(
-                  Icons.format_quote_rounded,
-                  size: 24,
-                  color: cs.primary.withOpacity(0.7),
-                ),
-                const SizedBox(width: 6),
-                Text(l.quoteTitle, style: theme.textTheme.titleMedium),
+                baseImage,
+                if (infoItems.isNotEmpty)
+                  IgnorePointer(child: _InfoBadgeMarquee(items: infoItems)),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
-            child: Text(
-              widget.quote.trim().isEmpty
-                  ? l
-                        .noQuotePlaceholder // 沒填 quote 的話顯示簡單提示
-                  : '“${widget.quote.trim()}”',
-              style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+
+          // Quote 區域（給粉絲的一句話）
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.format_quote_rounded,
+                        size: 24,
+                        color: cs.primary.withOpacity(0.7),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(l.quoteTitle, style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    // 若文字很多，只在這一小塊可捲動，上方大圖不動
+                    child: SingleChildScrollView(
+                      child: Text(
+                        quoteText,
+                        style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
 
-      // 底部 mini-cards preview
+      // 底部 mini-cards preview（完全沒有玻璃/邊框/分隔線）
       bottomNavigationBar: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onVerticalDragStart: (_) => _dragDyAccum = 0,
@@ -357,7 +280,148 @@ class _CardDetailPageState extends State<CardDetailPage> {
   }
 }
 
-// ------- Bottom Preview -------
+// ------- 資訊 badge 用的小模型 -------
+
+class _InfoItem {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  _InfoItem({required this.icon, required this.label, required this.value});
+}
+
+// ------- 單顆 badge 從右到左漂過（一次只出現一個） -------
+
+class _InfoBadgeMarquee extends StatefulWidget {
+  const _InfoBadgeMarquee({required this.items});
+
+  final List<_InfoItem> items;
+
+  @override
+  State<_InfoBadgeMarquee> createState() => _InfoBadgeMarqueeState();
+}
+
+class _InfoBadgeMarqueeState extends State<_InfoBadgeMarquee>
+    with SingleTickerProviderStateMixin {
+  // 速度：時間越長移動越慢
+  static const _travelDuration = Duration(seconds: 14);
+
+  // 控制「從多遠的右邊進來、飄到多遠的左邊」
+  static const double _startX = 2.0; // 自己寬度的 2 倍右側
+  static const double _endX = -2.0; // 自己寬度的 2 倍左側
+
+  final _rand = Random();
+
+  late final AnimationController _controller;
+  late final Animation<Offset> _offset;
+
+  int _index = 0; // 目前顯示哪個欄位
+  double _alignY = 0.0; // 這一輪的垂直位置 (-1 ~ 1)
+
+  double _randomY() {
+    // 限制在中間大約 60% 高度 [-0.7, 0.7]
+    return _rand.nextDouble() * 1.4 - 0.7;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(vsync: this, duration: _travelDuration);
+
+    _offset = Tween<Offset>(
+      begin: Offset(_startX, 0.0), // 從更遠的右邊開始
+      end: Offset(_endX, 0.0), // 飄到更遠的左邊才消失
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() {
+          if (widget.items.isNotEmpty) {
+            _index = (_index + 1) % widget.items.length; // 換下一個欄位
+          }
+          _alignY = _randomY(); // 每一輪換一個高度
+        });
+        _controller.forward(from: 0); // 無限重播
+      }
+    });
+
+    if (widget.items.isNotEmpty) {
+      _alignY = _randomY();
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _InfoBadgeMarquee oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.items.isEmpty) {
+      _controller.stop();
+    } else if (oldWidget.items.length != widget.items.length) {
+      // 避免長度變化導致 index 越界
+      _index = _index % widget.items.length;
+      _alignY = _randomY();
+      if (!_controller.isAnimating) {
+        _controller.forward(from: 0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _buildBadge(_InfoItem item) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.45),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(item.icon, size: 16, color: cs.primary),
+          const SizedBox(width: 6),
+          Text(
+            item.label,
+            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white70),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '·',
+            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white54),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            item.value,
+            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.items.isEmpty) return const SizedBox.shrink();
+    final item = widget.items[_index % widget.items.length];
+
+    return SizedBox.expand(
+      child: Align(
+        alignment: Alignment(0, _alignY), // 這一輪的隨機高度
+        child: SlideTransition(position: _offset, child: _buildBadge(item)),
+      ),
+    );
+  }
+}
+
+// ------- Bottom Preview（無玻璃效果 / 無邊框） -------
 
 class _BottomPreviewBody extends StatelessWidget {
   const _BottomPreviewBody({
@@ -373,65 +437,38 @@ class _BottomPreviewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
 
-    // 「磨砂玻璃＋漸層」的小卡區
-    // 👉 依你的需求：這裡 *不需要圓角*，所以 BorderRadius.zero
-    return ClipRRect(
-      borderRadius: BorderRadius.zero,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                cs.surface.withOpacity(0.0),
-                cs.surface.withOpacity(0.30),
-                cs.surface.withOpacity(0.80),
-              ],
-              stops: const [0.0, 0.35, 1.0],
-            ),
-            border: Border(
-              top: BorderSide(
-                color: cs.outlineVariant.withOpacity(0.35),
-                width: 0.6,
-              ),
-            ),
+    // 這裡完全不用 BackdropFilter，背景交給 Scaffold
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent, // 保持透明，就會跟上方背景一致
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: previewHeight,
+            child: miniCards.isEmpty
+                ? Center(
+                    child: Text(
+                      context.l10n.noMiniCardsPreviewHint,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  )
+                : _BottomMiniCarousel(
+                    cards: miniCards,
+                    height: previewHeight,
+                    borderRadius: 14,
+                    onTapCenter: ({int initialIndex = 0}) =>
+                        onOpenMiniCards(initialIndex: initialIndex),
+                  ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: previewHeight,
-                child: miniCards.isEmpty
-                    ? Center(
-                        child: Text(
-                          context.l10n.noMiniCardsPreviewHint,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      )
-                    : _BottomMiniCarousel(
-                        cards: miniCards,
-                        height: previewHeight,
-                        borderRadius: 14,
-                        onTapCenter: ({int initialIndex = 0}) =>
-                            onOpenMiniCards(initialIndex: initialIndex),
-                      ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.l10n.detailSwipeHint,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.hintColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
+          const SizedBox(height: 6),
+          Text(
+            context.l10n.detailSwipeHint,
+            style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
           ),
-        ),
+          const SizedBox(height: 10),
+        ],
       ),
     );
   }
