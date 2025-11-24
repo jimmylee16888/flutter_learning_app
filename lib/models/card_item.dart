@@ -8,28 +8,31 @@ class CardItem {
   final String? localPath; // 本地檔案路徑
   final DateTime? birthday; // 建議存 UTC
   final String quote;
-  final List<String> categories; // → 不可變
+  final List<String> categories;
 
-  // ✅ 新增欄位
+  // ✅ 新欄位
   final String? stageName; // 暱稱 / 藝名
   final String? group; // 團體 / 系列
   final String? origin; // 卡片來源（專輯 / 活動）
   final String? note; // 備註
+
+  /// ✅ 新增：這個人物相關的專輯 ID 清單
+  final List<String> albumIds;
 
   const CardItem({
     required this.id,
     required this.title,
     this.imageUrl,
     this.localPath,
-    DateTime? birthday,
+    this.birthday,
     this.quote = '',
-    List<String> categories = const [],
+    this.categories = const [],
     this.stageName,
     this.group,
     this.origin,
     this.note,
-  }) : birthday = birthday,
-       categories = categories;
+    this.albumIds = const [],
+  });
 
   CardItem copyWith({
     String? id,
@@ -43,6 +46,7 @@ class CardItem {
     String? group,
     String? origin,
     String? note,
+    List<String>? albumIds,
   }) {
     return CardItem(
       id: id ?? this.id,
@@ -51,13 +55,12 @@ class CardItem {
       localPath: localPath ?? this.localPath,
       birthday: birthday ?? this.birthday,
       quote: quote ?? this.quote,
-      categories: categories == null
-          ? this.categories
-          : List.unmodifiable(categories),
+      categories: categories ?? this.categories,
       stageName: stageName ?? this.stageName,
       group: group ?? this.group,
       origin: origin ?? this.origin,
       note: note ?? this.note,
+      albumIds: albumIds ?? this.albumIds,
     );
   }
 
@@ -69,12 +72,11 @@ class CardItem {
     'birthday': birthday?.toUtc().toIso8601String(),
     'quote': quote,
     'categories': categories,
-
-    // ✅ 新增欄位
     'stageName': stageName,
     'group': group,
     'origin': origin,
     'note': note,
+    'albumIds': albumIds,
   };
 
   factory CardItem.fromJson(Map<String, dynamic> json) => CardItem(
@@ -87,11 +89,10 @@ class CardItem {
         : DateTime.parse(json['birthday']).toUtc(),
     quote: (json['quote'] ?? '') as String,
     categories: ((json['categories'] as List?) ?? const []).cast<String>(),
-
-    // ✅ 新增欄位
     stageName: json['stageName'] as String?,
     group: json['group'] as String?,
     origin: json['origin'] as String?,
     note: json['note'] as String?,
+    albumIds: ((json['albumIds'] as List?) ?? const []).cast<String>(),
   );
 }

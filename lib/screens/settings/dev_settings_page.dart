@@ -16,6 +16,9 @@ import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_learning_app/utils/tip_prompter.dart';
 
+// 👉 新增：拿 Firebase Token 用
+import 'package:flutter_learning_app/services/auth/auth_controller.dart';
+
 class DevSettingsPage extends StatefulWidget {
   const DevSettingsPage({super.key});
   @override
@@ -39,7 +42,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   CardItemStore? _cardStore;
   MiniCardStore? _miniStore;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -87,6 +89,29 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     super.dispose();
   }
 
+  // 👉 新增：按鈕用的函式，在 terminal 印出兩種 token
+  Future<void> _printTokens() async {
+    // 1) Firebase ID Token（給 Social / Firebase 用）
+    final auth = context.read<AuthController>();
+    final firebaseToken = await auth.debugGetIdToken();
+
+    // 2) 你自家後端的 API Token（這裡假設你有存 SharedPreferences 'api_token'）
+    final sp = await SharedPreferences.getInstance();
+    final backendToken = sp.getString('api_token');
+
+    debugPrint('================ TOKEN DEBUG ================');
+    debugPrint('🔑 Firebase ID Token: ${firebaseToken ?? '(null / 未登入)'}');
+    debugPrint(
+      '🛠 Backend API Token: ${backendToken ?? '(null / 尚未儲存 api_token)'}',
+    );
+    debugPrint('=============================================');
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('已在 Terminal 印出兩個 Token')));
+  }
+
   Future<void> _apply() async {
     // 1) 套用訂閱模擬
     await SubscriptionService.I.setDevOverride(
@@ -121,18 +146,17 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
       'categories': cardStore.categories,
       'items': cardStore.cardItems.map((e) {
         final j = e.toJson();
-        // ❗ 這裡依照你的 CardItem.toJson() 實際 key 名稱調整
-        j.remove('localPath'); // 不帶出本機路徑，拿去別裝置才不會壞掉
+        j.remove('localPath');
         return j;
       }).toList(),
     };
 
-    // 2) MiniCard：如果 MiniCardData 也有本機路徑欄位，一樣在這裡拿掉
+    // 2) MiniCard
     final byOwner = <String, List<Map<String, dynamic>>>{};
     for (final owner in miniStore.owners()) {
       byOwner[owner] = miniStore.forOwner(owner).map((m) {
         final j = m.toJson();
-        // 如果 MiniCardData 有本機路徑欄位就取消註解
+        // 可視需要移除本機路徑欄位
         // j.remove('localPath');
         // j.remove('localImagePath');
         return j;
@@ -200,7 +224,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
 
         if (url.isNotEmpty) {
           try {
-            // 根據 id 建檔名，會存到目前裝置的 mini_cards 資料夾
             final lp = await downloadImageToLocal(url, preferName: c.id);
             next = next.copyWith(localPath: lp);
           } catch (e) {
@@ -208,7 +231,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
             next = next.copyWith(localPath: null);
           }
         } else {
-          // 沒有 URL 就不要沿用舊 localPath，直接清空
           next = next.copyWith(localPath: null);
         }
 
@@ -235,12 +257,10 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
         for (final raw in rawList) {
           final m = MiniCardData.fromJson((raw as Map).cast<String, dynamic>());
 
-          // 若原本 idol 為空，用 owner key 補上
           MiniCardData cur = (m.idol == null || m.idol!.trim().isEmpty)
               ? m.copyWith(idol: ownerTitle)
               : m;
 
-          // 1) 正面圖片：依 imageUrl 重新下載
           final frontUrl = cur.imageUrl ?? '';
           if (frontUrl.isNotEmpty) {
             try {
@@ -257,7 +277,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
             cur = cur.copyWith(localPath: null);
           }
 
-          // 2) 背面圖片：依 backImageUrl 重新下載
           final backUrl = cur.backImageUrl ?? '';
           if (backUrl.isNotEmpty) {
             try {
@@ -288,7 +307,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
         ),
       );
 
-      _rebuildPreview(); // listener 會更新；這裡保險再觸發一次
+      _rebuildPreview();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -306,12 +325,10 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     ).showSnackBar(const SnackBar(content: Text('已複製到剪貼簿')));
   }
 
-  // ===== 顏色小工具（跟隨主題）=====
   Color _muted(BuildContext context) =>
       Theme.of(context).colorScheme.onSurfaceVariant;
   Color _codeBg(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // 相容舊版：直接用 surfaceVariant
     return cs.surfaceVariant.withOpacity(.55);
   }
 
@@ -334,6 +351,37 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+
+          // 👉 新增：印出兩種 Token 的按鈕
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Token Debug'),
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: _printTokens,
+                    icon: const Icon(Icons.key_outlined),
+                    label: const Text(
+                      '在 Terminal 印出 Firebase + Backend 兩個 Token',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '• Firebase ID Token 來自 FirebaseAuth.currentUser.getIdToken()\n'
+                    '• Backend API Token 預設從 SharedPreferences["api_token"] 讀取',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: _muted(context)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           const SizedBox(height: 12),
 
           // 覆寫開關
@@ -385,6 +433,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
             ),
           ),
           const SizedBox(height: 16),
+
           // 💡 Tip 彈窗 Dev 設定
           Card(
             child: Column(
@@ -469,7 +518,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                               fontFamily: 'monospace',
                               fontSize: 12.5,
                               height: 1.45,
-                              // 跟著主題的前景色
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),

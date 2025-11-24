@@ -15,6 +15,8 @@ import '../../widgets/app_popups.dart';
 // ⬇️ 改成從 CardItemStore 取資料
 import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 
+import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
+
 class CardsView extends StatefulWidget {
   const CardsView({super.key});
 
@@ -238,15 +240,21 @@ class _CardsViewState extends State<CardsView> {
               await _editCardFlow(it);
               await _animateBack(setStateSB);
             } else if (dx <= -threshold) {
+              final miniStore = context.read<MiniCardStore>();
+
               final ok = await showConfirm(
                 context,
                 title: l.deleteCardTitle,
-                message: l.deleteCardMessage(it.title),
+                // 🔔 建議在 l10n 裡加一個新字串，例如：
+                // deleteCardAndMiniCardsMessage(name)：
+                // 「確定要刪除「{name}」嗎？此動作也會一併刪除此人物底下的小卡。」
+                message: l.deleteCardAndMiniCardsMessage(it.title),
                 okLabel: l.delete,
                 cancelLabel: l.cancel,
               );
               if (ok) {
                 store.removeCard(it.id);
+                await miniStore.removeByOwner(it.title);
                 if (mounted) {
                   setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -256,8 +264,6 @@ class _CardsViewState extends State<CardsView> {
               } else {
                 await _animateBack(setStateSB);
               }
-            } else {
-              await _animateBack(setStateSB);
             }
           }
 
@@ -471,16 +477,22 @@ class _CardsViewState extends State<CardsView> {
     }
 
     if (action == 'del') {
+      final miniStore = context.read<MiniCardStore>();
+
       final ok = await showConfirm(
         context,
         title: l.deleteCardTitle,
-        message: l.deleteCardMessage(item.title),
+        message: l.deleteCardAndMiniCardsMessage(item.title),
         okLabel: l.delete,
         cancelLabel: l.cancel,
       );
       if (ok) {
         store.removeCard(item.id);
+        await miniStore.removeByOwner(item.title);
         setState(() {});
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.deletedCardToast(item.title))));
       }
       return;
     }
@@ -754,71 +766,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
               ),
 
               const SizedBox(height: 12),
-              // const Divider(height: 16),
 
-              // // 分類區塊（原本的 Wrap）
-              // Align(
-              //   alignment: Alignment.centerLeft,
-              //   child: Wrap(
-              //     spacing: 8,
-              //     runSpacing: -8,
-              //     children: [
-              //       for (final c in store.categories)
-              //         GestureDetector(
-              //           behavior: HitTestBehavior.opaque,
-              //           onLongPress: () async {
-              //             final ok = await showConfirm(
-              //               context,
-              //               title: l.deleteCategoryTitle,
-              //               message: l.deleteCategoryMessage(c),
-              //               okLabel: l.delete,
-              //               cancelLabel: l.cancel,
-              //             );
-              //             if (ok) {
-              //               store.removeCategory(c);
-              //               setState(() => _cats.remove(c));
-              //               if (context.mounted) {
-              //                 ScaffoldMessenger.of(context).showSnackBar(
-              //                   SnackBar(
-              //                     content: Text(l.deletedCategoryToast(c)),
-              //                   ),
-              //                 );
-              //               }
-              //             }
-              //           },
-              //           child: FilterChip(
-              //             label: Text(c),
-              //             selected: _cats.contains(c),
-              //             onSelected: (v) => setState(
-              //               () => v ? _cats.add(c) : _cats.remove(c),
-              //             ),
-              //           ),
-              //         ),
-              //       ActionChip(
-              //         avatar: const Icon(Icons.add, size: 18),
-              //         label: Text(l.addCategory),
-              //         onPressed: () async {
-              //           final name = await showPrompt(
-              //             context,
-              //             title: l.addCategory,
-              //             hintText: l.newCategoryNameHint,
-              //             okLabel: l.add,
-              //             cancelLabel: l.cancel,
-              //           );
-              //           if (name != null && name.trim().isNotEmpty) {
-              //             final n = name.trim();
-              //             if (!store.categories.contains(n)) {
-              //               store.addCategory(n);
-              //             }
-              //             setState(() => _cats.add(n));
-              //           }
-              //         },
-              //       ),
-              //     ],
-              //   ),
-              // ),
-
-              // const Divider(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Wrap(
@@ -893,9 +841,27 @@ class _EditCardDialogState extends State<_EditCardDialog> {
             final t = _title.text.trim();
             if (t.isEmpty) return;
 
+            // 🔒 檢查名稱是否重複（不分大小寫，排除自己）
+            final lower = t.toLowerCase();
+            final selfId = widget.initial?.id;
+            final exists = store.cardItems.any(
+              (c) => c.id != selfId && c.title.trim().toLowerCase() == lower,
+            );
+
+            if (exists) {
+              // 建議在 l10n 增加：
+              // cardNameAlreadyExists(name)：
+              // 「已經有名為「{name}」的人物卡了，請換一個名稱。」
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l.cardNameAlreadyExists(t))),
+              );
+              return;
+            }
+
             final id =
                 widget.initial?.id ??
                 DateTime.now().millisecondsSinceEpoch.toString();
+
             String? imageUrl;
             String? localPath;
 
@@ -908,7 +874,6 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 return;
               }
 
-              // 先記下 URL；下載只是最佳化，失敗不擋儲存
               imageUrl = url;
               try {
                 localPath = await downloadImageToLocal(url, preferName: id);
@@ -940,8 +905,6 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 quote: _quote.text.trim(),
                 birthday: _birthday,
                 categories: _cats.toList(),
-
-                // ✅ 新欄位
                 stageName: _stageName.text.trim().isEmpty
                     ? null
                     : _stageName.text.trim(),

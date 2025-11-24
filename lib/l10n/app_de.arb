@@ -451,7 +451,7 @@
 
   "feature_external_images": "5 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
   "feature_small_cloud_space": "Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details",
-  "feature_multi_device_sync": "Geräteübergreifende Synchronisierung",
+  "feature_ad_free": "Werbefreies, immersives Erlebnis",
   "feature_upload_local_images": "10 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
   "feature_priority_support": "Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details",
   "feature_large_storage": "50 GB Cloud-Speicher (geräteübergreifende Synchronisierung)",
@@ -590,6 +590,101 @@
   "fieldOriginLabel": "Kartenquelle",
   "fieldNoteLabel": "Notizen",
   "profileSectionTitle": "Grunddaten",
-  "noQuotePlaceholder": "Noch kein Zitat eingetragen"
+  "noQuotePlaceholder": "Noch kein Zitat eingetragen",
+
+  "cardNameAlreadyExists": "Eine Karte mit dem Namen „{name}“ existiert bereits. Bitte verwenden Sie einen anderen Namen.",
+  "@cardNameAlreadyExists": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "deleteCardAndMiniCardsMessage": "Möchten Sie „{name}“ wirklich löschen? Alle zugehörigen Mini-Karten werden ebenfalls entfernt.",
+  "@deleteCardAndMiniCardsMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "socialProfileTitle": "Profil",
+
+  "userProfileLongPressHint": "Lange drücken, um dein Profil zu bearbeiten.",
+
+  "scanFriendQrTitle": "Visitenkarten-QR scannen, um Freund hinzuzufügen",
+  "scanFriendQrButtonLabel": "Visitenkarte scannen",
+
+  "filterAlbumNone": "Kein Album",
+
+  "albumCollectionTitle": "Albensammlung",
+  "albumCollectionEmptyHint": "Du hast noch keine Alben. Fang damit an, dein Lieblingsalbum hinzuzufügen.",
+
+  "albumSwipeEdit": "Bearbeiten",
+  "albumSwipeDelete": "Löschen",
+
+  "albumDialogAddTitle": "Album hinzufügen",
+  "albumDialogEditTitle": "Album bearbeiten",
+
+  "albumDialogFieldTitle": "Albumtitel",
+  "albumDialogFieldArtist": "Künstler / Gruppe",
+  "albumDialogFieldYear": "Erscheinungsjahr (optional)",
+  "albumDialogFieldCover": "Cover-Bild-URL (optional)",
+  "albumDialogFieldYoutube": "YouTube-Link (optional)",
+  "albumDialogFieldYtmusic": "YT-Music-Link (optional)",
+  "albumDialogFieldSpotify": "Spotify-Link (optional)",
+
+  "albumDialogAddConfirm": "Hinzufügen",
+  "albumDialogEditConfirm": "Speichern",
+
+  "albumDeleteConfirmTitle": "Album löschen",
+  "albumDeleteConfirmMessage": "Möchtest du „{title}“ wirklich löschen?",
+
+  "albumDetailReleaseYear": "Erscheinungsjahr: {year}",
+  "albumDetailNoStreaming": "Es wurden noch keine Streaming-Links hinterlegt.",
+  "albumDetailHint": "Später kannst du hier die Trackliste, deine Kommentare oder Gründe für deine Empfehlung eintragen.",
+
+  "albumTracksSectionTitle": "Titel",
+  "albumNoTracksHint": "Diesem Album wurden bisher noch keine Titel hinzugefügt.",
+
+  "albumFieldLanguage": "Sprache",
+  "albumFieldVersion": "Version",
+
+  "albumCoverFromUrlLabel": "Aus URL",
+  "albumCoverFromLocalLabel": "Lokales Bild verwenden",
+
+  "albumFieldArtistsLabel": "Künstler*innen",
+  "albumFieldArtistsInputHint": "Künstlernamen eingeben und mit Enter hinzufügen…",
+  "albumArtistsSuggestionHint": "Während der Eingabe werden Vorschläge angezeigt.",
+
+  "albumLinksSectionTitle": "Streaming-Links",
+  "albumLinksCollapsedHint": "YouTube / YT Music / Spotify…",
+
+  "albumAddTrackButtonLabel": "Titel hinzufügen",
+  "albumTrackDialogAddTitle": "Titel hinzufügen",
+  "albumTrackDialogEditTitle": "Titel bearbeiten",
+  "albumTrackFieldTitle": "Titelname",
+
+  "albumTitleRequiredMessage": "Bitte einen Albumnamen eingeben.",
+  "albumCoverLocalRequiredMessage": "Bitte ein lokales Coverbild auswählen.",
+
+  "albumDetailLanguage": "Sprache: {lang}",
+  "@albumDetailLanguage": {
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumDetailVersion": "Version: {ver}",
+  "@albumDetailVersion": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumTrackImageLabel": "Titelbild (optional)",
+  "albumTrackClearImageTooltip": "Bild entfernen",
+  "albumTrackImageUseAlbumHint": "Wenn kein Bild festgelegt ist, wird für diesen Titel das Albumcover verwendet."
 
 }

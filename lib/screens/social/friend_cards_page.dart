@@ -1,7 +1,9 @@
 // lib/screens/social/friend_cards_page.dart
+import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/models/friend_card.dart';
+import 'package:flutter_learning_app/screens/user/scan_friend_qr_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_learning_app/services/social/social_api.dart';
@@ -10,6 +12,11 @@ import 'package:flutter_learning_app/services/services.dart'
 import 'package:flutter_learning_app/l10n/l10n.dart';
 import 'package:flutter_learning_app/models/social_models.dart';
 import 'friend_profile_page.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+// 👇 產生 QR 用
+import 'package:qr_flutter/qr_flutter.dart';
 
 class FriendCardsPage extends StatefulWidget {
   const FriendCardsPage({super.key, required this.api});
@@ -28,17 +35,20 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
   final Map<String, String> _nameById = {};
   String _query = '';
 
+  /// 本地暱稱 / email
+  final Map<String, _FriendMeta> _metaById = <String, _FriendMeta>{};
+
+  static const _kFriendMetaKey = 'friend_meta_v1';
+
   @override
   void initState() {
     super.initState();
-    // 進頁面時預抓目前追蹤好友的顯示名稱
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctl = context.read<FriendFollowController?>();
       if (ctl != null) {
         _prefetchRemoteNames(ctl.friends);
       }
-      // 若你希望每次進來都跟伺服器對齊，也可開啟這行：
-      // context.read<FriendFollowController>().refresh();
+      _loadLocalMeta();
     });
   }
 
@@ -62,12 +72,19 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     }
   }
 
-  /// 以追蹤集合建立顯示清單（覆蓋 > 遠端名稱 > id）
+  /// 以追蹤集合建立顯示清單（本地暱稱 > 遠端名稱 > id/email）
   List<FriendCard> _joinedCards(Set<String> following) {
     return following.map((id) {
-      final display = (_nameById[id]?.trim().isNotEmpty ?? false)
-          ? _nameById[id]!
+      final meta = _metaById[id];
+      final localNick = meta?.nickname.trim();
+      final remoteName = _nameById[id]?.trim();
+
+      final display = (localNick != null && localNick.isNotEmpty)
+          ? localNick
+          : (remoteName != null && remoteName.isNotEmpty)
+          ? remoteName
           : id;
+
       return _overrides[id] ??
           FriendCard(id: id, nickname: display, artists: const []);
     }).toList();
@@ -89,48 +106,62 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     }).toList();
   }
 
-  /// 讓使用者選一位已追蹤好友來新增/編輯名片覆蓋資料
+  /// ✅ 新版：直接輸入 Email + 暱稱 → follow + 建名片
   Future<void> _startAddFlow() async {
-    final following = context.read<FriendFollowController>().friends.toList();
-    if (following.isEmpty) {
+    final l = context.l10n;
+
+    final res = await showDialog<_NewFriendInput>(
+      context: context,
+      builder: (_) => const _AddFriendDialog(),
+    );
+    if (res == null) return;
+
+    final email = res.email.trim();
+    final nickname = res.nickname.trim();
+    if (email.isEmpty || nickname.isEmpty) return;
+
+    final friendCtrl = context.read<FriendFollowController>();
+
+    try {
+      // 如果還沒追蹤就 follow 一下
+      if (!friendCtrl.contains(email)) {
+        await friendCtrl.add(email);
+      }
+
+      setState(() {
+        // 建一張本地 FriendCard 覆蓋
+        _overrides[email] = FriendCard(
+          id: email,
+          nickname: nickname,
+          artists: const [],
+        );
+
+        // 存本地暱稱（id 就是 email）
+        _metaById[email] = _FriendMeta(nickname: nickname, email: email);
+      });
+
+      await _saveLocalMeta();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${l.friendAddedStatus}: $nickname')),
+      );
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.noFriendsYet)));
-      return;
+      ).showSnackBar(const SnackBar(content: Text('新增好友失敗，請稍後再試')));
     }
-    String targetId;
-    if (following.length == 1) {
-      targetId = following.first;
-    } else {
-      final picked = await showDialog<String>(
-        context: context,
-        builder: (_) => SimpleDialog(
-          title: Text(context.l10n.friendCardsTitle),
-          children: [
-            for (final id in following)
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, id),
-                child: Text(
-                  _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
-                ),
-              ),
-          ],
-        ),
-      );
-      if (picked == null) return;
-      targetId = picked;
-    }
-    await _addOrEditCardFor(targetId);
   }
 
   Future<void> _addOrEditCardFor(String id) async {
-    // 以現有覆蓋資料或建一張預設卡做為初始值
     final initial =
         _overrides[id] ??
         FriendCard(
           id: id,
-          nickname: _nameById[id]?.isNotEmpty == true ? _nameById[id]! : id,
+          nickname: _metaById[id]?.nickname.isNotEmpty == true
+              ? _metaById[id]!.nickname
+              : (_nameById[id]?.isNotEmpty == true ? _nameById[id]! : id),
           artists: const [],
         );
 
@@ -140,8 +171,8 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
     );
     if (res == null) return;
 
-    // 只寫覆蓋資料；id 固定為目標好友 id
     setState(() {
+      // 覆蓋 FriendCard 本身
       _overrides[id] = FriendCard(
         id: id,
         nickname: res.nickname,
@@ -151,8 +182,13 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         facebook: res.facebook,
         instagram: res.instagram,
       );
+
+      // ✅ 本地暱稱 meta（id 就是 email）
+      _metaById[id] = _FriendMeta(nickname: res.nickname, email: id);
     });
-    _loadRemoteName(id);
+
+    await _saveLocalMeta(); // ✅ 寫入 SharedPreferences
+    _loadRemoteName(id); // 繼續保留原本行為
   }
 
   void _deleteLocalOverride(FriendCard c) {
@@ -170,10 +206,29 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         actions: [
           IconButton(
             tooltip: l.scanQr,
-            onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('${l.scanQr} — TODO')));
+            onPressed: () async {
+              final friendCtrl = context.read<FriendFollowController>();
+
+              final friendId = await Navigator.of(context).push<String>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      ChangeNotifierProvider<FriendFollowController>.value(
+                        value: friendCtrl,
+                        child: const ScanFriendQrPage(),
+                      ),
+                ),
+              );
+
+              if (friendId != null && context.mounted) {
+                if (!friendCtrl.contains(friendId)) {
+                  await friendCtrl.toggle(friendId);
+                  await friendCtrl.refresh();
+                }
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${l.friendAddedStatus}: $friendId')),
+                );
+              }
             },
             icon: const Icon(Icons.qr_code_scanner),
           ),
@@ -210,20 +265,44 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
 
                       return _FriendCardTile(
                         card: c,
-                        displayName: _nameById[c.id]?.isNotEmpty == true
-                            ? _nameById[c.id]!
-                            : c.nickname,
+                        displayName: c.nickname.isNotEmpty
+                            ? c.nickname
+                            : (_nameById[c.id]?.isNotEmpty == true
+                                  ? _nameById[c.id]!
+                                  : c.id),
                         initialFollowing: isFollowing,
                         onEdit: () => _addOrEditCardFor(c.id),
-                        // 只刪除本地覆蓋，不影響追蹤名單
-                        onDelete: () => _deleteLocalOverride(c),
+                        onDelete: () async {
+                          final friendCtrl = context
+                              .read<FriendFollowController>();
+
+                          // 先從追蹤清單移除（呼叫後端 /unfollow）
+                          if (friendCtrl.contains(c.id)) {
+                            await friendCtrl.remove(c.id);
+                          }
+
+                          // 再刪掉本地名片覆蓋 + 暱稱 meta
+                          setState(() {
+                            _overrides.remove(c.id);
+                            _metaById.remove(c.id);
+                          });
+                          await _saveLocalMeta();
+                        },
                         onOpenProfile: () {
+                          final friendCtrl = context
+                              .read<FriendFollowController>();
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => FriendProfilePage(
-                                api: widget.api,
-                                userId: c.id,
-                              ),
+                              builder: (_) =>
+                                  ChangeNotifierProvider<
+                                    FriendFollowController
+                                  >.value(
+                                    value: friendCtrl,
+                                    child: FriendProfilePage(
+                                      api: widget.api,
+                                      userId: c.id,
+                                    ),
+                                  ),
                             ),
                           );
                         },
@@ -284,6 +363,33 @@ class _FriendCardsPageState extends State<FriendCardsPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadLocalMeta() async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(_kFriendMetaKey);
+    if (raw == null || raw.isEmpty) return;
+
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      _metaById
+        ..clear()
+        ..addAll(
+          decoded.map(
+            (id, v) =>
+                MapEntry(id, _FriendMeta.fromJson(v as Map<String, dynamic>)),
+          ),
+        );
+      if (mounted) setState(() {});
+    } catch (_) {
+      // ignore parse errors
+    }
+  }
+
+  Future<void> _saveLocalMeta() async {
+    final sp = await SharedPreferences.getInstance();
+    final map = _metaById.map((id, meta) => MapEntry(id, meta.toJson()));
+    await sp.setString(_kFriendMetaKey, jsonEncode(map));
   }
 }
 
@@ -393,7 +499,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
-                // 背景：左＝編輯；右＝刪除（刪的是本地覆蓋）
+                // 背景：左＝編輯；右＝刪除
                 Positioned.fill(
                   child: Row(
                     children: [
@@ -434,7 +540,7 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                   ),
                 ),
 
-                // 上層：卡片（可水平拖 / 點擊翻面）
+                // 上層：卡片
                 StatefulBuilder(
                   builder: (context, sb) {
                     return GestureDetector(
@@ -466,7 +572,10 @@ class _FriendCardTileState extends State<_FriendCardTile> {
                               ],
                             ),
                             child: _flipped
-                                ? _BackSide(onEditTap: widget.onEdit)
+                                ? _BackSide(
+                                    onEditTap: widget.onEdit,
+                                    friendId: widget.card.id,
+                                  )
                                 : _FrontSide(
                                     displayName: widget.displayName,
                                     card: widget.card,
@@ -604,12 +713,18 @@ class _FrontSide extends StatelessWidget {
 
 class _BackSide extends StatelessWidget {
   final VoidCallback onEditTap;
-  const _BackSide({required this.onEditTap});
+  final String friendId;
+
+  const _BackSide({required this.onEditTap, required this.friendId});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final cs = Theme.of(context).colorScheme;
+
+    // {"type": "friend_qr_v1", "id": <好友ID>}
+    final qrPayload = jsonEncode({'type': 'friend_qr_v1', 'id': friendId});
+
     return Container(
       key: const ValueKey('back'),
       color: Color.alphaBlend(
@@ -622,14 +737,47 @@ class _BackSide extends StatelessWidget {
       alignment: Alignment.center,
       child: Stack(
         children: [
-          const Align(
+          Align(
             alignment: Alignment.center,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.qr_code_2, size: 120),
-                SizedBox(height: 8),
-                Text('點擊翻面'),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceVariant.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: QrImageView(
+                    data: qrPayload,
+                    version: QrVersions.auto,
+                    size: 160,
+                    backgroundColor: Colors.transparent,
+                    gapless: true,
+                    eyeStyle: QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: cs.onSurface,
+                    ),
+                    dataModuleStyle: QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  friendId,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    letterSpacing: 0.5,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           ),
@@ -665,6 +813,13 @@ class _Info extends StatelessWidget {
       ],
     );
   }
+}
+
+/// ---- 新增好友對話框用的小模型 ----
+class _NewFriendInput {
+  final String email;
+  final String nickname;
+  const _NewFriendInput(this.email, this.nickname);
 }
 
 /// 名片編輯對話框：結果會被當作「覆蓋資料」儲存；id 由呼叫端決定。
@@ -818,6 +973,86 @@ class _EditFriendDialogState extends State<_EditFriendDialog> {
           child: Text(l.save),
         ),
       ],
+    );
+  }
+}
+
+/// 新增好友用的簡單 dialog：Email + 暱稱
+class _AddFriendDialog extends StatefulWidget {
+  const _AddFriendDialog();
+
+  @override
+  State<_AddFriendDialog> createState() => _AddFriendDialogState();
+}
+
+class _AddFriendDialogState extends State<_AddFriendDialog> {
+  final _email = TextEditingController();
+  final _nick = TextEditingController();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _nick.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return AlertDialog(
+      title: Text(l.addFriendCard),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _email,
+              decoration: const InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _nick,
+              decoration: InputDecoration(labelText: l.nicknameLabel),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            final email = _email.text.trim();
+            final nick = _nick.text.trim();
+            if (email.isEmpty || nick.isEmpty) return;
+            Navigator.pop(context, _NewFriendInput(email, nick));
+          },
+          child: Text(l.save),
+        ),
+      ],
+    );
+  }
+}
+
+class _FriendMeta {
+  final String nickname;
+  final String? email;
+
+  const _FriendMeta({required this.nickname, this.email});
+
+  Map<String, dynamic> toJson() => {
+    'nickname': nickname,
+    if (email != null && email!.isNotEmpty) 'email': email,
+  };
+
+  static _FriendMeta fromJson(Map<String, dynamic> j) {
+    return _FriendMeta(
+      nickname: (j['nickname'] as String?)?.trim() ?? '',
+      email: (j['email'] as String?)?.trim(),
     );
   }
 }

@@ -455,7 +455,7 @@
 
   "feature_external_images": "클라우드 공간 5GB (멀티 디바이스 동기화)",
   "feature_small_cloud_space": "카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보",
-  "feature_multi_device_sync": "멀티 디바이스 동기화",
+  "feature_ad_free": "광고 없는 몰입형 경험",
   "feature_upload_local_images": "클라우드 공간 10GB (멀티 디바이스 동기화)",
   "feature_priority_support": "카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보",
   "feature_large_storage": "클라우드 공간 50GB (멀티 디바이스 동기화)",
@@ -594,7 +594,102 @@
   "fieldOriginLabel": "카드 출처",
   "fieldNoteLabel": "메모",
   "profileSectionTitle": "기본 정보",
-  "noQuotePlaceholder": "아직 문구가 없습니다"
+  "noQuotePlaceholder": "아직 문구가 없습니다",
+
+  "cardNameAlreadyExists": "\"{name}\" 이름의 카드가 이미 존재합니다. 다른 이름을 사용해주세요.",
+  "@cardNameAlreadyExists": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "deleteCardAndMiniCardsMessage": "\"{name}\"을(를) 삭제하시겠습니까? 이 인물에 속한 모든 미니 카드도 함께 삭제됩니다.",
+  "@deleteCardAndMiniCardsMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "socialProfileTitle": "프로필",
+
+  "userProfileLongPressHint": "길게 눌러 프로필을 편집하세요",
+
+  "scanFriendQrTitle": "명함 QR을 스캔해 친구 추가",
+  "scanFriendQrButtonLabel": "명함 스캔하여 추가",
+
+  "filterAlbumNone": "앨범 없음",
+
+  "albumCollectionTitle": "앨범 컬렉션",
+  "albumCollectionEmptyHint": "아직 저장된 앨범이 없습니다. 먼저 가장 좋아하는 앨범부터 추가해 보세요.",
+
+  "albumSwipeEdit": "편집",
+  "albumSwipeDelete": "삭제",
+
+  "albumDialogAddTitle": "앨범 추가",
+  "albumDialogEditTitle": "앨범 편집",
+
+  "albumDialogFieldTitle": "앨범 이름",
+  "albumDialogFieldArtist": "아티스트 / 그룹",
+  "albumDialogFieldYear": "발매 연도 (선택)",
+  "albumDialogFieldCover": "커버 이미지 URL (선택)",
+  "albumDialogFieldYoutube": "YouTube 링크 (선택)",
+  "albumDialogFieldYtmusic": "YT Music 링크 (선택)",
+  "albumDialogFieldSpotify": "Spotify 링크 (선택)",
+
+  "albumDialogAddConfirm": "추가",
+  "albumDialogEditConfirm": "저장",
+
+  "albumDeleteConfirmTitle": "앨범 삭제",
+  "albumDeleteConfirmMessage": "\"{title}\" 앨범을 삭제하시겠습니까?",
+
+  "albumDetailReleaseYear": "발매 연도: {year}",
+  "albumDetailNoStreaming": "아직 스트리밍 링크가 설정되지 않았어요.",
+  "albumDetailHint": "나중에 여기에서 트랙 리스트, 코멘트, 추천 이유 등을 적어 둘 수 있습니다.",
+
+  "albumTracksSectionTitle": "수록곡",
+  "albumNoTracksHint": "이 앨범에는 아직 곡이 추가되지 않았습니다.",
+
+  "albumFieldLanguage": "언어",
+  "albumFieldVersion": "버전",
+
+  "albumCoverFromUrlLabel": "URL 사용",
+  "albumCoverFromLocalLabel": "로컬 이미지 사용",
+
+  "albumFieldArtistsLabel": "아티스트",
+  "albumFieldArtistsInputHint": "아티스트 이름을 입력하고 Enter 키로 추가…",
+  "albumArtistsSuggestionHint": "입력하면 추천 목록이 표시됩니다.",
+
+  "albumLinksSectionTitle": "스트리밍 링크",
+  "albumLinksCollapsedHint": "YouTube / YT Music / Spotify…",
+
+  "albumAddTrackButtonLabel": "곡 추가",
+  "albumTrackDialogAddTitle": "곡 추가",
+  "albumTrackDialogEditTitle": "곡 편집",
+  "albumTrackFieldTitle": "곡 제목",
+
+  "albumTitleRequiredMessage": "앨범 제목을 입력해 주세요.",
+  "albumCoverLocalRequiredMessage": "로컬 커버 이미지를 선택해 주세요.",
+
+  "albumDetailLanguage": "언어: {lang}",
+  "@albumDetailLanguage": {
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumDetailVersion": "버전: {ver}",
+  "@albumDetailVersion": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumTrackImageLabel": "트랙 이미지(선택 사항)",
+  "albumTrackClearImageTooltip": "이미지 지우기",
+  "albumTrackImageUseAlbumHint": "이미지를 설정하지 않으면 이 곡에는 앨범 커버가 사용됩니다."
 
 
 }

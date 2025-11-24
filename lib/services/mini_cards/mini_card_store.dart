@@ -365,6 +365,23 @@ class MiniCardStore extends ChangeNotifier {
     return filled;
   }
 
+  /// 刪除某個 owner（通常 = CardItem.title）底下的所有小卡，
+  /// 同時移除對應的 SharedPreferences key: `miniCards:<owner>`
+  Future<void> removeByOwner(String owner) async {
+    final key = owner.trim().isEmpty ? kUncategorized : owner.trim();
+
+    // 從記憶體中移除
+    final removed = _byOwner.remove(key);
+
+    // 從 SharedPreferences 中移除持久化資料
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove('miniCards:$key');
+
+    if (removed != null) {
+      notifyListeners();
+    }
+  }
+
   // ===== 私有小工具 =====
 
   bool _miniEquals(MiniCardData a, MiniCardData b) {

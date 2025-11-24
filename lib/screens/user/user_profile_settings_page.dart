@@ -1,11 +1,15 @@
 // lib/screens/settings/user_profile_settings_page.dart
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
+import 'dart:convert'; // 👈 新增：產生 QR JSON
+import 'dart:math' as math;
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/screens/user/scan_friend_qr_page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app_settings.dart';
 import '../../l10n/l10n.dart';
@@ -13,11 +17,27 @@ import 'package:flutter_learning_app/services/services.dart';
 import '../social/friend_cards_page.dart';
 import '../social/followed_tags_page.dart';
 
+// 產生email QR Code
+import 'package:qr_flutter/qr_flutter.dart';
+
+// 取得版本號
+import 'package:package_info_plus/package_info_plus.dart';
+
+/// 條碼固定內容：
+/// "Design by LEE, PIN-FAN in Taipei" 的 UTF-8 → 16 進位字串
+const String _kBarcodeHex = '4a696d6d79';
+
+/// 護照頁底部文字
+const String _kDesignSignature = 'Design by LEE, PIN-FAN in Taipei';
+
+/// ===============================
+/// 1) 護照風展示頁（進來只看到這個）
+/// ===============================
 class UserProfileSettingsPage extends StatefulWidget {
   const UserProfileSettingsPage({
     super.key,
     required this.settings,
-    this.forceComplete = false,
+    this.forceComplete = false, // 現在只留著相容用，不做強制
   });
 
   final AppSettings settings;
@@ -29,8 +49,930 @@ class UserProfileSettingsPage extends StatefulWidget {
 }
 
 class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
+  DateTime? _birthday;
+
+  String _nickname = '';
+  String _emailText = '';
+  String? _avatarUrl;
+
+  String _ig = '';
+  String _fb = '';
+  String _line = '';
+  bool _showIG = false;
+  bool _showFB = false;
+  bool _showLINE = false;
+
+  bool _loading = true;
+  String _versionText = 'Version'; // 初始值，避免一開始 null
+
+  late SocialApi _api;
+
+  // 與編輯頁使用相同的 SharedPreferences key（值要一樣）
+  static const _kIG = 'user.social.instagram';
+  static const _kFB = 'user.social.facebook';
+  static const _kLINE = 'user.social.line';
+  static const _kIG_SHOW = 'user.social.instagram.show';
+  static const _kFB_SHOW = 'user.social.facebook.show';
+  static const _kLINE_SHOW = 'user.social.line.show';
+  static const _kAVATAR_URL = 'user.avatar.url';
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = FirebaseAuth.instance.currentUser;
+    _emailText = user?.email ?? context.l10n.accountNoInfo;
+
+    _nickname = widget.settings.nickname?.trim().isNotEmpty == true
+        ? widget.settings.nickname!.trim()
+        : (user?.displayName ?? 'Me');
+
+    _birthday = widget.settings.birthday;
+
+    // 👇 新增：初始化 SocialApi，給 FriendCardsPage 用
+    final meId = (user?.email?.toLowerCase() ?? user?.uid ?? 'u_me');
+    final meName = _nickname.isNotEmpty
+        ? _nickname
+        : (user?.displayName ?? 'Me');
+    _api = SocialApi(
+      meId: meId,
+      meName: meName,
+      idTokenProvider: () async =>
+          FirebaseAuth.instance.currentUser?.getIdToken(),
+    );
+
+    _loadVersion(); // 👈 新增：讀取 app 版本
+    _loadLocalProfile(); // 原本的
+  }
+
+  Future<void> _loadLocalProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final avatarLocal = prefs.getString(_kAVATAR_URL);
+      final igLocal = prefs.getString(_kIG) ?? '';
+      final fbLocal = prefs.getString(_kFB) ?? '';
+      final lineLocal = prefs.getString(_kLINE) ?? '';
+      final showIGLocal = prefs.getBool(_kIG_SHOW) ?? false;
+      final showFBLocal = prefs.getBool(_kFB_SHOW) ?? false;
+      final showLINELocal = prefs.getBool(_kLINE_SHOW) ?? false;
+
+      if (!mounted) return;
+      setState(() {
+        _avatarUrl = avatarLocal;
+        _ig = igLocal;
+        _fb = fbLocal;
+        _line = lineLocal;
+        _showIG = showIGLocal;
+        _showFB = showFBLocal;
+        _showLINE = showLINELocal;
+        _loading = false;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  Future<void> _openEditPage() async {
+    // 先從目前的 context 把 controller 取出來
+    final tagCtrl = context.read<TagFollowController>();
+    final friendCtrl = context.read<FriendFollowController>();
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider<TagFollowController>.value(value: tagCtrl),
+            ChangeNotifierProvider<FriendFollowController>.value(
+              value: friendCtrl,
+            ),
+          ],
+          child: UserProfileEditPage(
+            settings: widget.settings,
+            forceComplete: widget.forceComplete,
+          ),
+        ),
+      ),
+    );
+
+    // 編輯完回來重新讀一次本機快取
+    await _loadLocalProfile();
+  }
+
+  String _formatBirthday(BuildContext context) {
+    if (_birthday == null) return context.l10n.birthdayPick;
+    final y = _birthday!.year.toString().padLeft(4, '0');
+    final m = _birthday!.month.toString().padLeft(2, '0');
+    final d = _birthday!.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context);
+    final isZh = locale.languageCode == 'zh';
+
+    final followedTags = context.watch<TagFollowController>().followed;
+    final followingIds = context.watch<FriendFollowController>().friends;
+
+    final profileCard = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onLongPress: _openEditPage,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                final cardWidth = width > 600 ? 480.0 : width - 32.0;
+
+                return Center(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 24),
+                    width: cardWidth,
+                    constraints: const BoxConstraints(minHeight: 260),
+                    child: Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(24),
+                      color: cs.surface.withOpacity(0.96),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 上半：頭像 + 名稱 + email + 生日
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 36,
+                                  backgroundColor: cs.surfaceVariant,
+                                  foregroundImage:
+                                      (_avatarUrl != null &&
+                                          _avatarUrl!.isNotEmpty)
+                                      ? NetworkImage(_avatarUrl!)
+                                      : null,
+                                  child: const Icon(
+                                    Icons.person_outline,
+                                    size: 36,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _nickname.isEmpty ? 'Me' : _nickname,
+                                        style: theme.textTheme.titleLarge
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.mail_outlined,
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Flexible(
+                                            child: Text(
+                                              _emailText,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: cs.onSurfaceVariant,
+                                                  ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.cake_outlined,
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            _formatBirthday(context),
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  color: cs.onSurfaceVariant,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // 中段：社群連結（只展示有勾選顯示 & 有內容的）
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                if (_showIG && _ig.trim().isNotEmpty)
+                                  _SocialChip(
+                                    icon: Icons.camera_alt_outlined,
+                                    label: _ig.trim().startsWith('@')
+                                        ? _ig.trim()
+                                        : '@${_ig.trim()}',
+                                  ),
+                                if (_showFB && _fb.trim().isNotEmpty)
+                                  _SocialChip(
+                                    icon: Icons.facebook,
+                                    label: _fb.trim(),
+                                  ),
+                                if (_showLINE && _line.trim().isNotEmpty)
+                                  _SocialChip(
+                                    icon: Icons.chat_bubble_outline,
+                                    label: _line.trim(),
+                                  ),
+                                if (!(_showIG && _ig.trim().isNotEmpty) &&
+                                    !(_showFB && _fb.trim().isNotEmpty) &&
+                                    !(_showLINE && _line.trim().isNotEmpty))
+                                  Text(
+                                    l.socialLinksTitle,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 12),
+                            const Divider(),
+                            const SizedBox(height: 8),
+
+                            // 下半：追蹤標籤 + 好友數
+                            Row(
+                              children: [
+                                // 左邊：追蹤標籤
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l.followedTagsCount(
+                                          followedTags.length,
+                                        ),
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        l.manageFollowedTags,
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // 右邊：社群好友 → 改成可點擊，進 FriendCardsPage
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () async {
+                                      final friendCtrl = context
+                                          .read<FriendFollowController>();
+
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              ChangeNotifierProvider<
+                                                FriendFollowController
+                                              >.value(
+                                                value: friendCtrl,
+                                                child: FriendCardsPage(
+                                                  api: _api,
+                                                ),
+                                              ),
+                                        ),
+                                      );
+
+                                      // 回來後如果有變動，順便 refresh 一下
+                                      if (context.mounted) {
+                                        await context
+                                            .read<FriendFollowController>()
+                                            .refresh();
+                                      }
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${l.socialFriends} (${followingIds.length})',
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          l.manageCards,
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color: cs.onSurfaceVariant,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // ===== QR Code 名片卡片 =====
+                            _ProfileBarcodeCard(),
+                            const SizedBox(height: 8),
+
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.touch_app_outlined,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    l.userProfileLongPressHint,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      // 中下方掃描 QR 浮動按鈕
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.qr_code_scanner),
+        label: Text(l.scanFriendQrButtonLabel),
+        onPressed: () async {
+          final friendCtrl = context.read<FriendFollowController>();
+
+          final friendId = await Navigator.of(context).push<String>(
+            MaterialPageRoute(
+              builder: (_) =>
+                  ChangeNotifierProvider<FriendFollowController>.value(
+                    value: friendCtrl,
+                    child: const ScanFriendQrPage(),
+                  ),
+            ),
+          );
+
+          if (friendId != null && context.mounted) {
+            // ✅ 如果還沒加入，就幫你加入
+            if (!friendCtrl.contains(friendId)) {
+              await friendCtrl.toggle(friendId); // -> 變成「已追蹤」
+              await friendCtrl.refresh(); // 可選：重新抓最新列表
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${l.friendAddedStatus}: $friendId')),
+            );
+          }
+        },
+      ),
+
+      // 沒有 AppBar，看起來像一整個海洋背景
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = Size(constraints.maxWidth, constraints.maxHeight);
+
+            return Stack(
+              children: [
+                // 海浪背景（參考 version_showcase_page）
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _SeaProfilePainter(
+                      sea: _SeaProfile(
+                        waterLine: 0.62,
+                        a1: 12,
+                        lambda1: 220,
+                        a2: 8,
+                        lambda2: 140,
+                        a3: 5,
+                        lambda3: 80,
+                      ),
+                      t: 0.0,
+                      dark: isDark,
+                    ),
+                  ),
+                ),
+                // 中間護照卡
+                profileCard,
+
+                // 底部版本號 + Design 字樣
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 80, // 預留一點高度給 FAB
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _versionText,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withOpacity(0.85),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _kDesignSignature,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withOpacity(0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// 由外部（RootNav）在「進入本頁」時呼叫：重新從本機快取刷新展示資料
+  Future<void> refreshOnEnter() async {
+    await _loadLocalProfile();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      // pubspec.yaml: version: 1.2.5+20
+      // info.version -> "1.2.5"
+      // info.buildNumber -> "20"
+      final v = info.version;
+      final build = info.buildNumber;
+      setState(() {
+        _versionText = 'Version $v+$build';
+        // 如果你只想顯示 Version 1.2.5，可以改成：
+        // _versionText = 'Version $v';
+      });
+    } catch (_) {
+      // 失敗就維持預設字串，不讓畫面炸掉
+      setState(() {
+        _versionText = 'Version';
+      });
+    }
+  }
+}
+
+/// 條碼卡：縮小上下留白＋固定顯示 _kBarcodeHex
+class _ProfileBarcodeCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final user = FirebaseAuth.instance.currentUser;
+    // QR 內容：優先 email，沒有就 uid，再不行就 'guest'
+    final account = user?.email?.trim().isNotEmpty == true
+        ? user!.email!.trim()
+        : (user?.uid ?? 'guest');
+
+    // 👇 新版：好友 QR JSON 格式
+    final qrPayload = jsonEncode({'type': 'friend_qr_v1', 'id': account});
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // 灰色卡片左右只留一點空間，幾乎吃滿整個護照卡
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: cs.surfaceVariant.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Center(
+            child: QrImageView(
+              data: qrPayload, // 👈 使用 JSON payload
+              version: QrVersions.auto,
+              size: 140,
+              backgroundColor: Colors.transparent,
+              gapless: true,
+              eyeStyle: QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: cs.onSurface,
+              ),
+              dataModuleStyle: QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: cs.onSurface,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          account,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: textTheme.bodySmall?.copyWith(
+            letterSpacing: 0.5,
+            color: cs.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 簡單條碼畫法：依照 hex 字元畫出高低不同的線
+/// 類超商條碼畫法：
+/// - 上下幾乎滿版（可自己調整）
+/// - 左右有 quiet zone
+/// - 黑白相間、粗細不一，看起來像真的條碼
+class _BarcodePainter extends CustomPainter {
+  _BarcodePainter({required this.code});
+
+  final String code;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (code.trim().isEmpty) return;
+
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    // 1) 把字串轉成「模組長度」序列（類似：空白1, 條2, 空白1, 條3...）
+    //    這邊不是正式標準，只是用 code 產生穩定但看起來隨機的圖樣。
+    final modules = <int>[];
+
+    // 給前後留一點 quiet zone
+    const quietZoneModules = 12;
+
+    // 簡單 guard bar（開頭三條 ＋ 結尾三條），像 EAN-13 那種
+    void addGuardPattern() {
+      // pattern: bar, space, bar（都窄）
+      modules.addAll([1, 1, 1]);
+    }
+
+    // 開頭 quiet zone
+    for (int i = 0; i < quietZoneModules; i++) {
+      modules.add(1); // 後面會自己在黑白切換時解讀
+    }
+
+    // 起始 guard bar
+    addGuardPattern();
+
+    // 中間主要條碼：根據每個字元產生幾個 bar/space 宽度
+    final chars = code.codeUnits;
+    for (final cu in chars) {
+      // 取一個 0~6 的值，轉成 1~4 的寬度，避免太誇張
+      final v = (cu % 7) + 1; // 1~7
+      final barWidth = 1 + (v % 3); // 1~3
+      final spaceWidth = 1 + ((v ~/ 2) % 2); // 1~2
+
+      // 一組：space, bar, space, bar... 讓形狀比較豐富
+      modules.addAll([
+        spaceWidth,
+        barWidth,
+        1,
+        (barWidth == 3 ? 2 : barWidth + 1),
+      ]);
+    }
+
+    // 中央 guard bar（模擬 EAN 中間那條）
+    addGuardPattern();
+
+    // 結尾也加一點隨機 pattern
+    for (int i = 0; i < 4; i++) {
+      modules.addAll([1, 2]); // 簡單: 窄空白＋中等條
+    }
+
+    // 結尾 guard bar
+    addGuardPattern();
+
+    // 結尾 quiet zone
+    for (int i = 0; i < quietZoneModules; i++) {
+      modules.add(1);
+    }
+
+    // 2) 把「模組數量」轉成實際寬度
+    final totalModules = modules.fold<int>(0, (sum, v) => sum + v);
+    if (totalModules == 0) return;
+
+    final moduleWidth = size.width / totalModules;
+
+    // 條碼高度（留一點上下邊界，看起來不像整塊貼滿）
+    final top = size.height * 0.05;
+    final bottom = size.height * 0.95;
+
+    double x = 0;
+    bool drawBar = false; // 從空白開始：quiet zone 是空白
+
+    for (final w in modules) {
+      final dx = w * moduleWidth;
+
+      if (drawBar) {
+        final rect = Rect.fromLTRB(x, top, x + dx, bottom);
+        canvas.drawRect(rect, paint);
+      }
+
+      // 黑白交錯
+      drawBar = !drawBar;
+      x += dx;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _BarcodePainter oldDelegate) =>
+      oldDelegate.code != code;
+}
+
+/// 單純展示用的小社群 Chip
+class _SocialChip extends StatelessWidget {
+  const _SocialChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: cs.surfaceVariant,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurface),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/* ─────────────── 海浪背景（簡化版，參考 version_showcase_page） ─────────────── */
+
+class _SeaProfile {
+  _SeaProfile({
+    required this.waterLine,
+    required this.a1,
+    required this.lambda1,
+    required this.a2,
+    required this.lambda2,
+    required this.a3,
+    required this.lambda3,
+  });
+
+  final double waterLine;
+  final double a1, lambda1;
+  final double a2, lambda2;
+  final double a3, lambda3;
+
+  double surfaceY(double x, double t, double h) {
+    final base = h * waterLine;
+    final y =
+        base +
+        a1 * math.sin((x / lambda1) * 2 * math.pi + t * 2 * math.pi) +
+        a2 * math.sin((x / lambda2) * 2 * math.pi + t * 3 * math.pi + 1.2) +
+        a3 * math.sin((x / lambda3) * 2 * math.pi + t * 4 * math.pi + 2.4);
+    return y;
+  }
+}
+
+class _SeaProfilePainter extends CustomPainter {
+  _SeaProfilePainter({required this.sea, required this.t, required this.dark});
+
+  final _SeaProfile sea;
+  final double t;
+  final bool dark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+
+    // 天空漸層
+    final sky = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: dark
+          ? [const Color(0xFF0B1020), const Color(0xFF101A34)]
+          : [const Color(0xFFEAF8FF), const Color(0xFFE0F6FF)],
+    ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawRect(Offset.zero & size, Paint()..shader = sky);
+
+    // 海面區塊
+    final seaTop = dark ? const Color(0xFF14305C) : const Color(0xFF8AD8FF);
+    final seaBot = dark ? const Color(0xFF0D1E3B) : const Color(0xFF4EB3FF);
+    final seaShader = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [seaTop, seaBot],
+    ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawRect(
+      Offset(0, h * sea.waterLine) & Size(w, h * (1 - sea.waterLine)),
+      Paint()..shader = seaShader,
+    );
+
+    void drawWave({
+      required double amp,
+      required double lambda,
+      required double phase,
+      required Color color,
+      required double yOffset,
+    }) {
+      final path = Path();
+      final y0 = sea.surfaceY(0, t + phase, h) + yOffset;
+      path.moveTo(0, h);
+      path.lineTo(0, y0);
+      for (double x = 0; x <= w; x++) {
+        final y =
+            sea.surfaceY(x, t + phase, h) +
+            yOffset +
+            amp * math.sin((x / lambda) * 2 * math.pi + t * 1.4 + phase);
+        path.lineTo(x, y);
+      }
+      path.lineTo(w, h);
+      path.close();
+      canvas.drawPath(path, Paint()..color = color);
+    }
+
+    // 幾層浪
+    drawWave(
+      amp: 4,
+      lambda: 180,
+      phase: 0.0,
+      yOffset: -2,
+      color: Colors.white.withOpacity(dark ? 0.08 : 0.12),
+    );
+    drawWave(
+      amp: 9,
+      lambda: 260,
+      phase: 0.35,
+      yOffset: 6,
+      color: (dark ? Colors.white : Colors.black).withOpacity(
+        dark ? 0.05 : 0.05,
+      ),
+    );
+    drawWave(
+      amp: 14,
+      lambda: 340,
+      phase: 0.7,
+      yOffset: 12,
+      color: Colors.black.withOpacity(dark ? 0.15 : 0.08),
+    );
+
+    // 小氣泡
+    final rnd = math.Random(7);
+    final bubblePaint = Paint()
+      ..color = Colors.white.withOpacity(dark ? 0.08 : 0.10);
+    for (int i = 0; i < 30; i++) {
+      final bx = rnd.nextDouble() * w;
+      final by = sea.surfaceY(bx, t, h) + 10 + rnd.nextDouble() * (h * 0.35);
+      final r = 1 + (i % 3);
+      canvas.drawCircle(Offset(bx, by), r.toDouble(), bubblePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SeaProfilePainter old) =>
+      old.t != t || old.dark != dark || old.sea != sea;
+}
+
+/// 四角的小魚 / 蝦 / 章魚 Emoji
+class _SeaCornerEmoji extends StatelessWidget {
+  const _SeaCornerEmoji({required this.emoji, required this.size});
+
+  final String emoji;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.92,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.45),
+        ),
+        padding: const EdgeInsets.all(6),
+        child: Text(emoji, style: TextStyle(fontSize: size)),
+      ),
+    );
+  }
+}
+
+/// 提供給編輯頁用的背景：重用同一套海浪 + 小魚
+class _SeaBackground extends StatelessWidget {
+  const _SeaBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = Size(constraints.maxWidth, constraints.maxHeight);
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _SeaProfilePainter(
+                  sea: _SeaProfile(
+                    waterLine: 0.62,
+                    a1: 12,
+                    lambda1: 220,
+                    a2: 8,
+                    lambda2: 140,
+                    a3: 5,
+                    lambda3: 80,
+                  ),
+                  t: 0.0,
+                  dark: isDark,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// ===============================
+/// 2) 完整編輯頁（長按護照卡 → 進來）
+///   直接沿用你原本的編輯邏輯
+/// ===============================
+class UserProfileEditPage extends StatefulWidget {
+  const UserProfileEditPage({
+    super.key,
+    required this.settings,
+    this.forceComplete = false,
+  });
+
+  final AppSettings settings;
+  final bool forceComplete;
+
+  @override
+  State<UserProfileEditPage> createState() => _UserProfileEditPageState();
+}
+
+class _UserProfileEditPageState extends State<UserProfileEditPage> {
   final _formKey = GlobalKey<FormState>();
-  DateTime? _birthday; // ✅ 新增：目前生日
+  DateTime? _birthday; // 目前生日
 
   late final TextEditingController _nickCtrl;
   String _emailText = '';
@@ -83,7 +1025,6 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
   }
 
   /// 啟動時以伺服器為準同步頭像與設定，並回寫本機快取
-  /// 啟動時以伺服器為準同步頭像與設定，並回寫本機快取
   Future<void> _bootstrap() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -121,11 +1062,15 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
         serverBirthday = (me['birthday'] as String?)?.trim();
 
         // 後端若傳 null 就維持 null，讓下面用 ?? 回退到本機
-        if (me['showInstagram'] is bool)
+        if (me['showInstagram'] is bool) {
           serverShowIG = me['showInstagram'] as bool;
-        if (me['showFacebook'] is bool)
+        }
+        if (me['showFacebook'] is bool) {
           serverShowFB = me['showFacebook'] as bool;
-        if (me['showLine'] is bool) serverShowLINE = me['showLine'] as bool;
+        }
+        if (me['showLine'] is bool) {
+          serverShowLINE = me['showLine'] as bool;
+        }
 
         // 把雲端有值的項目同步寫回本機快取（加速下次開啟）
         if (serverAvatar != null && serverAvatar!.isNotEmpty) {
@@ -166,7 +1111,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
           _nickCtrl.text = widget.settings.nickname!;
         }
 
-        // ✅ 生日：後端有值 → 解析成 DateTime → 寫入 AppSettings + local state
+        // 生日
         if (serverBirthday != null && serverBirthday!.isNotEmpty) {
           try {
             final parts = serverBirthday!.split('-').map(int.parse).toList();
@@ -175,10 +1120,9 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
               widget.settings.setBirthday(_birthday);
             }
           } catch (_) {
-            // 解析錯誤就忽略
+            // ignore
           }
         } else if (_birthday == null && widget.settings.birthday != null) {
-          // 後端沒給，但本機有 → 用本機的
           _birthday = widget.settings.birthday;
         }
       } catch (_) {
@@ -243,13 +1187,13 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
 
       final Uint8List bytes = await picked.readAsBytes();
 
-      // 1) 上傳到伺服器（後端永久存放，回傳絕對網址或可解析之相對路徑）
+      // 1) 上傳到伺服器
       final uploadedUrl = await _api.uploadAvatarBytes(
         bytes,
         filename: picked.name,
       );
 
-      // 2) 立刻更新 /me（雲端為單一真相）
+      // 2) 立刻更新 /me
       await _api.updateProfile(avatarUrl: uploadedUrl);
 
       // 3) 同步本機快取
@@ -299,7 +1243,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
 
       await _api.updateProfile(
         nickname: _nickCtrl.text.trim(),
-        avatarUrl: _avatarUrl, // 冪等：已於 _changeAvatar 寫回雲端，這裡再帶一次也可
+        avatarUrl: _avatarUrl,
         instagram: _igCtrl.text.trim(),
         facebook: _fbCtrl.text.trim(),
         lineId: _lineCtrl.text.trim(),
@@ -421,7 +1365,7 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                             ],
                           ),
                         ),
-                        // ✅ 新增：生日選擇
+                        // 生日選擇
                         Align(
                           alignment: Alignment.centerLeft,
                           child: OutlinedButton.icon(
@@ -637,11 +1581,9 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                                       ),
                                 ),
                               );
-                              // 回來時若有改動，Provider 會自動反映；這裡保險再 refresh 一次
                               await context
                                   .read<FriendFollowController>()
                                   .refresh();
-                              // 預抓名稱
                               _prefetchFriendNames(
                                 context.read<FriendFollowController>().friends,
                               );
@@ -663,7 +1605,9 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
                       else
                         Column(
                           children: followingIds.map((id) {
-                            if (!_nameById.containsKey(id)) _loadFriendName(id);
+                            if (!_nameById.containsKey(id)) {
+                              _loadFriendName(id);
+                            }
                             final display = (_nameById[id]?.isNotEmpty ?? false)
                                 ? _nameById[id]!
                                 : id;
@@ -735,37 +1679,31 @@ class _UserProfileSettingsPageState extends State<UserProfileSettingsPage> {
           );
 
     final scaffold = Scaffold(
-      body: Stack(
-        children: [
-          content,
-          Positioned(
-            right: 12,
-            top: MediaQuery.of(context).padding.top + 12,
-            child: FloatingActionButton.extended(
-              heroTag: 'save_profile_fab_top_right',
-              onPressed: _canSave && !_saving ? _saveProfile : null,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save_outlined),
-              label: Text(l.save),
+      appBar: AppBar(
+        title: Text(l.userProfileTitle),
+        actions: [
+          if (_saving)
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Center(
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else
+            TextButton(
+              onPressed: _canSave ? _saveProfile : null,
+              child: Text(l.save),
             ),
-          ),
         ],
       ),
+      body: Stack(children: [const _SeaBackground(), content]),
     );
 
     if (!widget.forceComplete) return scaffold;
     return WillPopScope(onWillPop: () async => _canSave, child: scaffold);
-  }
-
-  /// 由外部（RootNav）在「進入本頁」時呼叫：重新從後端刷新並套到欄位
-  Future<void> refreshOnEnter() async {
-    if (!mounted) return;
-    setState(() => _loading = true); // 顯示進度圈
-    await _bootstrap(); // 直接重跑你已有的抓取邏輯
   }
 }

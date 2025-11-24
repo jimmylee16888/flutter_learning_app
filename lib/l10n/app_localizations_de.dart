@@ -1057,8 +1057,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Kartenkategorisierung, Kartenrückseite, Mini-Karten-Details';
 
   @override
-  String get feature_multi_device_sync =>
-      'Geräteübergreifende Synchronisierung';
+  String get feature_ad_free => 'Werbefreies, immersives Erlebnis';
 
   @override
   String get feature_upload_local_images =>
@@ -1408,4 +1407,173 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noQuotePlaceholder => 'Noch kein Zitat eingetragen';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return 'Eine Karte mit dem Namen „$name“ existiert bereits. Bitte verwenden Sie einen anderen Namen.';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return 'Möchten Sie „$name“ wirklich löschen? Alle zugehörigen Mini-Karten werden ebenfalls entfernt.';
+  }
+
+  @override
+  String get socialProfileTitle => 'Profil';
+
+  @override
+  String get userProfileLongPressHint =>
+      'Lange drücken, um dein Profil zu bearbeiten.';
+
+  @override
+  String get scanFriendQrTitle =>
+      'Visitenkarten-QR scannen, um Freund hinzuzufügen';
+
+  @override
+  String get scanFriendQrButtonLabel => 'Visitenkarte scannen';
+
+  @override
+  String get filterAlbumNone => 'Kein Album';
+
+  @override
+  String get albumCollectionTitle => 'Albensammlung';
+
+  @override
+  String get albumCollectionEmptyHint =>
+      'Du hast noch keine Alben. Fang damit an, dein Lieblingsalbum hinzuzufügen.';
+
+  @override
+  String get albumSwipeEdit => 'Bearbeiten';
+
+  @override
+  String get albumSwipeDelete => 'Löschen';
+
+  @override
+  String get albumDialogAddTitle => 'Album hinzufügen';
+
+  @override
+  String get albumDialogEditTitle => 'Album bearbeiten';
+
+  @override
+  String get albumDialogFieldTitle => 'Albumtitel';
+
+  @override
+  String get albumDialogFieldArtist => 'Künstler / Gruppe';
+
+  @override
+  String get albumDialogFieldYear => 'Erscheinungsjahr (optional)';
+
+  @override
+  String get albumDialogFieldCover => 'Cover-Bild-URL (optional)';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTube-Link (optional)';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT-Music-Link (optional)';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotify-Link (optional)';
+
+  @override
+  String get albumDialogAddConfirm => 'Hinzufügen';
+
+  @override
+  String get albumDialogEditConfirm => 'Speichern';
+
+  @override
+  String get albumDeleteConfirmTitle => 'Album löschen';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return 'Möchtest du „$title“ wirklich löschen?';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return 'Erscheinungsjahr: $year';
+  }
+
+  @override
+  String get albumDetailNoStreaming =>
+      'Es wurden noch keine Streaming-Links hinterlegt.';
+
+  @override
+  String get albumDetailHint =>
+      'Später kannst du hier die Trackliste, deine Kommentare oder Gründe für deine Empfehlung eintragen.';
+
+  @override
+  String get albumTracksSectionTitle => 'Titel';
+
+  @override
+  String get albumNoTracksHint =>
+      'Diesem Album wurden bisher noch keine Titel hinzugefügt.';
+
+  @override
+  String get albumFieldLanguage => 'Sprache';
+
+  @override
+  String get albumFieldVersion => 'Version';
+
+  @override
+  String get albumCoverFromUrlLabel => 'Aus URL';
+
+  @override
+  String get albumCoverFromLocalLabel => 'Lokales Bild verwenden';
+
+  @override
+  String get albumFieldArtistsLabel => 'Künstler*innen';
+
+  @override
+  String get albumFieldArtistsInputHint =>
+      'Künstlernamen eingeben und mit Enter hinzufügen…';
+
+  @override
+  String get albumArtistsSuggestionHint =>
+      'Während der Eingabe werden Vorschläge angezeigt.';
+
+  @override
+  String get albumLinksSectionTitle => 'Streaming-Links';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube / YT Music / Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => 'Titel hinzufügen';
+
+  @override
+  String get albumTrackDialogAddTitle => 'Titel hinzufügen';
+
+  @override
+  String get albumTrackDialogEditTitle => 'Titel bearbeiten';
+
+  @override
+  String get albumTrackFieldTitle => 'Titelname';
+
+  @override
+  String get albumTitleRequiredMessage => 'Bitte einen Albumnamen eingeben.';
+
+  @override
+  String get albumCoverLocalRequiredMessage =>
+      'Bitte ein lokales Coverbild auswählen.';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return 'Sprache: $lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return 'Version: $ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => 'Titelbild (optional)';
+
+  @override
+  String get albumTrackClearImageTooltip => 'Bild entfernen';
+
+  @override
+  String get albumTrackImageUseAlbumHint =>
+      'Wenn kein Bild festgelegt ist, wird für diesen Titel das Albumcover verwendet.';
 }

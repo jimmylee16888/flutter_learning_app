@@ -303,12 +303,40 @@ class SocialApi {
     final resp = await http
         .get(_uri('/users/$userId/posts'), headers: await _authHeaders())
         .timeout(_timeout);
+
     if (!_ok(resp.statusCode)) {
       throw Exception('fetchUserPosts ${resp.statusCode}: ${resp.body}');
     }
-    return (jsonDecode(resp.body) as List)
+
+    // 後端回 200 但 body 空 → 當作沒貼文
+    if (resp.body.trim().isEmpty) {
+      return const [];
+    }
+
+    final decoded = jsonDecode(resp.body);
+
+    if (decoded == null) {
+      // 明確回 null，也當作沒貼文
+      return const [];
+    }
+
+    List<dynamic> rawList;
+
+    if (decoded is List) {
+      rawList = decoded;
+    } else if (decoded is Map && decoded['items'] is List) {
+      rawList = decoded['items'] as List<dynamic>;
+    } else {
+      // 格式跟預期不一樣，只印 log 不 crash
+      // 之後要調整後端格式時可以從這裡抓 payload 看
+      // ignore: avoid_print
+      print('fetchUserPosts: unexpected payload for $userId: $decoded');
+      return const [];
+    }
+
+    return rawList
         .map((e) => SocialPost.fromJson(e as Map<String, dynamic>))
-        .toList();
+        .toList(growable: false);
   }
 
   // ================== 發文 / 讚 / 留言（bytes 版） ==================

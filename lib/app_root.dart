@@ -257,24 +257,6 @@ class _AuthenticatedHome extends StatelessWidget {
 
         return MultiProvider(
           providers: [
-            // ChangeNotifierProvider<TagFollowController>(
-            //   create: (_) {
-            //     final ctl = TagFollowController(
-            //       api: SocialApi(
-            //         meId: meId,
-            //         meName: meNameLocal,
-            //         idTokenProvider: idTokenProvider,
-            //         clientId: clientId,
-            //         clientAliasProvider: () async => await loadLocalAlias(
-            //           accountId: meId,
-            //           clientId: clientId,
-            //         ),
-            //       ),
-            //     );
-            //     ctl.bootstrap();
-            //     return ctl;
-            //   },
-            // ),
             ChangeNotifierProvider<TagFollowController>(
               create: (_) {
                 final ctl = TagFollowController(
@@ -325,25 +307,6 @@ class _AuthenticatedHome extends StatelessWidget {
                 return ctl;
               },
             ),
-
-            // ChangeNotifierProvider<FriendFollowController>(
-            //   create: (_) {
-            //     final ctl = FriendFollowController(
-            //       api: SocialApi(
-            //         meId: meId,
-            //         meName: meNameLocal,
-            //         idTokenProvider: idTokenProvider,
-            //         clientId: clientId,
-            //         clientAliasProvider: () async => await loadLocalAlias(
-            //           accountId: meId,
-            //           clientId: clientId,
-            //         ),
-            //       ),
-            //     );
-            //     ctl.bootstrap();
-            //     return ctl;
-            //   },
-            // ),
           ],
           child: TipGate(
             idTokenProvider: idTokenProvider,

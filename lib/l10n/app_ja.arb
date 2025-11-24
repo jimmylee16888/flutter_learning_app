@@ -449,7 +449,7 @@
 
   "feature_external_images": "クラウド容量 5GB（デバイス間同期）",
   "feature_small_cloud_space": "カード分類、カード裏面情報、ミニカード詳細",
-  "feature_multi_device_sync": "デバイス間同期",
+  "feature_ad_free": "広告なしの没入型体験",
   "feature_upload_local_images": "クラウド容量 10GB（デバイス間同期）",
   "feature_priority_support": "カード分類、カード裏面情報、ミニカード詳細",
   "feature_large_storage": "クラウド容量 50GB（デバイス間同期）",
@@ -587,7 +587,103 @@
   "fieldOriginLabel": "カードの入手元",
   "fieldNoteLabel": "メモ",
   "profileSectionTitle": "基本プロフィール",
-  "noQuotePlaceholder": "まだ一言メッセージがありません"
+  "noQuotePlaceholder": "まだ一言メッセージがありません",
+
+  "cardNameAlreadyExists": "「{name}」という名前のカードは既に存在します。別の名前を入力してください。",
+  "@cardNameAlreadyExists": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "deleteCardAndMiniCardsMessage": "「{name}」を削除しますか？この人物に関連するすべてのミニカードも削除されます。",
+  "@deleteCardAndMiniCardsMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "socialProfileTitle": "プロフィール",
+
+  "userProfileLongPressHint": "長押ししてプロフィールを編集",
+
+  "scanFriendQrTitle": "名刺QRをスキャンして友達追加",
+  "scanFriendQrButtonLabel": "名刺をスキャンして追加",
+
+  "filterAlbumNone": "アルバムなし",
+
+  "albumCollectionTitle": "アルバムコレクション",
+  "albumCollectionEmptyHint": "まだアルバムがありません。まずはいちばん好きな一枚から追加してみてください。",
+
+  "albumSwipeEdit": "編集",
+  "albumSwipeDelete": "削除",
+
+  "albumDialogAddTitle": "アルバムを追加",
+  "albumDialogEditTitle": "アルバムを編集",
+
+  "albumDialogFieldTitle": "アルバム名",
+  "albumDialogFieldArtist": "アーティスト／グループ",
+  "albumDialogFieldYear": "発売年（任意）",
+  "albumDialogFieldCover": "ジャケット画像のURL（任意）",
+  "albumDialogFieldYoutube": "YouTubeリンク（任意）",
+  "albumDialogFieldYtmusic": "YT Musicリンク（任意）",
+  "albumDialogFieldSpotify": "Spotifyリンク（任意）",
+
+  "albumDialogAddConfirm": "追加",
+  "albumDialogEditConfirm": "保存",
+
+  "albumDeleteConfirmTitle": "アルバムを削除",
+  "albumDeleteConfirmMessage": "「{title}」を削除してもよろしいですか？",
+
+  "albumDetailReleaseYear": "発売年：{year}",
+  "albumDetailNoStreaming": "ストリーミングのリンクはまだ設定されていません。",
+  "albumDetailHint": "あとでここに曲目リストやコメント、おすすめの理由などを書くことができます。",
+
+  "albumTracksSectionTitle": "収録曲",
+  "albumNoTracksHint": "このアルバムにはまだ曲が追加されていません。",
+
+  "albumFieldLanguage": "言語",
+  "albumFieldVersion": "バージョン",
+
+  "albumCoverFromUrlLabel": "URL から",
+  "albumCoverFromLocalLabel": "端末内の画像",
+
+  "albumFieldArtistsLabel": "アーティスト",
+  "albumFieldArtistsInputHint": "アーティスト名を入力して Enter で追加…",
+  "albumArtistsSuggestionHint": "入力中に候補が表示されます。",
+
+  "albumLinksSectionTitle": "ストリーミングリンク",
+  "albumLinksCollapsedHint": "YouTube／YT Music／Spotify…",
+
+  "albumAddTrackButtonLabel": "楽曲を追加",
+  "albumTrackDialogAddTitle": "楽曲を追加",
+  "albumTrackDialogEditTitle": "楽曲を編集",
+  "albumTrackFieldTitle": "楽曲名",
+
+  "albumTitleRequiredMessage": "アルバム名を入力してください。",
+  "albumCoverLocalRequiredMessage": "ローカルのジャケット画像を選択してください。",
+
+  "albumDetailLanguage": "言語：{lang}",
+  "@albumDetailLanguage": {
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumDetailVersion": "バージョン：{ver}",
+  "@albumDetailVersion": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumTrackImageLabel": "楽曲画像（任意）",
+  "albumTrackClearImageTooltip": "画像を削除",
+  "albumTrackImageUseAlbumHint": "画像を設定しない場合、この曲にはアルバムのジャケット画像が表示されます。"
+
 
 
 

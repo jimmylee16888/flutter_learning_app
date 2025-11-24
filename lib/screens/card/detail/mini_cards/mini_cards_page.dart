@@ -71,6 +71,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
   final TextEditingController _filterSearchCtrl = TextEditingController();
   String? _languageFilter; // 語言
   String? _cardTypeFilter; // 卡種
+  String? _albumFilter; // ⭐ 專輯
   final Set<String> _tagFilter = {}; // 標籤多選
   bool _filterExpanded = false; // 展開 / 收合
 
@@ -100,6 +101,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       _filterSearchCtrl.text.trim().isNotEmpty ||
       (_languageFilter != null && _languageFilter!.isNotEmpty) ||
       (_cardTypeFilter != null && _cardTypeFilter!.isNotEmpty) ||
+      (_albumFilter != null && _albumFilter!.isNotEmpty) || // ⭐ 專輯
       _tagFilter.isNotEmpty;
 
   void _resetPageToLeftTool() {
@@ -113,6 +115,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
       _filterSearchCtrl.clear();
       _languageFilter = null;
       _cardTypeFilter = null;
+      _albumFilter = null;
       _tagFilter.clear();
       _resetPageToLeftTool();
     });
@@ -132,6 +135,11 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
         if ((c.cardType ?? '').isNotEmpty) c.cardType!,
     };
     final Set<String> allTags = {for (final c in _cards) ...c.tags};
+
+    final Set<String> allAlbums = {
+      for (final c in _cards)
+        if ((c.album ?? '').trim().isNotEmpty) c.album!.trim(),
+    };
 
     // ===== 收合狀態：右上角小膠囊 =====
     if (!_filterExpanded) {
@@ -229,6 +237,7 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                 const SizedBox(height: 6),
 
                 // 語言 + 卡種
+                // 語言 + 卡種
                 Row(
                   children: [
                     if (allLanguages.isNotEmpty)
@@ -285,6 +294,36 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
                       ),
                   ],
                 ),
+
+                // ⭐ 專輯（獨立一排）
+                if (allAlbums.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    isDense: true,
+                    value: _albumFilter,
+                    decoration: InputDecoration(
+                      labelText: l.album, // 記得 l10n 有 album
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: [
+                      // 特別項目：沒有專輯
+                      DropdownMenuItem<String>(
+                        value: '__NO_ALBUM__',
+                        child: Text(l.filterAlbumNone), // 例如「沒有專輯」
+                      ),
+                      // 有專輯名稱的項目
+                      ...allAlbums.map(
+                        (x) =>
+                            DropdownMenuItem<String>(value: x, child: Text(x)),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() {
+                      _albumFilter = v;
+                      _resetPageToLeftTool();
+                    }),
+                  ),
+                ],
 
                 // 標籤（橫向捲動 FilterChip）
                 if (allTags.isNotEmpty) ...[
@@ -590,6 +629,19 @@ class _MiniCardsPageState extends State<MiniCardsPage> {
     // 卡種
     if (_cardTypeFilter != null && _cardTypeFilter!.isNotEmpty) {
       list = list.where((c) => (c.cardType ?? '') == _cardTypeFilter).toList();
+    }
+
+    // 專輯
+    if (_albumFilter != null && _albumFilter!.isNotEmpty) {
+      if (_albumFilter == '__NO_ALBUM__') {
+        // ⭐ 「沒有專輯」
+        list = list.where((c) => (c.album ?? '').trim().isEmpty).toList();
+      } else {
+        // ⭐ 指定某個專輯名稱
+        list = list
+            .where((c) => (c.album ?? '').trim() == _albumFilter)
+            .toList();
+      }
     }
 
     // 標籤（有任一個符合就保留）

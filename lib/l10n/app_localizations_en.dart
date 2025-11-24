@@ -1053,7 +1053,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Card categorization, card back info, mini-card details';
 
   @override
-  String get feature_multi_device_sync => 'Multi-device sync';
+  String get feature_ad_free => 'Ad-free immersive experience';
 
   @override
   String get feature_upload_local_images =>
@@ -1400,4 +1400,170 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noQuotePlaceholder => 'No quote yet';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return 'A card named \"$name\" already exists. Please use another name.';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return 'Are you sure you want to delete \"$name\"? All mini cards under this person will also be removed.';
+  }
+
+  @override
+  String get socialProfileTitle => 'Profile';
+
+  @override
+  String get userProfileLongPressHint => 'Long-press to edit your profile';
+
+  @override
+  String get scanFriendQrTitle => 'Scan name card QR to add friend';
+
+  @override
+  String get scanFriendQrButtonLabel => 'Scan card to add friend';
+
+  @override
+  String get filterAlbumNone => 'No album';
+
+  @override
+  String get albumCollectionTitle => 'Album collection';
+
+  @override
+  String get albumCollectionEmptyHint =>
+      'You don\'t have any albums yet. Start by adding your favorite one.';
+
+  @override
+  String get albumSwipeEdit => 'Edit';
+
+  @override
+  String get albumSwipeDelete => 'Delete';
+
+  @override
+  String get albumDialogAddTitle => 'Add album';
+
+  @override
+  String get albumDialogEditTitle => 'Edit album';
+
+  @override
+  String get albumDialogFieldTitle => 'Album title';
+
+  @override
+  String get albumDialogFieldArtist => 'Artist / group';
+
+  @override
+  String get albumDialogFieldYear => 'Year (optional)';
+
+  @override
+  String get albumDialogFieldCover => 'Cover image URL (optional)';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTube link (optional)';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT Music link (optional)';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotify link (optional)';
+
+  @override
+  String get albumDialogAddConfirm => 'Add';
+
+  @override
+  String get albumDialogEditConfirm => 'Save';
+
+  @override
+  String get albumDeleteConfirmTitle => 'Delete album';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return 'Are you sure you want to delete \"$title\"?';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return 'Release year: $year';
+  }
+
+  @override
+  String get albumDetailNoStreaming => 'No streaming links set yet.';
+
+  @override
+  String get albumDetailHint =>
+      'You can later add the track list, your comments, or reasons for recommendation here.';
+
+  @override
+  String get albumTracksSectionTitle => 'Tracks';
+
+  @override
+  String get albumNoTracksHint =>
+      'No tracks have been added to this album yet.';
+
+  @override
+  String get albumFieldLanguage => 'Language';
+
+  @override
+  String get albumFieldVersion => 'Version / Edition';
+
+  @override
+  String get albumCoverFromUrlLabel => 'From URL';
+
+  @override
+  String get albumCoverFromLocalLabel => 'From local image';
+
+  @override
+  String get albumFieldArtistsLabel => 'Artists';
+
+  @override
+  String get albumFieldArtistsInputHint =>
+      'Type an artist name and press Enter to add…';
+
+  @override
+  String get albumArtistsSuggestionHint =>
+      'Suggestions will appear while you type.';
+
+  @override
+  String get albumLinksSectionTitle => 'Streaming links';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube / YT Music / Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => 'Add track';
+
+  @override
+  String get albumTrackDialogAddTitle => 'Add track';
+
+  @override
+  String get albumTrackDialogEditTitle => 'Edit track';
+
+  @override
+  String get albumTrackFieldTitle => 'Track title';
+
+  @override
+  String get albumTitleRequiredMessage => 'Please enter an album title.';
+
+  @override
+  String get albumCoverLocalRequiredMessage =>
+      'Please choose a local cover image.';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return 'Language: $lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return 'Version: $ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => 'Track image (optional)';
+
+  @override
+  String get albumTrackClearImageTooltip => 'Clear image';
+
+  @override
+  String get albumTrackImageUseAlbumHint =>
+      'If no image is set, this track will use the album cover.';
 }

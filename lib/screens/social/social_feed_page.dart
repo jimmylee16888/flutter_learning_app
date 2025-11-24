@@ -20,7 +20,7 @@ import '../../models/social_models.dart';
 
 // 帖文編輯器 / 好友名片 / 追蹤標籤 / 使用者頁
 import 'post_composer.dart';
-import 'friend_cards_page.dart' as friends;
+// import 'friend_cards_page.dart' as friends;
 import 'followed_tags_page.dart' as tags;
 import 'friend_profile_page.dart';
 
@@ -478,27 +478,6 @@ class _SocialFeedPageState extends State<SocialFeedPage> {
                           icon: const Icon(Icons.tag),
                         ),
                         const SizedBox(width: 6),
-                        // ===== 跳好友名片頁：帶入 FriendFollowController =====
-                        IconButton.filledTonal(
-                          tooltip: l.friendCardsTitle,
-                          onPressed: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ChangeNotifierProvider<
-                                      FriendFollowController
-                                    >.value(
-                                      value: context
-                                          .read<FriendFollowController>(),
-                                      child: friends.FriendCardsPage(api: _api),
-                                    ),
-                              ),
-                            );
-
-                            if (_tab == FeedTab.friends) await _refresh();
-                          },
-                          icon: const Icon(Icons.badge_outlined),
-                        ),
                         const SizedBox(width: 6),
                         IconButton(
                           tooltip: l.retry,

@@ -450,7 +450,7 @@
 
   "feature_external_images": "雲端空間 5 GB ( 跨裝置同步 )",
   "feature_small_cloud_space": "卡片分類功能，卡背、小卡詳細資訊",
-  "feature_multi_device_sync": "",
+  "feature_ad_free": "無廣告沉浸體驗",
   "feature_upload_local_images": "雲端空間 10 GB ( 跨裝置同步 )",
   "feature_priority_support": "卡片分類功能，卡背、小卡詳細資訊",
   "feature_large_storage": "雲端空間 50 GB ( 跨裝置同步 )",
@@ -590,7 +590,102 @@
   "fieldOriginLabel": "卡片來源",
   "fieldNoteLabel": "備註",
   "profileSectionTitle": "基本資訊",
-  "noQuotePlaceholder": "尚未寫下句子"
+  "noQuotePlaceholder": "尚未寫下句子",
+
+  "cardNameAlreadyExists": "已經有名為「{name}」的人物卡了，請換一個名稱。",
+  "@cardNameAlreadyExists": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "deleteCardAndMiniCardsMessage": "確定要刪除「{name}」嗎？此動作也會一併刪除此人物底下的所有小卡。",
+  "@deleteCardAndMiniCardsMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "socialProfileTitle": "個人資料",
+
+  "userProfileLongPressHint": "長按編輯個人資料",
+
+  "scanFriendQrTitle": "掃描名片 QR 加好友",
+  "scanFriendQrButtonLabel": "掃描名片加好友",
+
+  "filterAlbumNone": "沒有專輯",
+
+  "albumCollectionTitle": "專輯收藏",
+  "albumCollectionEmptyHint": "目前還沒有專輯，先從你最喜歡的一張開始新增吧。",
+
+  "albumSwipeEdit": "編輯",
+  "albumSwipeDelete": "刪除",
+
+  "albumDialogAddTitle": "新增專輯",
+  "albumDialogEditTitle": "編輯專輯",
+
+  "albumDialogFieldTitle": "專輯名稱",
+  "albumDialogFieldArtist": "藝人／團體",
+  "albumDialogFieldYear": "年份（選填）",
+  "albumDialogFieldCover": "封面圖片 URL（選填）",
+  "albumDialogFieldYoutube": "YouTube 連結（選填）",
+  "albumDialogFieldYtmusic": "YT Music 連結（選填）",
+  "albumDialogFieldSpotify": "Spotify 連結（選填）",
+
+  "albumDialogAddConfirm": "加入",
+  "albumDialogEditConfirm": "儲存",
+
+  "albumDeleteConfirmTitle": "刪除專輯",
+  "albumDeleteConfirmMessage": "確定要刪除「{title}」嗎？",
+
+  "albumDetailReleaseYear": "發行年份：{year}",
+  "albumDetailNoStreaming": "尚未設定串流連結",
+  "albumDetailHint": "之後可以在這裡放曲目列表、你的評語或推薦理由等等。",
+
+  "albumTracksSectionTitle": "收錄歌曲",
+  "albumNoTracksHint": "這張專輯目前還沒有新增任何歌曲。",
+
+  "albumFieldLanguage": "語言",
+  "albumFieldVersion": "版本",
+
+  "albumCoverFromUrlLabel": "使用網址",
+  "albumCoverFromLocalLabel": "使用本機圖片",
+
+  "albumFieldArtistsLabel": "演出者",
+  "albumFieldArtistsInputHint": "輸入演出者名稱後按 Enter 新增…",
+  "albumArtistsSuggestionHint": "輸入時會顯示建議名稱。",
+
+  "albumLinksSectionTitle": "串流連結",
+  "albumLinksCollapsedHint": "YouTube／YT Music／Spotify…",
+
+  "albumAddTrackButtonLabel": "新增歌曲",
+  "albumTrackDialogAddTitle": "新增歌曲",
+  "albumTrackDialogEditTitle": "編輯歌曲",
+  "albumTrackFieldTitle": "歌曲名稱",
+
+  "albumTitleRequiredMessage": "請輸入專輯名稱。",
+  "albumCoverLocalRequiredMessage": "請選擇本機封面圖片。",
+
+  "albumDetailLanguage": "語言：{lang}",
+  "@albumDetailLanguage": {
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumDetailVersion": "版本：{ver}",
+  "@albumDetailVersion": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumTrackImageLabel": "歌曲圖片（可選）",
+  "albumTrackClearImageTooltip": "清除圖片",
+  "albumTrackImageUseAlbumHint": "若未設定圖片，將會使用專輯封面顯示這首歌曲。"
 
 
 }

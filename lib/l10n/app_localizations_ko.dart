@@ -1032,7 +1032,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get feature_small_cloud_space => '카드 분류 기능, 카드 뒷면 정보, 미니카드 상세 정보';
 
   @override
-  String get feature_multi_device_sync => '멀티 디바이스 동기화';
+  String get feature_ad_free => '광고 없는 몰입형 경험';
 
   @override
   String get feature_upload_local_images => '클라우드 공간 10GB (멀티 디바이스 동기화)';
@@ -1346,4 +1346,164 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noQuotePlaceholder => '아직 문구가 없습니다';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return '\"$name\" 이름의 카드가 이미 존재합니다. 다른 이름을 사용해주세요.';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return '\"$name\"을(를) 삭제하시겠습니까? 이 인물에 속한 모든 미니 카드도 함께 삭제됩니다.';
+  }
+
+  @override
+  String get socialProfileTitle => '프로필';
+
+  @override
+  String get userProfileLongPressHint => '길게 눌러 프로필을 편집하세요';
+
+  @override
+  String get scanFriendQrTitle => '명함 QR을 스캔해 친구 추가';
+
+  @override
+  String get scanFriendQrButtonLabel => '명함 스캔하여 추가';
+
+  @override
+  String get filterAlbumNone => '앨범 없음';
+
+  @override
+  String get albumCollectionTitle => '앨범 컬렉션';
+
+  @override
+  String get albumCollectionEmptyHint =>
+      '아직 저장된 앨범이 없습니다. 먼저 가장 좋아하는 앨범부터 추가해 보세요.';
+
+  @override
+  String get albumSwipeEdit => '편집';
+
+  @override
+  String get albumSwipeDelete => '삭제';
+
+  @override
+  String get albumDialogAddTitle => '앨범 추가';
+
+  @override
+  String get albumDialogEditTitle => '앨범 편집';
+
+  @override
+  String get albumDialogFieldTitle => '앨범 이름';
+
+  @override
+  String get albumDialogFieldArtist => '아티스트 / 그룹';
+
+  @override
+  String get albumDialogFieldYear => '발매 연도 (선택)';
+
+  @override
+  String get albumDialogFieldCover => '커버 이미지 URL (선택)';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTube 링크 (선택)';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT Music 링크 (선택)';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotify 링크 (선택)';
+
+  @override
+  String get albumDialogAddConfirm => '추가';
+
+  @override
+  String get albumDialogEditConfirm => '저장';
+
+  @override
+  String get albumDeleteConfirmTitle => '앨범 삭제';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return '\"$title\" 앨범을 삭제하시겠습니까?';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return '발매 연도: $year';
+  }
+
+  @override
+  String get albumDetailNoStreaming => '아직 스트리밍 링크가 설정되지 않았어요.';
+
+  @override
+  String get albumDetailHint => '나중에 여기에서 트랙 리스트, 코멘트, 추천 이유 등을 적어 둘 수 있습니다.';
+
+  @override
+  String get albumTracksSectionTitle => '수록곡';
+
+  @override
+  String get albumNoTracksHint => '이 앨범에는 아직 곡이 추가되지 않았습니다.';
+
+  @override
+  String get albumFieldLanguage => '언어';
+
+  @override
+  String get albumFieldVersion => '버전';
+
+  @override
+  String get albumCoverFromUrlLabel => 'URL 사용';
+
+  @override
+  String get albumCoverFromLocalLabel => '로컬 이미지 사용';
+
+  @override
+  String get albumFieldArtistsLabel => '아티스트';
+
+  @override
+  String get albumFieldArtistsInputHint => '아티스트 이름을 입력하고 Enter 키로 추가…';
+
+  @override
+  String get albumArtistsSuggestionHint => '입력하면 추천 목록이 표시됩니다.';
+
+  @override
+  String get albumLinksSectionTitle => '스트리밍 링크';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube / YT Music / Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => '곡 추가';
+
+  @override
+  String get albumTrackDialogAddTitle => '곡 추가';
+
+  @override
+  String get albumTrackDialogEditTitle => '곡 편집';
+
+  @override
+  String get albumTrackFieldTitle => '곡 제목';
+
+  @override
+  String get albumTitleRequiredMessage => '앨범 제목을 입력해 주세요.';
+
+  @override
+  String get albumCoverLocalRequiredMessage => '로컬 커버 이미지를 선택해 주세요.';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return '언어: $lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return '버전: $ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => '트랙 이미지(선택 사항)';
+
+  @override
+  String get albumTrackClearImageTooltip => '이미지 지우기';
+
+  @override
+  String get albumTrackImageUseAlbumHint => '이미지를 설정하지 않으면 이 곡에는 앨범 커버가 사용됩니다.';
 }

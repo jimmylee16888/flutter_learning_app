@@ -75,60 +75,14 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  /// Google 登入（google_sign_in 7.x）
-  // Future<bool> loginWithGoogle() async {
-  //   isLoading = true;
-  //   notifyListeners();
-  //   try {
-  //     await GoogleSignIn.instance.initialize();
-  //     final gUser = await GoogleSignIn.instance.authenticate();
-  //     if (gUser == null) return false;
-
-  //     final gAuth = await gUser.authentication; // v7: 主要取 idToken
-  //     final credential = GoogleAuthProvider.credential(idToken: gAuth.idToken);
-
-  //     final userCred = await _auth.signInWithCredential(credential);
-  //     final u = userCred.user!;
-  //     // 同步寫入 Firestore
-  //     await _db.collection('users').doc(u.uid).set({
-  //       'email': u.email,
-  //       'displayName': u.displayName,
-  //       'photoURL': u.photoURL,
-  //       'lastLoginAt': FieldValue.serverTimestamp(),
-  //       'provider': 'google',
-  //     }, SetOptions(merge: true));
-
-  //     // 快取「上次登入使用者」資訊（供離線登入使用）
-  //     final prefs = await SharedPreferences.getInstance();
-  //     await prefs.setString('last_uid', u.uid);
-  //     await prefs.setString('last_email', u.email ?? '');
-  //     await prefs.setString('last_displayName', u.displayName ?? '');
-  //     await prefs.setString('last_photoURL', u.photoURL ?? '');
-  //     _lastUid = u.uid;
-  //     _lastEmail = u.email;
-  //     _lastDisplayName = u.displayName;
-  //     _lastPhotoURL = u.photoURL;
-
-  //     isAuthenticated = true;
-  //     isOfflineSession = false;
-  //     account = u.email;
-  //     token = await u.getIdToken();
-  //     return true;
-  //   } catch (_) {
-  //     return false;
-  //   } finally {
-  //     isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
-
   Future<(bool ok, String? reason)> loginWithGoogle() async {
     isLoading = true;
     notifyListeners();
     try {
       if (kIsWeb) {
         // 🔹 Web：用 Firebase 的彈出視窗，不需要 meta client_id
-        final provider = GoogleAuthProvider()..setCustomParameters({'prompt': 'select_account'});
+        final provider = GoogleAuthProvider()
+          ..setCustomParameters({'prompt': 'select_account'});
 
         final userCred = await _auth.signInWithPopup(provider);
         final u = userCred.user!;
@@ -182,37 +136,9 @@ class AuthController extends ChangeNotifier {
     isAuthenticated = true;
     isOfflineSession = false;
     account = u.email;
-    token = await u.getIdToken();
+    token = await u.getIdToken(true); // true = 強制 refresh 一次
+    debugPrint('🔑 Firebase ID Token = $token');
   }
-
-  // Future<(bool ok, String? reason)> loginWithGoogle() async {
-  //   isLoading = true;
-  //   notifyListeners();
-  //   try {
-  //     await GoogleSignIn.instance.initialize();
-  //     final gUser = await GoogleSignIn.instance.authenticate(); // v7 API
-  //     if (gUser == null) return (false, 'cancelled');
-
-  //     final gAuth = await gUser.authentication; // v7: 沒有 accessToken
-  //     final cred = GoogleAuthProvider.credential(
-  //       idToken: gAuth.idToken,
-  //       // accessToken: 不要再填，v7 沒有了
-  //     );
-
-  //     final userCred = await _auth.signInWithCredential(cred);
-  //     final u = userCred.user!;
-
-  //     // …後續快取/FireStore 寫入（同你現在的流程）
-  //     return (true, null);
-  //   } on FirebaseAuthException catch (e) {
-  //     return (false, e.code);
-  //   } catch (e) {
-  //     return (false, e.toString());
-  //   } finally {
-  //     isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
 
   /// ✅ 離線沿用上次登入帳號進入（不觸發 Firebase）
   Future<bool> continueOfflineWithLastUser() async {
@@ -229,5 +155,16 @@ class AuthController extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<String?> debugGetIdToken() async {
+    final u = _auth.currentUser;
+    if (u == null) {
+      debugPrint('🔥 debugGetIdToken: 沒有登入使用者');
+      return null;
+    }
+    final t = await u.getIdToken(true); // true = 強制 refresh
+    debugPrint('🔑 Firebase ID Token = $t');
+    return t;
   }
 }

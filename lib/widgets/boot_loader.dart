@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/services/album/album_store.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -268,6 +269,9 @@ class _BootLoaderState extends State<BootLoader> {
             ChangeNotifierProvider.value(value: data.miniStore),
             ChangeNotifierProvider.value(value: data.cardStore),
             ChangeNotifierProvider.value(value: data.auth),
+            ChangeNotifierProvider<AlbumStore>(
+              create: (_) => AlbumStore()..load(), // 啟動時從 SharedPreferences 載入
+            ),
           ],
           child: AppRoot(settings: data.settings, auth: data.auth),
         );

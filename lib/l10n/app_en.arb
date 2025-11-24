@@ -475,7 +475,7 @@
 
   "feature_external_images": "5 GB cloud storage (multi-device sync)",
   "feature_small_cloud_space": "Card categorization, card back info, mini-card details",
-  "feature_multi_device_sync": "Multi-device sync",
+  "feature_ad_free": "Ad-free immersive experience",
   "feature_upload_local_images": "10 GB cloud storage (multi-device sync)",
   "feature_priority_support": "Card categorization, card back info, mini-card details",
   "feature_large_storage": "50 GB cloud storage (multi-device sync)",
@@ -614,6 +614,101 @@
   "fieldOriginLabel": "Card source",
   "fieldNoteLabel": "Notes",
   "profileSectionTitle": "Profile",
-  "noQuotePlaceholder": "No quote yet"
+  "noQuotePlaceholder": "No quote yet",
+
+  "cardNameAlreadyExists": "A card named \"{name}\" already exists. Please use another name.",
+  "@cardNameAlreadyExists": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "deleteCardAndMiniCardsMessage": "Are you sure you want to delete \"{name}\"? All mini cards under this person will also be removed.",
+  "@deleteCardAndMiniCardsMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "socialProfileTitle": "Profile",
+  "userProfileLongPressHint": "Long-press to edit your profile",
+
+  "scanFriendQrTitle": "Scan name card QR to add friend",
+  "scanFriendQrButtonLabel": "Scan card to add friend",
+
+  "filterAlbumNone": "No album",
+
+  "albumCollectionTitle": "Album collection",
+  "albumCollectionEmptyHint": "You don't have any albums yet. Start by adding your favorite one.",
+
+  "albumSwipeEdit": "Edit",
+  "albumSwipeDelete": "Delete",
+
+  "albumDialogAddTitle": "Add album",
+  "albumDialogEditTitle": "Edit album",
+
+  "albumDialogFieldTitle": "Album title",
+  "albumDialogFieldArtist": "Artist / group",
+  "albumDialogFieldYear": "Year (optional)",
+  "albumDialogFieldCover": "Cover image URL (optional)",
+  "albumDialogFieldYoutube": "YouTube link (optional)",
+  "albumDialogFieldYtmusic": "YT Music link (optional)",
+  "albumDialogFieldSpotify": "Spotify link (optional)",
+
+  "albumDialogAddConfirm": "Add",
+  "albumDialogEditConfirm": "Save",
+
+  "albumDeleteConfirmTitle": "Delete album",
+  "albumDeleteConfirmMessage": "Are you sure you want to delete \"{title}\"?",
+
+  "albumDetailReleaseYear": "Release year: {year}",
+  "albumDetailNoStreaming": "No streaming links set yet.",
+  "albumDetailHint": "You can later add the track list, your comments, or reasons for recommendation here.",
+
+  "albumTracksSectionTitle": "Tracks",
+  "albumNoTracksHint": "No tracks have been added to this album yet.",
+
+  "albumFieldLanguage": "Language",
+  "albumFieldVersion": "Version / Edition",
+
+  "albumCoverFromUrlLabel": "From URL",
+  "albumCoverFromLocalLabel": "From local image",
+
+  "albumFieldArtistsLabel": "Artists",
+  "albumFieldArtistsInputHint": "Type an artist name and press Enter to add…",
+  "albumArtistsSuggestionHint": "Suggestions will appear while you type.",
+
+  "albumLinksSectionTitle": "Streaming links",
+  "albumLinksCollapsedHint": "YouTube / YT Music / Spotify…",
+
+  "albumAddTrackButtonLabel": "Add track",
+  "albumTrackDialogAddTitle": "Add track",
+  "albumTrackDialogEditTitle": "Edit track",
+  "albumTrackFieldTitle": "Track title",
+
+  "albumTitleRequiredMessage": "Please enter an album title.",
+  "albumCoverLocalRequiredMessage": "Please choose a local cover image.",
+
+  "albumDetailLanguage": "Language: {lang}",
+  "@albumDetailLanguage": {
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumDetailVersion": "Version: {ver}",
+  "@albumDetailVersion": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+
+  "albumTrackImageLabel": "Track image (optional)",
+  "albumTrackClearImageTooltip": "Clear image",
+  "albumTrackImageUseAlbumHint": "If no image is set, this track will use the album cover."
+
 
 }

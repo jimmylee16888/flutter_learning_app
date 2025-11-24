@@ -318,7 +318,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         name: l.plan_basic,
         spaceGB: 5,
         priceLabel: _priceOf('basic_monthly', fallback: 'NT\$30'),
-        features: [l.feature_external_images, l.feature_small_cloud_space],
+        features: [
+          l.feature_external_images,
+          l.feature_small_cloud_space,
+          l.feature_ad_free,
+        ],
         gradient: const [Color(0xFF2A9D8F), Color(0xFF264653)],
       ),
       // 之後要開其它方案再打開

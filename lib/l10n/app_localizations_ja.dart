@@ -1032,7 +1032,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get feature_small_cloud_space => 'カード分類、カード裏面情報、ミニカード詳細';
 
   @override
-  String get feature_multi_device_sync => 'デバイス間同期';
+  String get feature_ad_free => '広告なしの没入型体験';
 
   @override
   String get feature_upload_local_images => 'クラウド容量 10GB（デバイス間同期）';
@@ -1345,4 +1345,165 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noQuotePlaceholder => 'まだ一言メッセージがありません';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return '「$name」という名前のカードは既に存在します。別の名前を入力してください。';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return '「$name」を削除しますか？この人物に関連するすべてのミニカードも削除されます。';
+  }
+
+  @override
+  String get socialProfileTitle => 'プロフィール';
+
+  @override
+  String get userProfileLongPressHint => '長押ししてプロフィールを編集';
+
+  @override
+  String get scanFriendQrTitle => '名刺QRをスキャンして友達追加';
+
+  @override
+  String get scanFriendQrButtonLabel => '名刺をスキャンして追加';
+
+  @override
+  String get filterAlbumNone => 'アルバムなし';
+
+  @override
+  String get albumCollectionTitle => 'アルバムコレクション';
+
+  @override
+  String get albumCollectionEmptyHint =>
+      'まだアルバムがありません。まずはいちばん好きな一枚から追加してみてください。';
+
+  @override
+  String get albumSwipeEdit => '編集';
+
+  @override
+  String get albumSwipeDelete => '削除';
+
+  @override
+  String get albumDialogAddTitle => 'アルバムを追加';
+
+  @override
+  String get albumDialogEditTitle => 'アルバムを編集';
+
+  @override
+  String get albumDialogFieldTitle => 'アルバム名';
+
+  @override
+  String get albumDialogFieldArtist => 'アーティスト／グループ';
+
+  @override
+  String get albumDialogFieldYear => '発売年（任意）';
+
+  @override
+  String get albumDialogFieldCover => 'ジャケット画像のURL（任意）';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTubeリンク（任意）';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT Musicリンク（任意）';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotifyリンク（任意）';
+
+  @override
+  String get albumDialogAddConfirm => '追加';
+
+  @override
+  String get albumDialogEditConfirm => '保存';
+
+  @override
+  String get albumDeleteConfirmTitle => 'アルバムを削除';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return '「$title」を削除してもよろしいですか？';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return '発売年：$year';
+  }
+
+  @override
+  String get albumDetailNoStreaming => 'ストリーミングのリンクはまだ設定されていません。';
+
+  @override
+  String get albumDetailHint => 'あとでここに曲目リストやコメント、おすすめの理由などを書くことができます。';
+
+  @override
+  String get albumTracksSectionTitle => '収録曲';
+
+  @override
+  String get albumNoTracksHint => 'このアルバムにはまだ曲が追加されていません。';
+
+  @override
+  String get albumFieldLanguage => '言語';
+
+  @override
+  String get albumFieldVersion => 'バージョン';
+
+  @override
+  String get albumCoverFromUrlLabel => 'URL から';
+
+  @override
+  String get albumCoverFromLocalLabel => '端末内の画像';
+
+  @override
+  String get albumFieldArtistsLabel => 'アーティスト';
+
+  @override
+  String get albumFieldArtistsInputHint => 'アーティスト名を入力して Enter で追加…';
+
+  @override
+  String get albumArtistsSuggestionHint => '入力中に候補が表示されます。';
+
+  @override
+  String get albumLinksSectionTitle => 'ストリーミングリンク';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube／YT Music／Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => '楽曲を追加';
+
+  @override
+  String get albumTrackDialogAddTitle => '楽曲を追加';
+
+  @override
+  String get albumTrackDialogEditTitle => '楽曲を編集';
+
+  @override
+  String get albumTrackFieldTitle => '楽曲名';
+
+  @override
+  String get albumTitleRequiredMessage => 'アルバム名を入力してください。';
+
+  @override
+  String get albumCoverLocalRequiredMessage => 'ローカルのジャケット画像を選択してください。';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return '言語：$lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return 'バージョン：$ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => '楽曲画像（任意）';
+
+  @override
+  String get albumTrackClearImageTooltip => '画像を削除';
+
+  @override
+  String get albumTrackImageUseAlbumHint =>
+      '画像を設定しない場合、この曲にはアルバムのジャケット画像が表示されます。';
 }

@@ -1027,7 +1027,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feature_small_cloud_space => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_multi_device_sync => '';
+  String get feature_ad_free => '無廣告沉浸體驗';
 
   @override
   String get feature_upload_local_images => '雲端空間 10 GB ( 跨裝置同步 )';
@@ -1338,6 +1338,165 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noQuotePlaceholder => '尚未寫下句子';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return '已經有名為「$name」的人物卡了，請換一個名稱。';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return '確定要刪除「$name」嗎？此動作也會一併刪除此人物底下的所有小卡。';
+  }
+
+  @override
+  String get socialProfileTitle => '個人資料';
+
+  @override
+  String get userProfileLongPressHint => '長按編輯個人資料';
+
+  @override
+  String get scanFriendQrTitle => '掃描名片 QR 加好友';
+
+  @override
+  String get scanFriendQrButtonLabel => '掃描名片加好友';
+
+  @override
+  String get filterAlbumNone => '沒有專輯';
+
+  @override
+  String get albumCollectionTitle => '專輯收藏';
+
+  @override
+  String get albumCollectionEmptyHint => '目前還沒有專輯，先從你最喜歡的一張開始新增吧。';
+
+  @override
+  String get albumSwipeEdit => '編輯';
+
+  @override
+  String get albumSwipeDelete => '刪除';
+
+  @override
+  String get albumDialogAddTitle => '新增專輯';
+
+  @override
+  String get albumDialogEditTitle => '編輯專輯';
+
+  @override
+  String get albumDialogFieldTitle => '專輯名稱';
+
+  @override
+  String get albumDialogFieldArtist => '藝人／團體';
+
+  @override
+  String get albumDialogFieldYear => '年份（選填）';
+
+  @override
+  String get albumDialogFieldCover => '封面圖片 URL（選填）';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTube 連結（選填）';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT Music 連結（選填）';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotify 連結（選填）';
+
+  @override
+  String get albumDialogAddConfirm => '加入';
+
+  @override
+  String get albumDialogEditConfirm => '儲存';
+
+  @override
+  String get albumDeleteConfirmTitle => '刪除專輯';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return '確定要刪除「$title」嗎？';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return '發行年份：$year';
+  }
+
+  @override
+  String get albumDetailNoStreaming => '尚未設定串流連結';
+
+  @override
+  String get albumDetailHint => '之後可以在這裡放曲目列表、你的評語或推薦理由等等。';
+
+  @override
+  String get albumTracksSectionTitle => '收錄歌曲';
+
+  @override
+  String get albumNoTracksHint => '這張專輯目前還沒有新增任何歌曲。';
+
+  @override
+  String get albumFieldLanguage => '語言';
+
+  @override
+  String get albumFieldVersion => '版本';
+
+  @override
+  String get albumCoverFromUrlLabel => '使用網址';
+
+  @override
+  String get albumCoverFromLocalLabel => '使用本機圖片';
+
+  @override
+  String get albumFieldArtistsLabel => '演出者';
+
+  @override
+  String get albumFieldArtistsInputHint => '輸入演出者名稱後按 Enter 新增…';
+
+  @override
+  String get albumArtistsSuggestionHint => '輸入時會顯示建議名稱。';
+
+  @override
+  String get albumLinksSectionTitle => '串流連結';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube／YT Music／Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => '新增歌曲';
+
+  @override
+  String get albumTrackDialogAddTitle => '新增歌曲';
+
+  @override
+  String get albumTrackDialogEditTitle => '編輯歌曲';
+
+  @override
+  String get albumTrackFieldTitle => '歌曲名稱';
+
+  @override
+  String get albumTitleRequiredMessage => '請輸入專輯名稱。';
+
+  @override
+  String get albumCoverLocalRequiredMessage => '請選擇本機封面圖片。';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return '語言：$lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return '版本：$ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => '歌曲圖片（可選）';
+
+  @override
+  String get albumTrackClearImageTooltip => '清除圖片';
+
+  @override
+  String get albumTrackImageUseAlbumHint => '若未設定圖片，將會使用專輯封面顯示這首歌曲。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2363,7 +2522,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get feature_small_cloud_space => '卡片分類功能，卡背、小卡詳細資訊';
 
   @override
-  String get feature_multi_device_sync => '';
+  String get feature_ad_free => '無廣告沉浸體驗';
 
   @override
   String get feature_upload_local_images => '雲端空間 10 GB ( 跨裝置同步 )';
@@ -2675,4 +2834,163 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get noQuotePlaceholder => '尚未寫下句子';
+
+  @override
+  String cardNameAlreadyExists(Object name) {
+    return '已經有名為「$name」的人物卡了，請換一個名稱。';
+  }
+
+  @override
+  String deleteCardAndMiniCardsMessage(Object name) {
+    return '確定要刪除「$name」嗎？此動作也會一併刪除此人物底下的所有小卡。';
+  }
+
+  @override
+  String get socialProfileTitle => '個人資料';
+
+  @override
+  String get userProfileLongPressHint => '長按編輯個人資料';
+
+  @override
+  String get scanFriendQrTitle => '掃描名片 QR 加好友';
+
+  @override
+  String get scanFriendQrButtonLabel => '掃描名片加好友';
+
+  @override
+  String get filterAlbumNone => '沒有專輯';
+
+  @override
+  String get albumCollectionTitle => '專輯收藏';
+
+  @override
+  String get albumCollectionEmptyHint => '目前還沒有專輯，先從你最喜歡的一張開始新增吧。';
+
+  @override
+  String get albumSwipeEdit => '編輯';
+
+  @override
+  String get albumSwipeDelete => '刪除';
+
+  @override
+  String get albumDialogAddTitle => '新增專輯';
+
+  @override
+  String get albumDialogEditTitle => '編輯專輯';
+
+  @override
+  String get albumDialogFieldTitle => '專輯名稱';
+
+  @override
+  String get albumDialogFieldArtist => '藝人／團體';
+
+  @override
+  String get albumDialogFieldYear => '年份（選填）';
+
+  @override
+  String get albumDialogFieldCover => '封面圖片 URL（選填）';
+
+  @override
+  String get albumDialogFieldYoutube => 'YouTube 連結（選填）';
+
+  @override
+  String get albumDialogFieldYtmusic => 'YT Music 連結（選填）';
+
+  @override
+  String get albumDialogFieldSpotify => 'Spotify 連結（選填）';
+
+  @override
+  String get albumDialogAddConfirm => '加入';
+
+  @override
+  String get albumDialogEditConfirm => '儲存';
+
+  @override
+  String get albumDeleteConfirmTitle => '刪除專輯';
+
+  @override
+  String albumDeleteConfirmMessage(Object title) {
+    return '確定要刪除「$title」嗎？';
+  }
+
+  @override
+  String albumDetailReleaseYear(Object year) {
+    return '發行年份：$year';
+  }
+
+  @override
+  String get albumDetailNoStreaming => '尚未設定串流連結';
+
+  @override
+  String get albumDetailHint => '之後可以在這裡放曲目列表、你的評語或推薦理由等等。';
+
+  @override
+  String get albumTracksSectionTitle => '收錄歌曲';
+
+  @override
+  String get albumNoTracksHint => '這張專輯目前還沒有新增任何歌曲。';
+
+  @override
+  String get albumFieldLanguage => '語言';
+
+  @override
+  String get albumFieldVersion => '版本';
+
+  @override
+  String get albumCoverFromUrlLabel => '使用網址';
+
+  @override
+  String get albumCoverFromLocalLabel => '使用本機圖片';
+
+  @override
+  String get albumFieldArtistsLabel => '演出者';
+
+  @override
+  String get albumFieldArtistsInputHint => '輸入演出者名稱後按 Enter 新增…';
+
+  @override
+  String get albumArtistsSuggestionHint => '輸入時會顯示建議名稱。';
+
+  @override
+  String get albumLinksSectionTitle => '串流連結';
+
+  @override
+  String get albumLinksCollapsedHint => 'YouTube／YT Music／Spotify…';
+
+  @override
+  String get albumAddTrackButtonLabel => '新增歌曲';
+
+  @override
+  String get albumTrackDialogAddTitle => '新增歌曲';
+
+  @override
+  String get albumTrackDialogEditTitle => '編輯歌曲';
+
+  @override
+  String get albumTrackFieldTitle => '歌曲名稱';
+
+  @override
+  String get albumTitleRequiredMessage => '請輸入專輯名稱。';
+
+  @override
+  String get albumCoverLocalRequiredMessage => '請選擇本機封面圖片。';
+
+  @override
+  String albumDetailLanguage(String lang) {
+    return '語言：$lang';
+  }
+
+  @override
+  String albumDetailVersion(String ver) {
+    return '版本：$ver';
+  }
+
+  @override
+  String get albumTrackImageLabel => '歌曲圖片（可選）';
+
+  @override
+  String get albumTrackClearImageTooltip => '清除圖片';
+
+  @override
+  String get albumTrackImageUseAlbumHint => '若未設定圖片，將會使用專輯封面顯示這首歌曲。';
 }

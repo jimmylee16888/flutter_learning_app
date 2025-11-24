@@ -17,6 +17,8 @@ import 'user/user_profile_settings_page.dart';
 import 'statistics/statistics_view.dart';
 // 圖鑑頁
 import 'dex/dex_view.dart';
+// 專輯頁
+import 'album/album_collection_view.dart';
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -64,8 +66,8 @@ class RootNav extends StatefulWidget {
 enum MoreMode { settings, user, stats, dex }
 
 class _RootNavState extends State<RootNav> with WidgetsBindingObserver {
-  // 頁籤索引：0 Cards、1 Social、2 Explore、3 More
-  static const int _kMoreHostIndex = 3;
+  // 頁籤索引：0 Cards、1 Albums、2 Social、3 Explore、4 More
+  static const int _kMoreHostIndex = 4;
 
   DateTime? _lastSubRefreshAt;
   bool _isRefreshingSub = false;
@@ -116,15 +118,19 @@ class _RootNavState extends State<RootNav> with WidgetsBindingObserver {
           child: IndexedStack(
             index: _index,
             children: [
-              const cv.CardsView(), // 0
-              SocialFeedPage(key: _socialKey, settings: widget.settings), // 1
-              const ExploreView(), // 2
+              const cv.CardsView(), // 0 Cards
+              const AlbumCollectionView(), // 1 Albums
+              SocialFeedPage(
+                key: _socialKey,
+                settings: widget.settings,
+              ), // 2 Social
+              const ExploreView(), // 3 Explore
               _MoreHost(
-                // 3
+                // 4 More host
                 settings: widget.settings,
                 mode: _moreMode,
                 profileKey: _profileKey,
-                onRequestMode: _handleRequestMode, // 讓 Settings 內部要求切頁
+                onRequestMode: _handleRequestMode,
               ),
             ],
           ),
@@ -134,33 +140,50 @@ class _RootNavState extends State<RootNav> with WidgetsBindingObserver {
           padding: EdgeInsets.only(bottom: paddingBottom > 0 ? 0 : 0),
           child: NavigationBar(
             height: navBarHeight,
-            selectedIndex: _index == _kMoreHostIndex ? 3 : _index,
+            selectedIndex: _index == _kMoreHostIndex ? 4 : _index,
             onDestinationSelected: (i) async {
-              // 切頁前，先把小選單收起來
               await _closeMoreSheetIfOpen();
 
-              if (i == 0 || i == 2) {
-                setState(() => _index = i);
+              if (i == 0) {
+                // Cards
+                setState(() => _index = 0);
                 return;
               }
               if (i == 1) {
+                // Albums
                 setState(() => _index = 1);
+                return;
+              }
+              if (i == 2) {
+                // Social
+                setState(() => _index = 2);
                 final s = _socialKey.currentState as dynamic;
                 await s?.refreshOnEnter();
                 return;
               }
               if (i == 3) {
-                // 先同步一次（行動端/桌面），再打開 More
+                // Explore
+                setState(() => _index = 3);
+                return;
+              }
+              if (i == 4) {
+                // More：一樣只開 bottom sheet，不改 _index
                 await _refreshSubsOnMoreOpen();
                 await _openMoreMenu(context);
                 return;
               }
             },
+
             destinations: [
               NavigationDestination(
                 icon: const Icon(Icons.grid_view_outlined),
                 selectedIcon: const Icon(Icons.grid_view),
                 label: context.l10n.navCards,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.album_outlined),
+                selectedIcon: const Icon(Icons.album),
+                label: context.l10n.album, // 之後可以換成 l10n key
               ),
               NavigationDestination(
                 icon: const Icon(Icons.chat_bubble_outline),

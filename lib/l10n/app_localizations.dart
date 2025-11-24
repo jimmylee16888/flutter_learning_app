@@ -2007,11 +2007,11 @@ abstract class AppLocalizations {
   /// **'Card categorization, card back info, mini-card details'**
   String get feature_small_cloud_space;
 
-  /// No description provided for @feature_multi_device_sync.
+  /// No description provided for @feature_ad_free.
   ///
   /// In en, this message translates to:
-  /// **'Multi-device sync'**
-  String get feature_multi_device_sync;
+  /// **'Ad-free immersive experience'**
+  String get feature_ad_free;
 
   /// No description provided for @feature_upload_local_images.
   ///
@@ -2618,6 +2618,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No quote yet'**
   String get noQuotePlaceholder;
+
+  /// No description provided for @cardNameAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A card named \"{name}\" already exists. Please use another name.'**
+  String cardNameAlreadyExists(Object name);
+
+  /// No description provided for @deleteCardAndMiniCardsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"? All mini cards under this person will also be removed.'**
+  String deleteCardAndMiniCardsMessage(Object name);
+
+  /// No description provided for @socialProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get socialProfileTitle;
+
+  /// No description provided for @userProfileLongPressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press to edit your profile'**
+  String get userProfileLongPressHint;
+
+  /// No description provided for @scanFriendQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan name card QR to add friend'**
+  String get scanFriendQrTitle;
+
+  /// No description provided for @scanFriendQrButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan card to add friend'**
+  String get scanFriendQrButtonLabel;
+
+  /// No description provided for @filterAlbumNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No album'**
+  String get filterAlbumNone;
+
+  /// No description provided for @albumCollectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Album collection'**
+  String get albumCollectionTitle;
+
+  /// No description provided for @albumCollectionEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any albums yet. Start by adding your favorite one.'**
+  String get albumCollectionEmptyHint;
+
+  /// No description provided for @albumSwipeEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get albumSwipeEdit;
+
+  /// No description provided for @albumSwipeDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get albumSwipeDelete;
+
+  /// No description provided for @albumDialogAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add album'**
+  String get albumDialogAddTitle;
+
+  /// No description provided for @albumDialogEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit album'**
+  String get albumDialogEditTitle;
+
+  /// No description provided for @albumDialogFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Album title'**
+  String get albumDialogFieldTitle;
+
+  /// No description provided for @albumDialogFieldArtist.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist / group'**
+  String get albumDialogFieldArtist;
+
+  /// No description provided for @albumDialogFieldYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year (optional)'**
+  String get albumDialogFieldYear;
+
+  /// No description provided for @albumDialogFieldCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover image URL (optional)'**
+  String get albumDialogFieldCover;
+
+  /// No description provided for @albumDialogFieldYoutube.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube link (optional)'**
+  String get albumDialogFieldYoutube;
+
+  /// No description provided for @albumDialogFieldYtmusic.
+  ///
+  /// In en, this message translates to:
+  /// **'YT Music link (optional)'**
+  String get albumDialogFieldYtmusic;
+
+  /// No description provided for @albumDialogFieldSpotify.
+  ///
+  /// In en, this message translates to:
+  /// **'Spotify link (optional)'**
+  String get albumDialogFieldSpotify;
+
+  /// No description provided for @albumDialogAddConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get albumDialogAddConfirm;
+
+  /// No description provided for @albumDialogEditConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get albumDialogEditConfirm;
+
+  /// No description provided for @albumDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete album'**
+  String get albumDeleteConfirmTitle;
+
+  /// No description provided for @albumDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{title}\"?'**
+  String albumDeleteConfirmMessage(Object title);
+
+  /// No description provided for @albumDetailReleaseYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Release year: {year}'**
+  String albumDetailReleaseYear(Object year);
+
+  /// No description provided for @albumDetailNoStreaming.
+  ///
+  /// In en, this message translates to:
+  /// **'No streaming links set yet.'**
+  String get albumDetailNoStreaming;
+
+  /// No description provided for @albumDetailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can later add the track list, your comments, or reasons for recommendation here.'**
+  String get albumDetailHint;
+
+  /// No description provided for @albumTracksSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracks'**
+  String get albumTracksSectionTitle;
+
+  /// No description provided for @albumNoTracksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No tracks have been added to this album yet.'**
+  String get albumNoTracksHint;
+
+  /// No description provided for @albumFieldLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get albumFieldLanguage;
+
+  /// No description provided for @albumFieldVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version / Edition'**
+  String get albumFieldVersion;
+
+  /// No description provided for @albumCoverFromUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From URL'**
+  String get albumCoverFromUrlLabel;
+
+  /// No description provided for @albumCoverFromLocalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From local image'**
+  String get albumCoverFromLocalLabel;
+
+  /// No description provided for @albumFieldArtistsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Artists'**
+  String get albumFieldArtistsLabel;
+
+  /// No description provided for @albumFieldArtistsInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type an artist name and press Enter to add…'**
+  String get albumFieldArtistsInputHint;
+
+  /// No description provided for @albumArtistsSuggestionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions will appear while you type.'**
+  String get albumArtistsSuggestionHint;
+
+  /// No description provided for @albumLinksSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaming links'**
+  String get albumLinksSectionTitle;
+
+  /// No description provided for @albumLinksCollapsedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube / YT Music / Spotify…'**
+  String get albumLinksCollapsedHint;
+
+  /// No description provided for @albumAddTrackButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add track'**
+  String get albumAddTrackButtonLabel;
+
+  /// No description provided for @albumTrackDialogAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add track'**
+  String get albumTrackDialogAddTitle;
+
+  /// No description provided for @albumTrackDialogEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit track'**
+  String get albumTrackDialogEditTitle;
+
+  /// No description provided for @albumTrackFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track title'**
+  String get albumTrackFieldTitle;
+
+  /// No description provided for @albumTitleRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an album title.'**
+  String get albumTitleRequiredMessage;
+
+  /// No description provided for @albumCoverLocalRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a local cover image.'**
+  String get albumCoverLocalRequiredMessage;
+
+  /// No description provided for @albumDetailLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language: {lang}'**
+  String albumDetailLanguage(String lang);
+
+  /// No description provided for @albumDetailVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: {ver}'**
+  String albumDetailVersion(String ver);
+
+  /// No description provided for @albumTrackImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Track image (optional)'**
+  String get albumTrackImageLabel;
+
+  /// No description provided for @albumTrackClearImageTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear image'**
+  String get albumTrackClearImageTooltip;
+
+  /// No description provided for @albumTrackImageUseAlbumHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If no image is set, this track will use the album cover.'**
+  String get albumTrackImageUseAlbumHint;
 }
 
 class _AppLocalizationsDelegate

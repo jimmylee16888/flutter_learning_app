@@ -4,7 +4,8 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_learning_app/services/social/social_api.dart';
-import 'package:flutter_learning_app/services/services.dart' show FriendPrefs, ProfileCache;
+import 'package:flutter_learning_app/services/services.dart'
+    show FriendPrefs, ProfileCache;
 
 class FriendFollowController extends ChangeNotifier {
   FriendFollowController({required this.api});
@@ -43,9 +44,22 @@ class FriendFollowController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// ✅ 改這裡：如果後端回傳空，且本地不空，就「相信本地」，不要蓋掉
   Future<void> refresh() async {
     try {
       final latest = (await api.fetchMyFriends()).toSet();
+
+      // 後端還沒實作好 /me/friends 時，避免把本地清掉
+      if (latest.isEmpty && _friends.isNotEmpty) {
+        if (kDebugMode) {
+          print(
+            '[FriendFollowController] refresh: server empty, keep local '
+            '(${_friends.length})',
+          );
+        }
+        return;
+      }
+
       _apply(latest);
       await _persistLocal();
       notifyListeners();
@@ -56,12 +70,13 @@ class FriendFollowController extends ChangeNotifier {
 
   Future<void> add(String id) async {
     if (_friends.contains(id)) return;
-    await api.followUser(id);
+    await api.followUser(id); // 後端 follow，一旦不 2xx 就會丟錯
     _friends.add(id);
     await _persistLocal();
     notifyListeners();
-    // 以伺服器為準再拉回覆蓋，避免不同步
-    unawaited(refresh());
+
+    // 🔥 先暫時關掉這行，避免「後端空」蓋掉本地
+    // unawaited(refresh());
   }
 
   Future<void> remove(String id) async {
@@ -70,12 +85,15 @@ class FriendFollowController extends ChangeNotifier {
     _friends.remove(id);
     await _persistLocal();
     notifyListeners();
-    unawaited(refresh());
+
+    // 同上，先關掉
+    // unawaited(refresh());
   }
 
-  Future<void> toggle(String id) => _friends.contains(id) ? remove(id) : add(id);
+  Future<void> toggle(String id) =>
+      _friends.contains(id) ? remove(id) : add(id);
 
-  // —— helpers ——
+  // —— helpers —— //
   void _apply(Set<String> ids) {
     _friends
       ..clear()
