@@ -2912,6 +2912,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If no image is set, this track will use the album cover.'**
   String get albumTrackImageUseAlbumHint;
+
+  /// No description provided for @albumImportJsonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import album JSON'**
+  String get albumImportJsonTitle;
+
+  /// No description provided for @albumImportJsonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the album JSON here. You can paste a single album object or a list of albums.'**
+  String get albumImportJsonHint;
+
+  /// No description provided for @albumImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Albums imported successfully.'**
+  String get albumImportSuccess;
+
+  /// No description provided for @albumImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed: {error}'**
+  String albumImportFailed(Object error);
+
+  /// No description provided for @albumAddNewAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Album'**
+  String get albumAddNewAlbum;
 }
 
 class _AppLocalizationsDelegate

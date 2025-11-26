@@ -682,7 +682,14 @@
 
   "albumTrackImageLabel": "楽曲画像（任意）",
   "albumTrackClearImageTooltip": "画像を削除",
-  "albumTrackImageUseAlbumHint": "画像を設定しない場合、この曲にはアルバムのジャケット画像が表示されます。"
+  "albumTrackImageUseAlbumHint": "画像を設定しない場合、この曲にはアルバムのジャケット画像が表示されます。",
+
+  "albumImportJsonTitle": "アルバム JSON をインポート",
+  "albumImportJsonHint": "ここにアルバムの JSON を貼り付けてください。1 つのアルバムオブジェクト、または複数アルバムの配列を貼り付けることができます。",
+  "albumImportSuccess": "アルバムのインポートが完了しました。",
+  "albumImportFailed": "インポートに失敗しました：{error}",
+
+  "albumAddNewAlbum": "アルバムを追加"
 
 
 

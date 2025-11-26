@@ -55,4 +55,13 @@ class AlbumStore extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// ✅ 匯入 JSON 時用，一次整批換掉所有專輯
+  Future<void> replaceAll(List<SimpleAlbum> albums) async {
+    _albums
+      ..clear()
+      ..addAll(albums);
+    await _save();
+    notifyListeners();
+  }
 }

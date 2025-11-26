@@ -1,5 +1,8 @@
 // lib/screens/album/album_detail_page.dart
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // 👈 新增：Clipboard 用
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_learning_app/l10n/l10n.dart';
@@ -24,6 +27,13 @@ class AlbumDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(album.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Export JSON',
+            icon: const Icon(Icons.ios_share_outlined),
+            onPressed: () => _onShareJson(context),
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(
@@ -113,6 +123,53 @@ class AlbumDetailPage extends StatelessWidget {
     );
   }
 
+  // ----------------- 分享 JSON -----------------
+
+  Future<void> _onShareJson(BuildContext context) async {
+    final l = context.l10n;
+
+    // SimpleAlbum.toJson() 假設已實作
+    final data = album.toJson();
+    final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l.exportJson), // 跟 mini_cards 一樣用 exportJson
+        content: SizedBox(
+          width: 520,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 360),
+            child: TextField(
+              controller: TextEditingController(text: jsonStr),
+              readOnly: true,
+              maxLines: null,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l.close),
+          ),
+          FilledButton.icon(
+            icon: const Icon(Icons.copy),
+            label: Text(l.copy),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: jsonStr));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l.copiedJsonToast)));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ----------------- 封面 -----------------
   Widget _buildCover(ColorScheme cs) {
     if (album.coverLocalPath != null && album.coverLocalPath!.isNotEmpty) {
       return Image(
@@ -145,6 +202,8 @@ class AlbumDetailPage extends StatelessWidget {
       ),
     );
   }
+
+  // ----------------- 串流平台按鈕 -----------------
 
   Widget _buildAlbumStreamingButtons(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -303,6 +362,8 @@ class _TrackTile extends StatelessWidget {
 
   Future<void> _open(String url) async {
     final uri = Uri.tryParse(url);
-    if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (uri != null) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 }

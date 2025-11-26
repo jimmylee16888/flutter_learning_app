@@ -685,6 +685,12 @@
 
   "albumTrackImageLabel": "Titelbild (optional)",
   "albumTrackClearImageTooltip": "Bild entfernen",
-  "albumTrackImageUseAlbumHint": "Wenn kein Bild festgelegt ist, wird für diesen Titel das Albumcover verwendet."
+  "albumTrackImageUseAlbumHint": "Wenn kein Bild festgelegt ist, wird für diesen Titel das Albumcover verwendet.",
 
+  "albumImportJsonTitle": "Album-JSON importieren",
+  "albumImportJsonHint": "Fügen Sie hier das Album-JSON ein. Sie können ein einzelnes Albumobjekt oder eine Liste von Alben einfügen.",
+  "albumImportSuccess": "Alben wurden erfolgreich importiert.",
+  "albumImportFailed": "Import fehlgeschlagen: {error}",
+
+  "albumAddNewAlbum": "Album hinzufügen"
 }

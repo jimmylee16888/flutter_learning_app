@@ -1576,4 +1576,22 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get albumTrackImageUseAlbumHint =>
       'Wenn kein Bild festgelegt ist, wird für diesen Titel das Albumcover verwendet.';
+
+  @override
+  String get albumImportJsonTitle => 'Album-JSON importieren';
+
+  @override
+  String get albumImportJsonHint =>
+      'Fügen Sie hier das Album-JSON ein. Sie können ein einzelnes Albumobjekt oder eine Liste von Alben einfügen.';
+
+  @override
+  String get albumImportSuccess => 'Alben wurden erfolgreich importiert.';
+
+  @override
+  String albumImportFailed(Object error) {
+    return 'Import fehlgeschlagen: $error';
+  }
+
+  @override
+  String get albumAddNewAlbum => 'Album hinzufügen';
 }

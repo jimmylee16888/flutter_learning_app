@@ -98,6 +98,7 @@ flutter:
     - assets/images/tip_explore.png
     - assets/images/tip_explore2.png
     - assets/images/popcard01.png      # ← 新增：啟動畫面要用的圖
+    - assets/images/default profile picture.png
 flutter_native_splash:
   android: true
   ios: true

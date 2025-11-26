@@ -1506,4 +1506,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get albumTrackImageUseAlbumHint => '이미지를 설정하지 않으면 이 곡에는 앨범 커버가 사용됩니다.';
+
+  @override
+  String get albumImportJsonTitle => '앨범 JSON 가져오기';
+
+  @override
+  String get albumImportJsonHint =>
+      '여기에 앨범 JSON을 붙여 넣어 주세요. 하나의 앨범 객체 또는 여러 앨범으로 이루어진 배열을 넣을 수 있습니다.';
+
+  @override
+  String get albumImportSuccess => '앨범을 성공적으로 가져왔습니다.';
+
+  @override
+  String albumImportFailed(Object error) {
+    return '가져오기에 실패했습니다: $error';
+  }
+
+  @override
+  String get albumAddNewAlbum => '앨범 추가';
 }

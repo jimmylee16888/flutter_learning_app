@@ -683,6 +683,13 @@
   },
   "albumTrackImageLabel": "歌曲圖片（可選）",
   "albumTrackClearImageTooltip": "清除圖片",
-  "albumTrackImageUseAlbumHint": "若未設定圖片，將會使用專輯封面顯示這首歌曲。"
+  "albumTrackImageUseAlbumHint": "若未設定圖片，將會使用專輯封面顯示這首歌曲。",
+
+  "albumImportJsonTitle": "匯入專輯 JSON",
+  "albumImportJsonHint": "請將專輯的 JSON 貼在這裡，可以是單一專輯物件，或多張專輯的陣列。",
+  "albumImportSuccess": "專輯匯入成功。",
+  "albumImportFailed": "匯入失敗：{error}",
+
+  "albumAddNewAlbum": "新增專輯"
 
 }

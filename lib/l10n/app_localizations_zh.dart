@@ -1497,6 +1497,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get albumTrackImageUseAlbumHint => '若未設定圖片，將會使用專輯封面顯示這首歌曲。';
+
+  @override
+  String get albumImportJsonTitle => '匯入專輯 JSON';
+
+  @override
+  String get albumImportJsonHint => '請將專輯的 JSON 貼在這裡，可以是單一專輯物件，或多張專輯的陣列。';
+
+  @override
+  String get albumImportSuccess => '專輯匯入成功。';
+
+  @override
+  String albumImportFailed(Object error) {
+    return '匯入失敗：$error';
+  }
+
+  @override
+  String get albumAddNewAlbum => '新增專輯';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2993,4 +3010,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get albumTrackImageUseAlbumHint => '若未設定圖片，將會使用專輯封面顯示這首歌曲。';
+
+  @override
+  String get albumImportJsonTitle => '匯入專輯 JSON';
+
+  @override
+  String get albumImportJsonHint => '請將專輯的 JSON 貼在這裡，可以是單一專輯物件，或多張專輯的陣列。';
+
+  @override
+  String get albumImportSuccess => '專輯匯入成功。';
+
+  @override
+  String albumImportFailed(Object error) {
+    return '匯入失敗：$error';
+  }
+
+  @override
+  String get albumAddNewAlbum => '新增專輯';
 }

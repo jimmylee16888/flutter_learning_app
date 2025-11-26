@@ -708,7 +708,12 @@
 
   "albumTrackImageLabel": "Track image (optional)",
   "albumTrackClearImageTooltip": "Clear image",
-  "albumTrackImageUseAlbumHint": "If no image is set, this track will use the album cover."
+  "albumTrackImageUseAlbumHint": "If no image is set, this track will use the album cover.",
 
+  "albumImportJsonTitle": "Import album JSON",
+  "albumImportJsonHint": "Paste the album JSON here. You can paste a single album object or a list of albums.",
+  "albumImportSuccess": "Albums imported successfully.",
+  "albumImportFailed": "Import failed: {error}",
 
+  "albumAddNewAlbum": "Add Album"
 }

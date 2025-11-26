@@ -1566,4 +1566,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get albumTrackImageUseAlbumHint =>
       'If no image is set, this track will use the album cover.';
+
+  @override
+  String get albumImportJsonTitle => 'Import album JSON';
+
+  @override
+  String get albumImportJsonHint =>
+      'Paste the album JSON here. You can paste a single album object or a list of albums.';
+
+  @override
+  String get albumImportSuccess => 'Albums imported successfully.';
+
+  @override
+  String albumImportFailed(Object error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get albumAddNewAlbum => 'Add Album';
 }

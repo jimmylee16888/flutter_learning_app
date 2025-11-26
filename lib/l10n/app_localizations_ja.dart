@@ -1506,4 +1506,22 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get albumTrackImageUseAlbumHint =>
       '画像を設定しない場合、この曲にはアルバムのジャケット画像が表示されます。';
+
+  @override
+  String get albumImportJsonTitle => 'アルバム JSON をインポート';
+
+  @override
+  String get albumImportJsonHint =>
+      'ここにアルバムの JSON を貼り付けてください。1 つのアルバムオブジェクト、または複数アルバムの配列を貼り付けることができます。';
+
+  @override
+  String get albumImportSuccess => 'アルバムのインポートが完了しました。';
+
+  @override
+  String albumImportFailed(Object error) {
+    return 'インポートに失敗しました：$error';
+  }
+
+  @override
+  String get albumAddNewAlbum => 'アルバムを追加';
 }
