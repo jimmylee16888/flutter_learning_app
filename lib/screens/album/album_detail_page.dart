@@ -124,18 +124,17 @@ class AlbumDetailPage extends StatelessWidget {
   }
 
   // ----------------- 分享 JSON -----------------
-
   Future<void> _onShareJson(BuildContext context) async {
     final l = context.l10n;
 
-    // SimpleAlbum.toJson() 假設已實作
-    final data = album.toJson();
+    // ✅ 匯出給別人用：不含本地圖片路徑
+    final data = album.toPortableJson();
     final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
 
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(l.exportJson), // 跟 mini_cards 一樣用 exportJson
+        title: Text(l.exportJson),
         content: SizedBox(
           width: 520,
           child: ConstrainedBox(
@@ -170,7 +169,9 @@ class AlbumDetailPage extends StatelessWidget {
   }
 
   // ----------------- 封面 -----------------
+  // ----------------- 封面 -----------------
   Widget _buildCover(ColorScheme cs) {
+    // 1. 有本地封面→優先
     if (album.coverLocalPath != null && album.coverLocalPath!.isNotEmpty) {
       return Image(
         image: mc.imageProviderForLocalPath(album.coverLocalPath!),
@@ -180,6 +181,7 @@ class AlbumDetailPage extends StatelessWidget {
       );
     }
 
+    // 2. 沒 URL → 預設圖
     if ((album.coverUrl ?? '').isEmpty) {
       return Container(
         width: 120,
@@ -189,6 +191,7 @@ class AlbumDetailPage extends StatelessWidget {
       );
     }
 
+    // 3. 有 URL → 單純用 Image.network（離線就顯示預設圖）
     return Image.network(
       album.coverUrl!,
       width: 120,
@@ -333,11 +336,20 @@ class _TrackTile extends StatelessWidget {
   Widget _buildThumbnail(ColorScheme cs) {
     ImageProvider? provider;
 
+    // 1️⃣ 單曲本地圖
     if (track.coverLocalPath != null && track.coverLocalPath!.isNotEmpty) {
       provider = mc.imageProviderForLocalPath(track.coverLocalPath!);
+
+      // 2️⃣ 單曲線上圖
+    } else if (track.coverUrl != null && track.coverUrl!.isNotEmpty) {
+      provider = NetworkImage(track.coverUrl!);
+
+      // 3️⃣ 專輯本地封面
     } else if (album.coverLocalPath != null &&
         album.coverLocalPath!.isNotEmpty) {
       provider = mc.imageProviderForLocalPath(album.coverLocalPath!);
+
+      // 4️⃣ 專輯線上封面
     } else if (album.coverUrl != null && album.coverUrl!.isNotEmpty) {
       provider = NetworkImage(album.coverUrl!);
     }

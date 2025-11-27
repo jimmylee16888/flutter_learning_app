@@ -13,6 +13,9 @@ class AlbumTrack {
   /// 單曲自己的圖片（選填，不填就用專輯圖）
   final String? coverLocalPath;
 
+  /// 單曲自己的線上圖片 URL（選填）
+  final String? coverUrl;
+
   const AlbumTrack({
     required this.id,
     required this.title,
@@ -20,6 +23,7 @@ class AlbumTrack {
     this.youtubeMusicUrl,
     this.spotifyUrl,
     this.coverLocalPath,
+    this.coverUrl,
   });
 
   factory AlbumTrack.fromJson(Map<String, dynamic> j) => AlbumTrack(
@@ -29,8 +33,10 @@ class AlbumTrack {
     youtubeMusicUrl: j['youtubeMusicUrl'] as String?,
     spotifyUrl: j['spotifyUrl'] as String?,
     coverLocalPath: j['coverLocalPath'] as String?,
+    coverUrl: j['coverUrl'] as String?,
   );
 
+  /// 本機用：完整存起來（含本地圖）
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
@@ -38,6 +44,17 @@ class AlbumTrack {
     'youtubeMusicUrl': youtubeMusicUrl,
     'spotifyUrl': spotifyUrl,
     'coverLocalPath': coverLocalPath,
+    'coverUrl': coverUrl,
+  };
+
+  /// ✅ 匯出用：不帶本地路徑，只保留線上圖
+  Map<String, dynamic> toPortableJson() => {
+    'id': id,
+    'title': title,
+    'youtubeUrl': youtubeUrl,
+    'youtubeMusicUrl': youtubeMusicUrl,
+    'spotifyUrl': spotifyUrl,
+    'coverUrl': coverUrl,
   };
 
   AlbumTrack copyWith({
@@ -47,6 +64,7 @@ class AlbumTrack {
     String? youtubeMusicUrl,
     String? spotifyUrl,
     String? coverLocalPath,
+    String? coverUrl,
   }) {
     return AlbumTrack(
       id: id ?? this.id,
@@ -55,6 +73,7 @@ class AlbumTrack {
       youtubeMusicUrl: youtubeMusicUrl ?? this.youtubeMusicUrl,
       spotifyUrl: spotifyUrl ?? this.spotifyUrl,
       coverLocalPath: coverLocalPath ?? this.coverLocalPath,
+      coverUrl: coverUrl ?? this.coverUrl,
     );
   }
 }
@@ -104,7 +123,6 @@ class SimpleAlbum {
     this.tracks = const [],
   });
 
-  /// 給 UI 顯示用
   String get artistLabel => artists.join(', ');
 
   SimpleAlbum copyWith({
@@ -138,7 +156,6 @@ class SimpleAlbum {
   }
 
   factory SimpleAlbum.fromJson(Map<String, dynamic> j) {
-    // 🔁 兼容舊版：原本是單一 artist 字串
     final List<String> artists;
     if (j['artists'] is List) {
       artists = (j['artists'] as List).cast<String>();
@@ -171,6 +188,7 @@ class SimpleAlbum {
     );
   }
 
+  /// 📦 本機儲存：完整（含本地封面 & 單曲本地圖）
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
@@ -184,5 +202,20 @@ class SimpleAlbum {
     'youtubeMusicUrl': youtubeMusicUrl,
     'spotifyUrl': spotifyUrl,
     'tracks': tracks.map((t) => t.toJson()).toList(),
+  };
+
+  /// 🌐 匯出 JSON：不帶任何本地路徑，但保留完整專輯資訊 + 歌曲
+  Map<String, dynamic> toPortableJson() => {
+    'id': id,
+    'title': title,
+    'artists': artists,
+    'year': year,
+    'language': language,
+    'version': version,
+    'coverUrl': coverUrl,
+    'youtubeUrl': youtubeUrl,
+    'youtubeMusicUrl': youtubeMusicUrl,
+    'spotifyUrl': spotifyUrl,
+    'tracks': tracks.map((t) => t.toPortableJson()).toList(),
   };
 }

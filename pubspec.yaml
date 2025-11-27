@@ -67,6 +67,9 @@ dependencies:
   file_picker: ^8.1.2
   file_saver: ^0.2.13
 
+  cached_network_image: ^3.4.0  
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -85,6 +88,7 @@ flutter_launcher_icons:
   # ANDROID Adaptive（有就會用 Adaptive；沒支援的密度會回退到 image_path_android）
   adaptive_icon_foreground: assets/images/popcard.png
   adaptive_icon_background: "#FFFFFF"   # 或 assets/images/your_bg.png
+
 
 
 flutter:

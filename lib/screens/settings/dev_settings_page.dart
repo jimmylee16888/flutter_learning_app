@@ -252,7 +252,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     final store = context.read<AlbumStore>();
     final albums = store.albums;
 
-    final listJson = albums.map((a) => a.toJson()).toList();
+    final listJson = albums.map((a) => a.toPortableJson()).toList();
     final pretty = const JsonEncoder.withIndent('  ').convert(listJson);
     final bytesLen = utf8.encode(pretty).length;
     final kb = (bytesLen / 1024).toStringAsFixed(1);
@@ -475,7 +475,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   Future<void> _onExportAlbumJson(BuildContext context) async {
     final store = context.read<AlbumStore>();
 
-    final listJson = store.albums.map((a) => a.toJson()).toList();
+    final listJson = store.albums.map((a) => a.toPortableJson()).toList();
     final jsonStr = const JsonEncoder.withIndent('  ').convert(listJson);
 
     await showDialog<void>(
@@ -618,7 +618,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
   Future<void> _exportAlbumToJsonFile() async {
     try {
       final store = context.read<AlbumStore>();
-      final listJson = store.albums.map((a) => a.toJson()).toList();
+      final listJson = store.albums.map((a) => a.toPortableJson()).toList();
       final pretty = const JsonEncoder.withIndent('  ').convert(listJson);
       final bytes = Uint8List.fromList(utf8.encode(pretty));
 
@@ -982,9 +982,9 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                   const SizedBox(height: 8),
                   Text(
                     '說明：\n'
-                    '• JSON 格式為 List<SimpleAlbum>，與 SharedPreferences("albums_json") 儲存格式相同。\n'
+                    '• JSON 格式為匯出用的 List<SimpleAlbum>（portable），不包含本機圖片路徑。\n'
                     '• 匯入為覆蓋式，會直接取代目前所有專輯資料，請先備份再操作。\n'
-                    '• 單曲圖片（coverLocalPath）僅保留路徑欄位，不會自動下載或搬移檔案。',
+                    '• 匯出內容只保留線上圖片 URL，若需要本機圖片顯示，請在新裝置重新指定封面。',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: _muted(context),
                       height: 1.25,

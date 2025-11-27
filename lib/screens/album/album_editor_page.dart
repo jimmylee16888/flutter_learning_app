@@ -1,4 +1,5 @@
 // lib/screens/album/album_editor_page.dart
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -169,25 +170,34 @@ class _AlbumEditorPageState extends State<AlbumEditorPage> {
             const SizedBox(height: 16),
 
             // ===== 封面來源選擇（URL / 本地）=====
-            Row(
-              children: [
-                ChoiceChip(
-                  label: Text(l.albumCoverFromUrlLabel),
-                  selected: _coverMode == _CoverMode.url,
-                  onSelected: (_) =>
-                      setState(() => _coverMode = _CoverMode.url),
+            Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 260,
+                child: CupertinoSlidingSegmentedControl<_CoverMode>(
+                  groupValue: _coverMode,
+                  padding: const EdgeInsets.all(4),
+                  children: {
+                    _CoverMode.url: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(l.imageByUrl), // 或 l.albumCoverFromUrlLabel
+                    ),
+                    _CoverMode.local: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        l.imageByLocal,
+                      ), // 或 l.albumCoverFromLocalLabel
+                    ),
+                  },
+                  onValueChanged: (v) {
+                    setState(() => _coverMode = v ?? _CoverMode.url);
+                  },
                 ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: Text(l.albumCoverFromLocalLabel),
-                  selected: _coverMode == _CoverMode.local,
-                  onSelected: (_) =>
-                      setState(() => _coverMode = _CoverMode.local),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
-            if (_coverMode == _CoverMode.url)
+
+            if (_coverMode == _CoverMode.url) ...[
               TextField(
                 controller: _coverUrlCtrl,
                 decoration: InputDecoration(
@@ -195,9 +205,9 @@ class _AlbumEditorPageState extends State<AlbumEditorPage> {
                   prefixIcon: const Icon(Icons.link),
                 ),
                 keyboardType: TextInputType.url,
-                onChanged: (_) => setState(() {}),
-              )
-            else
+                onChanged: (_) => setState(() {}), // 預覽同步更新
+              ),
+            ] else ...[
               Row(
                 children: [
                   Expanded(
@@ -216,6 +226,7 @@ class _AlbumEditorPageState extends State<AlbumEditorPage> {
                   ),
                 ],
               ),
+            ],
 
             const SizedBox(height: 16),
 
@@ -437,14 +448,22 @@ class _AlbumEditorPageState extends State<AlbumEditorPage> {
   Widget _buildTrackThumbnail(AlbumTrack t, ColorScheme cs) {
     ImageProvider? provider;
 
+    // 1️⃣ 單曲本地
     if (t.coverLocalPath != null && t.coverLocalPath!.isNotEmpty) {
       provider = mc.imageProviderForLocalPath(t.coverLocalPath!);
+
+      // 2️⃣ 單曲 URL
+    } else if (t.coverUrl != null && t.coverUrl!.isNotEmpty) {
+      provider = NetworkImage(t.coverUrl!);
+
+      // 3️⃣ 專輯本地（編輯頁用 _coverLocalPath）
     } else if (_coverMode == _CoverMode.local &&
         _coverLocalPath != null &&
         _coverLocalPath!.isNotEmpty) {
       provider = mc.imageProviderForLocalPath(_coverLocalPath!);
+
+      // 4️⃣ 專輯 URL（編輯頁用 _coverUrlCtrl）
     } else if (_coverMode == _CoverMode.url && _coverUrlCtrl.text.isNotEmpty) {
-      // 用 NetworkImage 做簡單處理（不特別處理錯誤，錯誤時上面整個 tile 也會 fallback）
       provider = NetworkImage(_coverUrlCtrl.text);
     }
 
@@ -657,6 +676,8 @@ class _TrackPlatformLabels extends StatelessWidget {
   }
 }
 
+enum _TrackImageMode { url, local }
+
 /// 新增/編輯歌曲 Dialog（支援自訂圖片）
 class _TrackEditorDialog extends StatefulWidget {
   const _TrackEditorDialog({required this.title, this.initial});
@@ -675,6 +696,9 @@ class _TrackEditorDialogState extends State<_TrackEditorDialog> {
   final _spCtrl = TextEditingController();
 
   String? _coverLocalPath;
+  final _coverUrlCtrl = TextEditingController();
+
+  _TrackImageMode _imageMode = _TrackImageMode.url;
 
   @override
   void initState() {
@@ -686,6 +710,14 @@ class _TrackEditorDialogState extends State<_TrackEditorDialog> {
       _ytmCtrl.text = t.youtubeMusicUrl ?? '';
       _spCtrl.text = t.spotifyUrl ?? '';
       _coverLocalPath = t.coverLocalPath;
+      _coverUrlCtrl.text = t.coverUrl ?? '';
+    }
+    if (_coverLocalPath != null && _coverLocalPath!.isNotEmpty) {
+      _imageMode = _TrackImageMode.local;
+    } else if (_coverUrlCtrl.text.trim().isNotEmpty) {
+      _imageMode = _TrackImageMode.url;
+    } else {
+      _imageMode = _TrackImageMode.url;
     }
   }
 
@@ -695,6 +727,7 @@ class _TrackEditorDialogState extends State<_TrackEditorDialog> {
     _ytCtrl.dispose();
     _ytmCtrl.dispose();
     _spCtrl.dispose();
+    _coverUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -722,63 +755,129 @@ class _TrackEditorDialogState extends State<_TrackEditorDialog> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  l.albumTrackImageLabel, // 你可以在 l10n 裡加，例如「歌曲圖片（可選）」
-                  // 如果你懶得加 key，也可以直接寫死文字
+                  l.albumTrackImageLabel, // 例如「歌曲圖片（可選）」
                 ),
               ),
               const SizedBox(height: 4),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.photo_library_outlined),
-                      label: Text(l.pickFromGallery),
-                      onPressed: () async {
-                        final path = await mc.pickAndCopyToLocal();
-                        if (path != null) {
-                          setState(() {
-                            _coverLocalPath = path;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                  if (_coverLocalPath != null &&
-                      _coverLocalPath!.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      tooltip: l.albumTrackClearImageTooltip,
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        setState(() => _coverLocalPath = null);
-                      },
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (_coverLocalPath != null && _coverLocalPath!.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image(
-                    image: mc.imageProviderForLocalPath(_coverLocalPath!),
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              else
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    l.albumTrackImageUseAlbumHint,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: cs.outline),
+
+              // 👇 跟 CardView 類似的 URL / Local 切換
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 260,
+                  child: CupertinoSlidingSegmentedControl<_TrackImageMode>(
+                    groupValue: _imageMode,
+                    padding: const EdgeInsets.all(4),
+                    children: {
+                      _TrackImageMode.url: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(l.imageByUrl),
+                      ),
+                      _TrackImageMode.local: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(l.imageByLocal),
+                      ),
+                    },
+                    onValueChanged: (v) {
+                      setState(() => _imageMode = v ?? _TrackImageMode.url);
+                    },
                   ),
                 ),
+              ),
+              const SizedBox(height: 8),
 
-              const SizedBox(height: 12),
+              if (_imageMode == _TrackImageMode.local) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: Text(l.pickFromGallery),
+                        onPressed: () async {
+                          final path = await mc.pickAndCopyToLocal();
+                          if (path != null) {
+                            setState(() {
+                              _coverLocalPath = path;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    if (_coverLocalPath != null &&
+                        _coverLocalPath!.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: l.albumTrackClearImageTooltip,
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() => _coverLocalPath = null);
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (_coverLocalPath != null && _coverLocalPath!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image(
+                      image: mc.imageProviderForLocalPath(_coverLocalPath!),
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l.albumTrackImageUseAlbumHint,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: cs.outline),
+                    ),
+                  ),
+              ] else ...[
+                TextField(
+                  controller: _coverUrlCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Image URL (optional)', // 之後可改 l10n
+                    prefixIcon: const Icon(Icons.link),
+                  ),
+                  keyboardType: TextInputType.url,
+                  onChanged: (_) => setState(() {}), // 讓下面預覽即時刷新
+                ),
+                const SizedBox(height: 8),
+                if (_coverUrlCtrl.text.trim().isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      _coverUrlCtrl.text.trim(),
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 80,
+                        height: 80,
+                        color: cs.surfaceVariant,
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l.albumTrackImageUseAlbumHint,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: cs.outline),
+                    ),
+                  ),
+              ],
 
               // 各平台連結
               TextField(
@@ -828,14 +927,17 @@ class _TrackEditorDialogState extends State<_TrackEditorDialog> {
     final track = AlbumTrack(
       id: id,
       title: title,
-      youtubeUrl: _ytCtrl.text.trim().isEmpty ? null : _ytCtrl.text.trim(),
-      youtubeMusicUrl: _ytmCtrl.text.trim().isEmpty
-          ? null
-          : _ytmCtrl.text.trim(),
-      spotifyUrl: _spCtrl.text.trim().isEmpty ? null : _spCtrl.text.trim(),
+      youtubeUrl: _ytCtrl.text.trim().isNotEmpty ? _ytCtrl.text.trim() : null,
+      youtubeMusicUrl: _ytmCtrl.text.trim().isNotEmpty
+          ? _ytmCtrl.text.trim()
+          : null,
+      spotifyUrl: _spCtrl.text.trim().isNotEmpty ? _spCtrl.text.trim() : null,
       coverLocalPath: _coverLocalPath != null && _coverLocalPath!.isNotEmpty
           ? _coverLocalPath
           : null,
+      coverUrl: _coverUrlCtrl.text.trim().isNotEmpty
+          ? _coverUrlCtrl.text.trim()
+          : null, // 👈 新增
     );
 
     Navigator.pop(context, track);

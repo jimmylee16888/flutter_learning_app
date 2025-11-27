@@ -15,6 +15,8 @@ import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart'
 import 'album_editor_page.dart';
 import 'album_detail_page.dart';
 
+import 'dart:ui' as ui; // 👈 新增
+
 class AlbumCollectionView extends StatefulWidget {
   const AlbumCollectionView({super.key});
 
@@ -27,6 +29,8 @@ class AlbumCollectionView extends StatefulWidget {
 class _AlbumCollectionViewState extends State<AlbumCollectionView> {
   /// 被選取的 album id 集合
   final Set<String> _selectedIds = {};
+
+  String _keyword = '';
 
   bool get _isSelecting => _selectedIds.isNotEmpty;
 
@@ -132,9 +136,9 @@ class _AlbumCollectionViewState extends State<AlbumCollectionView> {
     // 多張 => 輸出陣列
     final Object jsonData;
     if (albums.length == 1) {
-      jsonData = albums.first.toJson();
+      jsonData = albums.first.toPortableJson();
     } else {
-      jsonData = albums.map((a) => a.toJson()).toList(growable: false);
+      jsonData = albums.map((a) => a.toPortableJson()).toList(growable: false);
     }
 
     final jsonStr = const JsonEncoder.withIndent('  ').convert(jsonData);
@@ -226,6 +230,59 @@ class _AlbumCollectionViewState extends State<AlbumCollectionView> {
     }
   }
 
+  // ====== Frosted Glass 搜尋列（跟 CardsView 一樣風格）======
+  Widget _frostedSearchBar() {
+    final l = context.l10n;
+    final bg = Theme.of(context).colorScheme.surface;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8), // 外面已經有整體 padding:16
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: bg.withOpacity(0.6),
+              border: Border.all(color: Colors.white.withOpacity(0.20)),
+            ),
+            child: TextField(
+              onChanged: (s) => setState(() => _keyword = s),
+              decoration: InputDecoration(
+                hintText: l.searchHint, // 和 CardsView 共用字串
+                border: InputBorder.none,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _keyword.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => setState(() => _keyword = ''),
+                        tooltip: l.clear,
+                      ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<SimpleAlbum> _filtered(List<SimpleAlbum> src) {
+    final k = _keyword.trim().toLowerCase();
+    if (k.isEmpty) return src;
+
+    return src.where((a) {
+      final title = a.title.toLowerCase();
+      final artists = a.artists.join(' ').toLowerCase();
+      final year = a.year?.toString() ?? '';
+      return title.contains(k) || artists.contains(k) || year.contains(k);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -237,9 +294,11 @@ class _AlbumCollectionViewState extends State<AlbumCollectionView> {
       body: SafeArea(
         child: Consumer<AlbumStore>(
           builder: (context, store, _) {
-            final albums = store.albums;
+            final allAlbums = store.albums;
+            final albums = _filtered(allAlbums); // 👈 用過濾後的
 
-            if (albums.isEmpty) {
+            if (allAlbums.isEmpty) {
+              // ➜ 這邊判斷用原始列表（不是 filtered），避免搜尋時看不到提示
               return Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -265,7 +324,10 @@ class _AlbumCollectionViewState extends State<AlbumCollectionView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ✅ 選取模式的小工具列（不是 AppBar，只是普通 Row）
+                  // ✅ 跟 CardsView 一樣的 frosted 搜尋列
+                  _frostedSearchBar(),
+
+                  // ✅ 選取模式的小工具列
                   if (_isSelecting)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -284,6 +346,7 @@ class _AlbumCollectionViewState extends State<AlbumCollectionView> {
                         ],
                       ),
                     ),
+
                   const SizedBox(height: 8),
                   Expanded(
                     child: GridView.builder(
@@ -582,6 +645,9 @@ class _AlbumTile extends StatelessWidget {
 }
 
 /// 封面圖片（支援 coverUrl / coverLocalPath）
+/// 封面圖片（支援 coverUrl / coverLocalPath）
+/// coverLocalPath 有值時優先用本地；
+/// 沒有的話用 cached_network_image 把網路圖 cache 到本地，之後離線也能顯示。
 class _AlbumCoverImage extends StatelessWidget {
   const _AlbumCoverImage({required this.album, required this.cs});
 
@@ -590,6 +656,7 @@ class _AlbumCoverImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. 有本地路徑 → 一律用本地檔（你原本就有）
     if (album.coverLocalPath != null && album.coverLocalPath!.isNotEmpty) {
       return Image(
         image: mc.imageProviderForLocalPath(album.coverLocalPath!),
@@ -597,6 +664,7 @@ class _AlbumCoverImage extends StatelessWidget {
       );
     }
 
+    // 2. 沒有 URL → 顯示預設圖
     if ((album.coverUrl ?? '').isEmpty) {
       return Container(
         color: cs.surfaceVariant,
@@ -604,6 +672,7 @@ class _AlbumCoverImage extends StatelessWidget {
       );
     }
 
+    // 3. 有 URL 但沒有本地檔 → 線上載圖（不另外做 cache 套件）
     return Image.network(
       album.coverUrl!,
       fit: BoxFit.cover,
