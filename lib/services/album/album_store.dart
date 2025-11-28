@@ -1,8 +1,9 @@
 // lib/services/album/album_store.dart
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
 import 'package:flutter_learning_app/models/simple_album.dart';
+import 'package:flutter_learning_app/services/album/album_cover_cache.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AlbumStore extends ChangeNotifier {
@@ -12,7 +13,7 @@ class AlbumStore extends ChangeNotifier {
 
   List<SimpleAlbum> get albums => List.unmodifiable(_albums);
 
-  // 啟動時載入
+  // 啟動時載入（這裡用的是完整的 toJson / fromJson，會帶 coverLocalPath）
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
@@ -35,8 +36,11 @@ class AlbumStore extends ChangeNotifier {
     await prefs.setString(_prefsKey, raw);
   }
 
+  // ----------------- 新增 / 更新 / 移除 -----------------
+
   Future<void> add(SimpleAlbum album) async {
-    _albums.add(album);
+    final withLocal = await _withLocalCovers(album);
+    _albums.add(withLocal);
     await _save();
     notifyListeners();
   }
@@ -50,18 +54,54 @@ class AlbumStore extends ChangeNotifier {
   Future<void> update(SimpleAlbum album) async {
     final idx = _albums.indexWhere((a) => a.id == album.id);
     if (idx >= 0) {
-      _albums[idx] = album;
+      final withLocal = await _withLocalCovers(album);
+      _albums[idx] = withLocal;
       await _save();
       notifyListeners();
     }
   }
 
-  /// ✅ 匯入 JSON 時用，一次整批換掉所有專輯
+  /// ✅ 匯入 JSON（portable）後整批換掉：也順便幫它下載封面
   Future<void> replaceAll(List<SimpleAlbum> albums) async {
-    _albums
-      ..clear()
-      ..addAll(albums);
+    _albums.clear();
+
+    for (final a in albums) {
+      final withLocal = await _withLocalCovers(a);
+      _albums.add(withLocal);
+    }
+
     await _save();
     notifyListeners();
+  }
+
+  // ----------------- 核心：依 URL 自動下載，填 coverLocalPath -----------------
+
+  Future<SimpleAlbum> _withLocalCovers(SimpleAlbum album) async {
+    // Web 不處理本地檔案，直接略過
+    if (kIsWeb) return album;
+
+    var result = album;
+
+    // 1️⃣ 專輯封面：如果沒有本地路徑但有 URL，就下載
+    final hasLocal =
+        result.coverLocalPath != null && result.coverLocalPath!.isNotEmpty;
+    final hasUrl =
+        result.coverUrl != null && result.coverUrl!.trim().isNotEmpty;
+
+    if (!hasLocal && hasUrl) {
+      final localPath = await downloadAlbumCoverIfNeeded(
+        albumId: result.id,
+        coverUrl: result.coverUrl!.trim(),
+      );
+
+      if (localPath != null && localPath.isNotEmpty) {
+        result = result.copyWith(coverLocalPath: localPath);
+      }
+    }
+
+    // 2️⃣ 如果之後要支援「每首歌自己的封面」，可以在這裡順便處理 tracks：
+    // if (result.tracks.isNotEmpty) { ...downloadTrackCoverIfNeeded... }
+
+    return result;
   }
 }

@@ -51,6 +51,9 @@ class _CardDetailPageState extends State<CardDetailPage> {
   late bool _liked = widget.initiallyLiked;
   List<MiniCardData> _miniCards = [];
 
+  // 記住目前底部 carousel 停在哪一張卡
+  int _currentMiniIndex = 0;
+
   static const _kSwipeDistance = 40.0;
   static const _kSwipeVelocity = 600.0;
   double _dragDyAccum = 0;
@@ -249,11 +252,14 @@ class _CardDetailPageState extends State<CardDetailPage> {
         onVerticalDragEnd: (details) {
           final v = details.primaryVelocity ?? 0;
           if (_dragDyAccum <= -_kSwipeDistance || v <= -_kSwipeVelocity) {
-            _openMiniCardsPage();
+            // 👇 用目前 carousel 的 index 當 initialIndex
+            _openMiniCardsPage(initialIndex: _currentMiniIndex);
           }
           _dragDyAccum = 0;
         },
-        onTap: _openMiniCardsPage,
+        onTap: () {
+          _openMiniCardsPage(initialIndex: _currentMiniIndex);
+        },
         child: SafeArea(
           top: false,
           child: RepaintBoundary(
@@ -265,12 +271,19 @@ class _CardDetailPageState extends State<CardDetailPage> {
                         miniCards: _miniCards,
                         previewHeight: _kPreviewHeight,
                         onOpenMiniCards: _openMiniCardsPage,
+                        // 👇 等等會在這裡接收目前 index
+                        onCurrentIndexChanged: (i) {
+                          _currentMiniIndex = i;
+                        },
                       ),
                     )
                   : _BottomPreviewBody(
                       miniCards: _miniCards,
                       previewHeight: _kPreviewHeight,
                       onOpenMiniCards: _openMiniCardsPage,
+                      onCurrentIndexChanged: (i) {
+                        _currentMiniIndex = i;
+                      },
                     ),
             ),
           ),
@@ -428,20 +441,22 @@ class _BottomPreviewBody extends StatelessWidget {
     required this.miniCards,
     required this.previewHeight,
     required this.onOpenMiniCards,
+    this.onCurrentIndexChanged,
   });
 
   final List<MiniCardData> miniCards;
   final double previewHeight;
   final Future<void> Function({int initialIndex}) onOpenMiniCards;
 
+  final ValueChanged<int>? onCurrentIndexChanged;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // 這裡完全不用 BackdropFilter，背景交給 Scaffold
     return Container(
       width: double.infinity,
-      color: Colors.transparent, // 保持透明，就會跟上方背景一致
+      color: Colors.transparent,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -460,14 +475,16 @@ class _BottomPreviewBody extends StatelessWidget {
                     borderRadius: 14,
                     onTapCenter: ({int initialIndex = 0}) =>
                         onOpenMiniCards(initialIndex: initialIndex),
+                    // 👇 新增：往下傳給 carousel
+                    onIndexChanged: onCurrentIndexChanged,
                   ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 24),
           Text(
             context.l10n.detailSwipeHint,
             style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
         ],
       ),
     );
@@ -481,6 +498,7 @@ class _BottomMiniCarousel extends StatefulWidget {
     this.borderRadius = 12,
     this.onTapCenter,
     this.initialIndex = 0,
+    this.onIndexChanged,
   });
 
   final List<MiniCardData> cards;
@@ -488,6 +506,7 @@ class _BottomMiniCarousel extends StatefulWidget {
   final double borderRadius;
   final void Function({int initialIndex})? onTapCenter;
   final int initialIndex;
+  final ValueChanged<int>? onIndexChanged;
 
   @override
   State<_BottomMiniCarousel> createState() => _BottomMiniCarouselState();
@@ -511,13 +530,24 @@ class _BottomMiniCarouselState extends State<_BottomMiniCarousel> {
         final cardW = widget.height * 9 / 16;
         final vf = (cardW / width).clamp(0.2, 0.95);
 
-        _pc ??= PageController(
-          initialPage: widget.initialIndex.clamp(
-            0,
-            (widget.cards.length - 1).clamp(0, 999),
-          ),
-          viewportFraction: vf,
-        )..addListener(() => setState(() => _page = _pc!.page ?? _page));
+        _pc ??=
+            PageController(
+              initialPage: widget.initialIndex.clamp(
+                0,
+                (widget.cards.length - 1).clamp(0, 999),
+              ),
+              viewportFraction: vf,
+            )..addListener(() {
+              final p = _pc!.page ?? _page;
+              if ((p - _page).abs() > 0.01) {
+                setState(() => _page = p);
+                // 👇 回報目前顯示的那張卡片 index
+                final idx = p.round().clamp(0, widget.cards.length - 1);
+                if (widget.onIndexChanged != null) {
+                  widget.onIndexChanged!(idx);
+                }
+              }
+            });
 
         if (_pc!.viewportFraction != vf) {
           final curr = _pc!.hasClients
