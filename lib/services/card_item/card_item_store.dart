@@ -15,9 +15,17 @@ class CardItemStore extends ChangeNotifier {
 
   List<String> _categories = <String>[];
   List<CardItem> _items = <CardItem>[];
-
   List<String> get categories => List.unmodifiable(_categories);
-  List<CardItem> get cardItems => List.unmodifiable(_items);
+
+  /// 給畫面用：只看未刪除
+  List<CardItem> get visibleCardItems =>
+      List.unmodifiable(_items.where((c) => !c.deleted));
+
+  /// ✅ 向下相容：舊程式碼用的 cardItems
+  List<CardItem> get cardItems => visibleCardItems;
+
+  /// 給 Sync 用：包含 deleted
+  List<CardItem> get allCardItemsRaw => List.unmodifiable(_items);
 
   CardItemStore._();
 
@@ -86,11 +94,14 @@ class CardItemStore extends ChangeNotifier {
   // ────────────── 卡片 CRUD ──────────────
 
   void upsertCard(CardItem item) {
-    final idx = _items.indexWhere((c) => c.id == item.id);
+    final now = DateTime.now().toUtc();
+    final next = item.copyWith(updatedAt: now, deleted: false);
+
+    final idx = _items.indexWhere((c) => c.id == next.id);
     if (idx >= 0) {
-      _items = List.of(_items)..[idx] = item;
+      _items = List.of(_items)..[idx] = next;
     } else {
-      _items = [..._items, item];
+      _items = [..._items, next];
     }
     _persist();
     notifyListeners();
@@ -105,7 +116,13 @@ class CardItemStore extends ChangeNotifier {
   }
 
   void removeCard(String cardId) {
-    _items = _items.where((c) => c.id != cardId).toList();
+    final now = DateTime.now().toUtc();
+    _items = _items.map((c) {
+      if (c.id == cardId) {
+        return c.copyWith(deleted: true, updatedAt: now);
+      }
+      return c;
+    }).toList();
     _persist();
     notifyListeners();
   }

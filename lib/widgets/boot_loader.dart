@@ -22,6 +22,8 @@ import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 import 'package:flutter_learning_app/services/subscription_service.dart';
 import 'package:flutter_learning_app/services/dev_mode.dart';
 
+import 'package:flutter_learning_app/services/library_sync_service.dart';
+
 class BootLoader extends StatefulWidget {
   const BootLoader({super.key});
 
@@ -265,12 +267,30 @@ class _BootLoaderState extends State<BootLoader> {
         final data = snap.data!;
         return MultiProvider(
           providers: [
-            // 提供 MiniCardStore / CardItemStore / AuthController
+            // 1) 基礎 Store / Controller
             ChangeNotifierProvider.value(value: data.miniStore),
             ChangeNotifierProvider.value(value: data.cardStore),
             ChangeNotifierProvider.value(value: data.auth),
             ChangeNotifierProvider<AlbumStore>(
-              create: (_) => AlbumStore()..load(), // 啟動時從 SharedPreferences 載入
+              create: (_) => AlbumStore()..load(),
+            ),
+
+            // 2) LibrarySyncService：依賴前面四個
+            ProxyProvider4<
+              CardItemStore,
+              MiniCardStore,
+              AlbumStore,
+              AuthController,
+              LibrarySyncService
+            >(
+              update: (_, cardStore, miniStore, albumStore, auth, __) {
+                return LibrarySyncService(
+                  cardStore: cardStore,
+                  miniStore: miniStore,
+                  albumStore: albumStore,
+                  auth: auth,
+                );
+              },
             ),
           ],
           child: AppRoot(settings: data.settings, auth: data.auth),

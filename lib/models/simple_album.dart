@@ -108,6 +108,10 @@ class SimpleAlbum {
   /// 專輯中的歌曲
   final List<AlbumTrack> tracks;
 
+  /// 🔥 同步用欄位
+  final DateTime? updatedAt;
+  final bool deleted;
+
   const SimpleAlbum({
     required this.id,
     required this.title,
@@ -121,6 +125,8 @@ class SimpleAlbum {
     this.youtubeMusicUrl,
     this.spotifyUrl,
     this.tracks = const [],
+    this.updatedAt,
+    this.deleted = false,
   });
 
   String get artistLabel => artists.join(', ');
@@ -138,6 +144,8 @@ class SimpleAlbum {
     String? youtubeMusicUrl,
     String? spotifyUrl,
     List<AlbumTrack>? tracks,
+    DateTime? updatedAt,
+    bool? deleted,
   }) {
     return SimpleAlbum(
       id: id ?? this.id,
@@ -152,6 +160,8 @@ class SimpleAlbum {
       youtubeMusicUrl: youtubeMusicUrl ?? this.youtubeMusicUrl,
       spotifyUrl: spotifyUrl ?? this.spotifyUrl,
       tracks: tracks ?? this.tracks,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deleted: deleted ?? this.deleted,
     );
   }
 
@@ -172,6 +182,11 @@ class SimpleAlbum {
               .map((e) => AlbumTrack.fromJson(e as Map<String, dynamic>))
               .toList(growable: false);
 
+    final updatedRaw = j['updatedAt'] as String?;
+    final updated = updatedRaw == null
+        ? null
+        : DateTime.tryParse(updatedRaw)?.toUtc();
+
     return SimpleAlbum(
       id: j['id'] as String,
       title: j['title'] as String,
@@ -185,6 +200,8 @@ class SimpleAlbum {
       youtubeMusicUrl: j['youtubeMusicUrl'] as String?,
       spotifyUrl: j['spotifyUrl'] as String?,
       tracks: tracks,
+      updatedAt: updated,
+      deleted: j['deleted'] == true,
     );
   }
 
@@ -202,6 +219,8 @@ class SimpleAlbum {
     'youtubeMusicUrl': youtubeMusicUrl,
     'spotifyUrl': spotifyUrl,
     'tracks': tracks.map((t) => t.toJson()).toList(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
 
   /// 🌐 匯出 JSON：不帶任何本地路徑，但保留完整專輯資訊 + 歌曲
@@ -217,5 +236,12 @@ class SimpleAlbum {
     'youtubeMusicUrl': youtubeMusicUrl,
     'spotifyUrl': spotifyUrl,
     'tracks': tracks.map((t) => t.toPortableJson()).toList(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
+}
+
+extension SimpleAlbumExt on SimpleAlbum {
+  DateTime get lastModified =>
+      updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 }

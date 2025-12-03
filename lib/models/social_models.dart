@@ -22,6 +22,10 @@ class SocialUser {
   final bool showFacebook;
   final bool showLine;
 
+  /// 🔥 新增：同步用
+  final DateTime? updatedAt;
+  final bool deleted;
+
   const SocialUser({
     required this.id,
     required this.name,
@@ -36,6 +40,8 @@ class SocialUser {
     this.showInstagram = false,
     this.showFacebook = false,
     this.showLine = false,
+    this.updatedAt,
+    this.deleted = false,
   }) : followedTags = followedTags,
        followingUserIds = followingUserIds;
 
@@ -59,6 +65,10 @@ class SocialUser {
     showInstagram: j['showInstagram'] == true,
     showFacebook: j['showFacebook'] == true,
     showLine: j['showLine'] == true,
+    updatedAt: (j['updatedAt'] as String?) != null
+        ? DateTime.tryParse(j['updatedAt'] as String)?.toUtc()
+        : null,
+    deleted: j['deleted'] == true,
   );
 
   Map<String, dynamic> toJson() => {
@@ -75,6 +85,8 @@ class SocialUser {
     'showInstagram': showInstagram,
     'showFacebook': showFacebook,
     'showLine': showLine,
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
 
   SocialUser copyWith({
@@ -91,6 +103,8 @@ class SocialUser {
     bool? showInstagram,
     bool? showFacebook,
     bool? showLine,
+    DateTime? updatedAt,
+    bool? deleted,
   }) => SocialUser(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -109,6 +123,8 @@ class SocialUser {
     showInstagram: showInstagram ?? this.showInstagram,
     showFacebook: showFacebook ?? this.showFacebook,
     showLine: showLine ?? this.showLine,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
   );
 }
 
@@ -118,11 +134,17 @@ class SocialComment {
   final String text;
   final DateTime createdAt; // 建議 UTC
 
+  /// 🔥 新增：最後編輯 & 軟刪除
+  final DateTime? updatedAt;
+  final bool deleted;
+
   SocialComment({
     required this.id,
     required this.author,
     required this.text,
     DateTime? createdAt,
+    this.updatedAt,
+    this.deleted = false,
   }) : createdAt = (createdAt ?? DateTime.now()).toUtc();
 
   factory SocialComment.fromJson(Map<String, dynamic> j) => SocialComment(
@@ -132,6 +154,10 @@ class SocialComment {
     createdAt:
         DateTime.tryParse((j['createdAt'] ?? '').toString())?.toUtc() ??
         DateTime.now().toUtc(),
+    updatedAt: (j['updatedAt'] as String?) != null
+        ? DateTime.tryParse(j['updatedAt'] as String)?.toUtc()
+        : null,
+    deleted: j['deleted'] == true,
   );
 
   Map<String, dynamic> toJson() => {
@@ -139,6 +165,8 @@ class SocialComment {
     'author': author.toJson(),
     'text': text,
     'createdAt': createdAt.toUtc().toIso8601String(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
 
   SocialComment copyWith({
@@ -146,11 +174,15 @@ class SocialComment {
     SocialUser? author,
     String? text,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? deleted,
   }) => SocialComment(
     id: id ?? this.id,
     author: author ?? this.author,
     text: text ?? this.text,
     createdAt: (createdAt ?? this.createdAt).toUtc(),
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
   );
 }
 
@@ -168,6 +200,10 @@ class SocialPost {
   final List<SocialComment> comments; // 不可變
   final List<String> tags; // 不可變
 
+  /// 🔥 新增：最後編輯 & 軟刪除
+  final DateTime? updatedAt;
+  final bool deleted;
+
   SocialPost({
     required this.id,
     required this.author,
@@ -178,6 +214,8 @@ class SocialPost {
     this.likedByMe = false,
     List<SocialComment> comments = const [],
     List<String> tags = const [],
+    this.updatedAt,
+    this.deleted = false,
   }) : createdAt = (createdAt ?? DateTime.now()).toUtc(),
        comments = List.unmodifiable(comments),
        tags = List.unmodifiable(tags);
@@ -204,6 +242,10 @@ class SocialPost {
         .map((e) => e?.toString() ?? '')
         .where((e) => e.isNotEmpty)
         .toList(),
+    updatedAt: (j['updatedAt'] as String?) != null
+        ? DateTime.tryParse(j['updatedAt'] as String)?.toUtc()
+        : null,
+    deleted: j['deleted'] == true,
   );
 
   Map<String, dynamic> toJson() => {
@@ -216,6 +258,8 @@ class SocialPost {
     'comments': comments.map((e) => e.toJson()).toList(),
     'tags': tags,
     if (imageUrl != null) 'imageUrl': imageUrl,
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
 
   SocialPost copyWith({
@@ -228,6 +272,8 @@ class SocialPost {
     bool? likedByMe,
     List<SocialComment>? comments,
     List<String>? tags,
+    DateTime? updatedAt,
+    bool? deleted,
   }) => SocialPost(
     id: id ?? this.id,
     author: author ?? this.author,
@@ -238,5 +284,11 @@ class SocialPost {
     likedByMe: likedByMe ?? this.likedByMe,
     comments: comments == null ? this.comments : List.unmodifiable(comments),
     tags: tags == null ? this.tags : List.unmodifiable(tags),
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
   );
+}
+
+extension SocialPostExt on SocialPost {
+  DateTime get lastModified => updatedAt ?? createdAt;
 }

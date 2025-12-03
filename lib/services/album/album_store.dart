@@ -11,7 +11,14 @@ class AlbumStore extends ChangeNotifier {
 
   final List<SimpleAlbum> _albums = [];
 
-  List<SimpleAlbum> get albums => List.unmodifiable(_albums);
+  List<SimpleAlbum> get visibleAlbums =>
+      List.unmodifiable(_albums.where((a) => !a.deleted));
+
+  List<SimpleAlbum> get allAlbumsRaw => List.unmodifiable(_albums);
+
+  // 👇 向下相容用：舊程式碼用 albums，多半是給畫面顯示，
+  // 所以這裡回傳 visibleAlbums 即可
+  List<SimpleAlbum> get albums => visibleAlbums;
 
   // 啟動時載入（這裡用的是完整的 toJson / fromJson，會帶 coverLocalPath）
   Future<void> load() async {
@@ -39,22 +46,32 @@ class AlbumStore extends ChangeNotifier {
   // ----------------- 新增 / 更新 / 移除 -----------------
 
   Future<void> add(SimpleAlbum album) async {
-    final withLocal = await _withLocalCovers(album);
+    final now = DateTime.now().toUtc();
+    var withTime = album.copyWith(updatedAt: now, deleted: false);
+
+    final withLocal = await _withLocalCovers(withTime);
     _albums.add(withLocal);
     await _save();
     notifyListeners();
   }
 
   Future<void> remove(String id) async {
-    _albums.removeWhere((a) => a.id == id);
-    await _save();
-    notifyListeners();
+    final idx = _albums.indexWhere((a) => a.id == id);
+    if (idx >= 0) {
+      final now = DateTime.now().toUtc();
+      final cur = _albums[idx];
+      _albums[idx] = cur.copyWith(deleted: true, updatedAt: now);
+      await _save();
+      notifyListeners();
+    }
   }
 
   Future<void> update(SimpleAlbum album) async {
     final idx = _albums.indexWhere((a) => a.id == album.id);
     if (idx >= 0) {
-      final withLocal = await _withLocalCovers(album);
+      final now = DateTime.now().toUtc();
+      var withTime = album.copyWith(updatedAt: now, deleted: false);
+      final withLocal = await _withLocalCovers(withTime);
       _albums[idx] = withLocal;
       await _save();
       notifyListeners();

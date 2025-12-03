@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-import 'package:flutter/foundation.dart';
-
-@immutable
 class MiniCardData {
   final String id;
   final String? imageUrl;
@@ -20,8 +17,16 @@ class MiniCardData {
   final String? album;
   final String? cardType;
   final String note;
-  final List<String> tags; // → 不可變
+  final List<String> tags; // 不可變
+
+  /// 建立時間（第一次建立時）
   final DateTime createdAt; // 建議 UTC
+
+  /// 🔥 新增：最後編輯時間（同步比大小用）
+  final DateTime? updatedAt;
+
+  /// 🔥 新增：軟刪除
+  final bool deleted;
 
   const MiniCardData({
     required this.id,
@@ -38,6 +43,8 @@ class MiniCardData {
     this.note = '',
     List<String> tags = const [],
     required DateTime createdAt,
+    this.updatedAt,
+    this.deleted = false,
   }) : tags = tags,
        createdAt = createdAt;
 
@@ -56,6 +63,8 @@ class MiniCardData {
     String? note,
     List<String>? tags,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? deleted,
   }) => MiniCardData(
     id: id ?? this.id,
     imageUrl: imageUrl ?? this.imageUrl,
@@ -71,14 +80,22 @@ class MiniCardData {
     note: note ?? this.note,
     tags: tags == null ? this.tags : List.unmodifiable(tags),
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
   );
 
   factory MiniCardData.fromJson(Map<String, dynamic> json) {
-    final parsed = DateTime.tryParse(json['createdAt'] as String? ?? '');
-    if (parsed == null) {
+    final created = DateTime.tryParse(json['createdAt'] as String? ?? '');
+    if (created == null) {
       // 若你想寬鬆，可改回 DateTime.now().toUtc()
       throw FormatException('MiniCardData.createdAt missing/invalid');
     }
+
+    final updatedRaw = json['updatedAt'] as String?;
+    final updated = updatedRaw == null
+        ? null
+        : DateTime.tryParse(updatedRaw)?.toUtc();
+
     return MiniCardData(
       id: json['id'] as String,
       imageUrl: json['imageUrl'] as String?,
@@ -95,7 +112,9 @@ class MiniCardData {
       tags: ((json['tags'] as List?) ?? const [])
           .map((e) => e.toString())
           .toList(),
-      createdAt: parsed.toUtc(),
+      createdAt: created.toUtc(),
+      updatedAt: updated,
+      deleted: json['deleted'] == true,
     );
   }
 
@@ -114,5 +133,11 @@ class MiniCardData {
     'note': note,
     'tags': tags,
     'createdAt': createdAt.toUtc().toIso8601String(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
+}
+
+extension MiniCardDataExt on MiniCardData {
+  DateTime get lastModified => updatedAt ?? createdAt;
 }

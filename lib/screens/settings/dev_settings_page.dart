@@ -21,6 +21,8 @@ import 'package:flutter_learning_app/services/subscription_service.dart';
 import 'package:flutter_learning_app/utils/mini_card_io/mini_card_io.dart';
 import 'package:flutter_learning_app/utils/tip_prompter.dart';
 
+import 'package:flutter_learning_app/services/library_sync_service.dart';
+
 class DevSettingsPage extends StatefulWidget {
   const DevSettingsPage({super.key});
   @override
@@ -128,6 +130,38 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     ).showSnackBar(const SnackBar(content: Text('已在 Terminal 印出兩個 Token')));
   }
 
+  // 👉 雲端 Library 同步按鈕：呼叫 LibrarySyncService.sync()
+  Future<void> _syncLibraryToCloud() async {
+    final svc = context.read<LibrarySyncService>();
+
+    // 顯示簡單 loading Dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await svc.sync();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已執行 Library 同步（詳情請看 console log）')),
+      );
+    } catch (e, st) {
+      debugPrint('[DevSettings] Library sync error: $e\n$st');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('同步失敗：$e')));
+    } finally {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // 關掉 loading
+      }
+    }
+  }
+
   Future<void> _apply() async {
     // 1) 套用訂閱模擬
     await SubscriptionService.I.setDevOverride(
@@ -163,7 +197,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
 
     final cardsJson = {
       'categories': cardStore.categories,
-      'items': cardStore.cardItems.map((e) {
+      'items': cardStore.allCardItemsRaw.map((e) {
         final j = e.toJson();
 
         // 永遠不要匯出 localPath
@@ -263,7 +297,16 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     });
   }
 
+  bool _isHttpUrl(String? url) {
+    if (url == null) return false;
+    final u = url.trim();
+    return u.startsWith('http://') || u.startsWith('https://');
+  }
+
   Future<void> _importAll() async {
+    // 小工具：把 title/name 轉成去重用 key
+    String _norm(String? s) => (s ?? '').trim().toLowerCase();
+
     try {
       // 先叫出檔案選擇器
       final res = await FilePicker.platform.pickFiles(
@@ -298,54 +341,104 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
       );
 
       try {
-        // ===== 1) 匯入 CardItem =====
-        final categories = (cardsJson['categories'] as List? ?? const [])
-            .map((e) => '$e')
-            .toList();
+        // ===== 1) 匯入 CardItem（用 title 去重：新增＋不覆蓋） =====
+        final cardStore = context.read<CardItemStore>();
+
+        // 目前的資料
+        final existingCards = List<CardItem>.from(cardStore.cardItems);
+        final existingCategories = List<String>.from(cardStore.categories);
+
+        // 目前已存在的 title key（忽略大小寫與前後空白）
+        final existingTitleKeys = existingCards
+            .map((c) => _norm(c.title)) // ⬅️ 用 title 當 key
+            .where((k) => k.isNotEmpty)
+            .toSet();
+
+        // 匯入檔裡的資料
+        final importedCategories =
+            (cardsJson['categories'] as List? ?? const [])
+                .map((e) => '$e')
+                .toList();
 
         final rawItems = (cardsJson['items'] as List? ?? const []);
-        final List<CardItem> items = [];
+
+        final List<CardItem> cardsToAdd = [];
+        int cardInserted = 0;
+        int cardSkipped = 0;
 
         for (final raw in rawItems) {
           final m = (raw as Map).cast<String, dynamic>();
           final c = CardItem.fromJson(m);
 
-          final url = c.imageUrl ?? '';
-          CardItem next = c;
+          final titleKey = _norm(c.title);
 
-          if (url.isNotEmpty) {
-            try {
-              final lp = await downloadImageToLocal(url, preferName: c.id);
-              next = next.copyWith(localPath: lp);
-            } catch (e) {
-              debugPrint('CardItem image download failed for ${c.id}: $e');
-              next = next.copyWith(localPath: null);
-            }
-          } else {
-            next = next.copyWith(localPath: null);
+          // 有 title 才做去重；title 空字串就當作「沒有 key」，每次都當新的一筆
+          if (titleKey.isNotEmpty && existingTitleKeys.contains(titleKey)) {
+            cardSkipped++;
+            continue;
           }
 
-          items.add(next);
+          // ✅ 不沿用匯入 JSON 裡的 localPath（那是別台裝置的路徑）
+          CardItem next = c.copyWith(localPath: null);
+
+          final url = c.imageUrl?.trim() ?? '';
+
+          // ✅ 若有 http(s) 的 imageUrl，且不是 Web → 幫它下載一份到本機
+          if (!kIsWeb && _isHttpUrl(url)) {
+            try {
+              final lp = await downloadImageToLocal(url, preferName: c.id);
+              if (lp != null && lp.isNotEmpty) {
+                next = next.copyWith(localPath: lp);
+              }
+            } catch (e) {
+              debugPrint('CardItem image download failed for ${c.id}: $e');
+              // 失敗就維持 localPath = null，不影響匯入
+            }
+          }
+
+          if (titleKey.isNotEmpty) {
+            existingTitleKeys.add(titleKey);
+          }
+          cardsToAdd.add(next);
+          cardInserted++;
         }
 
-        // 覆蓋目前的 CardItemStore
-        context.read<CardItemStore>().replaceAll(
-          categories: categories,
-          items: items,
-        );
+        // 合併 categories（去重）
+        final mergedCategories = <String>{
+          ...existingCategories,
+          ...importedCategories,
+        }.toList();
 
-        // ===== 2) 匯入 MiniCard by_owner =====
+        // 合併 items：舊的 + 新增的
+        final mergedItems = <CardItem>[...existingCards, ...cardsToAdd];
+
+        // 用 replaceAll 但內容是「舊的 + 新增的」
+        cardStore.replaceAll(categories: mergedCategories, items: mergedItems);
+
+        // ===== 2) 匯入 MiniCard by_owner（同一 owner 用 name 去重：新增＋不覆蓋） =====
         final byOwner =
             (minisJson['by_owner'] as Map<String, dynamic>? ?? const {});
         final miniStore = context.read<MiniCardStore>();
 
-        int total = 0;
+        int miniInserted = 0;
+        int miniSkipped = 0;
 
         for (final entry in byOwner.entries) {
           final ownerTitle = entry.key;
           final rawList = (entry.value as List? ?? const []);
 
-          final List<MiniCardData> list = [];
+          // 先把目前 owner 底下的卡片抓出來
+          final existingList = List<MiniCardData>.from(
+            miniStore.forOwner(ownerTitle),
+          );
+
+          // 這個 owner 底下已存在的 name key
+          final existingNameKeys = existingList
+              .map((m) => _norm(m.name)) // ⬅️ 用 name 當 key
+              .where((k) => k.isNotEmpty)
+              .toSet();
+
+          final List<MiniCardData> toAdd = [];
 
           for (final raw in rawList) {
             final m = MiniCardData.fromJson(
@@ -357,52 +450,78 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                 ? m.copyWith(idol: ownerTitle)
                 : m;
 
-            // 前面（正面）圖片
-            final frontUrl = cur.imageUrl ?? '';
-            if (frontUrl.isNotEmpty) {
+            final nameKey = _norm(cur.name);
+
+            // 有 name 的才去重；name 空字串 → 一律當新卡
+            if (nameKey.isNotEmpty && existingNameKeys.contains(nameKey)) {
+              miniSkipped++;
+              continue;
+            }
+
+            // ✅ 先把匯入 JSON 裡的 localPath / backLocalPath 清空
+            cur = cur.copyWith(localPath: null, backLocalPath: null);
+
+            // 前面圖片
+            final frontUrl = cur.imageUrl?.trim() ?? '';
+            if (!kIsWeb && _isHttpUrl(frontUrl)) {
               try {
                 final lp = await downloadImageToLocal(
                   frontUrl,
                   preferName: '${cur.id}_front',
                 );
-                cur = cur.copyWith(localPath: lp);
+                if (lp != null && lp.isNotEmpty) {
+                  cur = cur.copyWith(localPath: lp);
+                }
               } catch (e) {
                 debugPrint('MiniCard front download failed for ${cur.id}: $e');
-                cur = cur.copyWith(localPath: null);
+                // 失敗就保持 localPath = null
               }
-            } else {
-              cur = cur.copyWith(localPath: null);
             }
 
             // 背面圖片
-            final backUrl = cur.backImageUrl ?? '';
-            if (backUrl.isNotEmpty) {
+            final backUrl = cur.backImageUrl?.trim() ?? '';
+            if (!kIsWeb && _isHttpUrl(backUrl)) {
               try {
                 final lp = await downloadImageToLocal(
                   backUrl,
                   preferName: '${cur.id}_back',
                 );
-                cur = cur.copyWith(backLocalPath: lp);
+                if (lp != null && lp.isNotEmpty) {
+                  cur = cur.copyWith(backLocalPath: lp);
+                }
               } catch (e) {
                 debugPrint('MiniCard back download failed for ${cur.id}: $e');
-                cur = cur.copyWith(backLocalPath: null);
+                // 失敗就保持 backLocalPath = null
               }
-            } else {
-              cur = cur.copyWith(backLocalPath: null);
             }
 
-            list.add(cur);
+            if (nameKey.isNotEmpty) {
+              existingNameKeys.add(nameKey);
+            }
+            toAdd.add(cur);
+            miniInserted++;
           }
 
-          total += list.length;
-          await miniStore.replaceCardsForIdol(idol: ownerTitle, next: list);
+          if (toAdd.isNotEmpty) {
+            // 合併：原本 + 新增
+            final mergedList = <MiniCardData>[...existingList, ...toAdd];
+
+            await miniStore.replaceCardsForIdol(
+              idol: ownerTitle,
+              next: mergedList,
+            );
+          }
         }
 
         if (!mounted) return;
-        // 匯入成功提示
+        // 匯入成功提示（顯示新增 / 略過數量）
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ 匯入完成：CardItem ${items.length}、MiniCard $total'),
+            content: Text(
+              '✅ 匯入完成：'
+              'CardItem 新增 $cardInserted（略過 $cardSkipped）、'
+              'MiniCard 新增 $miniInserted（略過 $miniSkipped）',
+            ),
           ),
         );
 
@@ -711,6 +830,36 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
 
           const SizedBox(height: 12),
 
+          // 👉 新增：Library 雲端同步按鈕
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Library 雲端同步（Dev）'),
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: _syncLibraryToCloud,
+                    icon: const Icon(Icons.cloud_sync_outlined),
+                    label: const Text('立即同步到 Social 伺服器'),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '• 會組合 CardItem + MiniCard + Albums，一次打 /api/v1/library/sync\n'
+                    '• 目前行為：以本機資料為主，上傳後由伺服器原樣回傳，再覆蓋本機 Library\n'
+                    '• 若尚未登入 Firebase 帳號，LibrarySyncService 會在 console 印出 skip 訊息',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: _muted(context)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
           // 覆寫開關
           Card(
             child: SwitchListTile(
@@ -864,7 +1013,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                   Text(
                     '說明：\n'
                     '• 此預覽為即時組合的單一 JSON：包含所有藝人(CardItem)與小卡(MiniCard)，by_owner 以 title 關聯。\n'
-                    '• 匯入為覆蓋式，請先確認內容正確再操作。\n'
+                    '• 匯入為「合併＋去重」，遇到同名藝人（CardItem title）或同名小卡（MiniCard name）會略過不覆蓋。\n'
                     '• 若日後更改藝人 title，舊檔匯入時 by_owner 對不上將不會合併。\n'
                     '• 匯出內容不包含本機圖片路徑（localPath），在其他裝置匯入後，如需使用本機圖片，請重新指定。',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

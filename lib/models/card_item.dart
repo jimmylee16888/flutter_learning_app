@@ -10,14 +10,19 @@ class CardItem {
   final String quote;
   final List<String> categories;
 
-  // ✅ 新欄位
+  // ✅ 你原本的新欄位
   final String? stageName; // 暱稱 / 藝名
   final String? group; // 團體 / 系列
   final String? origin; // 卡片來源（專輯 / 活動）
   final String? note; // 備註
+  final List<String> albumIds; // 關聯專輯 ID
 
-  /// ✅ 新增：這個人物相關的專輯 ID 清單
-  final List<String> albumIds;
+  // 🔥 同步用欄位
+  /// 最後編輯時間（雲端同步判斷誰比較新）
+  final DateTime? updatedAt;
+
+  /// 軟刪除：true 代表這筆在邏輯上被刪掉（給雲端同步用）
+  final bool deleted;
 
   const CardItem({
     required this.id,
@@ -32,6 +37,8 @@ class CardItem {
     this.origin,
     this.note,
     this.albumIds = const [],
+    this.updatedAt, // 可為 null：舊資料沒這欄時 fallback 用
+    this.deleted = false,
   });
 
   CardItem copyWith({
@@ -47,6 +54,8 @@ class CardItem {
     String? origin,
     String? note,
     List<String>? albumIds,
+    DateTime? updatedAt,
+    bool? deleted,
   }) {
     return CardItem(
       id: id ?? this.id,
@@ -61,6 +70,8 @@ class CardItem {
       origin: origin ?? this.origin,
       note: note ?? this.note,
       albumIds: albumIds ?? this.albumIds,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deleted: deleted ?? this.deleted,
     );
   }
 
@@ -77,6 +88,9 @@ class CardItem {
     'origin': origin,
     'note': note,
     'albumIds': albumIds,
+    // 🔥 雲端同步也要看到這兩個
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
   };
 
   factory CardItem.fromJson(Map<String, dynamic> json) => CardItem(
@@ -94,5 +108,14 @@ class CardItem {
     origin: json['origin'] as String?,
     note: json['note'] as String?,
     albumIds: ((json['albumIds'] as List?) ?? const []).cast<String>(),
+    updatedAt: (json['updatedAt'] as String?) != null
+        ? DateTime.tryParse(json['updatedAt'] as String)?.toUtc()
+        : null,
+    deleted: json['deleted'] == true,
   );
+}
+
+extension CardItemExt on CardItem {
+  DateTime get lastModified =>
+      updatedAt ?? birthday ?? DateTime.fromMillisecondsSinceEpoch(0);
 }
