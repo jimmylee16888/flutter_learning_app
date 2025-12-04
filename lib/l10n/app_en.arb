@@ -715,5 +715,11 @@
   "albumImportSuccess": "Albums imported successfully.",
   "albumImportFailed": "Import failed: {error}",
 
-  "albumAddNewAlbum": "Add Album"
+  "albumAddNewAlbum": "Add Album",
+
+  "chatHint": "Type a message…",
+  "socialNewConversation": "New Conversation",
+  "socialMembersHint": "Add members…",
+  "socialConversationNameOptional": "Conversation name (optional)",
+  "socialMessagesTitle": "Messages"
 }

@@ -22,6 +22,9 @@ class SocialUser {
   final bool showFacebook;
   final bool showLine;
 
+  /// 🔥 新增：個人頁要顯示哪些區塊
+  final ProfileVisibility visibility;
+
   /// 🔥 新增：同步用
   final DateTime? updatedAt;
   final bool deleted;
@@ -40,6 +43,7 @@ class SocialUser {
     this.showInstagram = false,
     this.showFacebook = false,
     this.showLine = false,
+    this.visibility = const ProfileVisibility(), // 🔥 預設全開，且可用在 const ctor
     this.updatedAt,
     this.deleted = false,
   }) : followedTags = followedTags,
@@ -65,6 +69,12 @@ class SocialUser {
     showInstagram: j['showInstagram'] == true,
     showFacebook: j['showFacebook'] == true,
     showLine: j['showLine'] == true,
+    // 🔥 舊 JSON 沒 visibility → 用預設值，向下相容
+    visibility: j['visibility'] is Map
+        ? ProfileVisibility.fromJson(
+            (j['visibility'] as Map).cast<String, dynamic>(),
+          )
+        : const ProfileVisibility(),
     updatedAt: (j['updatedAt'] as String?) != null
         ? DateTime.tryParse(j['updatedAt'] as String)?.toUtc()
         : null,
@@ -85,6 +95,8 @@ class SocialUser {
     'showInstagram': showInstagram,
     'showFacebook': showFacebook,
     'showLine': showLine,
+    // 🔥 永遠帶 visibility，後端可以選擇要不要存
+    'visibility': visibility.toJson(),
     'updatedAt': updatedAt?.toUtc().toIso8601String(),
     'deleted': deleted,
   };
@@ -103,6 +115,7 @@ class SocialUser {
     bool? showInstagram,
     bool? showFacebook,
     bool? showLine,
+    ProfileVisibility? visibility, // 🔥 新增
     DateTime? updatedAt,
     bool? deleted,
   }) => SocialUser(
@@ -123,6 +136,7 @@ class SocialUser {
     showInstagram: showInstagram ?? this.showInstagram,
     showFacebook: showFacebook ?? this.showFacebook,
     showLine: showLine ?? this.showLine,
+    visibility: visibility ?? this.visibility,
     updatedAt: updatedAt ?? this.updatedAt,
     deleted: deleted ?? this.deleted,
   );
@@ -291,4 +305,272 @@ class SocialPost {
 
 extension SocialPostExt on SocialPost {
   DateTime get lastModified => updatedAt ?? createdAt;
+}
+
+// lib/models/social_models.dart
+
+// ================== ProfileVisibility ==================
+
+class ProfileVisibility {
+  final bool showMiniCards; // 是否顯示小卡牆
+  final bool showAlbums; // 是否顯示專輯收藏
+  final bool showListening; // 是否顯示常聽歌曲
+  final bool showContact; // 是否顯示聯絡方式（IG / FB / Line）
+
+  const ProfileVisibility({
+    this.showMiniCards = true,
+    this.showAlbums = true,
+    this.showListening = true,
+    this.showContact = true,
+  });
+
+  factory ProfileVisibility.fromJson(Map<String, dynamic> j) =>
+      ProfileVisibility(
+        showMiniCards: j['showMiniCards'] != false,
+        showAlbums: j['showAlbums'] != false,
+        showListening: j['showListening'] != false,
+        showContact: j['showContact'] != false,
+      );
+
+  Map<String, dynamic> toJson() => {
+    'showMiniCards': showMiniCards,
+    'showAlbums': showAlbums,
+    'showListening': showListening,
+    'showContact': showContact,
+  };
+}
+
+// 之後可把 SocialUser 加上：final ProfileVisibility? visibility;
+// fromJson / toJson 對應 visibility 欄位即可
+
+// ================== Board（聊天大廳的版） ==================
+
+class Board {
+  final String id;
+  final String name;
+  final String? description;
+  final String ownerId; // 建版者
+  final List<String> moderatorIds;
+  final bool isOfficial;
+  final bool isPrivate;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final bool deleted;
+
+  Board({
+    required this.id,
+    required this.name,
+    required this.ownerId,
+    this.description,
+    List<String> moderatorIds = const [],
+    this.isOfficial = false,
+    this.isPrivate = false,
+    DateTime? createdAt,
+    this.updatedAt,
+    this.deleted = false,
+  }) : moderatorIds = List.unmodifiable(moderatorIds),
+       createdAt = (createdAt ?? DateTime.now()).toUtc();
+
+  factory Board.fromJson(Map<String, dynamic> j) => Board(
+    id: j['id'].toString(),
+    name: (j['name'] ?? '').toString(),
+    description: j['description'] as String?,
+    ownerId: j['ownerId'].toString(),
+    moderatorIds: ((j['moderatorIds'] as List?) ?? const [])
+        .map((e) => e.toString())
+        .toList(),
+    isOfficial: j['isOfficial'] == true,
+    isPrivate: j['isPrivate'] == true,
+    createdAt:
+        DateTime.tryParse('${j['createdAt'] ?? ''}')?.toUtc() ??
+        DateTime.now().toUtc(),
+    updatedAt: DateTime.tryParse('${j['updatedAt'] ?? ''}')?.toUtc(),
+    deleted: j['deleted'] == true,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    if (description != null) 'description': description,
+    'ownerId': ownerId,
+    'moderatorIds': moderatorIds,
+    'isOfficial': isOfficial,
+    'isPrivate': isPrivate,
+    'createdAt': createdAt.toUtc().toIso8601String(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
+  };
+}
+
+// ================== DM：Conversation & Message ==================
+
+class Conversation {
+  final String id;
+  final bool isGroup;
+  final String? name;
+  final List<String> memberIds;
+  final DateTime createdAt;
+  final DateTime lastMessageAt;
+  final String? lastMessagePreview; // 後端可以塞 "[專輯]" 之類的
+  final int unreadCount;
+
+  Conversation({
+    required this.id,
+    required this.isGroup,
+    this.name,
+    required this.memberIds,
+    DateTime? createdAt,
+    required this.lastMessageAt,
+    this.lastMessagePreview,
+    this.unreadCount = 0,
+  }) : createdAt = (createdAt ?? DateTime.now()).toUtc();
+
+  factory Conversation.fromJson(Map<String, dynamic> j) => Conversation(
+    id: j['id'].toString(),
+    isGroup: j['isGroup'] == true,
+    name: j['name'] as String?,
+    memberIds: ((j['memberIds'] as List?) ?? const [])
+        .map((e) => e.toString())
+        .toList(),
+    createdAt:
+        DateTime.tryParse('${j['createdAt'] ?? ''}')?.toUtc() ??
+        DateTime.now().toUtc(),
+    lastMessageAt:
+        DateTime.tryParse('${j['lastMessageAt'] ?? ''}')?.toUtc() ??
+        DateTime.now().toUtc(),
+    lastMessagePreview: j['lastMessagePreview'] as String?,
+    unreadCount: (j['unreadCount'] as num?)?.toInt() ?? 0,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'isGroup': isGroup,
+    if (name != null) 'name': name,
+    'memberIds': memberIds,
+    'createdAt': createdAt.toUtc().toIso8601String(),
+    'lastMessageAt': lastMessageAt.toUtc().toIso8601String(),
+    if (lastMessagePreview != null) 'lastMessagePreview': lastMessagePreview,
+    'unreadCount': unreadCount,
+  };
+}
+
+enum MessageType { text, miniCard, album, artist, system }
+
+class Message {
+  final String id;
+  final String conversationId;
+  final String senderId;
+  final MessageType type;
+
+  /// 純文字訊息使用
+  final String? text;
+
+  /// 小卡 / 專輯 / 藝人卡的整包 JSON snapshot
+  final Map<String, dynamic>? contentJson;
+  final String? contentSchema; // 例如 "miniCard_v1", "album_v1"
+
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final bool deleted;
+  final bool edited;
+
+  Message({
+    required this.id,
+    required this.conversationId,
+    required this.senderId,
+    required this.type,
+    this.text,
+    this.contentJson,
+    this.contentSchema,
+    DateTime? createdAt,
+    this.updatedAt,
+    this.deleted = false,
+    this.edited = false,
+  }) : createdAt = (createdAt ?? DateTime.now()).toUtc();
+
+  factory Message.fromJson(Map<String, dynamic> j) {
+    MessageType parseType(String? raw) {
+      switch (raw) {
+        case 'miniCard':
+          return MessageType.miniCard;
+        case 'album':
+          return MessageType.album;
+        case 'artist':
+          return MessageType.artist;
+        case 'system':
+          return MessageType.system;
+        case 'text':
+        default:
+          return MessageType.text;
+      }
+    }
+
+    Map<String, dynamic>? parseContent(dynamic v) {
+      if (v is Map<String, dynamic>) return v;
+      if (v is Map) return v.cast<String, dynamic>();
+      return null;
+    }
+
+    return Message(
+      id: j['id'].toString(),
+      conversationId: j['conversationId'].toString(),
+      senderId: j['senderId'].toString(),
+      type: parseType(j['type']?.toString()),
+      text: j['text'] as String?,
+      contentJson: parseContent(j['contentJson']),
+      contentSchema: j['contentSchema'] as String?,
+      createdAt:
+          DateTime.tryParse('${j['createdAt'] ?? ''}')?.toUtc() ??
+          DateTime.now().toUtc(),
+      updatedAt: DateTime.tryParse('${j['updatedAt'] ?? ''}')?.toUtc(),
+      deleted: j['deleted'] == true,
+      edited: j['edited'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'conversationId': conversationId,
+    'senderId': senderId,
+    'type': switch (type) {
+      MessageType.text => 'text',
+      MessageType.miniCard => 'miniCard',
+      MessageType.album => 'album',
+      MessageType.artist => 'artist',
+      MessageType.system => 'system',
+    },
+    if (text != null) 'text': text,
+    if (contentJson != null) 'contentJson': contentJson,
+    if (contentSchema != null) 'contentSchema': contentSchema,
+    'createdAt': createdAt.toUtc().toIso8601String(),
+    'updatedAt': updatedAt?.toUtc().toIso8601String(),
+    'deleted': deleted,
+    'edited': edited,
+  };
+
+  Message copyWith({
+    String? id,
+    String? conversationId,
+    String? senderId,
+    MessageType? type,
+    String? text,
+    Map<String, dynamic>? contentJson,
+    String? contentSchema,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? deleted,
+    bool? edited,
+  }) => Message(
+    id: id ?? this.id,
+    conversationId: conversationId ?? this.conversationId,
+    senderId: senderId ?? this.senderId,
+    type: type ?? this.type,
+    text: text ?? this.text,
+    contentJson: contentJson ?? this.contentJson,
+    contentSchema: contentSchema ?? this.contentSchema,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
+    edited: edited ?? this.edited,
+  );
 }

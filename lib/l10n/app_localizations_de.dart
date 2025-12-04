@@ -1594,4 +1594,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get albumAddNewAlbum => 'Album hinzufügen';
+
+  @override
+  String get chatHint => 'Nachricht eingeben…';
+
+  @override
+  String get socialNewConversation => 'Neues Gespräch';
+
+  @override
+  String get socialMembersHint => 'Mitglieder hinzufügen…';
+
+  @override
+  String get socialConversationNameOptional => 'Gesprächsname (optional)';
+
+  @override
+  String get socialMessagesTitle => 'Nachrichten';
 }

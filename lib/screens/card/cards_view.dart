@@ -556,16 +556,29 @@ class _EditCardDialogState extends State<_EditCardDialog> {
       _cats.addAll(i.categories);
       _url.text = i.imageUrl ?? '';
 
+      _url.text = i.imageUrl ?? '';
+
       // ✅ 帶入新欄位
       _stageName.text = i.stageName ?? '';
       _group.text = i.group ?? '';
       _origin.text = i.origin ?? '';
       _note.text = i.note ?? '';
 
-      if ((i.localPath ?? '').isNotEmpty) {
+      // ⭐ 修正預設模式：只在「只有本地、沒有網址」時才當本地模式
+      final hasLocal = (i.localPath ?? '').isNotEmpty;
+      final hasUrl = _url.text.isNotEmpty;
+
+      if (hasLocal && !hasUrl) {
+        // 真・純本地卡片
         _mode = _ImageMode.byLocal;
         _pickedLocalPath = i.localPath;
-      } else if ((_url.text).isNotEmpty) {
+      } else if (hasUrl) {
+        // 只要有網址（不管有沒有本地快取），都視為「網址模式」
+        _mode = _ImageMode.byUrl;
+        // 如果之後切到本地模式，還是可以用這個路徑
+        _pickedLocalPath = i.localPath;
+      } else {
+        // 都沒有，就先給網址模式，等使用者輸入
         _mode = _ImageMode.byUrl;
       }
     }
@@ -849,9 +862,6 @@ class _EditCardDialogState extends State<_EditCardDialog> {
             );
 
             if (exists) {
-              // 建議在 l10n 增加：
-              // cardNameAlreadyExists(name)：
-              // 「已經有名為「{name}」的人物卡了，請換一個名稱。」
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(l.cardNameAlreadyExists(t))),
               );
@@ -874,17 +884,35 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 return;
               }
 
+              // ⭐ 取得舊的 url / localPath
+              final oldUrl = widget.initial?.imageUrl?.trim();
+              final oldLocalPath = widget.initial?.localPath;
+
               imageUrl = url;
-              try {
-                localPath = await downloadImageToLocal(url, preferName: id);
-              } catch (e) {
-                debugPrint('downloadImageToLocal failed: $e');
-                localPath = null;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
+
+              // ⭐ 判斷網址是否有變
+              final bool urlChanged = (oldUrl == null) || (oldUrl != url);
+
+              if (!urlChanged &&
+                  oldLocalPath != null &&
+                  oldLocalPath.isNotEmpty) {
+                // ✅ 網址沒變，而且以前就有本地快取 → 直接沿用，不重抓
+                localPath = oldLocalPath;
+              } else {
+                // ✅ 網址有變（或以前沒快取）→ 強制重新下載
+                try {
+                  // 你可以沿用 id，讓舊檔被覆蓋
+                  localPath = await downloadImageToLocal(url, preferName: id);
+                } catch (e) {
+                  debugPrint('downloadImageToLocal failed: $e');
+                  localPath = null;
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(l.downloadFailed)));
+                }
               }
             } else {
+              // 📂 本地模式
               if (_pickedLocalPath == null) {
                 ScaffoldMessenger.of(
                   context,
@@ -892,6 +920,7 @@ class _EditCardDialogState extends State<_EditCardDialog> {
                 return;
               }
               localPath = _pickedLocalPath!;
+              // 本地模式保持原本 imageUrl（向下相容）
               imageUrl = widget.initial?.imageUrl;
             }
 

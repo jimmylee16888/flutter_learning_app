@@ -689,9 +689,13 @@
   "albumImportSuccess": "アルバムのインポートが完了しました。",
   "albumImportFailed": "インポートに失敗しました：{error}",
 
-  "albumAddNewAlbum": "アルバムを追加"
+  "albumAddNewAlbum": "アルバムを追加",
 
-
+  "chatHint": "メッセージを入力…",
+  "socialNewConversation": "新しい会話",
+  "socialMembersHint": "メンバーを追加…",
+  "socialConversationNameOptional": "会話名（任意）",
+  "socialMessagesTitle": "メッセージ"
 
 
 }

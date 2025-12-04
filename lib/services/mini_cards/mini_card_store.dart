@@ -398,7 +398,9 @@ class MiniCardStore extends ChangeNotifier {
         a.cardType == b.cardType &&
         a.note == b.note &&
         listEquals(a.tags, b.tags) &&
-        a.createdAt == b.createdAt;
+        a.createdAt == b.createdAt &&
+        a.updatedAt == b.updatedAt && // ⭐ 新增
+        a.deleted == b.deleted; // ⭐ 新增
   }
 
   /// 若資料真的有變動才替換，回傳是否變動

@@ -690,6 +690,12 @@
   "albumImportSuccess": "專輯匯入成功。",
   "albumImportFailed": "匯入失敗：{error}",
 
-  "albumAddNewAlbum": "新增專輯"
+  "albumAddNewAlbum": "新增專輯",
+
+  "chatHint": "輸入訊息…",
+  "socialNewConversation": "新增對話",
+  "socialMembersHint": "加入成員…",
+  "socialConversationNameOptional": "對話名稱（可選填）",
+  "socialMessagesTitle": "訊息"
 
 }

@@ -1524,4 +1524,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get albumAddNewAlbum => '앨범 추가';
+
+  @override
+  String get chatHint => '메시지를 입력…';
+
+  @override
+  String get socialNewConversation => '새 대화';
+
+  @override
+  String get socialMembersHint => '멤버를 추가…';
+
+  @override
+  String get socialConversationNameOptional => '대화 이름(선택 사항)';
+
+  @override
+  String get socialMessagesTitle => '메시지';
 }

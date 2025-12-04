@@ -1,6 +1,8 @@
 // lib/services/social/social_api.dart
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter_learning_app/models/mini_card_data.dart';
+import 'package:flutter_learning_app/models/simple_album.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_learning_app/models/social_models.dart';
@@ -171,6 +173,7 @@ class SocialApi {
     List<String>? followedTags,
     List<String>? followingUserIds,
     String? birthdayIso,
+    ProfileVisibility? visibility,
   }) async {
     final payload = <String, dynamic>{
       if (nickname != null) 'nickname': nickname,
@@ -184,6 +187,7 @@ class SocialApi {
       if (followedTags != null) 'followedTags': followedTags,
       if (followingUserIds != null) 'followingUserIds': followingUserIds,
       if (birthdayIso != null) 'birthday': birthdayIso,
+      if (visibility != null) 'visibility': visibility.toJson(),
     };
 
     final resp = await http
@@ -339,6 +343,113 @@ class SocialApi {
         .toList(growable: false);
   }
 
+  // ================== Boards（聊天大廳的版） ==================
+
+  /// 取得目前可見的所有板（官方 + 使用者自建）
+  Future<List<Board>> fetchBoards() async {
+    final resp = await http
+        .get(_uri('/boards'), headers: await _authHeaders())
+        .timeout(_timeout);
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchBoards ${resp.statusCode}: ${resp.body}');
+    }
+    final data = jsonDecode(resp.body);
+    if (data is! List) return const [];
+    return data
+        .map((e) => Board.fromJson((e as Map).cast<String, dynamic>()))
+        .toList(growable: false);
+  }
+
+  /// 建立一個新板（MVP：僅 owner 自己管理，後端可限制每人幾個板）
+  Future<Board> createBoard({
+    required String name,
+    String? description,
+    bool isPrivate = false,
+  }) async {
+    final body = jsonEncode({
+      'name': name,
+      if (description != null) 'description': description,
+      'isPrivate': isPrivate,
+    });
+    final resp = await http
+        .post(
+          _uri('/boards'),
+          headers: await _authHeaders(json: true),
+          body: body,
+        )
+        .timeout(_timeout);
+    if (!_ok(resp.statusCode)) {
+      throw Exception('createBoard ${resp.statusCode}: ${resp.body}');
+    }
+    return Board.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  /// 更新板資訊（名稱 / 描述 / 私密狀態...）
+  Future<Board> updateBoard(
+    String boardId, {
+    String? name,
+    String? description,
+    bool? isPrivate,
+    bool? deleted,
+  }) async {
+    final payload = <String, dynamic>{
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (isPrivate != null) 'isPrivate': isPrivate,
+      if (deleted != null) 'deleted': deleted,
+    };
+    final resp = await http
+        .patch(
+          _uri('/boards/$boardId'),
+          headers: await _authHeaders(json: true),
+          body: jsonEncode(payload),
+        )
+        .timeout(_timeout);
+    if (!_ok(resp.statusCode)) {
+      throw Exception('updateBoard ${resp.statusCode}: ${resp.body}');
+    }
+    return Board.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  /// 某一個 Board 底下的貼文列表（可以用在「版內頁」）
+  Future<List<SocialPost>> fetchBoardPosts(
+    String boardId, {
+    List<String>? tags,
+    DateTime? before,
+    int? limit,
+  }) async {
+    final q = <String, dynamic>{
+      if (tags != null && tags.isNotEmpty) 'tags': tags.join(','),
+      if (before != null) 'before': before.toUtc().toIso8601String(),
+      if (limit != null) 'limit': limit,
+    };
+
+    final resp = await http
+        .get(_uri('/boards/$boardId/posts', q), headers: await _authHeaders())
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchBoardPosts ${resp.statusCode}: ${resp.body}');
+    }
+
+    if (resp.body.trim().isEmpty) return const [];
+
+    final data = jsonDecode(resp.body);
+    List raw;
+    if (data is List) {
+      raw = data;
+    } else if (data is Map && data['items'] is List) {
+      raw = data['items'] as List;
+    } else {
+      // 格式跟預期不一樣就先當空
+      return const [];
+    }
+
+    return raw
+        .map((e) => SocialPost.fromJson((e as Map).cast<String, dynamic>()))
+        .toList(growable: false);
+  }
+
   // ================== 發文 / 讚 / 留言（bytes 版） ==================
 
   Future<SocialPost> createPost({
@@ -346,6 +457,7 @@ class SocialApi {
     required List<String> tags,
     Uint8List? imageBytes,
     String? filename,
+    String? boardId, // << 新增
   }) async {
     String? imageUrl;
     if (imageBytes != null) {
@@ -356,6 +468,7 @@ class SocialApi {
       'tags': tags,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (clientId != null) 'clientId': clientId,
+      if (boardId != null) 'boardId': boardId, // << 帶給後端
     });
     final resp = await http
         .post(
@@ -435,6 +548,158 @@ class SocialApi {
       throw Exception('addComment ${resp.statusCode}: ${resp.body}');
     }
     return SocialPost.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  // ================== DM：Conversations / Messages ==================
+
+  /// 取得我的對話列表（私人 + 群組）
+  Future<List<Conversation>> fetchConversations() async {
+    final resp = await http
+        .get(_uri('/conversations'), headers: await _authHeaders())
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchConversations ${resp.statusCode}: ${resp.body}');
+    }
+
+    final data = jsonDecode(resp.body);
+    if (data is! List) return const [];
+
+    return data
+        .map((e) => Conversation.fromJson((e as Map).cast<String, dynamic>()))
+        .toList(growable: false);
+  }
+
+  /// 開啟一個對話：
+  /// - 若已存在相同成員的對話，後端可以直接回既有 conversation
+  /// - 未來支援群組對話也可以重用這隻
+  Future<Conversation> openConversation({
+    required List<String> memberIds,
+    String? name,
+  }) async {
+    final body = jsonEncode({
+      'memberIds': memberIds,
+      if (name != null && name.isNotEmpty) 'name': name,
+    });
+
+    final resp = await http
+        .post(
+          _uri('/conversations'),
+          headers: await _authHeaders(json: true),
+          body: body,
+        )
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('openConversation ${resp.statusCode}: ${resp.body}');
+    }
+
+    return Conversation.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  /// 拉某個對話裡的訊息（支援 before / after / limit 做分頁）
+  Future<List<Message>> fetchMessages(
+    String conversationId, {
+    DateTime? after,
+    DateTime? before,
+    int? limit,
+  }) async {
+    final q = <String, dynamic>{
+      if (after != null) 'after': after.toUtc().toIso8601String(),
+      if (before != null) 'before': before.toUtc().toIso8601String(),
+      if (limit != null) 'limit': limit,
+    };
+
+    final resp = await http
+        .get(
+          _uri('/conversations/$conversationId/messages', q),
+          headers: await _authHeaders(),
+        )
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('fetchMessages ${resp.statusCode}: ${resp.body}');
+    }
+
+    if (resp.body.trim().isEmpty) return const [];
+
+    final data = jsonDecode(resp.body);
+    if (data is! List) return const [];
+
+    return data
+        .map((e) => Message.fromJson((e as Map).cast<String, dynamic>()))
+        .toList(growable: false);
+  }
+
+  /// 送出純文字訊息
+  Future<Message> sendTextMessage(String conversationId, String text) async {
+    final body = jsonEncode({'type': 'text', 'text': text});
+
+    final resp = await http
+        .post(
+          _uri('/conversations/$conversationId/messages'),
+          headers: await _authHeaders(json: true),
+          body: body,
+        )
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('sendTextMessage ${resp.statusCode}: ${resp.body}');
+    }
+
+    return Message.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  /// 送出「小卡」訊息：用整包 MiniCardData JSON snapshot
+  Future<Message> sendMiniCardMessage(
+    String conversationId,
+    MiniCardData card,
+  ) async {
+    final body = jsonEncode({
+      'type': 'miniCard',
+      'contentSchema': 'miniCard_v1', // 之後 schema 有改可升級版本字串
+      'contentJson': card.toJson(),
+    });
+
+    final resp = await http
+        .post(
+          _uri('/conversations/$conversationId/messages'),
+          headers: await _authHeaders(json: true),
+          body: body,
+        )
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('sendMiniCardMessage ${resp.statusCode}: ${resp.body}');
+    }
+
+    return Message.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+  }
+
+  /// 送出「專輯」訊息：用整包 SimpleAlbum JSON snapshot
+  Future<Message> sendAlbumMessage(
+    String conversationId,
+    SimpleAlbum album,
+  ) async {
+    final body = jsonEncode({
+      'type': 'album',
+      'contentSchema': 'album_v1',
+      'contentJson': album.toJson(),
+    });
+
+    final resp = await http
+        .post(
+          _uri('/conversations/$conversationId/messages'),
+          headers: await _authHeaders(json: true),
+          body: body,
+        )
+        .timeout(_timeout);
+
+    if (!_ok(resp.statusCode)) {
+      throw Exception('sendAlbumMessage ${resp.statusCode}: ${resp.body}');
+    }
+
+    return Message.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
   }
 
   // ================== 便利方法 ==================

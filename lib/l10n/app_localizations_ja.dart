@@ -1524,4 +1524,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get albumAddNewAlbum => 'アルバムを追加';
+
+  @override
+  String get chatHint => 'メッセージを入力…';
+
+  @override
+  String get socialNewConversation => '新しい会話';
+
+  @override
+  String get socialMembersHint => 'メンバーを追加…';
+
+  @override
+  String get socialConversationNameOptional => '会話名（任意）';
+
+  @override
+  String get socialMessagesTitle => 'メッセージ';
 }

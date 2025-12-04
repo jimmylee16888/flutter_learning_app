@@ -42,8 +42,15 @@ class _BootLoaderState extends State<BootLoader> {
   >?
   _boot;
 
-  // 如初始化過久（網路不穩等），顯示重試
   static const _kInitTimeout = Duration(seconds: 20);
+
+  bool _splashRemoved = false;
+  void _ensureSplashRemoved() {
+    if (!_splashRemoved) {
+      FlutterNativeSplash.remove();
+      _splashRemoved = true;
+    }
+  }
 
   @override
   void initState() {
@@ -190,7 +197,11 @@ class _BootLoaderState extends State<BootLoader> {
     >(
       future: _withTimeout(_boot!),
       builder: (context, snap) {
-        // 初始化中 → 簡單進度圈（已移除暖機畫面）
+        // 👇 只要不在 waiting（成功或失敗），就把 Splash 拿掉
+        if (snap.connectionState != ConnectionState.waiting) {
+          _ensureSplashRemoved();
+        }
+
         if (snap.connectionState == ConnectionState.waiting) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -210,7 +221,6 @@ class _BootLoaderState extends State<BootLoader> {
           );
         }
 
-        // 逾時或錯誤 → 顯示「重試」＋「以離線模式繼續」
         if (snap.hasError || !snap.hasData) {
           final err = snap.error;
           return MaterialApp(
@@ -261,21 +271,16 @@ class _BootLoaderState extends State<BootLoader> {
           );
         }
 
-        // ✅ 初始化完成 → 移除原生啟動畫面，進入 App
-        FlutterNativeSplash.remove();
-
+        // ✅ 成功分支：這裡不需要再呼叫 remove()，上面已經保證了
         final data = snap.data!;
         return MultiProvider(
           providers: [
-            // 1) 基礎 Store / Controller
             ChangeNotifierProvider.value(value: data.miniStore),
             ChangeNotifierProvider.value(value: data.cardStore),
             ChangeNotifierProvider.value(value: data.auth),
             ChangeNotifierProvider<AlbumStore>(
               create: (_) => AlbumStore()..load(),
             ),
-
-            // 2) LibrarySyncService：依賴前面四個
             ProxyProvider4<
               CardItemStore,
               MiniCardStore,

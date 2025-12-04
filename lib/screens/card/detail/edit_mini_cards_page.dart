@@ -120,7 +120,10 @@ class _EditMiniCardsPageState extends State<EditMiniCardsPage> {
                     children: [
                       const SizedBox(height: 2),
                       Text(
-                        _fmtDateTime(c.createdAt),
+                        // 讓列表顯示「最後修改時間」
+                        _fmtDateTime(
+                          c.lastModified,
+                        ), // 用你 extension 裡的 lastModified
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 6),
@@ -791,39 +794,61 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
 
   Future<void> _save() async {
     final l = context.l10n;
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
+
+    // 沿用舊 id（編輯），或產新的（新增）
     final id = widget.initial?.id ?? now.millisecondsSinceEpoch.toString();
 
+    // ==== 處理正面圖 ====
     String? imageUrl;
     String? localPath;
+
     if (_frontMode == _ImageMode.byUrl) {
       final url = _frontUrl.text.trim();
       if (url.isEmpty) {
         _toast(l.errorFrontImageUrlRequired);
         return;
       }
-      try {
-        // Web 端 downloadImageToLocal 會回 'url:...'，App 端會實存到檔案
-        localPath = await downloadImageToLocal(url, preferName: id);
-        imageUrl = url;
-      } catch (_) {
-        _toast(l.downloadFailed);
-        return;
+
+      // 舊的 URL / localPath（只在編輯時有）
+      final oldUrl = widget.initial?.imageUrl?.trim();
+      final oldLocal = widget.initial?.localPath;
+      final urlChanged = (oldUrl ?? '') != url;
+
+      if (!urlChanged && oldLocal != null && oldLocal.isNotEmpty) {
+        // ✅ URL 沒變 → 直接沿用舊快取
+        localPath = oldLocal;
+      } else {
+        // 🔁 URL 有變 or 沒有舊快取 → 重新下載
+        try {
+          // Web 端會回 'url:xxx'，App 端會真實檔案路徑
+          localPath = await downloadImageToLocal(url, preferName: id);
+        } catch (_) {
+          _toast(l.downloadFailed);
+          return;
+        }
       }
+      imageUrl = url;
     } else {
+      // 走「本機圖片模式」
       if (_frontLocal == null) {
         _toast(l.errorFrontLocalRequired);
         return;
       }
       localPath = _frontLocal;
+
+      // 若是編輯舊卡且原本有 imageUrl，就維持原本 URL（方便未來匯出 JSON）
       imageUrl = widget.initial?.imageUrl;
     }
 
+    // ==== 處理背面圖 ====
     String? backImageUrl;
     String? backLocalPath;
+
     if (_backMode == _ImageMode.byUrl) {
-      backImageUrl = _backUrl.text.trim().isEmpty ? null : _backUrl.text.trim();
-      backLocalPath = null;
+      final url = _backUrl.text.trim();
+      backImageUrl = url.isEmpty ? null : url;
+      backLocalPath = null; // 背面如果走 URL，就不維持本地路徑
     } else {
       backLocalPath = _backLocal;
       backImageUrl = null;
@@ -831,12 +856,19 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
 
     final language = _language.isEmpty ? null : _language;
 
+    // createdAt：沿用舊的；沒有舊卡就用 now
+    final createdAt = widget.initial?.createdAt ?? now;
+
+    // updatedAt：這次存檔時間（新卡/編輯都設）
+    final updatedAt = now;
+
     final data = MiniCardData(
       id: id,
       imageUrl: imageUrl,
       localPath: localPath,
       backImageUrl: backImageUrl,
       backLocalPath: backLocalPath,
+      idol: widget.initial?.idol, // ⭐ 保留 idol（owner 用）
       name: _name.text.trim().isEmpty ? null : _name.text.trim(),
       serial: _serial.text.trim().isEmpty ? null : _serial.text.trim(),
       language: language,
@@ -844,7 +876,9 @@ class _MiniCardEditorDialogState extends State<MiniCardEditorDialog> {
       cardType: (_cardType ?? '').isEmpty ? null : _cardType,
       note: _note.text,
       tags: _tags,
-      createdAt: widget.initial?.createdAt ?? now,
+      createdAt: createdAt,
+      updatedAt: updatedAt, // ⭐ 更新最後編輯時間
+      deleted: widget.initial?.deleted ?? false, // ⭐ 若之前有軟刪除狀態就保留
     );
 
     if (!mounted) return;

@@ -44,13 +44,18 @@ class AuthController extends ChangeNotifier {
 
     final u = _auth.currentUser;
     if (u != null) {
-      // 線上已登入
       isAuthenticated = true;
       isOfflineSession = false;
       account = u.email;
-      token = await u.getIdToken();
+
+      try {
+        // ⚠️ 不要強制 refresh，並加上 timeout
+        token = await u.getIdToken().timeout(const Duration(seconds: 5));
+      } catch (e, st) {
+        debugPrint('[AuthController.init] getIdToken failed: $e\n$st');
+        token = null; // 拿不到就算了，至少不要卡住
+      }
     } else {
-      // 尚未線上登入，但仍可能有「上次登入帳號」可用來離線進入
       isAuthenticated = false;
       isOfflineSession = false;
       account = null;
@@ -76,35 +81,39 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<(bool ok, String? reason)> loginWithGoogle() async {
+    if (isLoading) {
+      return (false, 'busy');
+    }
+
     isLoading = true;
     notifyListeners();
     try {
       if (kIsWeb) {
-        // 🔹 Web：用 Firebase 的彈出視窗，不需要 meta client_id
         final provider = GoogleAuthProvider()
           ..setCustomParameters({'prompt': 'select_account'});
-
         final userCred = await _auth.signInWithPopup(provider);
         final u = userCred.user!;
         await _postLogin(u, provider: 'google');
         return (true, null);
       } else {
-        // 🔹 Android/iOS/桌面：維持 google_sign_in v7 流程
         await GoogleSignIn.instance.initialize();
         final gUser = await GoogleSignIn.instance.authenticate();
         if (gUser == null) return (false, 'cancelled');
 
-        final gAuth = await gUser.authentication; // v7 僅 idToken
+        final gAuth = await gUser.authentication;
         final cred = GoogleAuthProvider.credential(idToken: gAuth.idToken);
         final userCred = await _auth.signInWithCredential(cred);
         final u = userCred.user!;
         await _postLogin(u, provider: 'google');
         return (true, null);
       }
-    } on FirebaseAuthException catch (e) {
-      // 若瀏覽器擋彈窗，可提示用戶改走 Redirect：signInWithRedirect(provider)
+    } on FirebaseAuthException catch (e, st) {
+      debugPrint(
+        '[AuthController.loginWithGoogle] FirebaseAuthException: $e\n$st',
+      );
       return (false, e.code);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[AuthController.loginWithGoogle] error: $e\n$st');
       return (false, e.toString());
     } finally {
       isLoading = false;
@@ -113,16 +122,25 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> _postLogin(User u, {required String provider}) async {
-    // Firestore 使用者檔
-    await _db.collection('users').doc(u.uid).set({
-      'email': u.email,
-      'displayName': u.displayName,
-      'photoURL': u.photoURL,
-      'lastLoginAt': FieldValue.serverTimestamp(),
-      'provider': provider,
-    }, SetOptions(merge: true));
+    // 1) Firestore 使用者檔：失敗不要擋登入
+    try {
+      await _db
+          .collection('users')
+          .doc(u.uid)
+          .set({
+            'email': u.email,
+            'displayName': u.displayName,
+            'photoURL': u.photoURL,
+            'lastLoginAt': FieldValue.serverTimestamp(),
+            'provider': provider,
+          }, SetOptions(merge: true))
+          .timeout(const Duration(seconds: 8));
+    } catch (e, st) {
+      debugPrint('[AuthController._postLogin] Firestore set failed: $e\n$st');
+      // 不 rethrow，允許繼續登入
+    }
 
-    // 快取「上次登入使用者」供離線模式
+    // 2) 快取「上次登入使用者」供離線模式（本地操作，應該很穩）
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('last_uid', u.uid);
     await prefs.setString('last_email', u.email ?? '');
@@ -133,11 +151,20 @@ class AuthController extends ChangeNotifier {
     _lastDisplayName = u.displayName;
     _lastPhotoURL = u.photoURL;
 
+    // 3) 更新狀態：先把「已登入」標記起來
     isAuthenticated = true;
     isOfflineSession = false;
     account = u.email;
-    token = await u.getIdToken(true); // true = 強制 refresh 一次
-    debugPrint('🔑 Firebase ID Token = $token');
+
+    // 4) 拿 token：失敗就算了，避免卡住
+    try {
+      // ⚠️ 這裡改成不強制 refresh，並加 timeout
+      token = await u.getIdToken().timeout(const Duration(seconds: 5));
+      debugPrint('🔑 Firebase ID Token = $token');
+    } catch (e, st) {
+      debugPrint('[AuthController._postLogin] getIdToken failed: $e\n$st');
+      token = null; // 沒 token 就當成純本機已登入
+    }
   }
 
   /// ✅ 離線沿用上次登入帳號進入（不觸發 Firebase）

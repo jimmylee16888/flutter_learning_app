@@ -692,5 +692,11 @@
   "albumImportSuccess": "Alben wurden erfolgreich importiert.",
   "albumImportFailed": "Import fehlgeschlagen: {error}",
 
-  "albumAddNewAlbum": "Album hinzufügen"
+  "albumAddNewAlbum": "Album hinzufügen",
+
+  "chatHint": "Nachricht eingeben…",
+  "socialNewConversation": "Neues Gespräch",
+  "socialMembersHint": "Mitglieder hinzufügen…",
+  "socialConversationNameOptional": "Gesprächsname (optional)",
+  "socialMessagesTitle": "Nachrichten"
 }

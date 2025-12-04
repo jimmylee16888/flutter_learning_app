@@ -1514,6 +1514,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get albumAddNewAlbum => '新增專輯';
+
+  @override
+  String get chatHint => '輸入訊息…';
+
+  @override
+  String get socialNewConversation => '新增對話';
+
+  @override
+  String get socialMembersHint => '加入成員…';
+
+  @override
+  String get socialConversationNameOptional => '對話名稱（可選填）';
+
+  @override
+  String get socialMessagesTitle => '訊息';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -3027,4 +3042,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get albumAddNewAlbum => '新增專輯';
+
+  @override
+  String get chatHint => '輸入訊息…';
+
+  @override
+  String get socialNewConversation => '新增對話';
+
+  @override
+  String get socialMembersHint => '加入成員…';
+
+  @override
+  String get socialConversationNameOptional => '對話名稱（可選填）';
+
+  @override
+  String get socialMessagesTitle => '訊息';
 }

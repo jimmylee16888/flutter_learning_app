@@ -696,7 +696,12 @@
   "albumImportSuccess": "앨범을 성공적으로 가져왔습니다.",
   "albumImportFailed": "가져오기에 실패했습니다: {error}",
 
-  "albumAddNewAlbum": "앨범 추가"
+  "albumAddNewAlbum": "앨범 추가",
 
+  "chatHint": "메시지를 입력…",
+  "socialNewConversation": "새 대화",
+  "socialMembersHint": "멤버를 추가…",
+  "socialConversationNameOptional": "대화 이름(선택 사항)",
+  "socialMessagesTitle": "메시지"
 
 }

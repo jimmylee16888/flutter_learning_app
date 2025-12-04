@@ -2942,6 +2942,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Album'**
   String get albumAddNewAlbum;
+
+  /// No description provided for @chatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message…'**
+  String get chatHint;
+
+  /// No description provided for @socialNewConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'New Conversation'**
+  String get socialNewConversation;
+
+  /// No description provided for @socialMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add members…'**
+  String get socialMembersHint;
+
+  /// No description provided for @socialConversationNameOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation name (optional)'**
+  String get socialConversationNameOptional;
+
+  /// No description provided for @socialMessagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get socialMessagesTitle;
 }
 
 class _AppLocalizationsDelegate

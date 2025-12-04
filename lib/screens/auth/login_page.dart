@@ -38,14 +38,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _bootAsync() async {
-    // 並行做版本與網路偵測初始化
-    await Future.wait([_loadVersion(), _initConnectivityWatcher()]);
+    try {
+      await Future.wait([_loadVersion(), _initConnectivityWatcher()]);
 
-    // 讓動畫至少可見一小段時間（手感更好）
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted) return;
-    setState(() => _isBooting = false);
+      // 讓動畫至少可見一小段時間（手感好一點）
+      await Future.delayed(const Duration(milliseconds: 500));
+    } catch (e, st) {
+      debugPrint('[LoginPage] _bootAsync error: $e\n$st');
+      // 不 rethrow，避免 overlay 永遠蓋著
+    } finally {
+      if (!mounted) return;
+      setState(() => _isBooting = false);
+    }
   }
 
   Future<void> _loadVersion() async {
@@ -249,7 +253,9 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: auth.isLoading
                                         ? null
                                         : () async {
-                                            // ➋ 登入需要網路：若離線則提示並返回
+                                            final l = context.l10n;
+
+                                            // 1️⃣ 先檢查網路狀態，離線就直接跳提示，不要呼叫 loginWithGoogle
                                             if (_isOffline) {
                                               showDialog(
                                                 context: context,
@@ -274,9 +280,16 @@ class _LoginPageState extends State<LoginPage> {
                                               return;
                                             }
 
-                                            // 有網路才真的去做 Google 登入
+                                            // 2️⃣ 有網路才真的去做 Google 登入（只呼叫一次）
+                                            debugPrint(
+                                              '[LoginPage] Google button pressed',
+                                            );
                                             final (ok, reason) = await auth
                                                 .loginWithGoogle();
+                                            debugPrint(
+                                              '[LoginPage] login result ok=$ok reason=$reason',
+                                            );
+
                                             if (!mounted) return;
 
                                             if (!ok) {
@@ -289,14 +302,16 @@ class _LoginPageState extends State<LoginPage> {
                                                   ),
                                                 ),
                                               );
-                                            } else {
-                                              await ensureProfile(
-                                                context,
-                                                widget.settings,
-                                              );
-                                              if (!mounted) return;
-                                              _goHome();
+                                              return;
                                             }
+
+                                            // 3️⃣ 登入成功 → 確保 profile → 進首頁
+                                            await ensureProfile(
+                                              context,
+                                              widget.settings,
+                                            );
+                                            if (!mounted) return;
+                                            _goHome();
                                           },
                                   ),
                                 ),

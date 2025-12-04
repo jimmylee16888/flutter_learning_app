@@ -1584,4 +1584,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get albumAddNewAlbum => 'Add Album';
+
+  @override
+  String get chatHint => 'Type a message…';
+
+  @override
+  String get socialNewConversation => 'New Conversation';
+
+  @override
+  String get socialMembersHint => 'Add members…';
+
+  @override
+  String get socialConversationNameOptional => 'Conversation name (optional)';
+
+  @override
+  String get socialMessagesTitle => 'Messages';
 }

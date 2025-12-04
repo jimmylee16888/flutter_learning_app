@@ -14,8 +14,10 @@ import 'package:flutter_learning_app/services/album/album_store.dart';
 import 'package:flutter_learning_app/services/auth/auth_controller.dart';
 // LibrarySyncService 用 kApiBaseUrl
 import 'package:flutter_learning_app/services/core/base_url.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LibrarySyncService {
+  static const _kLastSyncAtKey = 'library_last_sync_at';
   final CardItemStore cardStore;
   final MiniCardStore miniStore;
   final AlbumStore albumStore;
@@ -29,6 +31,41 @@ class LibrarySyncService {
   });
 
   /// App 啟動 / 使用者手動按「同步」時呼叫
+  /// App 啟動 / 使用者手動按「同步」時呼叫
+  /// App 啟動時專用：優先採用「後端為主」，除非後端完全沒有 Library
+  Future<void> syncOnAppStart() async {
+    final token = await auth.debugGetIdToken();
+    if (token == null) {
+      debugPrint('[LibrarySync] app-start: no Firebase token, skip');
+      return;
+    }
+
+    // STEP 1: 無論本機是否有資料，都先試著從 server 拿 snapshot
+    final snapshot = await _fetchSnapshot(token);
+
+    if (snapshot != null) {
+      debugPrint(
+        '[LibrarySync] app-start: snapshot found, apply server as master',
+      );
+      await _applyMergedResult(snapshot);
+      return; // ✅ 啟動時只拉，不再 POST
+    }
+
+    debugPrint(
+      '[LibrarySync] app-start: no snapshot on server, fallback to local→server',
+    );
+
+    // STEP 2: snapshot 沒東西 → 如果本機有 Library，就把本機當第一版往上傳
+    if (!_isLocalLibraryEmpty()) {
+      await _postAndApply(token);
+    } else {
+      debugPrint(
+        '[LibrarySync] app-start: local & remote both empty, nothing to do',
+      );
+    }
+  }
+
+  /// 手動 Dev 同步仍用原本的行為
   Future<void> sync() async {
     final token = await auth.debugGetIdToken();
     if (token == null) {
@@ -36,6 +73,31 @@ class LibrarySyncService {
       return;
     }
 
+    // 保留你原本的邏輯：本機空 → 優先 snapshot；否則 POST / sync merge
+    if (_isLocalLibraryEmpty()) {
+      debugPrint('[LibrarySync] local library is EMPTY, try snapshot first...');
+      final remote = await _fetchSnapshot(token);
+      if (remote != null) {
+        debugPrint('[LibrarySync] snapshot found, apply as initial library');
+        await _applyMergedResult(remote);
+        debugPrint(
+          '[LibrarySync] initial sync from snapshot finished (no POST)',
+        );
+        return;
+      } else {
+        debugPrint(
+          '[LibrarySync] no snapshot on server, will upload local as first version',
+        );
+      }
+    } else {
+      debugPrint('[LibrarySync] local library is NOT empty, skip snapshot');
+    }
+
+    await _postAndApply(token);
+  }
+
+  /// 把原本 sync() 裡「POST + 套用」的那段抽成一個 helper
+  Future<void> _postAndApply(String token) async {
     final payload = _buildPayloadForSync();
     debugPrint('[LibrarySync] payload built');
 
@@ -56,16 +118,13 @@ class LibrarySyncService {
       return;
     }
 
-    // 🔍 這裡完整把回傳資訊印出來，方便你在 log 看到
     if (kDebugMode) {
       debugPrint('[LibrarySync] response status = ${resp.statusCode}');
       debugPrint('[LibrarySync] response headers = ${resp.headers}');
-
       final body = resp.body;
       if (body.isEmpty) {
         debugPrint('[LibrarySync] response body = <empty>');
       } else {
-        // 避免太長炸 terminal，截斷一下就好
         const maxLen = 2000;
         final short = body.length > maxLen
             ? body.substring(0, maxLen) + ' ...[truncated]'
@@ -74,13 +133,11 @@ class LibrarySyncService {
       }
     }
 
-    // ❌ 非 2xx 就先不要做 jsonDecode，直接當錯誤看
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
       debugPrint('[LibrarySync] sync failed: ${resp.statusCode} ${resp.body}');
       return;
     }
 
-    // 🔸 有些 API 可能 204 No Content 或 body 為空 → 這裡先防呆
     if (resp.body.trim().isEmpty) {
       debugPrint('[LibrarySync] empty body from server, skip apply');
       return;
@@ -172,6 +229,66 @@ class LibrarySyncService {
       'mini_card_store': minisJson,
       'albums': albumsJson,
     };
+  }
+
+  /// 判斷目前本機 library 是否「完全沒有任何使用者資料」
+  /// 這裡只看 albums + mini_cards，不把內建 CardItem 當成「有資料」
+  bool _isLocalLibraryEmpty() {
+    bool hasMinis = false;
+    for (final owner in miniStore.owners()) {
+      if (miniStore.forOwner(owner).isNotEmpty) {
+        hasMinis = true;
+        break;
+      }
+    }
+
+    final hasAlbums = albumStore.allAlbumsRaw.isNotEmpty;
+
+    // 如果之後有「使用者自定義 CardItem」再補判斷
+    return !(hasMinis || hasAlbums);
+  }
+
+  /// 從 server 拉 snapshot（GET /api/v1/library/snapshot）
+  Future<Map<String, dynamic>?> _fetchSnapshot(String token) async {
+    final uri = Uri.parse(absUrl(kSocialBaseUrl, '/api/v1/library/snapshot'));
+
+    http.Response resp;
+    try {
+      resp = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    } catch (e, st) {
+      debugPrint('[LibrarySync] snapshot http.get error: $e\n$st');
+      return null;
+    }
+
+    if (kDebugMode) {
+      debugPrint('[LibrarySync] snapshot status = ${resp.statusCode}');
+    }
+
+    if (resp.statusCode == 404) {
+      // 雲端目前沒有 library 檔案（這個帳號第一次 sync）
+      debugPrint('[LibrarySync] no snapshot on server (404)');
+      return null;
+    }
+
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      debugPrint(
+        '[LibrarySync] snapshot failed: ${resp.statusCode} ${resp.body}',
+      );
+      return null;
+    }
+
+    if (resp.body.trim().isEmpty) {
+      debugPrint('[LibrarySync] snapshot body empty, skip');
+      return null;
+    }
+
+    try {
+      final obj = jsonDecode(resp.body) as Map<String, dynamic>;
+      return obj;
+    } catch (e, st) {
+      debugPrint('[LibrarySync] snapshot is not valid JSON: $e\n$st');
+      return null;
+    }
   }
 
   Future<void> _applyMergedResult(Map<String, dynamic> obj) async {
@@ -326,5 +443,33 @@ class LibrarySyncService {
         debugPrint('[LibrarySync] cache image failed for ${c.id}: $e\n$st');
       }
     }
+  }
+
+  /// 每天最多 sync 一次：
+  /// - 以「本機為主」做 merge（跟你手動按同步那顆一樣邏輯）
+  /// - 只有距離上次同步 >= 24 小時才會真的打 API
+  Future<void> syncDailyIfNeeded() async {
+    final token = await auth.debugGetIdToken();
+    if (token == null) {
+      debugPrint('[LibrarySync] daily: no Firebase token, skip');
+      return;
+    }
+
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(_kLastSyncAtKey);
+    final now = DateTime.now().toUtc();
+
+    if (raw != null) {
+      final last = DateTime.tryParse(raw);
+      if (last != null && now.difference(last) < const Duration(hours: 24)) {
+        debugPrint('[LibrarySync] daily: last sync < 24h, skip');
+        return;
+      }
+    }
+
+    debugPrint('[LibrarySync] daily: >24h, run sync()');
+    await sync(); // 👈 直接用你原本的 sync()（POST + merge）
+
+    await sp.setString(_kLastSyncAtKey, now.toIso8601String());
   }
 }
