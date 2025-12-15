@@ -1609,4 +1609,87 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get socialMessagesTitle => 'Nachrichten';
+
+  @override
+  String get syncMenuTitle => 'Synchronisieren & Herunterladen';
+
+  @override
+  String get syncMenuSubtitle =>
+      'Sichere deine Karten- und Albendaten in der Cloud oder lade sie auf dieses Gerät herunter.';
+
+  @override
+  String get syncPageTitle => 'Synchronisieren & Herunterladen';
+
+  @override
+  String get syncPageDesc =>
+      'Du kannst die Karten und Alben dieses Geräts manuell als Cloud-Datei hochladen oder aus der Cloud herunterladen, um die lokalen Daten zu überschreiben. Wir empfehlen, vor einem Gerätewechsel oder einer Neuinstallation hochzuladen.';
+
+  @override
+  String get syncUploadButton => 'In die Cloud hochladen';
+
+  @override
+  String get syncDownloadButton => 'Aus der Cloud herunterladen';
+
+  @override
+  String get syncCopyButton => 'Dateiinhalt kopieren';
+
+  @override
+  String get syncRefreshPreview => 'Vorschau neu laden';
+
+  @override
+  String get syncPreviewTitle => 'Cloud-Datenvorschau';
+
+  @override
+  String get syncPreviewSubtitle =>
+      'Dies ist der Inhalt der aktuell in der Cloud gespeicherten Library-Datei (JSON).';
+
+  @override
+  String get syncPreviewEmptyHint =>
+      'Noch keine Cloud-Datei vorhanden. Bitte zuerst „In die Cloud hochladen“.';
+
+  @override
+  String get syncNoRemoteData =>
+      'Keine Cloud-Library-Datei gefunden. Bitte zuerst von diesem Gerät hochladen.';
+
+  @override
+  String get syncUploadSuccess =>
+      'Hochladen und Synchronisieren abgeschlossen.';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return 'Upload fehlgeschlagen: $error';
+  }
+
+  @override
+  String get syncDownloadSuccess =>
+      'Aus der Cloud heruntergeladen und lokal angewendet.';
+
+  @override
+  String get syncDownloadFailedGeneric =>
+      'Download oder Anwenden aus der Cloud fehlgeschlagen. Bitte später erneut versuchen.';
+
+  @override
+  String get syncCopyNoData =>
+      'Kein Inhalt zum Kopieren. Bitte zuerst die Cloud-Datei laden.';
+
+  @override
+  String get syncCopySuccess =>
+      'Cloud-Dateiinhalt in die Zwischenablage kopiert.';
+
+  @override
+  String get syncPaidOnlyHint =>
+      'Cloud-Synchronisation und Download sind nur für kostenpflichtige Pläne verfügbar. Nach dem Abonnement kannst du die vollständige Library-Datei sichern, herunterladen und kopieren.';
+
+  @override
+  String get syncNeedSubTitle => 'Abonnement erforderlich';
+
+  @override
+  String get syncNeedSubBody =>
+      'Cloud-Synchronisation und Download sind nur für kostenpflichtige Pläne verfügbar. Bitte gehe zur Abonnementseite und wähle Basic / Plus / Pro aus.';
+
+  @override
+  String get syncGoToSubscription => 'Zum Abonnement';
+
+  @override
+  String get dialogCancel => 'Abbrechen';
 }

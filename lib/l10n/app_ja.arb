@@ -695,7 +695,39 @@
   "socialNewConversation": "新しい会話",
   "socialMembersHint": "メンバーを追加…",
   "socialConversationNameOptional": "会話名（任意）",
-  "socialMessagesTitle": "メッセージ"
+  "socialMessagesTitle": "メッセージ",
+
+  "syncMenuTitle": "同期とダウンロード",
+  "syncMenuSubtitle": "カードとアルバムのデータをクラウドにバックアップ、またはクラウドから端末へダウンロードできます。",
+
+  "syncPageTitle": "同期とダウンロード",
+  "syncPageDesc": "この端末にあるカードとアルバムのデータをクラウドにアップロードしたり、クラウドからダウンロードしてローカルデータを上書きできます。端末を変更したり、アプリを再インストールする前にアップロードすることをおすすめします。",
+
+  "syncUploadButton": "クラウドへアップロード",
+  "syncDownloadButton": "クラウドからダウンロード",
+  "syncCopyButton": "ファイル内容をコピー",
+  "syncRefreshPreview": "プレビューを再読み込み",
+
+  "syncPreviewTitle": "クラウドデータのプレビュー",
+  "syncPreviewSubtitle": "現在クラウドに保存されている library ファイルの内容（JSON）です。",
+  "syncPreviewEmptyHint": "クラウドファイルがありません。「クラウドへアップロード」を押してください。",
+  "syncNoRemoteData": "クラウドの library ファイルが見つかりません。この端末からアップロードしてください。",
+
+  "syncUploadSuccess": "アップロードと同期が完了しました。",
+  "syncUploadFailed": "アップロード失敗：{error}",
+  "syncDownloadSuccess": "クラウドからダウンロードし、ローカルに適用しました。",
+  "syncDownloadFailedGeneric": "クラウドからのダウンロードまたは適用に失敗しました。時間をおいて再試行してください。",
+
+  "syncCopyNoData": "コピーできるデータがありません。まずクラウドファイルを読み込んでください。",
+  "syncCopySuccess": "クラウドファイルの内容をクリップボードにコピーしました。",
+
+  "syncPaidOnlyHint": "クラウド同期とダウンロードは有料プラン専用です。購読後、完全な library ファイルをバックアップ／ダウンロード／コピーできます。",
+  "syncNeedSubTitle": "購読が必要です",
+  "syncNeedSubBody": "クラウド同期とダウンロードは有料プランのみ利用できます。購読ページで Basic / Plus / Pro プランを選択して再試行してください。",
+  "syncGoToSubscription": "購読ページへ",
+
+  "dialogCancel": "キャンセル"
+
 
 
 }

@@ -1529,6 +1529,80 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get socialMessagesTitle => '訊息';
+
+  @override
+  String get syncMenuTitle => '同步與下載';
+
+  @override
+  String get syncMenuSubtitle => '將卡片與專輯資料備份到雲端，或從雲端下載到本機。';
+
+  @override
+  String get syncPageTitle => '同步與下載';
+
+  @override
+  String get syncPageDesc =>
+      '你可以手動將目前裝置上的卡片與專輯資料，上傳成一個雲端檔案，或是從雲端下載回來覆蓋本機資料。建議在更換手機或重裝 App 前先執行上傳。';
+
+  @override
+  String get syncUploadButton => '上傳到雲端';
+
+  @override
+  String get syncDownloadButton => '從雲端下載';
+
+  @override
+  String get syncCopyButton => '複製檔案內容';
+
+  @override
+  String get syncRefreshPreview => '重新載入預覽';
+
+  @override
+  String get syncPreviewTitle => '雲端資料預覽';
+
+  @override
+  String get syncPreviewSubtitle => '以下是目前儲存在雲端的 library 檔案內容（JSON）。';
+
+  @override
+  String get syncPreviewEmptyHint => '目前還沒有雲端檔案，可以先按「上傳到雲端」。';
+
+  @override
+  String get syncNoRemoteData => '找不到雲端 library 檔案，請先在這台裝置上傳一次。';
+
+  @override
+  String get syncUploadSuccess => '上傳並同步完成。';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return '上傳失敗：$error';
+  }
+
+  @override
+  String get syncDownloadSuccess => '已從雲端下載並套用到本機。';
+
+  @override
+  String get syncDownloadFailedGeneric => '從雲端下載或套用失敗，稍後再試一次。';
+
+  @override
+  String get syncCopyNoData => '目前沒有可以複製的資料，請先載入雲端檔案。';
+
+  @override
+  String get syncCopySuccess => '已將雲端檔案內容複製到剪貼簿。';
+
+  @override
+  String get syncPaidOnlyHint =>
+      '雲端同步與下載功能僅提供付費方案使用。訂閱後，你可以備份、下載與複製完整的 library 檔案。';
+
+  @override
+  String get syncNeedSubTitle => '需要訂閱方案';
+
+  @override
+  String get syncNeedSubBody =>
+      '雲端同步與下載功能僅限付費方案使用。請先前往訂閱頁面選擇 Basic / Plus / Pro 方案後再試一次。';
+
+  @override
+  String get syncGoToSubscription => '前往訂閱';
+
+  @override
+  String get dialogCancel => '取消';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -3057,4 +3131,78 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get socialMessagesTitle => '訊息';
+
+  @override
+  String get syncMenuTitle => '同步與下載';
+
+  @override
+  String get syncMenuSubtitle => '將卡片與專輯資料備份到雲端，或從雲端下載到本機。';
+
+  @override
+  String get syncPageTitle => '同步與下載';
+
+  @override
+  String get syncPageDesc =>
+      '你可以手動將目前裝置上的卡片與專輯資料，上傳成一個雲端檔案，或是從雲端下載回來覆蓋本機資料。建議在更換手機或重裝 App 前先執行上傳。';
+
+  @override
+  String get syncUploadButton => '上傳到雲端';
+
+  @override
+  String get syncDownloadButton => '從雲端下載';
+
+  @override
+  String get syncCopyButton => '複製檔案內容';
+
+  @override
+  String get syncRefreshPreview => '重新載入預覽';
+
+  @override
+  String get syncPreviewTitle => '雲端資料預覽';
+
+  @override
+  String get syncPreviewSubtitle => '以下是目前儲存在雲端的 library 檔案內容（JSON）。';
+
+  @override
+  String get syncPreviewEmptyHint => '目前還沒有雲端檔案，可以先按「上傳到雲端」。';
+
+  @override
+  String get syncNoRemoteData => '找不到雲端 library 檔案，請先在這台裝置上傳一次。';
+
+  @override
+  String get syncUploadSuccess => '上傳並同步完成。';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return '上傳失敗：$error';
+  }
+
+  @override
+  String get syncDownloadSuccess => '已從雲端下載並套用到本機。';
+
+  @override
+  String get syncDownloadFailedGeneric => '從雲端下載或套用失敗，稍後再試一次。';
+
+  @override
+  String get syncCopyNoData => '目前沒有可以複製的資料，請先載入雲端檔案。';
+
+  @override
+  String get syncCopySuccess => '已將雲端檔案內容複製到剪貼簿。';
+
+  @override
+  String get syncPaidOnlyHint =>
+      '雲端同步與下載功能僅提供付費方案使用。訂閱後，你可以備份、下載與複製完整的 library 檔案。';
+
+  @override
+  String get syncNeedSubTitle => '需要訂閱方案';
+
+  @override
+  String get syncNeedSubBody =>
+      '雲端同步與下載功能僅限付費方案使用。請先前往訂閱頁面選擇 Basic / Plus / Pro 方案後再試一次。';
+
+  @override
+  String get syncGoToSubscription => '前往訂閱';
+
+  @override
+  String get dialogCancel => '取消';
 }

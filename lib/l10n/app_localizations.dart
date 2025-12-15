@@ -2972,6 +2972,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Messages'**
   String get socialMessagesTitle;
+
+  /// No description provided for @syncMenuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync & Download'**
+  String get syncMenuTitle;
+
+  /// No description provided for @syncMenuSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your cards and albums to the cloud, or download them back to this device.'**
+  String get syncMenuSubtitle;
+
+  /// No description provided for @syncPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync & Download'**
+  String get syncPageTitle;
+
+  /// No description provided for @syncPageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You can manually upload the cards and albums on this device as a cloud file, or download it from the cloud to overwrite local data. We recommend uploading before changing devices or reinstalling the app.'**
+  String get syncPageDesc;
+
+  /// No description provided for @syncUploadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload to Cloud'**
+  String get syncUploadButton;
+
+  /// No description provided for @syncDownloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download from Cloud'**
+  String get syncDownloadButton;
+
+  /// No description provided for @syncCopyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy File Content'**
+  String get syncCopyButton;
+
+  /// No description provided for @syncRefreshPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload Preview'**
+  String get syncRefreshPreview;
+
+  /// No description provided for @syncPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Data Preview'**
+  String get syncPreviewTitle;
+
+  /// No description provided for @syncPreviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Below is the content of the library file currently stored in the cloud (JSON).'**
+  String get syncPreviewSubtitle;
+
+  /// No description provided for @syncPreviewEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud file found. Try uploading first.'**
+  String get syncPreviewEmptyHint;
+
+  /// No description provided for @syncNoRemoteData.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud library file found. Please upload from this device first.'**
+  String get syncNoRemoteData;
+
+  /// No description provided for @syncUploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload and sync completed.'**
+  String get syncUploadSuccess;
+
+  /// No description provided for @syncUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed: {error}'**
+  String syncUploadFailed(Object error);
+
+  /// No description provided for @syncDownloadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded from cloud and applied to local data.'**
+  String get syncDownloadSuccess;
+
+  /// No description provided for @syncDownloadFailedGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to download or apply from the cloud. Please try again later.'**
+  String get syncDownloadFailedGeneric;
+
+  /// No description provided for @syncCopyNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to copy. Please load the cloud file first.'**
+  String get syncCopyNoData;
+
+  /// No description provided for @syncCopySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud file content copied to clipboard.'**
+  String get syncCopySuccess;
+
+  /// No description provided for @syncPaidOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync and download are available only for paid plans. After subscribing, you can back up, download, and copy the full library file.'**
+  String get syncPaidOnlyHint;
+
+  /// No description provided for @syncNeedSubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Required'**
+  String get syncNeedSubTitle;
+
+  /// No description provided for @syncNeedSubBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync and download are only available for paid plans. Please go to the subscription page and select Basic / Plus / Pro before trying again.'**
+  String get syncNeedSubBody;
+
+  /// No description provided for @syncGoToSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Subscription'**
+  String get syncGoToSubscription;
+
+  /// No description provided for @dialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get dialogCancel;
 }
 
 class _AppLocalizationsDelegate

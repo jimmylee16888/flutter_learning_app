@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_learning_app/screens/settings/dev_settings_page.dart';
+import 'package:flutter_learning_app/screens/settings/sync_download_page.dart';
 import 'package:flutter_learning_app/screens/settings/tutorial_page.dart';
 import 'package:flutter_learning_app/services/auth/auth_controller.dart';
 import 'package:flutter_learning_app/services/dev_mode.dart';
@@ -254,6 +255,28 @@ class SettingsView extends StatelessWidget {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const TutorialPage()));
+            },
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ===== 同步與下載 =====
+        Card(
+          child: ListTile(
+            contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: Text(l.syncMenuTitle), // l10n
+            subtitle: Text(
+              l.syncMenuSubtitle, // l10n
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SyncDownloadPage()),
+              );
             },
           ),
         ),

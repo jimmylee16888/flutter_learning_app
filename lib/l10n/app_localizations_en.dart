@@ -1599,4 +1599,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get socialMessagesTitle => 'Messages';
+
+  @override
+  String get syncMenuTitle => 'Sync & Download';
+
+  @override
+  String get syncMenuSubtitle =>
+      'Back up your cards and albums to the cloud, or download them back to this device.';
+
+  @override
+  String get syncPageTitle => 'Sync & Download';
+
+  @override
+  String get syncPageDesc =>
+      'You can manually upload the cards and albums on this device as a cloud file, or download it from the cloud to overwrite local data. We recommend uploading before changing devices or reinstalling the app.';
+
+  @override
+  String get syncUploadButton => 'Upload to Cloud';
+
+  @override
+  String get syncDownloadButton => 'Download from Cloud';
+
+  @override
+  String get syncCopyButton => 'Copy File Content';
+
+  @override
+  String get syncRefreshPreview => 'Reload Preview';
+
+  @override
+  String get syncPreviewTitle => 'Cloud Data Preview';
+
+  @override
+  String get syncPreviewSubtitle =>
+      'Below is the content of the library file currently stored in the cloud (JSON).';
+
+  @override
+  String get syncPreviewEmptyHint =>
+      'No cloud file found. Try uploading first.';
+
+  @override
+  String get syncNoRemoteData =>
+      'No cloud library file found. Please upload from this device first.';
+
+  @override
+  String get syncUploadSuccess => 'Upload and sync completed.';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return 'Upload failed: $error';
+  }
+
+  @override
+  String get syncDownloadSuccess =>
+      'Downloaded from cloud and applied to local data.';
+
+  @override
+  String get syncDownloadFailedGeneric =>
+      'Failed to download or apply from the cloud. Please try again later.';
+
+  @override
+  String get syncCopyNoData =>
+      'No data to copy. Please load the cloud file first.';
+
+  @override
+  String get syncCopySuccess => 'Cloud file content copied to clipboard.';
+
+  @override
+  String get syncPaidOnlyHint =>
+      'Cloud sync and download are available only for paid plans. After subscribing, you can back up, download, and copy the full library file.';
+
+  @override
+  String get syncNeedSubTitle => 'Subscription Required';
+
+  @override
+  String get syncNeedSubBody =>
+      'Cloud sync and download are only available for paid plans. Please go to the subscription page and select Basic / Plus / Pro before trying again.';
+
+  @override
+  String get syncGoToSubscription => 'Go to Subscription';
+
+  @override
+  String get dialogCancel => 'Cancel';
 }

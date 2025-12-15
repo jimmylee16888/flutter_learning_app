@@ -1539,4 +1539,81 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get socialMessagesTitle => 'メッセージ';
+
+  @override
+  String get syncMenuTitle => '同期とダウンロード';
+
+  @override
+  String get syncMenuSubtitle =>
+      'カードとアルバムのデータをクラウドにバックアップ、またはクラウドから端末へダウンロードできます。';
+
+  @override
+  String get syncPageTitle => '同期とダウンロード';
+
+  @override
+  String get syncPageDesc =>
+      'この端末にあるカードとアルバムのデータをクラウドにアップロードしたり、クラウドからダウンロードしてローカルデータを上書きできます。端末を変更したり、アプリを再インストールする前にアップロードすることをおすすめします。';
+
+  @override
+  String get syncUploadButton => 'クラウドへアップロード';
+
+  @override
+  String get syncDownloadButton => 'クラウドからダウンロード';
+
+  @override
+  String get syncCopyButton => 'ファイル内容をコピー';
+
+  @override
+  String get syncRefreshPreview => 'プレビューを再読み込み';
+
+  @override
+  String get syncPreviewTitle => 'クラウドデータのプレビュー';
+
+  @override
+  String get syncPreviewSubtitle => '現在クラウドに保存されている library ファイルの内容（JSON）です。';
+
+  @override
+  String get syncPreviewEmptyHint => 'クラウドファイルがありません。「クラウドへアップロード」を押してください。';
+
+  @override
+  String get syncNoRemoteData =>
+      'クラウドの library ファイルが見つかりません。この端末からアップロードしてください。';
+
+  @override
+  String get syncUploadSuccess => 'アップロードと同期が完了しました。';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return 'アップロード失敗：$error';
+  }
+
+  @override
+  String get syncDownloadSuccess => 'クラウドからダウンロードし、ローカルに適用しました。';
+
+  @override
+  String get syncDownloadFailedGeneric =>
+      'クラウドからのダウンロードまたは適用に失敗しました。時間をおいて再試行してください。';
+
+  @override
+  String get syncCopyNoData => 'コピーできるデータがありません。まずクラウドファイルを読み込んでください。';
+
+  @override
+  String get syncCopySuccess => 'クラウドファイルの内容をクリップボードにコピーしました。';
+
+  @override
+  String get syncPaidOnlyHint =>
+      'クラウド同期とダウンロードは有料プラン専用です。購読後、完全な library ファイルをバックアップ／ダウンロード／コピーできます。';
+
+  @override
+  String get syncNeedSubTitle => '購読が必要です';
+
+  @override
+  String get syncNeedSubBody =>
+      'クラウド同期とダウンロードは有料プランのみ利用できます。購読ページで Basic / Plus / Pro プランを選択して再試行してください。';
+
+  @override
+  String get syncGoToSubscription => '購読ページへ';
+
+  @override
+  String get dialogCancel => 'キャンセル';
 }

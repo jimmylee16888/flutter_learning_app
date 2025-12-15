@@ -472,4 +472,38 @@ class LibrarySyncService {
 
     await sp.setString(_kLastSyncAtKey, now.toIso8601String());
   }
+
+  /// 給 UI 用：直接從雲端抓 snapshot（不套用到本機）
+  /// - 有成功回傳 JSON → Map
+  /// - 沒有資料 / 404 / 錯誤 → 回傳 null
+  Future<Map<String, dynamic>?> debugFetchSnapshotForUi() async {
+    final token = await auth.debugGetIdToken();
+    if (token == null) {
+      debugPrint('[LibrarySync] debugFetchSnapshot: no token');
+      return null;
+    }
+    return _fetchSnapshot(token);
+  }
+
+  /// 給「下載並套用」按鈕用：
+  /// - 從雲端抓 snapshot
+  /// - 若有資料，直接視為 server master，覆蓋本機（仍保留 localPath 類欄位）
+  /// - 若雲端沒資料（404 / 空 / 解析錯誤） → 回傳 false，不動本機
+  Future<bool> downloadFromServerAndApply() async {
+    final token = await auth.debugGetIdToken();
+    if (token == null) {
+      debugPrint('[LibrarySync] downloadFromServer: no token');
+      return false;
+    }
+
+    final snap = await _fetchSnapshot(token);
+    if (snap == null) {
+      debugPrint('[LibrarySync] downloadFromServer: no snapshot');
+      return false;
+    }
+
+    await _applyMergedResult(snap);
+    debugPrint('[LibrarySync] downloadFromServer: applied snapshot');
+    return true;
+  }
 }

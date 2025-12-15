@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart'; // kIsWeb / debugPrint
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_learning_app/screens/explore/ad_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/card_item.dart';
@@ -17,11 +18,25 @@ import 'package:flutter_learning_app/services/card_item/card_item_store.dart';
 
 import 'package:flutter_learning_app/services/mini_cards/mini_card_store.dart';
 
+// 廣告
+
+import 'package:flutter_learning_app/screens/explore/ad_provider.dart';
+import 'package:flutter_learning_app/services/subscription_service.dart';
+
+import 'package:url_launcher/url_launcher.dart';
+
 class CardsView extends StatefulWidget {
   const CardsView({super.key});
 
   @override
   State<CardsView> createState() => _CardsViewState();
+}
+
+class _TileEntry {
+  final CardItem? card;
+  final bool isAd;
+  const _TileEntry.card(this.card) : isAd = false;
+  const _TileEntry.ad() : card = null, isAd = true;
 }
 
 class _CardsViewState extends State<CardsView> {
@@ -34,74 +49,132 @@ class _CardsViewState extends State<CardsView> {
 
   static const _tileRadius = 16.0;
 
+  AdRenderInfo? _ad; // ⬅️ 廣告資料
+  bool _adTriedInit = false; // ⬅️ 避免重複初始化
+
+  @override
+  void initState() {
+    super.initState();
+    _maybeLoadAd();
+  }
+
+  Future<void> _maybeLoadAd() async {
+    final eff = SubscriptionService.I.effective.value;
+    final bool hasPaidSub = eff.isActive && eff.plan != SubscriptionPlan.free;
+
+    if (hasPaidSub) {
+      _adTriedInit = true;
+      return;
+    }
+
+    setState(() {
+      _ad = AdRenderInfo(
+        banner: NetworkImage(kCardViewAdBannerUrl),
+        onTap: () async {
+          final uri = Uri.tryParse(kCardViewAdClickUrl);
+          if (uri == null) return;
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        },
+      );
+      _adTriedInit = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
-    final store = context.watch<CardItemStore>(); // 取得 CardItemStore
-    final items = _filtered(store.cardItems);
+    // 🔁 監聽訂閱狀態，只要 effective 改變就重 build CardsView
+    return ValueListenableBuilder(
+      valueListenable: SubscriptionService.I.effective,
+      builder: (context, eff, _) {
+        final l = context.l10n;
+        final store = context.watch<CardItemStore>(); // 取得 CardItemStore
+        final items = _filtered(store.cardItems);
 
-    return Scaffold(
-      body: Column(
-        children: [
-          _frostedSearchBar(),
-          // Category chips
-          SizedBox(
-            height: 56,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              scrollDirection: Axis.horizontal,
-              children: [
-                ChoiceChip(
-                  label: Text(l.filterAll),
-                  selected: _selectedCat == null,
-                  onSelected: (_) => setState(() => _selectedCat = null),
-                ),
-                const SizedBox(width: 8),
-                ...store.categories.map(
-                  (cat) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onLongPress: () async {
-                        final ok = await showConfirm(
-                          context,
-                          title: l.deleteCategoryTitle,
-                          message: l.deleteCategoryMessage(cat),
-                          okLabel: l.delete,
-                          cancelLabel: l.cancel,
-                        );
-                        if (ok) {
-                          store.removeCategory(cat);
-                          if (_selectedCat == cat) _selectedCat = null;
-                          if (mounted) setState(() {});
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l.deletedCategoryToast(cat)),
+        // 讀訂閱狀態（這次用 builder 帶進來的 eff）
+        final bool hasPaidSub =
+            eff.isActive && eff.plan != SubscriptionPlan.free;
+
+        // 如果還沒訂閱、而且還沒初始化過廣告 → 這裡觸發一次載入
+        if (!hasPaidSub && !_adTriedInit) {
+          _maybeLoadAd();
+        }
+
+        // 未訂閱 + 廣告載好 → 顯示廣告
+        final bool showAdTile = !hasPaidSub && _ad != null;
+
+        return Scaffold(
+          body: Column(
+            children: [
+              _frostedSearchBar(),
+              // Category chips
+              SizedBox(
+                height: 56,
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    ChoiceChip(
+                      label: Text(l.filterAll),
+                      selected: _selectedCat == null,
+                      onSelected: (_) => setState(() => _selectedCat = null),
+                    ),
+                    const SizedBox(width: 8),
+                    ...store.categories.map(
+                      (cat) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onLongPress: () async {
+                            final ok = await showConfirm(
+                              context,
+                              title: l.deleteCategoryTitle,
+                              message: l.deleteCategoryMessage(cat),
+                              okLabel: l.delete,
+                              cancelLabel: l.cancel,
+                            );
+                            if (ok) {
+                              store.removeCategory(cat);
+                              if (_selectedCat == cat) _selectedCat = null;
+                              if (mounted) setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l.deletedCategoryToast(cat)),
+                                ),
+                              );
+                            }
+                          },
+                          child: ChoiceChip(
+                            label: Text(cat),
+                            selected: _selectedCat == cat,
+                            onSelected: (_) => setState(
+                              () => _selectedCat = (_selectedCat == cat)
+                                  ? null
+                                  : cat,
                             ),
-                          );
-                        }
-                      },
-                      child: ChoiceChip(
-                        label: Text(cat),
-                        selected: _selectedCat == cat,
-                        onSelected: (_) => setState(
-                          () =>
-                              _selectedCat = (_selectedCat == cat) ? null : cat,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: _layout(
+                  items,
+                  showAdTile: showAdTile, // ← 照舊丟進去
+                ),
+              ),
+            ],
           ),
-          Expanded(child: _layout(items)),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addCardFlow,
-        icon: const Icon(Icons.add),
-        label: Text(l.addCard),
-      ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: _addCardFlow,
+            icon: const Icon(Icons.add),
+            label: Text(l.addCard),
+          ),
+        );
+      },
     );
   }
 
@@ -146,40 +219,64 @@ class _CardsViewState extends State<CardsView> {
   }
 
   // ====== 排版（1/2/多張）======
-  Widget _layout(List<CardItem> items) {
+  Widget _layout(List<CardItem> items, {required bool showAdTile}) {
     final l = context.l10n;
-    final n = items.length;
-    if (n == 0) return Center(child: Text(l.noCards));
+
+    // 把卡片 + 廣告組成一個統一的列表
+    final tiles = <_TileEntry>[
+      for (final c in items) _TileEntry.card(c),
+      if (showAdTile) const _TileEntry.ad(),
+    ];
+
+    final n = tiles.length;
+    if (n == 0) {
+      return Center(child: Text(l.noCards));
+    }
+
     if (n == 1) {
+      final t = tiles[0];
       return Center(
-        child: SizedBox(width: 350, height: 500, child: _buildTile(items[0])),
+        child: SizedBox(
+          width: 350,
+          height: 500,
+          child: t.isAd ? _buildAdTile() : _buildTile(t.card!),
+        ),
       );
     }
+
     if (n == 2) {
       return Column(
         children: [
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(6),
-              child: _buildTile(items[0]),
+              child: tiles[0].isAd
+                  ? _buildAdTile()
+                  : _buildTile(tiles[0].card!),
             ),
           ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(6),
-              child: _buildTile(items[1]),
+              child: tiles[1].isAd
+                  ? _buildAdTile()
+                  : _buildTile(tiles[1].card!),
             ),
           ),
         ],
       );
     }
+
+    // 3 個以上 → 兩欄 Grid，最後一格可能是廣告
     return GridView.count(
       padding: const EdgeInsets.all(6),
       crossAxisCount: 2,
       crossAxisSpacing: 0,
       mainAxisSpacing: 0,
       childAspectRatio: 3 / 2.5,
-      children: [for (final it in items) _buildTile(it)],
+      children: [
+        for (final t in tiles) t.isAd ? _buildAdTile() : _buildTile(t.card!),
+      ],
     );
   }
 
@@ -381,6 +478,68 @@ class _CardsViewState extends State<CardsView> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAdTile() {
+    final cs = Theme.of(context).colorScheme;
+    final ad = _ad;
+
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_tileRadius),
+        child: Material(
+          color: cs.surface,
+          child: InkWell(
+            onTap: ad?.onTap, // 點擊打開廣告連結（如果有）
+            child: Stack(
+              children: [
+                // 背景圖片（廣告圖）
+                Positioned.fill(
+                  child: ad == null
+                      ? Container(
+                          color: cs.surfaceVariant,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'AD',
+                            style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : Image(image: ad.banner, fit: BoxFit.cover),
+                ),
+
+                // 右上角小 "AD" 標籤
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.55),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Text(
+                      'AD',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

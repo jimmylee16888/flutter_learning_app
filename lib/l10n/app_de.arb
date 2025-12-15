@@ -698,5 +698,37 @@
   "socialNewConversation": "Neues Gespräch",
   "socialMembersHint": "Mitglieder hinzufügen…",
   "socialConversationNameOptional": "Gesprächsname (optional)",
-  "socialMessagesTitle": "Nachrichten"
+  "socialMessagesTitle": "Nachrichten",
+
+  "syncMenuTitle": "Synchronisieren & Herunterladen",
+  "syncMenuSubtitle": "Sichere deine Karten- und Albendaten in der Cloud oder lade sie auf dieses Gerät herunter.",
+
+  "syncPageTitle": "Synchronisieren & Herunterladen",
+  "syncPageDesc": "Du kannst die Karten und Alben dieses Geräts manuell als Cloud-Datei hochladen oder aus der Cloud herunterladen, um die lokalen Daten zu überschreiben. Wir empfehlen, vor einem Gerätewechsel oder einer Neuinstallation hochzuladen.",
+
+  "syncUploadButton": "In die Cloud hochladen",
+  "syncDownloadButton": "Aus der Cloud herunterladen",
+  "syncCopyButton": "Dateiinhalt kopieren",
+  "syncRefreshPreview": "Vorschau neu laden",
+
+  "syncPreviewTitle": "Cloud-Datenvorschau",
+  "syncPreviewSubtitle": "Dies ist der Inhalt der aktuell in der Cloud gespeicherten Library-Datei (JSON).",
+  "syncPreviewEmptyHint": "Noch keine Cloud-Datei vorhanden. Bitte zuerst „In die Cloud hochladen“.",
+  "syncNoRemoteData": "Keine Cloud-Library-Datei gefunden. Bitte zuerst von diesem Gerät hochladen.",
+
+  "syncUploadSuccess": "Hochladen und Synchronisieren abgeschlossen.",
+  "syncUploadFailed": "Upload fehlgeschlagen: {error}",
+  "syncDownloadSuccess": "Aus der Cloud heruntergeladen und lokal angewendet.",
+  "syncDownloadFailedGeneric": "Download oder Anwenden aus der Cloud fehlgeschlagen. Bitte später erneut versuchen.",
+
+  "syncCopyNoData": "Kein Inhalt zum Kopieren. Bitte zuerst die Cloud-Datei laden.",
+  "syncCopySuccess": "Cloud-Dateiinhalt in die Zwischenablage kopiert.",
+
+  "syncPaidOnlyHint": "Cloud-Synchronisation und Download sind nur für kostenpflichtige Pläne verfügbar. Nach dem Abonnement kannst du die vollständige Library-Datei sichern, herunterladen und kopieren.",
+  "syncNeedSubTitle": "Abonnement erforderlich",
+  "syncNeedSubBody": "Cloud-Synchronisation und Download sind nur für kostenpflichtige Pläne verfügbar. Bitte gehe zur Abonnementseite und wähle Basic / Plus / Pro aus.",
+  "syncGoToSubscription": "Zum Abonnement",
+
+  "dialogCancel": "Abbrechen"
+
 }

@@ -1539,4 +1539,81 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get socialMessagesTitle => '메시지';
+
+  @override
+  String get syncMenuTitle => '동기화 및 다운로드';
+
+  @override
+  String get syncMenuSubtitle =>
+      '카드와 앨범 데이터를 클라우드에 백업하거나, 클라우드에서 이 기기로 다운로드할 수 있습니다.';
+
+  @override
+  String get syncPageTitle => '동기화 및 다운로드';
+
+  @override
+  String get syncPageDesc =>
+      '이 기기에 있는 카드와 앨범 데이터를 클라우드 파일로 업로드하거나, 클라우드에서 다운로드해 로컬 데이터를 덮어쓸 수 있습니다. 기기 변경이나 앱 재설치 전에 업로드하는 것을 권장합니다.';
+
+  @override
+  String get syncUploadButton => '클라우드에 업로드';
+
+  @override
+  String get syncDownloadButton => '클라우드에서 다운로드';
+
+  @override
+  String get syncCopyButton => '파일 내용 복사';
+
+  @override
+  String get syncRefreshPreview => '미리보기 새로 고침';
+
+  @override
+  String get syncPreviewTitle => '클라우드 데이터 미리보기';
+
+  @override
+  String get syncPreviewSubtitle => '현재 클라우드에 저장된 library 파일 내용(JSON)입니다.';
+
+  @override
+  String get syncPreviewEmptyHint => '클라우드 파일이 없습니다. 먼저 \"클라우드에 업로드\"를 눌러 주세요.';
+
+  @override
+  String get syncNoRemoteData =>
+      '클라우드 library 파일을 찾을 수 없습니다. 먼저 이 기기에서 업로드하세요.';
+
+  @override
+  String get syncUploadSuccess => '업로드 및 동기화 완료.';
+
+  @override
+  String syncUploadFailed(Object error) {
+    return '업로드 실패: $error';
+  }
+
+  @override
+  String get syncDownloadSuccess => '클라우드에서 다운로드하여 로컬에 적용했습니다.';
+
+  @override
+  String get syncDownloadFailedGeneric =>
+      '클라우드에서 다운로드 또는 적용에 실패했습니다. 잠시 후 다시 시도하세요.';
+
+  @override
+  String get syncCopyNoData => '복사할 데이터가 없습니다. 먼저 클라우드 파일을 불러오세요.';
+
+  @override
+  String get syncCopySuccess => '클라우드 파일 내용을 클립보드에 복사했습니다.';
+
+  @override
+  String get syncPaidOnlyHint =>
+      '클라우드 동기화 및 다운로드는 유료 플랜에서만 사용할 수 있습니다. 구독 후 전체 library 파일을 백업, 다운로드 및 복사할 수 있습니다.';
+
+  @override
+  String get syncNeedSubTitle => '구독 필요';
+
+  @override
+  String get syncNeedSubBody =>
+      '클라우드 동기화 및 다운로드는 유료 플랜에서만 가능합니다. 구독 페이지에서 Basic / Plus / Pro 플랜을 선택한 뒤 다시 시도하세요.';
+
+  @override
+  String get syncGoToSubscription => '구독 페이지로 이동';
+
+  @override
+  String get dialogCancel => '취소';
 }

@@ -721,5 +721,37 @@
   "socialNewConversation": "New Conversation",
   "socialMembersHint": "Add members…",
   "socialConversationNameOptional": "Conversation name (optional)",
-  "socialMessagesTitle": "Messages"
+  "socialMessagesTitle": "Messages",
+
+  "syncMenuTitle": "Sync & Download",
+  "syncMenuSubtitle": "Back up your cards and albums to the cloud, or download them back to this device.",
+
+  "syncPageTitle": "Sync & Download",
+  "syncPageDesc": "You can manually upload the cards and albums on this device as a cloud file, or download it from the cloud to overwrite local data. We recommend uploading before changing devices or reinstalling the app.",
+
+  "syncUploadButton": "Upload to Cloud",
+  "syncDownloadButton": "Download from Cloud",
+  "syncCopyButton": "Copy File Content",
+  "syncRefreshPreview": "Reload Preview",
+
+  "syncPreviewTitle": "Cloud Data Preview",
+  "syncPreviewSubtitle": "Below is the content of the library file currently stored in the cloud (JSON).",
+  "syncPreviewEmptyHint": "No cloud file found. Try uploading first.",
+  "syncNoRemoteData": "No cloud library file found. Please upload from this device first.",
+
+  "syncUploadSuccess": "Upload and sync completed.",
+  "syncUploadFailed": "Upload failed: {error}",
+  "syncDownloadSuccess": "Downloaded from cloud and applied to local data.",
+  "syncDownloadFailedGeneric": "Failed to download or apply from the cloud. Please try again later.",
+
+  "syncCopyNoData": "No data to copy. Please load the cloud file first.",
+  "syncCopySuccess": "Cloud file content copied to clipboard.",
+
+  "syncPaidOnlyHint": "Cloud sync and download are available only for paid plans. After subscribing, you can back up, download, and copy the full library file.",
+  "syncNeedSubTitle": "Subscription Required",
+  "syncNeedSubBody": "Cloud sync and download are only available for paid plans. Please go to the subscription page and select Basic / Plus / Pro before trying again.",
+  "syncGoToSubscription": "Go to Subscription",
+
+  "dialogCancel": "Cancel"
+
 }
