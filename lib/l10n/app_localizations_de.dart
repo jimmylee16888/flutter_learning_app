@@ -1692,4 +1692,120 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dialogCancel => 'Abbrechen';
+
+  @override
+  String get notice => 'Benachrichtigungen';
+
+  @override
+  String get logout => 'Abmelden';
+
+  @override
+  String get socialTabFriends => 'Freunde';
+
+  @override
+  String get socialTabHot => 'Beliebt';
+
+  @override
+  String get socialTabFollowing => 'Folge ich';
+
+  @override
+  String get socialEmptyFriends => 'Noch keine Beiträge von Freunden';
+
+  @override
+  String get socialEmptyHot => 'Noch keine beliebten Beiträge';
+
+  @override
+  String get socialEmptyFollowing => 'Noch keine Beiträge für gefolgte Tags';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return 'Laden fehlgeschlagen:\\n$error';
+  }
+
+  @override
+  String get socialPostAction => 'Posten';
+
+  @override
+  String get socialAddImage => 'Bild hinzufügen';
+
+  @override
+  String get socialRemoveImage => 'Bild entfernen';
+
+  @override
+  String get socialComposerTextLabel => 'Text';
+
+  @override
+  String get socialComposerTagsLabel => 'Tags';
+
+  @override
+  String get socialComposerTagsHint => 'z.B. #ive #aespa';
+
+  @override
+  String get socialCommentHint => 'Kommentieren…';
+
+  @override
+  String get socialNoComments => 'Noch keine Kommentare';
+
+  @override
+  String get socialShowComments => 'Kommentare anzeigen';
+
+  @override
+  String get socialHideComments => 'Kommentare ausblenden';
+
+  @override
+  String get socialDelete => 'Löschen';
+
+  @override
+  String get socialDeletePostTitle => 'Beitrag löschen';
+
+  @override
+  String get socialDeletePostMessage =>
+      'Diesen Beitrag löschen? Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get socialDeleteFailed => 'Löschen fehlgeschlagen';
+
+  @override
+  String get socialPostDeleted => 'Beitrag gelöscht';
+
+  @override
+  String get socialLikeFailed => 'Gefällt mir fehlgeschlagen';
+
+  @override
+  String get socialTagAll => 'Alle';
+
+  @override
+  String get socialTagControllerNotFound =>
+      'TagFollowController nicht gefunden';
+
+  @override
+  String get socialUnfollowTagTitle => 'Tag nicht mehr folgen';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return '$tag nicht mehr folgen?';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return '$tag gefolgt';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return '$tag nicht mehr gefolgt';
+  }
+
+  @override
+  String get socialTimeNow => 'jetzt';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '$m Min.';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '$h Std.';
+  }
 }

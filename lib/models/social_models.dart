@@ -51,7 +51,7 @@ class SocialUser {
 
   factory SocialUser.fromJson(Map<String, dynamic> j) => SocialUser(
     id: (j['id'] ?? '').toString(),
-    name: (j['name'] ?? '').toString(),
+    name: (j['name'] ?? j['nickname'] ?? j['displayName'] ?? '').toString(),
     avatarAsset: j['avatarAsset'] as String?,
     avatarUrl: j['avatarUrl'] as String?,
     email: j['email'] as String?,

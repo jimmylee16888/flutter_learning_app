@@ -1603,6 +1603,120 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get dialogCancel => '取消';
+
+  @override
+  String get notice => '通知';
+
+  @override
+  String get logout => '登出';
+
+  @override
+  String get socialTabFriends => '好友';
+
+  @override
+  String get socialTabHot => '熱門';
+
+  @override
+  String get socialTabFollowing => '追蹤';
+
+  @override
+  String get socialEmptyFriends => '目前沒有好友貼文';
+
+  @override
+  String get socialEmptyHot => '目前沒有熱門貼文';
+
+  @override
+  String get socialEmptyFollowing => '目前沒有追蹤標籤的貼文';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return '載入失敗：\\n$error';
+  }
+
+  @override
+  String get socialPostAction => '發佈';
+
+  @override
+  String get socialAddImage => '新增圖片';
+
+  @override
+  String get socialRemoveImage => '移除圖片';
+
+  @override
+  String get socialComposerTextLabel => '內容';
+
+  @override
+  String get socialComposerTagsLabel => '標籤';
+
+  @override
+  String get socialComposerTagsHint => '例：#ive #aespa';
+
+  @override
+  String get socialCommentHint => '留言…';
+
+  @override
+  String get socialNoComments => '還沒有留言';
+
+  @override
+  String get socialShowComments => '顯示留言';
+
+  @override
+  String get socialHideComments => '隱藏留言';
+
+  @override
+  String get socialDelete => '刪除';
+
+  @override
+  String get socialDeletePostTitle => '刪除貼文';
+
+  @override
+  String get socialDeletePostMessage => '確定要刪除這則貼文嗎？刪除後無法復原。';
+
+  @override
+  String get socialDeleteFailed => '刪除失敗';
+
+  @override
+  String get socialPostDeleted => '已刪除貼文';
+
+  @override
+  String get socialLikeFailed => '按讚失敗';
+
+  @override
+  String get socialTagAll => '全部';
+
+  @override
+  String get socialTagControllerNotFound => '找不到 TagFollowController';
+
+  @override
+  String get socialUnfollowTagTitle => '取消追蹤標籤';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return '確定要取消追蹤 $tag 嗎？';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return '已追蹤 $tag';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return '已取消追蹤 $tag';
+  }
+
+  @override
+  String get socialTimeNow => '剛剛';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '$m 分鐘';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '$h 小時';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -3205,4 +3319,118 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get dialogCancel => '取消';
+
+  @override
+  String get notice => '通知';
+
+  @override
+  String get logout => '登出';
+
+  @override
+  String get socialTabFriends => '好友';
+
+  @override
+  String get socialTabHot => '熱門';
+
+  @override
+  String get socialTabFollowing => '追蹤';
+
+  @override
+  String get socialEmptyFriends => '目前沒有好友貼文';
+
+  @override
+  String get socialEmptyHot => '目前沒有熱門貼文';
+
+  @override
+  String get socialEmptyFollowing => '目前沒有追蹤標籤的貼文';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return '載入失敗：\\n$error';
+  }
+
+  @override
+  String get socialPostAction => '發佈';
+
+  @override
+  String get socialAddImage => '新增圖片';
+
+  @override
+  String get socialRemoveImage => '移除圖片';
+
+  @override
+  String get socialComposerTextLabel => '內容';
+
+  @override
+  String get socialComposerTagsLabel => '標籤';
+
+  @override
+  String get socialComposerTagsHint => '例：#ive #aespa';
+
+  @override
+  String get socialCommentHint => '留言…';
+
+  @override
+  String get socialNoComments => '還沒有留言';
+
+  @override
+  String get socialShowComments => '顯示留言';
+
+  @override
+  String get socialHideComments => '隱藏留言';
+
+  @override
+  String get socialDelete => '刪除';
+
+  @override
+  String get socialDeletePostTitle => '刪除貼文';
+
+  @override
+  String get socialDeletePostMessage => '確定要刪除這則貼文嗎？刪除後無法復原。';
+
+  @override
+  String get socialDeleteFailed => '刪除失敗';
+
+  @override
+  String get socialPostDeleted => '已刪除貼文';
+
+  @override
+  String get socialLikeFailed => '按讚失敗';
+
+  @override
+  String get socialTagAll => '全部';
+
+  @override
+  String get socialTagControllerNotFound => '找不到 TagFollowController';
+
+  @override
+  String get socialUnfollowTagTitle => '取消追蹤標籤';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return '確定要取消追蹤 $tag 嗎？';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return '已追蹤 $tag';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return '已取消追蹤 $tag';
+  }
+
+  @override
+  String get socialTimeNow => '剛剛';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '$m 分鐘';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '$h 小時';
+  }
 }

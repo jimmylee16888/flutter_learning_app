@@ -1616,4 +1616,118 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dialogCancel => '취소';
+
+  @override
+  String get notice => '알림';
+
+  @override
+  String get logout => '로그아웃';
+
+  @override
+  String get socialTabFriends => '친구';
+
+  @override
+  String get socialTabHot => '인기';
+
+  @override
+  String get socialTabFollowing => '팔로잉';
+
+  @override
+  String get socialEmptyFriends => '친구 게시물이 없습니다';
+
+  @override
+  String get socialEmptyHot => '인기 게시물이 없습니다';
+
+  @override
+  String get socialEmptyFollowing => '팔로우한 태그의 게시물이 없습니다';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return '불러오기 실패:\\n$error';
+  }
+
+  @override
+  String get socialPostAction => '게시';
+
+  @override
+  String get socialAddImage => '이미지 추가';
+
+  @override
+  String get socialRemoveImage => '이미지 제거';
+
+  @override
+  String get socialComposerTextLabel => '내용';
+
+  @override
+  String get socialComposerTagsLabel => '태그';
+
+  @override
+  String get socialComposerTagsHint => '예: #ive #aespa';
+
+  @override
+  String get socialCommentHint => '댓글…';
+
+  @override
+  String get socialNoComments => '댓글이 없습니다';
+
+  @override
+  String get socialShowComments => '댓글 보기';
+
+  @override
+  String get socialHideComments => '댓글 숨기기';
+
+  @override
+  String get socialDelete => '삭제';
+
+  @override
+  String get socialDeletePostTitle => '게시물 삭제';
+
+  @override
+  String get socialDeletePostMessage => '이 게시물을 삭제할까요? 복구할 수 없습니다.';
+
+  @override
+  String get socialDeleteFailed => '삭제 실패';
+
+  @override
+  String get socialPostDeleted => '게시물이 삭제되었습니다';
+
+  @override
+  String get socialLikeFailed => '좋아요 실패';
+
+  @override
+  String get socialTagAll => '전체';
+
+  @override
+  String get socialTagControllerNotFound => 'TagFollowController 를 찾을 수 없습니다';
+
+  @override
+  String get socialUnfollowTagTitle => '태그 언팔로우';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return '$tag 를 언팔로우할까요?';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return '$tag 를 팔로우했습니다';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return '$tag 를 언팔로우했습니다';
+  }
+
+  @override
+  String get socialTimeNow => '방금';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '$m분';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '$h시간';
+  }
 }

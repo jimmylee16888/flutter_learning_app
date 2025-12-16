@@ -3110,6 +3110,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get dialogCancel;
+
+  /// No description provided for @notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notice;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logout;
+
+  /// No description provided for @socialTabFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get socialTabFriends;
+
+  /// No description provided for @socialTabHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get socialTabHot;
+
+  /// No description provided for @socialTabFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get socialTabFollowing;
+
+  /// No description provided for @socialEmptyFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts from friends yet'**
+  String get socialEmptyFriends;
+
+  /// No description provided for @socialEmptyHot.
+  ///
+  /// In en, this message translates to:
+  /// **'No hot posts yet'**
+  String get socialEmptyHot;
+
+  /// No description provided for @socialEmptyFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts for followed tags yet'**
+  String get socialEmptyFollowing;
+
+  /// No description provided for @socialLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load:\\n{error}'**
+  String socialLoadFailed(Object error);
+
+  /// No description provided for @socialPostAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get socialPostAction;
+
+  /// No description provided for @socialAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add image'**
+  String get socialAddImage;
+
+  /// No description provided for @socialRemoveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove image'**
+  String get socialRemoveImage;
+
+  /// No description provided for @socialComposerTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get socialComposerTextLabel;
+
+  /// No description provided for @socialComposerTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get socialComposerTagsLabel;
+
+  /// No description provided for @socialComposerTagsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. #ive #aespa'**
+  String get socialComposerTagsHint;
+
+  /// No description provided for @socialCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment…'**
+  String get socialCommentHint;
+
+  /// No description provided for @socialNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get socialNoComments;
+
+  /// No description provided for @socialShowComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Show comments'**
+  String get socialShowComments;
+
+  /// No description provided for @socialHideComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide comments'**
+  String get socialHideComments;
+
+  /// No description provided for @socialDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get socialDelete;
+
+  /// No description provided for @socialDeletePostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete post'**
+  String get socialDeletePostTitle;
+
+  /// No description provided for @socialDeletePostMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this post? This can’t be undone.'**
+  String get socialDeletePostMessage;
+
+  /// No description provided for @socialDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete failed'**
+  String get socialDeleteFailed;
+
+  /// No description provided for @socialPostDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Post deleted'**
+  String get socialPostDeleted;
+
+  /// No description provided for @socialLikeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Like failed'**
+  String get socialLikeFailed;
+
+  /// No description provided for @socialTagAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get socialTagAll;
+
+  /// No description provided for @socialTagControllerNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'TagFollowController not found'**
+  String get socialTagControllerNotFound;
+
+  /// No description provided for @socialUnfollowTagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow tag'**
+  String get socialUnfollowTagTitle;
+
+  /// No description provided for @socialUnfollowTagMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow {tag}?'**
+  String socialUnfollowTagMessage(Object tag);
+
+  /// No description provided for @socialTagFollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Followed {tag}'**
+  String socialTagFollowed(Object tag);
+
+  /// No description provided for @socialTagUnfollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollowed {tag}'**
+  String socialTagUnfollowed(Object tag);
+
+  /// No description provided for @socialTimeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get socialTimeNow;
+
+  /// No description provided for @socialTimeMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{m}m'**
+  String socialTimeMinutes(Object m);
+
+  /// No description provided for @socialTimeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{h}h'**
+  String socialTimeHours(Object h);
 }
 
 class _AppLocalizationsDelegate

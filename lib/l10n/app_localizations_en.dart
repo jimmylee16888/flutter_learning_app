@@ -1680,4 +1680,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dialogCancel => 'Cancel';
+
+  @override
+  String get notice => 'Notifications';
+
+  @override
+  String get logout => 'Log out';
+
+  @override
+  String get socialTabFriends => 'Friends';
+
+  @override
+  String get socialTabHot => 'Hot';
+
+  @override
+  String get socialTabFollowing => 'Following';
+
+  @override
+  String get socialEmptyFriends => 'No posts from friends yet';
+
+  @override
+  String get socialEmptyHot => 'No hot posts yet';
+
+  @override
+  String get socialEmptyFollowing => 'No posts for followed tags yet';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return 'Failed to load:\\n$error';
+  }
+
+  @override
+  String get socialPostAction => 'Post';
+
+  @override
+  String get socialAddImage => 'Add image';
+
+  @override
+  String get socialRemoveImage => 'Remove image';
+
+  @override
+  String get socialComposerTextLabel => 'Text';
+
+  @override
+  String get socialComposerTagsLabel => 'Tags';
+
+  @override
+  String get socialComposerTagsHint => 'e.g. #ive #aespa';
+
+  @override
+  String get socialCommentHint => 'Comment…';
+
+  @override
+  String get socialNoComments => 'No comments yet';
+
+  @override
+  String get socialShowComments => 'Show comments';
+
+  @override
+  String get socialHideComments => 'Hide comments';
+
+  @override
+  String get socialDelete => 'Delete';
+
+  @override
+  String get socialDeletePostTitle => 'Delete post';
+
+  @override
+  String get socialDeletePostMessage =>
+      'Delete this post? This can’t be undone.';
+
+  @override
+  String get socialDeleteFailed => 'Delete failed';
+
+  @override
+  String get socialPostDeleted => 'Post deleted';
+
+  @override
+  String get socialLikeFailed => 'Like failed';
+
+  @override
+  String get socialTagAll => 'All';
+
+  @override
+  String get socialTagControllerNotFound => 'TagFollowController not found';
+
+  @override
+  String get socialUnfollowTagTitle => 'Unfollow tag';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return 'Unfollow $tag?';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return 'Followed $tag';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return 'Unfollowed $tag';
+  }
+
+  @override
+  String get socialTimeNow => 'now';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '${m}m';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '${h}h';
+  }
 }

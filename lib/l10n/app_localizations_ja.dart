@@ -1616,4 +1616,118 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get dialogCancel => 'キャンセル';
+
+  @override
+  String get notice => '通知';
+
+  @override
+  String get logout => 'ログアウト';
+
+  @override
+  String get socialTabFriends => '友達';
+
+  @override
+  String get socialTabHot => '人気';
+
+  @override
+  String get socialTabFollowing => 'フォロー中';
+
+  @override
+  String get socialEmptyFriends => '友達の投稿はまだありません';
+
+  @override
+  String get socialEmptyHot => '人気の投稿はまだありません';
+
+  @override
+  String get socialEmptyFollowing => 'フォローしたタグの投稿はまだありません';
+
+  @override
+  String socialLoadFailed(Object error) {
+    return '読み込みに失敗しました：\\n$error';
+  }
+
+  @override
+  String get socialPostAction => '投稿';
+
+  @override
+  String get socialAddImage => '画像を追加';
+
+  @override
+  String get socialRemoveImage => '画像を削除';
+
+  @override
+  String get socialComposerTextLabel => '本文';
+
+  @override
+  String get socialComposerTagsLabel => 'タグ';
+
+  @override
+  String get socialComposerTagsHint => '例：#ive #aespa';
+
+  @override
+  String get socialCommentHint => 'コメント…';
+
+  @override
+  String get socialNoComments => 'コメントはまだありません';
+
+  @override
+  String get socialShowComments => 'コメントを表示';
+
+  @override
+  String get socialHideComments => 'コメントを非表示';
+
+  @override
+  String get socialDelete => '削除';
+
+  @override
+  String get socialDeletePostTitle => '投稿を削除';
+
+  @override
+  String get socialDeletePostMessage => 'この投稿を削除しますか？元に戻せません。';
+
+  @override
+  String get socialDeleteFailed => '削除に失敗しました';
+
+  @override
+  String get socialPostDeleted => '投稿を削除しました';
+
+  @override
+  String get socialLikeFailed => 'いいねに失敗しました';
+
+  @override
+  String get socialTagAll => 'すべて';
+
+  @override
+  String get socialTagControllerNotFound => 'TagFollowController が見つかりません';
+
+  @override
+  String get socialUnfollowTagTitle => 'タグのフォロー解除';
+
+  @override
+  String socialUnfollowTagMessage(Object tag) {
+    return '$tag のフォローを解除しますか？';
+  }
+
+  @override
+  String socialTagFollowed(Object tag) {
+    return '$tag をフォローしました';
+  }
+
+  @override
+  String socialTagUnfollowed(Object tag) {
+    return '$tag のフォローを解除しました';
+  }
+
+  @override
+  String get socialTimeNow => 'たった今';
+
+  @override
+  String socialTimeMinutes(Object m) {
+    return '$m分';
+  }
+
+  @override
+  String socialTimeHours(Object h) {
+    return '$h時間';
+  }
 }
