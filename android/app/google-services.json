@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "766149685714-0bc34lhdluc2f48qqd0pcrb9bb4t0l6g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.popcard.app",
+            "certificate_hash": "0ca7211977878493bf5b7f88467a9a4dccc70edf"
+          }
+        },
+        {
           "client_id": "766149685714-3ch2chsa8qum2fhi7i39l5dvf1osca0d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

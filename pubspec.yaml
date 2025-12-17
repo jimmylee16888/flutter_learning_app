@@ -27,7 +27,7 @@ dependencies:
   share_plus: ^10.0.0
 
   # 相簿圖片解析 QR 用 ML Kit
-  google_mlkit_barcode_scanning: ^0.11.0
+  google_mlkit_barcode_scanning: ^0.14.1
   image: ^4.5.4        # ← 原本 4.2.0，升到 4.5.4 才會一起用 archive 4.x
   zxing2: ^0.2.2       # 純 Dart ZXing QR 解碼
   archive: ^4.0.7      # ← 原本 3.6.1，升到 4.x（跟 image 對上）
